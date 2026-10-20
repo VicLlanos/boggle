@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#6C5CE7">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Boggle Duo">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Boggle Duo</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -147,6 +154,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <input type="text" id="joinCode" placeholder="CODE" maxlength="4" style="text-transform:uppercase;letter-spacing:8px;text-align:center;font-size:1.4rem;font-family:'Fredoka',sans-serif;font-weight:700">
     <button class="btn btn-mint" id="btnJoin">JOIN ROOM</button>
   </div>
+  <button class="btn btn-primary" id="btnInstall" style="display:none">📲 Install on phone</button>
   <button class="btn btn-ghost" id="btnLogout">Log out</button>
 </section>
 
@@ -250,6 +258,53 @@ function showResults(){clearInterval(timerInterval);show('screen-results');const
 $('btnBackLobby').onclick=leaveRoom;
 $('btnPlayAgain').onclick=async()=>{if(isHost){const board=scrambleBoard();const endsAt=Date.now()+ROUND_SECONDS*1000;const updates={status:'playing',board,endsAt,startedAt:Date.now()};Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});roundEnded=false;localWords=new Set();await db.ref('rooms/'+roomId).update(updates)}else{toast('Waiting for host…');roundEnded=false;localWords=new Set();show('screen-room')}};
 document.body.addEventListener('touchmove',e=>{if(selecting)e.preventDefault()},{passive:false});
+
+/* ========== PWA install ========== */
+let deferredPrompt = null;
+const btnInstall = $('btnInstall');
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (btnInstall) btnInstall.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  if (btnInstall) btnInstall.style.display = 'none';
+  toast('Installed! Open it from your home screen 🎉');
+});
+if (btnInstall) {
+  btnInstall.onclick = async () => {
+    if (!deferredPrompt) {
+      // iOS / already installed / browser without prompt
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      if (isIOS) {
+        toast('On iPhone: Share → Add to Home Screen');
+      } else if (window.matchMedia('(display-mode: standalone)').matches) {
+        toast('Already installed!');
+      } else {
+        toast('Use your browser menu → Install app');
+      }
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    btnInstall.style.display = 'none';
+    if (outcome === 'accepted') toast('Installing…');
+  };
+}
+// Show install tip on iOS even without beforeinstallprompt
+(function(){
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isIOS && !standalone && btnInstall) btnInstall.style.display = 'flex';
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW register failed', err));
+  });
+}
 </script>
 </body>
 </html>
