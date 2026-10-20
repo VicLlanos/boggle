@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Boggle Duo">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest">
+<!-- Updated manifest name -->
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -17,7 +18,7 @@
 <style>
 :root{--violet:#6C5CE7;--violet-d:#4834D4;--pink:#FD79A8;--coral:#FF7675;--mint:#00B894;--mint-l:#55EFC4;--gold:#FDCB6E;--ink:#2D3436;--card:#fff;--tile:#FFF9F0;--shadow:0 10px 30px rgba(45,52,54,.18);--r:18px;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#A29BFE 0%,#6C5CE7 45%,#4834D4 100%);background-attachment:fixed;overflow-x:hidden}
+html,body{height:100%;font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#A29BFE 0%,#6C5CE7 45%,#4834D4 100%);background-attachment:fixed;overflow-x:hidden;overscroll-behavior-y:none}
 body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:max(12px,var(--safe-t)) 12px max(16px,var(--safe-b))}
 .blob{position:fixed;border-radius:50%;filter:blur(40px);opacity:.45;pointer-events:none;z-index:0;animation:blobFloat 12s ease-in-out infinite}
 .blob.b1{width:180px;height:180px;background:var(--pink);top:-40px;left:-40px}
@@ -259,50 +260,59 @@ $('btnBackLobby').onclick=leaveRoom;
 $('btnPlayAgain').onclick=async()=>{if(isHost){const board=scrambleBoard();const endsAt=Date.now()+ROUND_SECONDS*1000;const updates={status:'playing',board,endsAt,startedAt:Date.now()};Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});roundEnded=false;localWords=new Set();await db.ref('rooms/'+roomId).update(updates)}else{toast('Waiting for host…');roundEnded=false;localWords=new Set();show('screen-room')}};
 document.body.addEventListener('touchmove',e=>{if(selecting)e.preventDefault()},{passive:false});
 
-/* ========== PWA install ========== */
+/* ========== PWA & INSTALL LOGIC ========== */
 let deferredPrompt = null;
 const btnInstall = $('btnInstall');
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+// Handle Android/Desktop install prompt
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
-  if (btnInstall) btnInstall.style.display = 'flex';
+  if (btnInstall && !isStandalone) btnInstall.style.display = 'flex';
 });
+
+// Handle successful install
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
   if (btnInstall) btnInstall.style.display = 'none';
   toast('Installed! Open it from your home screen 🎉');
 });
+
+// Handle button click
 if (btnInstall) {
   btnInstall.onclick = async () => {
-    if (!deferredPrompt) {
-      // iOS / already installed / browser without prompt
-      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-      if (isIOS) {
-        toast('On iPhone: Share → Add to Home Screen');
-      } else if (window.matchMedia('(display-mode: standalone)').matches) {
-        toast('Already installed!');
-      } else {
-        toast('Use your browser menu → Install app');
-      }
+    if (isIOS) {
+      toast('On iPhone: Tap Share → Add to Home Screen');
       return;
     }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    btnInstall.style.display = 'none';
-    if (outcome === 'accepted') toast('Installing…');
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      btnInstall.style.display = 'none';
+      if (outcome === 'accepted') toast('Installing…');
+    } else {
+      toast('Use your browser menu → Install App');
+    }
   };
 }
-// Show install tip on iOS even without beforeinstallprompt
-(function(){
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if (isIOS && !standalone && btnInstall) btnInstall.style.display = 'flex';
-})();
 
+// Show install tip on iOS even without native prompt
+if (isIOS && !isStandalone && btnInstall) {
+  btnInstall.style.display = 'flex';
+}
+
+// Register Service Worker for offline support and PWA installability
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW register failed', err));
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => {
+        // Check for updates every time the app loads
+        reg.update();
+      })
+      .catch(err => console.warn('SW register failed', err));
   });
 }
 </script>
