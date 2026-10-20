@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Boggle Duo">
 <meta name="mobile-web-app-capable" content="yes">
-<!-- Updated manifest name -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -84,7 +83,27 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .word-bar{background:#fff;border-radius:14px;min-height:48px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.25rem;letter-spacing:2px;color:var(--violet-d);box-shadow:var(--shadow);padding:10px 14px}
 .word-bar.hint{color:#B2BEC3;font-size:.95rem;letter-spacing:0}
 .board-wrap{background:linear-gradient(160deg,#5B4CDB,#4834D4);border-radius:22px;padding:12px;box-shadow:0 8px 0 #2F1F9E,var(--shadow);touch-action:none;user-select:none;position:relative}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;aspect-ratio:1}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;aspect-ratio:1;perspective:1000px}
+
+/* --- NEW SHAKE ANIMATIONS --- */
+.board.shaking .tile {
+  animation: tileShake 0.6s infinite cubic-bezier(.36,.07,.19,.97) both;
+}
+.board.shaking .tile:nth-child(even) { animation-duration: 0.5s; animation-delay: 0.1s; }
+.board.shaking .tile:nth-child(3n) { animation-duration: 0.7s; animation-delay: 0.2s; }
+@keyframes tileShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(-6px, 6px) rotate(-15deg) scale(1.1); box-shadow: 0 10px 15px rgba(0,0,0,.3); }
+  50% { transform: translate(6px, -6px) rotate(15deg) scale(0.9); box-shadow: 0 2px 5px rgba(0,0,0,.2); }
+  75% { transform: translate(-4px, -4px) rotate(-5deg) scale(1.05); box-shadow: 0 6px 10px rgba(0,0,0,.25); }
+}
+.board.shaking { animation: boardBoxShake 0.4s infinite; }
+@keyframes boardBoxShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(3px, 3px) rotate(1deg); }
+  75% { transform: translate(-3px, -3px) rotate(-1deg); }
+}
+
 .tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(160deg,#fff,var(--tile));color:#2D3436;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(1.5rem,9vw,2.1rem);display:grid;place-items:center;box-shadow:0 4px 0 #D4C4A8,inset 0 2px 0 #fff;cursor:pointer;transition:transform .1s,background .12s,box-shadow .12s}
 .tile:active,.tile.down{transform:translateY(2px);box-shadow:0 1px 0 #D4C4A8}
 .tile.on{background:linear-gradient(160deg,#FFEAA7,var(--gold));box-shadow:0 4px 0 #E17055,0 0 16px rgba(253,203,110,.6);transform:scale(1.06);color:#6D4C00}
@@ -206,7 +225,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 const firebaseConfig={apiKey:"AIzaSyDQ297TWTIRzV_IUq_8buocCf9Xsi3iCGU",authDomain:"boggle-eb8a9.firebaseapp.com",databaseURL:"https://boggle-eb8a9-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"boggle-eb8a9",storageBucket:"boggle-eb8a9.firebasestorage.app",messagingSenderId:"1077661800224",appId:"1:1077661800224:web:aae382ce2afddaee3da945",measurementId:"G-B9970XTCQX"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.database();
-const MAX_PLAYERS=3,ROUND_SECONDS=180,MIN_LEN=3;
+const MAX_PLAYERS=3,ROUND_SECONDS=180,MIN_LEN=3,SHAKE_SECONDS=3;
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -244,77 +263,141 @@ function onRoom(snap){if(!snap.exists()){toast('Room closed');leaveRoom();return
 function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h}
 function leaveRoom(){if(roomId&&user){db.ref('rooms/'+roomId+'/players/'+user.uid).remove().catch(()=>{});if(isHost){db.ref('rooms/'+roomId).once('value').then(s=>{if(s.exists()&&s.val().status==='lobby')db.ref('rooms/'+roomId).remove().catch(()=>{})})}}if(roomId)db.ref('rooms/'+roomId).off();roomId=null;roomData=null;isHost=false;clearInterval(timerInterval);show('screen-lobby')}
 $('btnLeaveRoom').onclick=leaveRoom;
-$('btnStart').onclick=async()=>{if(!isHost||!roomData)return;const board=scrambleBoard();const endsAt=Date.now()+ROUND_SECONDS*1000;const updates={status:'playing',board,endsAt,startedAt:Date.now()};Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});await db.ref('rooms/'+roomId).update(updates)};
 
-function enterGame(){if($('screen-game').classList.contains('active')&&!roundEnded){renderScores();return}roundEnded=false;localWords=new Set();path=[];$('wordTags').innerHTML='';$('wordCount').textContent='0';$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint');renderBoard(roomData.board);renderScores();startTimer();show('screen-game');const b=$('board');b.classList.add('scrambling');setTimeout(()=>b.classList.remove('scrambling'),600)}
-function renderBoard(grid){const board=$('board');board.innerHTML='';if(!grid||grid.length!==16)return;for(let i=0;i<16;i++){const r=Math.floor(i/4),c=i%4;const t=document.createElement('div');t.className='tile';t.dataset.r=r;t.dataset.c=c;t.textContent=grid[i];board.appendChild(t)}bindTiles()}
-function renderScores(){const players=Object.values(roomData.players||{});$('scoreBoard').innerHTML=players.map(p=>`<div class="sc ${p.uid===user.uid?'me':''}"><div class="n">${p.name}${p.uid===user.uid?' · you':''}</div><div class="s">${p.score||0}</div></div>`).join('')}
-function startTimer(){clearInterval(timerInterval);const tick=()=>{if(!roomData||!roomData.endsAt)return;const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));$('timerText').textContent=left;$('timerRing').style.setProperty('--pct',(left/ROUND_SECONDS*100)+'%');$('timerRing').classList.toggle('low',left<=30&&left>0);if(left<=0&&!roundEnded)endRound()};tick();timerInterval=setInterval(tick,250)}
-function bindTiles(){const board=$('board');const tiles=[...board.querySelectorAll('.tile')];const at=(x,y)=>{for(const t of tiles){const r=t.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return t}return null};const start=(x,y)=>{if(roundEnded)return;const t=at(x,y);if(!t)return;selecting=true;path=[{r:+t.dataset.r,c:+t.dataset.c}];updatePath()};const move=(x,y)=>{if(!selecting||roundEnded)return;const t=at(x,y);if(!t)return;const r=+t.dataset.r,c=+t.dataset.c;const last=path[path.length-1];if(last.r===r&&last.c===c)return;if(path.length>=2){const prev=path[path.length-2];if(prev.r===r&&prev.c===c){path.pop();updatePath();return}}if(!neighbors(last.r,last.c).some(([nr,nc])=>nr===r&&nc===c))return;if(path.some(p=>p.r===r&&p.c===c))return;path.push({r,c});updatePath()};const end=()=>{if(!selecting)return;selecting=false;if(path.length>=MIN_LEN)submitPath();else{clearPath();path=[];$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint')}};board.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];start(t.clientX,t.clientY)};board.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY)};board.ontouchend=e=>{e.preventDefault();end()};board.onmousedown=e=>{e.preventDefault();start(e.clientX,e.clientY)};window.onmousemove=e=>{if(selecting)move(e.clientX,e.clientY)};window.onmouseup=()=>end()}
-function updatePath(){document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on','path'));path.forEach((p,i)=>{const t=document.querySelector(`.tile[data-r="${p.r}"][data-c="${p.c}"]`);if(t)t.classList.add(i===path.length-1?'on':'path')});const w=pathToWord(roomData.board,path);$('currentWord').textContent=w?w.toUpperCase():'…';$('currentWord').classList.toggle('hint',!w)}
-function clearPath(){document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on','path','ok','bad'))}
-async function submitPath(){const word=pathToWord(roomData.board,path);const tiles=path.map(p=>document.querySelector(`.tile[data-r="${p.r}"][data-c="${p.c}"]`));path=[];if(roundEnded||!roomData)return;const w=word.toLowerCase();if(w.length<MIN_LEN)return;profile.attempts=(profile.attempts||0)+1;if(localWords.has(w)){toast('Already found!');tiles.forEach(t=>t&&t.classList.add('bad'));setTimeout(clearPath,400);await saveProfile({attempts:profile.attempts});$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint');return}if(!isValidWord(w)){toast('Not a word');tiles.forEach(t=>t&&t.classList.add('bad'));setTimeout(clearPath,400);await saveProfile({attempts:profile.attempts});$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint');return}localWords.add(w);const pts=wordScore(w);profile.correct=(profile.correct||0)+1;profile.wordsFound=(profile.wordsFound||0)+1;profile.xp=(profile.xp||0)+pts*3+2;await saveProfile({attempts:profile.attempts,correct:profile.correct,wordsFound:profile.wordsFound,xp:profile.xp});const myRef=db.ref('rooms/'+roomId+'/players/'+user.uid);const me=(await myRef.once('value')).val()||{};const words=me.words||{};words[w]=pts;const score=Object.values(words).reduce((a,b)=>a+b,0);await myRef.update({words,score});tiles.forEach(t=>t&&t.classList.add('ok'));setTimeout(clearPath,400);const tag=document.createElement('span');tag.className='tag';tag.textContent=w.toUpperCase()+' +'+pts;$('wordTags').prepend(tag);$('wordCount').textContent=localWords.size;$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint');const fs=document.createElement('div');fs.className='float-pts';fs.textContent='+'+pts;$('boardWrap').appendChild(fs);setTimeout(()=>fs.remove(),1000);toast(w.toUpperCase()+' · +'+pts)}
-async function endRound(){if(roundEnded)return;roundEnded=true;clearInterval(timerInterval);selecting=false;clearPath();if(isHost&&roomData)await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()});setTimeout(showResults,350)}
-function showResults(){clearInterval(timerInterval);show('screen-results');const players=Object.values((roomData&&roomData.players)||{});players.sort((a,b)=>(b.score||0)-(a.score||0));$('resultsGrid').innerHTML=players.map((p,i)=>`<div class="res-row ${i===0?'win':''}"><div class="rk">${i===0?'👑':(i+1)}</div><div class="info"><div class="n">${p.avatar||''} ${p.name}${p.uid===user.uid?' (you)':''}</div><div class="d">${Object.keys(p.words||{}).length} words</div></div><div class="pts">${p.score||0}</div></div>`).join('');const me=players.find(p=>p.uid===user.uid);if(me){const won=players[0]&&players[0].uid===user.uid&&players.length>1;if(won)profile.streak=(profile.streak||0)+1;else if(players.length>1)profile.streak=0;if((me.score||0)>(profile.bestScore||0))profile.bestScore=me.score;profile.xp=(profile.xp||0)+10+(won?25:0);saveProfile({streak:profile.streak,bestScore:profile.bestScore,xp:profile.xp})}const lv=levelFromXp(profile.xp||0);$('resLvl').textContent=lv.level;$('resXpText').textContent=lv.into+'/'+lv.need;$('resXpFill').style.width=Math.min(100,lv.into/lv.need*100)+'%'}
-$('btnBackLobby').onclick=leaveRoom;
-$('btnPlayAgain').onclick=async()=>{if(isHost){const board=scrambleBoard();const endsAt=Date.now()+ROUND_SECONDS*1000;const updates={status:'playing',board,endsAt,startedAt:Date.now()};Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});roundEnded=false;localWords=new Set();await db.ref('rooms/'+roomId).update(updates)}else{toast('Waiting for host…');roundEnded=false;localWords=new Set();show('screen-room')}};
-document.body.addEventListener('touchmove',e=>{if(selecting)e.preventDefault()},{passive:false});
-
-/* ========== PWA & INSTALL LOGIC ========== */
-let deferredPrompt = null;
-const btnInstall = $('btnInstall');
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-// Handle Android/Desktop install prompt
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (btnInstall && !isStandalone) btnInstall.style.display = 'flex';
-});
-
-// Handle successful install
-window.addEventListener('appinstalled', () => {
-  deferredPrompt = null;
-  if (btnInstall) btnInstall.style.display = 'none';
-  toast('Installed! Open it from your home screen 🎉');
-});
-
-// Handle button click
-if (btnInstall) {
-  btnInstall.onclick = async () => {
-    if (isIOS) {
-      toast('On iPhone: Tap Share → Add to Home Screen');
-      return;
+// --------- SHAKE MECHANIC ---------
+$('btnStart').onclick=async()=>{
+  if(!isHost||!roomData)return;
+  const board=scrambleBoard();
+  // Set status to 'shaking' to trigger the animation on all clients
+  const updates={status:'shaking',board,endsAt:null,startedAt:null};
+  Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});
+  await db.ref('rooms/'+roomId).update(updates);
+  
+  // Host sets the timer to actually start after 3 seconds
+  setTimeout(async()=>{
+    if(roomData && roomData.status === 'shaking') {
+      const endsAt=Date.now()+ROUND_SECONDS*1000;
+      await db.ref('rooms/'+roomId).update({status:'playing',endsAt,startedAt:Date.now()});
     }
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      btnInstall.style.display = 'none';
-      if (outcome === 'accepted') toast('Installing…');
-    } else {
-      toast('Use your browser menu → Install App');
+  }, SHAKE_SECONDS * 1000);
+};
+
+function enterGame(){
+  if($('screen-game').classList.contains('active')&&!roundEnded){
+    renderScores();
+    return;
+  }
+  
+  roundEnded=false;localWords=new Set();path=[];
+  $('wordTags').innerHTML='';
+  $('wordCount').textContent='0';
+  $('currentWord').textContent=roomData.status==='shaking' ? 'Shaking the box...' : 'Drag letters to spell';
+  $('currentWord').classList.add('hint');
+  
+  renderBoard(roomData.board);
+  renderScores();
+  
+  const b=$('board');
+  if (roomData.status === 'shaking') {
+    // Trigger the shake animation
+    b.classList.add('shaking');
+    $('timerText').textContent = SHAKE_SECONDS;
+    $('timerRing').style.setProperty('--pct','100%');
+    b.classList.remove('scrambling');
+  } else {
+    b.classList.remove('shaking');
+    startTimer();
+    // Optional nice pop-in effect when letters settle
+    b.classList.add('scrambling');
+    setTimeout(()=>b.classList.remove('scrambling'),600);
+  }
+  
+  show('screen-game');
+}
+
+// Watch for status change from 'shaking' to 'playing'
+function onRoom(snap){
+  if(!snap.exists()){toast('Room closed');leaveRoom();return}
+  const prevStatus = roomData ? roomData.status : null;
+  roomData=snap.val();
+  
+  renderPlayers();
+  isHost=roomData.hostUid===user.uid;
+  const start=$('btnStart');
+  start.style.display=(isHost&&roomData.status==='lobby')?'flex':'none';
+  $('waitingMsg').style.display=(isHost&&roomData.status==='lobby')?'none':'block';
+  $('waitingMsg').textContent=isHost?'':'Waiting for host…';
+  
+  if(roomData.status==='shaking' || roomData.status==='playing'){
+    if (!roundEnded) enterGame();
+  }
+  if(roomData.status==='results') showResults();
+  
+  // If status just changed from shaking to playing, remove shake class and start timer
+  if (prevStatus === 'shaking' && roomData.status === 'playing') {
+    const b = $('board');
+    if (b) {
+      b.classList.remove('shaking');
+      b.classList.add('scrambling');
+      setTimeout(()=>b.classList.remove('scrambling'),600);
     }
+    startTimer();
+  }
+}
+
+function renderBoard(grid){
+  const board=$('board');
+  board.innerHTML='';
+  if(!grid||grid.length!==16)return;
+  for(let i=0;i<16;i++){
+    const r=Math.floor(i/4),c=i%4;
+    const t=document.createElement('div');
+    t.className='tile';
+    t.dataset.r=r;
+    t.dataset.c=c;
+    t.textContent=grid[i];
+    board.appendChild(t);
+  }
+  bindTiles();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  const tick=()=>{
+    if(!roomData||!roomData.endsAt)return;
+    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    $('timerText').textContent=left;
+    $('timerRing').style.setProperty('--pct',(left/ROUND_SECONDS*100)+'%');
+    $('timerRing').classList.toggle('low',left<=30&&left>0);
+    if(left<=0&&!roundEnded)endRound()
   };
+  tick();
+  timerInterval=setInterval(tick,250);
 }
 
-// Show install tip on iOS even without native prompt
-if (isIOS && !isStandalone && btnInstall) {
-  btnInstall.style.display = 'flex';
-}
-
-// Register Service Worker for offline support and PWA installability
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => {
-        // Check for updates every time the app loads
-        reg.update();
-      })
-      .catch(err => console.warn('SW register failed', err));
-  });
-}
+$('btnPlayAgain').onclick=async()=>{
+  if(isHost){
+    const board=scrambleBoard();
+    const updates={status:'shaking',board,endsAt:null,startedAt:null};
+    Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});
+    
+    roundEnded=false;
+    localWords=new Set();
+    await db.ref('rooms/'+roomId).update(updates);
+    
+    setTimeout(async()=>{
+      if(roomData && roomData.status === 'shaking') {
+        const endsAt=Date.now()+ROUND_SECONDS*1000;
+        await db.ref('rooms/'+roomId).update({status:'playing',endsAt,startedAt:Date.now()});
+      }
+    }, SHAKE_SECONDS * 1000);
+  } else {
+    toast('Waiting for host…');
+    roundEnded=false;
+    localWords=new Set();
+    show('screen-room');
+  }
+};
 </script>
 </body>
 </html>
