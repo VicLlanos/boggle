@@ -111,8 +111,53 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .tile.ok{animation:okPop .4s ease}.tile.bad{animation:badShake .4s ease}
 @keyframes okPop{0%,100%{filter:none}50%{filter:brightness(1.25) drop-shadow(0 0 10px var(--mint));transform:scale(1.1)}}
 @keyframes badShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.board.scrambling .tile{animation:flipIn .55s ease both}
-@keyframes flipIn{0%{transform:rotateY(90deg) scale(.7);opacity:.3}100%{transform:rotateY(0) scale(1);opacity:1}}
+/* --- SHAKE: letters flicker, then lock in with a staggered landing --- */
+.board.shaking .tile{color:#5B4CC4}
+.tile.land{animation:tileLand .6s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes tileLand{
+  0%{transform:translateY(-20px) rotate(-16deg) scale(1.28);opacity:.35;filter:brightness(1.25);box-shadow:0 14px 18px rgba(0,0,0,.3)}
+  55%{transform:translateY(3px) rotate(3deg) scale(.95);opacity:1;filter:none}
+  100%{transform:translateY(0) rotate(0) scale(1);opacity:1;filter:none}
+}
+.timer.prep{background:conic-gradient(var(--gold) var(--pct,100%),rgba(255,255,255,.25) 0)}
+.word-bar.pulse{animation:barPulse .9s ease-in-out infinite}
+@keyframes barPulse{0%,100%{opacity:.55}50%{opacity:1}}
+.word-bar.go{animation:goPop .5s cubic-bezier(.34,1.56,.64,1);color:var(--mint)}
+@keyframes goPop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* --- RESULTS: per-player word summary --- */
+.res-banner{text-align:center;margin-bottom:12px;animation:popIn .45s cubic-bezier(.34,1.4,.64,1) both}
+.res-banner .t{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.3rem;color:var(--violet-d)}
+.res-banner .s{font-size:.85rem;font-weight:700;color:#636E72;margin-top:2px}
+.res-card{background:#F8F9FA;border-radius:16px;padding:12px;margin-bottom:10px;border:2px solid transparent;animation:resIn .5s cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i,0)*120ms)}
+.res-card.win{border-color:var(--gold);background:#FFF9E6}
+.res-card.me:not(.win){border-color:#D6CFFF}
+@keyframes resIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.res-head{display:flex;align-items:center;gap:10px}
+.res-head .rk{font-size:1.3rem;width:32px;text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;color:var(--violet-d)}
+.res-head .info{flex:1;min-width:0}
+.res-head .info .n{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-head .info .d{font-size:.8rem;color:#636E72;font-weight:700}
+.pts-wrap{text-align:right;min-width:48px}
+.pts-wrap .pts{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.4rem;color:var(--violet-d);line-height:1}
+.pts-wrap .lost{font-size:.75rem;font-weight:900;color:var(--coral);margin-top:2px;opacity:0;animation:lostIn .4s ease forwards;animation-delay:calc(var(--ld,1200)*1ms)}
+@keyframes lostIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.wchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wchip{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(180deg,#55EFC4,var(--mint));color:#004D40;font-weight:800;font-size:.8rem;padding:5px 10px;border-radius:999px;animation:tagPop .35s cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--d,0)*1ms)}
+.wchip b{font-weight:900;font-size:.7rem;opacity:.7}
+.wchip.dupe{background:#E9ECEF;color:#8795A1}
+.wchip .wt{position:relative;display:inline-block}
+.wchip.dupe .wt::after{content:'';position:absolute;left:-3px;top:52%;height:2.5px;width:0;background:var(--coral);border-radius:2px;animation:strikeThru .35s ease forwards;animation-delay:calc(var(--d,0)*1ms + 450ms)}
+@keyframes strikeThru{to{width:calc(100% + 6px)}}
+.none-words{color:#B2BEC3;font-weight:700;font-size:.85rem}
+.res-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.78rem;font-weight:700;color:#636E72;margin:2px 0 4px}
+.res-legend .wchip{animation:none;padding:3px 8px;font-size:.72rem}
+.res-legend .wchip.dupe .wt::after{animation:none;width:calc(100% + 6px)}
+
+@media (prefers-reduced-motion:reduce){
+  .board.shaking,.board.shaking .tile{animation:none!important}
+  .tile.land{animation-duration:.01s!important}
+}
 .words-box{background:rgba(255,255,255,.95);border-radius:14px;padding:12px;max-height:120px;overflow-y:auto;box-shadow:var(--shadow)}
 .words-box h3{font-size:.75rem;font-weight:900;color:#636E72;margin-bottom:8px;text-transform:uppercase}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -265,6 +310,7 @@ function isValidWord(w){
 
 const AVATARS=['🦊','🐸','🐯','🐼','🦉','🐙','🦄','🐲','🐰','🐨'];
 let user=null,profile=null,roomId=null,roomData=null,isHost=false,localWords=new Set(),path=[],selecting=false,timerInterval=null,roundEnded=false,authMode='login';
+let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd=null,shakeTimeout=null,settleTimers=[];
 const $=id=>document.getElementById(id);
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400)}
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
@@ -291,85 +337,180 @@ $('btnJoin').onclick=async()=>{const code=($('joinCode').value||'').trim().toUpp
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
 function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h}
-function leaveRoom(){if(roomId&&user){db.ref('rooms/'+roomId+'/players/'+user.uid).remove().catch(()=>{});if(isHost){db.ref('rooms/'+roomId).once('value').then(s=>{if(s.exists()&&s.val().status==='lobby')db.ref('rooms/'+roomId).remove().catch(()=>{})})}}if(roomId)db.ref('rooms/'+roomId).off();roomId=null;roomData=null;isHost=false;clearInterval(timerInterval);show('screen-lobby')}
+function leaveRoom(){if(roomId&&user){db.ref('rooms/'+roomId+'/players/'+user.uid).remove().catch(()=>{});if(isHost){db.ref('rooms/'+roomId).once('value').then(s=>{if(s.exists()&&s.val().status==='lobby')db.ref('rooms/'+roomId).remove().catch(()=>{})})}}if(roomId)db.ref('rooms/'+roomId).off();roomId=null;roomData=null;isHost=false;clearInterval(timerInterval);stopBoardFx();show('screen-lobby')}
 $('btnLeaveRoom').onclick=leaveRoom;
 
+// --------- ROUND STATE & BOARD EFFECTS ---------
+const LAND_STEP=70;            // ms between diagonal "waves" when letters lock in
+const SETTLE_TOTAL=600;        // extra time added to the round so the landing never eats play time
+const LETTER_POOL='EEEEAAAIIOOUTTNNRRSSLLDDGBCMPFHVWYKJXZ';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function randLetter(not){let l;do{l=LETTER_POOL[Math.floor(Math.random()*LETTER_POOL.length)]}while(l===not);return l}
+function canPlay(){return !!roomData&&roomData.status==='playing'&&boardReady&&!roundEnded}
+function setWordBar(msg,hint,cls){const w=$('currentWord');w.textContent=msg;w.classList.toggle('hint',!!hint);w.classList.remove('pulse','go');if(cls)w.classList.add(cls)}
+function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false}
+function stopLetterScramble(){clearInterval(scrambleInt);scrambleInt=null}
+function stopShakeCountdown(){clearInterval(shakeCd);shakeCd=null;const r=$('timerRing');if(r)r.classList.remove('prep')}
+function clearSettleTimers(){settleTimers.forEach(clearTimeout);settleTimers=[]}
+function stopBoardFx(){stopLetterScramble();stopShakeCountdown();clearSettleTimers();clearTimeout(shakeTimeout);const b=$('board');if(b)b.classList.remove('shaking')}
+
+// Letters on every tile keep changing while the box is shaking.
+function startLetterScramble(){
+  stopLetterScramble();
+  const tiles=[...$('board').querySelectorAll('.tile')];
+  const tick=()=>tiles.forEach(t=>{
+    if(t.dataset.locked==='1')return;
+    if(Math.random()<.75)t.textContent=randLetter(t.textContent);
+  });
+  tick();
+  scrambleInt=setInterval(tick,85);
+}
+
+// Gold countdown ring during the shake (3…2…1)
+function startShakeCountdown(){
+  stopShakeCountdown();
+  const ring=$('timerRing'),end=Date.now()+SHAKE_SECONDS*1000;
+  ring.classList.remove('low');
+  ring.classList.add('prep');
+  const tick=()=>{
+    const ms=Math.max(0,end-Date.now());
+    $('timerText').textContent=Math.max(1,Math.ceil(ms/1000));
+    ring.style.setProperty('--pct',(ms/(SHAKE_SECONDS*1000)*100)+'%');
+  };
+  tick();
+  shakeCd=setInterval(tick,50);
+}
+
+// Shake is over: stop rattling, keep flipping letters, then lock them in wave by wave.
+function settleBoard(grid){
+  const b=$('board'),tiles=[...b.querySelectorAll('.tile')];
+  boardReady=false;
+  stopShakeCountdown();
+  clearSettleTimers();
+  b.classList.remove('shaking');
+  let maxDelay=0;
+  tiles.forEach((t,i)=>{
+    const r=+t.dataset.r,c=+t.dataset.c,delay=(r+c)*LAND_STEP;
+    maxDelay=Math.max(maxDelay,delay);
+    settleTimers.push(setTimeout(()=>{
+      t.dataset.locked='1';
+      t.textContent=grid[i];
+      t.classList.remove('land');void t.offsetWidth;t.classList.add('land');
+      settleTimers.push(setTimeout(()=>t.classList.remove('land'),700));
+    },delay));
+  });
+  settleTimers.push(setTimeout(()=>{
+    stopLetterScramble();
+    boardReady=true;
+    setWordBar('GO!',false,'go');
+    settleTimers.push(setTimeout(()=>{if(!roundEnded&&!path.length)setWordBar('Drag letters to spell',true)},700));
+  },maxDelay+160));
+}
+
+// Used when someone enters mid-round (no shake to watch): letters just drop in.
+function landTiles(){
+  const tiles=[...$('board').querySelectorAll('.tile')];
+  tiles.forEach(t=>{
+    t.dataset.locked='1';
+    t.style.animationDelay=((+t.dataset.r)+(+t.dataset.c))*60+'ms';
+    t.classList.add('land');
+  });
+  clearSettleTimers();
+  settleTimers.push(setTimeout(()=>tiles.forEach(t=>{t.classList.remove('land');t.style.animationDelay=''}),1100));
+  boardReady=true;
+}
+
 // --------- SHAKE MECHANIC ---------
-$('btnStart').onclick=async()=>{
+async function beginRound(){
   if(!isHost||!roomData)return;
   const board=scrambleBoard();
-  const updates={status:'shaking',board,endsAt:null,startedAt:null};
+  const updates={status:'shaking',board,endsAt:null,startedAt:null,endedAt:null};
   Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});
-  await db.ref('rooms/'+roomId).update(updates);
-  
-  setTimeout(async()=>{
-    if(roomData && roomData.status === 'shaking') {
-      const endsAt=Date.now()+ROUND_SECONDS*1000;
-      await db.ref('rooms/'+roomId).update({status:'playing',endsAt,startedAt:Date.now()});
+  resetRoundState();
+  try{
+    await db.ref('rooms/'+roomId).update(updates);
+  }catch(e){
+    toast('Could not start: '+e.message);
+    return;
+  }
+  clearTimeout(shakeTimeout);
+  shakeTimeout=setTimeout(async()=>{
+    if(roomData&&roomData.status==='shaking'){
+      const now=Date.now();
+      try{
+        await db.ref('rooms/'+roomId).update({status:'playing',endsAt:now+ROUND_SECONDS*1000+SETTLE_TOTAL,startedAt:now});
+      }catch(e){toast('Could not begin the round')}
     }
-  }, SHAKE_SECONDS * 1000);
-};
+  },SHAKE_SECONDS*1000);
+}
+$('btnStart').onclick=beginRound;
 
 function enterGame(){
   if($('screen-game').classList.contains('active')&&!roundEnded){
     renderScores();
     return;
   }
-  
-  roundEnded=false;localWords=new Set();path=[];
+
+  resetRoundState();
+  stopLetterScramble();
+  stopShakeCountdown();
+  clearSettleTimers();
   $('wordTags').innerHTML='';
   $('wordCount').textContent='0';
-  $('currentWord').textContent=roomData.status==='shaking' ? 'Shaking the box...' : 'Drag letters to spell';
-  $('currentWord').classList.add('hint');
-  
-  renderBoard(roomData.board);
-  renderScores();
-  
-  const b=$('board');
-  if (roomData.status === 'shaking') {
-    b.classList.add('shaking');
-    $('timerText').textContent = SHAKE_SECONDS;
-    $('timerRing').style.setProperty('--pct','100%');
-    b.classList.remove('scrambling');
-  } else {
-    b.classList.remove('shaking');
-    startTimer();
-    b.classList.add('scrambling');
-    setTimeout(()=>b.classList.remove('scrambling'),600);
-  }
-  
+  $('timerRing').classList.remove('low');
   show('screen-game');
+
+  const b=$('board');
+  renderScores();
+  if(roomData.status==='shaking'){
+    renderBoard(roomData.board,true);      // real letters are never put on screen while shaking
+    b.classList.add('shaking');
+    setWordBar('Shaking the box…',true,'pulse');
+    startLetterScramble();
+    startShakeCountdown();
+    try{if(navigator.vibrate)navigator.vibrate([60,40,60,40,60,40,60])}catch(e){}
+  }else{
+    renderBoard(roomData.board,false);
+    b.classList.remove('shaking');
+    setWordBar('Drag letters to spell',true);
+    landTiles();
+    startTimer();
+  }
 }
 
 function onRoom(snap){
   if(!snap.exists()){toast('Room closed');leaveRoom();return}
-  const prevStatus = roomData ? roomData.status : null;
+  const prevStatus=roomData?roomData.status:null;
   roomData=snap.val();
-  
+  const st=roomData.status;
+
   renderPlayers();
   isHost=roomData.hostUid===user.uid;
   const start=$('btnStart');
-  start.style.display=(isHost&&roomData.status==='lobby')?'flex':'none';
-  $('waitingMsg').style.display=(isHost&&roomData.status==='lobby')?'none':'block';
+  start.style.display=(isHost&&st==='lobby')?'flex':'none';
+  $('waitingMsg').style.display=(isHost&&st==='lobby')?'none':'block';
   $('waitingMsg').textContent=isHost?'':'Waiting for host…';
-  
-  if(roomData.status==='shaking' || roomData.status==='playing'){
-    if (!roundEnded) enterGame();
+
+  // A shake always begins a brand-new round, so everybody (even from the results screen) is pulled in.
+  if(st==='shaking')roundEnded=false;
+
+  if(st==='shaking'||st==='playing'){
+    if(!roundEnded)enterGame();
   }
-  if(roomData.status==='results') showResults();
-  
-  if (prevStatus === 'shaking' && roomData.status === 'playing') {
-    const b = $('board');
-    if (b) {
-      b.classList.remove('shaking');
-      b.classList.add('scrambling');
-      setTimeout(()=>b.classList.remove('scrambling'),600);
-    }
+
+  // Shake -> play: letters settle into place and the clock starts.
+  if(prevStatus==='shaking'&&st==='playing'&&!roundEnded&&$('screen-game').classList.contains('active')){
+    settleBoard(roomData.board);
     startTimer();
+  }
+
+  if(st==='results'){
+    if(!roundEnded)finishLocalRound();
+    if(prevStatus!=='results'||$('screen-results').classList.contains('active'))showResults();
   }
 }
 
-function renderBoard(grid){
+function renderBoard(grid,hidden){
   const board=$('board');
   board.innerHTML='';
   if(!grid||grid.length!==16)return;
@@ -379,7 +520,7 @@ function renderBoard(grid){
     t.className='tile';
     t.dataset.r=r;
     t.dataset.c=c;
-    t.textContent=grid[i];
+    t.textContent=hidden?randLetter():grid[i];
     board.appendChild(t);
   }
   bindTiles();
@@ -391,15 +532,16 @@ function startTimer(){
   const tick=()=>{
     if(!roomData||!roomData.endsAt)return;
     const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
-    $('timerText').textContent=left;
-    $('timerRing').style.setProperty('--pct',(left/ROUND_SECONDS*100)+'%');
+    const shown=Math.min(left,ROUND_SECONDS);
+    $('timerText').textContent=shown;
+    $('timerRing').style.setProperty('--pct',(shown/ROUND_SECONDS*100)+'%');
     $('timerRing').classList.toggle('low',left<=30&&left>0);
     if(left<=0&&!roundEnded)endRound()
   };
   tick();
   timerInterval=setInterval(tick,250);
 }
-function bindTiles(){const board=$('board');const tiles=[...board.querySelectorAll('.tile')];const at=(x,y)=>{for(const t of tiles){const r=t.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return t}return null};const start=(x,y)=>{if(roundEnded)return;const t=at(x,y);if(!t)return;selecting=true;path=[{r:+t.dataset.r,c:+t.dataset.c}];updatePath()};const move=(x,y)=>{if(!selecting||roundEnded)return;const t=at(x,y);if(!t)return;const r=+t.dataset.r,c=+t.dataset.c;const last=path[path.length-1];if(last.r===r&&last.c===c)return;if(path.length>=2){const prev=path[path.length-2];if(prev.r===r&&prev.c===c){path.pop();updatePath();return}}if(!neighbors(last.r,last.c).some(([nr,nc])=>nr===r&&nc===c))return;if(path.some(p=>p.r===r&&p.c===c))return;path.push({r,c});updatePath()};const end=()=>{if(!selecting)return;selecting=false;if(path.length>=MIN_LEN)submitPath();else{clearPath();path=[];$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint')}};board.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];start(t.clientX,t.clientY)};board.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY)};board.ontouchend=e=>{e.preventDefault();end()};board.onmousedown=e=>{e.preventDefault();start(e.clientX,e.clientY)};window.onmousemove=e=>{if(selecting)move(e.clientX,e.clientY)};window.onmouseup=()=>end()}
+function bindTiles(){const board=$('board');const tiles=[...board.querySelectorAll('.tile')];const at=(x,y)=>{for(const t of tiles){const r=t.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return t}return null};const start=(x,y)=>{if(!canPlay())return;const t=at(x,y);if(!t)return;selecting=true;path=[{r:+t.dataset.r,c:+t.dataset.c}];updatePath()};const move=(x,y)=>{if(!selecting||roundEnded)return;const t=at(x,y);if(!t)return;const r=+t.dataset.r,c=+t.dataset.c;const last=path[path.length-1];if(last.r===r&&last.c===c)return;if(path.length>=2){const prev=path[path.length-2];if(prev.r===r&&prev.c===c){path.pop();updatePath();return}}if(!neighbors(last.r,last.c).some(([nr,nc])=>nr===r&&nc===c))return;if(path.some(p=>p.r===r&&p.c===c))return;path.push({r,c});updatePath()};const end=()=>{if(!selecting)return;selecting=false;if(path.length>=MIN_LEN)submitPath();else{clearPath();path=[];$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint')}};board.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];start(t.clientX,t.clientY)};board.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY)};board.ontouchend=e=>{e.preventDefault();end()};board.onmousedown=e=>{e.preventDefault();start(e.clientX,e.clientY)};window.onmousemove=e=>{if(selecting)move(e.clientX,e.clientY)};window.onmouseup=()=>end()}
 function updatePath(){document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on','path'));path.forEach((p,i)=>{const t=document.querySelector(`.tile[data-r="${p.r}"][data-c="${p.c}"]`);if(t)t.classList.add(i===path.length-1?'on':'path')});const w=pathToWord(roomData.board,path);$('currentWord').textContent=w?w.toUpperCase():'…';$('currentWord').classList.toggle('hint',!w)}
 function clearPath(){document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on','path','ok','bad'))}
 
@@ -467,59 +609,153 @@ async function submitPath(){
   toast(w.toUpperCase()+' · +'+pts)
 }
 
-async function endRound(){
-  if(roundEnded)return;
+// Stops everything that belongs to a running round on this device.
+function finishLocalRound(){
   roundEnded=true;
   clearInterval(timerInterval);
+  stopBoardFx();
   selecting=false;
+  path=[];
   clearPath();
-  if(isHost&&roomData) await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()});
-  setTimeout(showResults,350)
+  $('timerRing').classList.remove('low');
+}
+
+async function endRound(){
+  if(roundEnded)return;
+  finishLocalRound();
+  // Small grace period so every player's last in-flight word lands before the host closes the round.
+  if(isHost&&roomData){
+    const rid=roomId;
+    setTimeout(()=>{db.ref('rooms/'+rid).update({status:'results',endedAt:Date.now()}).catch(()=>{})},900);
+  }
+  setTimeout(showResults,350);
+  // Safety net: if the host never flips the room to "results", still settle this player's rewards.
+  setTimeout(()=>{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)},6000);
+}
+
+/* ---------- Boggle scoring: a word found by 2+ players is crossed out and scores nothing ---------- */
+function computeResults(){
+  const players=Object.values((roomData&&roomData.players)||{});
+  const found={};
+  players.forEach(p=>Object.keys(p.words||{}).forEach(w=>{found[w]=(found[w]||0)+1}));
+  const rows=players.map(p=>{
+    const items=Object.keys(p.words||{}).map(w=>({
+      w,
+      pts:wordScore(w),
+      dupe:found[w]>1,
+      with:players.filter(o=>o.uid!==p.uid&&o.words&&o.words[w]).map(o=>o.name)
+    })).sort((a,b)=>(a.dupe-b.dupe)||(b.pts-a.pts)||a.w.localeCompare(b.w));
+    const raw=items.reduce((s,i)=>s+i.pts,0);
+    const final=items.reduce((s,i)=>s+(i.dupe?0:i.pts),0);
+    return{p,items,raw,final,lost:raw-final,uniqueN:items.filter(i=>!i.dupe).length,sharedN:items.filter(i=>i.dupe).length};
+  });
+  rows.sort((a,b)=>(b.final-a.final)||(b.uniqueN-a.uniqueN)||String(a.p.name).localeCompare(String(b.p.name)));
+  return rows;
+}
+
+function animateScore(el,from,to,delay){
+  el.textContent=from;
+  if(from===to)return;
+  setTimeout(()=>{
+    const t0=performance.now(),dur=650;
+    const step=now=>{
+      const k=Math.min(1,(now-t0)/dur);
+      el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));
+      if(k<1&&el.isConnected)requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  },delay);
+}
+
+function renderResults(rows){
+  const top=rows[0].final;
+  const leaders=rows.filter(r=>r.final===top);
+  const shared=new Set();
+  rows.forEach(r=>r.items.forEach(i=>{if(i.dupe)shared.add(i.w)}));
+
+  let title;
+  if(rows.length===1)title='🎉 Nice round!';
+  else if(leaders.length>1)title='🤝 It\'s a tie!';
+  else title='👑 '+esc(leaders[0].p.name)+' wins!';
+  const sub=shared.size
+    ?shared.size+(shared.size===1?' shared word was':' shared words were')+' crossed out'
+    :'No shared words this round';
+
+  const cards=rows.map((r,i)=>{
+    const rank=rows.findIndex(x=>x.final===r.final)+1;
+    const isTop=rank===1;
+    const chips=r.items.map((it,k)=>{
+      const d=250+Math.min(k,24)*40;
+      const tip=it.dupe?' title="Also found by '+esc(it.with.join(', '))+'"':'';
+      return '<span class="wchip'+(it.dupe?' dupe':'')+'" style="--d:'+d+'"'+tip+'><span class="wt">'+esc(it.w.toUpperCase())+'</span>'+(it.dupe?'':'<b>+'+it.pts+'</b>')+'</span>';
+    }).join('')||'<span class="none-words">No words found</span>';
+    const strikeEnd=250+Math.min(Math.max(r.items.length-1,0),24)*40+450+350;
+    const detail=r.uniqueN+' scored'+(r.sharedN?' · '+r.sharedN+' crossed out':'');
+    return '<div class="res-card'+(isTop?' win':'')+(r.p.uid===user.uid?' me':'')+'" style="--i:'+i+'">'
+      +'<div class="res-head">'
+      +'<div class="rk">'+(isTop?'👑':rank)+'</div>'
+      +'<div class="info"><div class="n">'+esc(r.p.avatar||'')+' '+esc(r.p.name)+(r.p.uid===user.uid?' (you)':'')+'</div><div class="d">'+detail+'</div></div>'
+      +'<div class="pts-wrap"><div class="pts" data-from="'+r.raw+'" data-to="'+r.final+'" data-delay="'+strikeEnd+'">'+r.raw+'</div>'
+      +(r.lost?'<div class="lost" style="--ld:'+strikeEnd+'">−'+r.lost+'</div>':'')+'</div>'
+      +'</div>'
+      +'<div class="wchips">'+chips+'</div>'
+      +'</div>';
+  }).join('');
+
+  const legend=rows.length>1
+    ?'<div class="res-legend"><span class="wchip"><span class="wt">WORD</span><b>+1</b></span> counts <span class="wchip dupe"><span class="wt">WORD</span></span> found by 2+ players, no points</div>'
+    :'';
+
+  $('resultsGrid').innerHTML='<div class="res-banner"><div class="t">'+title+'</div><div class="s">'+sub+'</div></div>'+cards+legend;
+  $('resultsGrid').querySelectorAll('.pts').forEach(el=>animateScore(el,+el.dataset.from,+el.dataset.to,+el.dataset.delay));
+}
+
+// XP / streak / best score are granted exactly once per round, using the final (de-duplicated) scores.
+function awardResults(rows,force){
+  if(resultsAwarded||!rows||!rows.length||!profile)return;
+  if(!force&&!(roomData&&roomData.status==='results'))return;
+  const me=rows.find(r=>r.p.uid===user.uid);
+  if(!me)return;
+  resultsAwarded=true;
+  const top=rows[0].final;
+  const tied=rows.filter(r=>r.final===top).length>1;
+  const won=rows.length>1&&me.final===top&&!tied;
+  const lost=rows.length>1&&me.final<top;
+  if(won)profile.streak=(profile.streak||0)+1;
+  else if(lost)profile.streak=0;
+  if(me.final>(profile.bestScore||0))profile.bestScore=me.final;
+  profile.xp=(profile.xp||0)+10+(won?25:0);
+  saveProfile({streak:profile.streak,bestScore:profile.bestScore,xp:profile.xp});
+  updateXpBar();
+}
+
+function updateXpBar(){
+  const lv=levelFromXp(profile.xp||0);
+  $('resLvl').textContent=lv.level;
+  $('resXpText').textContent=lv.into+'/'+lv.need;
+  $('resXpFill').style.width=Math.min(100,lv.into/lv.need*100)+'%';
 }
 
 function showResults(){
   clearInterval(timerInterval);
-  show('screen-results');
-  const players=Object.values((roomData&&roomData.players)||{});
-  players.sort((a,b)=>(b.score||0)-(a.score||0));
-  $('resultsGrid').innerHTML=players.map((p,i)=>`<div class="res-row ${i===0?'win':''}"><div class="rk">${i===0?'👑':(i+1)}</div><div class="info"><div class="n">${p.avatar||''} ${p.name}${p.uid===user.uid?' (you)':''}</div><div class="d">${Object.keys(p.words||{}).length} words</div></div><div class="pts">${p.score||0}</div></div>`).join('');
-  const me=players.find(p=>p.uid===user.uid);
-  if(me){
-    const won=players[0]&&players[0].uid===user.uid&&players.length>1;
-    if(won)profile.streak=(profile.streak||0)+1;
-    else if(players.length>1)profile.streak=0;
-    if((me.score||0)>(profile.bestScore||0))profile.bestScore=me.score;
-    profile.xp=(profile.xp||0)+10+(won?25:0);
-    saveProfile({streak:profile.streak,bestScore:profile.bestScore,xp:profile.xp})
-  }
-  const lv=levelFromXp(profile.xp||0);
-  $('resLvl').textContent=lv.level;
-  $('resXpText').textContent=lv.into+'/'+lv.need;
-  $('resXpFill').style.width=Math.min(100,lv.into/lv.need*100)+'%'
+  if(!$('screen-results').classList.contains('active'))show('screen-results');
+  const rows=computeResults();
+  if(!rows.length)return;
+  // Only re-draw when the words actually changed, so animations don't restart on every database tick.
+  const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.items.map(i=>i.w+(i.dupe?'*':''))]));
+  if(sig!==resultsSig){resultsSig=sig;renderResults(rows)}
+  awardResults(rows);
+  if(profile)updateXpBar();
 }
 
 $('btnBackLobby').onclick=leaveRoom;
 
 $('btnPlayAgain').onclick=async()=>{
   if(isHost){
-    const board=scrambleBoard();
-    const updates={status:'shaking',board,endsAt:null,startedAt:null};
-    Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});
-    
-    roundEnded=false;
-    localWords=new Set();
-    await db.ref('rooms/'+roomId).update(updates);
-    
-    setTimeout(async()=>{
-      if(roomData && roomData.status === 'shaking') {
-        const endsAt=Date.now()+ROUND_SECONDS*1000;
-        await db.ref('rooms/'+roomId).update({status:'playing',endsAt,startedAt:Date.now()});
-      }
-    }, SHAKE_SECONDS * 1000);
-  } else {
+    await beginRound();
+  }else{
     toast('Waiting for host…');
-    roundEnded=false;
-    localWords=new Set();
+    resetRoundState();
     show('screen-room');
   }
 };
