@@ -537,7 +537,10 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 @media (prefers-reduced-motion:reduce){.hang-scene .bl,.hang-scene.landed .bl,.hang-scene.landed #hangRope{animation:none}}
 .hang-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0;min-height:48px}
 .hang-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px;min-height:52px}
-.hang-msg{margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72}
+.hang-msg{margin-top:10px;font-weight:800;font-size:.9rem;min-height:2.8em;color:#636E72;line-height:1.45;padding:8px 10px;background:#F8F9FA;border-radius:12px;border:2px solid #EEF0F2}
+.hang-msg b{font-size:1.08rem;letter-spacing:1px;color:var(--violet-d)}
+.hang-end-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%}
+#btnHangNext,#btnHangSubmit{width:100%}
 #screen-hangman .timer{background:conic-gradient(#6C5CE7 var(--pct,100%),rgba(255,255,255,.22) 0)}
 #screen-hangman .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0)}
 </style>
@@ -766,9 +769,11 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     </div>
     <div id="hangSlots" class="hang-slots"></div>
     <div id="hangTray" class="hang-tray"></div>
-    <button class="btn btn-primary" id="btnHangSubmit">SUBMIT</button>
-    <div id="hangMsg" class="hang-msg"></div>
-    <button class="btn btn-mint" id="btnHangNext" style="display:none;margin-top:10px">NEXT LEVEL →</button>
+    <div id="hangMsg" class="hang-msg">Tap letters to fill the blanks</div>
+    <div class="hang-end-actions">
+      <button class="btn btn-primary" id="btnHangSubmit">SUBMIT</button>
+      <button class="btn btn-mint" id="btnHangNext" style="display:none">NEXT LEVEL →</button>
+    </div>
   </div>
 </section>
 
@@ -1644,6 +1649,7 @@ async function beginRound(){
       updates['players/'+uid+'/hangSolved']=false;
       updates['players/'+uid+'/hangWrong']=0;
     });
+    if(level === 1) updates.hangHistory = [];
     resetRoundState();
     try{
       await db.ref('rooms/'+roomId).update(updates);
@@ -2103,16 +2109,25 @@ async function finishHangRound(winnerUid){
   const me = roomData.players?.[user.uid];
 
   const answer = (roomData.hangWord || '').toUpperCase();
+  const lvl = roomData.hangLevel || 1;
+  const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
+  const cat = roomData.hangCategory || '';
 
   // Always show the correct answer so everyone can learn it
   if(winner){
     const name = winner.uid === user.uid ? 'You' : (winner.name || 'Someone');
-    $('hangMsg').innerHTML = name + ' won this level!<br><span style="color:var(--violet-d)">Answer: <b>'+esc(answer)+'</b></span>';
+    $('hangMsg').innerHTML =
+      '<div style="margin-bottom:4px">'+name+' won level '+lvl+'!</div>'+
+      '<div style="font-size:.8rem;font-weight:700;color:#636E72">'+esc(cat)+'</div>'+
+      '<div>Answer: <b>'+esc(answer)+'</b></div>';
     $('hangMsg').style.color = '#00B894';
     if(winner.uid === user.uid) hangSaved();
   } else {
     updateHangFigure(HANG_MAX_WRONG);
-    $('hangMsg').innerHTML = "Time's up — nobody solved it!<br><span style=\"color:var(--violet-d)\">Answer: <b>"+esc(answer)+'</b></span>';
+    $('hangMsg').innerHTML =
+      '<div style="margin-bottom:4px">Time\'s up — nobody solved level '+lvl+'</div>'+
+      '<div style="font-size:.8rem;font-weight:700;color:#636E72">'+esc(cat)+'</div>'+
+      '<div>Answer: <b>'+esc(answer)+'</b></div>';
     $('hangMsg').style.color = '#E74C3C';
   }
   // Fill the letter slots with the real answer for a clear visual reveal
@@ -2128,6 +2143,24 @@ async function finishHangRound(winnerUid){
     }
   }
 
+  // Save this level into series history (host writes once)
+  if(isHost && answer){
+    const entry = {
+      level: lvl,
+      category: cat,
+      word: answer,
+      winnerUid: winner ? winner.uid : null,
+      winnerName: winner ? winner.name : null
+    };
+    try{
+      const hist = Array.isArray(roomData.hangHistory) ? roomData.hangHistory.slice() : [];
+      if(!hist.some(h => h.level === lvl && h.word === answer)){
+        hist.push(entry);
+        await db.ref('rooms/'+roomId+'/hangHistory').set(hist);
+      }
+    }catch(e){}
+  }
+
   // Award series point only to the first solver (once)
   let myWins = me?.hangWins || 0;
   if(winner && winner.uid === user.uid){
@@ -2135,15 +2168,13 @@ async function finishHangRound(winnerUid){
     try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: myWins, score: myWins}); }catch(e){}
   }
 
-  const lvl = roomData.hangLevel || 1;
-  const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
-
-  // Hide submit; show Next / Finish button
+  // Hide submit; show Next / Finish below the answer (not overlapping)
   const btnSub = $('btnHangSubmit');
   const btnNext = $('btnHangNext');
   if(btnSub) btnSub.style.display = 'none';
   if(btnNext){
-    if(lvl >= maxL || myWins >= maxL){
+    const seriesDone = lvl >= maxL || myWins >= maxL;
+    if(seriesDone){
       btnNext.textContent = 'SEE FINAL RESULTS';
       btnNext.dataset.mode = 'results';
     } else {
@@ -2153,9 +2184,11 @@ async function finishHangRound(winnerUid){
     btnNext.style.display = 'flex';
   }
 
-  // First to finish all 5 levels wins the match immediately
   if(winner && winner.uid === user.uid && myWins >= maxL){
-    $('hangMsg').innerHTML = '🏆 You finished all '+maxL+' levels first!<br><span style="color:var(--violet-d)">Answer: <b>'+esc(answer)+'</b></span>';
+    $('hangMsg').innerHTML =
+      '<div style="margin-bottom:4px">🏆 You finished all '+maxL+' levels first!</div>'+
+      '<div style="font-size:.8rem;font-weight:700;color:#636E72">'+esc(cat)+'</div>'+
+      '<div>Answer: <b>'+esc(answer)+'</b></div>';
     if(btnNext){ btnNext.textContent = 'SEE FINAL RESULTS'; btnNext.dataset.mode = 'results'; }
   }
 }
@@ -2659,20 +2692,25 @@ function computeHangmanResults(){
   const players = Object.values((roomData&&roomData.players)||{});
   const level = roomData.hangLevel || 1;
   const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
+  const hist = Array.isArray(roomData.hangHistory) ? roomData.hangHistory : [];
   const rows = players.map(p=>{
-    const solved = !!p.hangSolved;
-    const wrong = p.hangWrong||0;
     const wins = p.hangWins || 0;
-    // Series score is hangWins; this level contributes +1 if solved
-    const final = wins + (solved && !p._counted ? 0 : 0);
-    // Display series wins as score
-    const seriesScore = wins;
-    const items = solved
-      ? [{w: (roomData.hangWord||'SOLVED')+' ✓', pts:1, dupe:false}]
-      : [{w: 'Fell (level '+level+')', pts:0, dupe:true}];
-    return {p, items, raw: items.length, final: seriesScore, lost: solved?0:1, uniqueN: seriesScore, sharedN:0, level, maxL};
+    // Build items from history: which levels this player won
+    const items = hist.map(h => {
+      const mine = h.winnerUid === p.uid;
+      return {
+        w: 'L'+h.level+': '+(h.word||'?')+(mine?' ✓':''),
+        pts: mine ? 1 : 0,
+        dupe: !mine,
+        cat: h.category || ''
+      };
+    });
+    if(!items.length){
+      items.push({w: wins ? (wins+' level win'+(wins>1?'s':'')) : 'No wins yet', pts: wins, dupe: wins===0});
+    }
+    return {p, items, raw: items.length, final: wins, lost: Math.max(0, hist.length - wins), uniqueN: wins, sharedN:0, level, maxL};
   });
-  rows.sort((a,b)=>(b.final-a.final)||(a.p.hangWrong||0)-(b.p.hangWrong||0)||String(a.p.name).localeCompare(String(b.p.name)));
+  rows.sort((a,b)=>(b.final-a.final)||String(a.p.name).localeCompare(String(b.p.name)));
   return rows;
 }
 
@@ -2769,6 +2807,50 @@ function renderResults(rows){
   const sub=shared.size
     ?shared.size+(shared.size===1?' shared answer was':' shared answers were')+' crossed out'
     :'No shared answers this round';
+
+  // ===== HANGMAN: series winner + all answers =====
+  if(gt === 'hangman'){
+    const hist = Array.isArray(roomData.hangHistory) ? roomData.hangHistory : [];
+    const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
+    let hTitle = title;
+    if(rows.length===1) hTitle = '🎉 Series complete!';
+    else if(leaders.length>1 && top>0) hTitle = '🤝 Tie at '+top+' wins!';
+    else if(top>0) hTitle = '👑 '+esc(leaders[0].p.name)+' wins the series!';
+    else hTitle = 'Series over';
+
+    const cards = rows.map((r,i)=>{
+      const rank = rows.findIndex(x=>x.final===r.final)+1;
+      const isTop = rank===1 && r.final>0;
+      const isMe = r.p.uid===user.uid;
+      const outcome = isTop ? 'WINNER' : (r.final>0 ? r.final+' wins' : 'No wins');
+      return '<div class="res-card'+(isTop?' win':'')+(isMe?' me':'')+'" style="--i:'+i+'">'
+        +'<div class="res-head">'
+        +'<div class="rk">'+(isTop?'👑':rank)+'</div>'
+        +'<div class="info"><div class="n">'+esc(r.p.avatar||'')+' '+esc(r.p.name)+(isMe?' (you)':'')+'</div>'
+        +'<div class="d">'+outcome+(isTop?'':' · lost series')+'</div></div>'
+        +'<div class="pts-wrap"><div class="pts">'+r.final+'</div><div style="font-size:.7rem;font-weight:800;color:#636E72">wins</div></div>'
+        +'</div></div>';
+    }).join('');
+
+    let histHtml = '<div class="poss" style="margin-top:12px"><h3>📋 All answers this series</h3>';
+    if(!hist.length){
+      histHtml += '<div class="psub">No levels recorded.</div>';
+    } else {
+      histHtml += hist.map(h => {
+        const who = h.winnerName ? esc(h.winnerName) : 'Nobody';
+        return '<div style="background:#F8F9FA;border-radius:12px;padding:10px 12px;margin:6px 0;border:2px solid #EEF0F2;text-align:left">'
+          +'<div style="font-weight:900;color:var(--violet-d)">Level '+h.level+(h.category?' · '+esc(h.category):'')+'</div>'
+          +'<div style="font-size:1.05rem;font-weight:800;letter-spacing:1px;margin:4px 0">'+esc(h.word||'?')+'</div>'
+          +'<div style="font-size:.8rem;font-weight:700;color:#636E72">Won by: '+who+'</div>'
+          +'</div>';
+      }).join('');
+    }
+    histHtml += '</div>';
+
+    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+hTitle+'</div><div class="s">Best of '+maxL+' · first to finish wins</div></div>'+cards;
+    $('possibleWrap').innerHTML = histHtml;
+    return;
+  }
 
   // ===== SCATTERGORIES: summary + unanimous challenge system =====
   if(gt === 'scatter'){
