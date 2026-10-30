@@ -768,6 +768,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div id="hangTray" class="hang-tray"></div>
     <button class="btn btn-primary" id="btnHangSubmit">SUBMIT</button>
     <div id="hangMsg" class="hang-msg"></div>
+    <button class="btn btn-mint" id="btnHangNext" style="display:none;margin-top:10px">NEXT LEVEL →</button>
   </div>
 </section>
 
@@ -1802,6 +1803,10 @@ function enterHangman(){
   $('hangHint').textContent = 'Hint: ' + (roomData.hangHint || '—');
   $('hangMsg').textContent = 'Tap letters to fill the blanks';
   $('hangMsg').style.color = '#636E72';
+  const btnSub = $('btnHangSubmit');
+  const btnNext = $('btnHangNext');
+  if(btnSub){ btnSub.style.display = 'flex'; btnSub.disabled = false; }
+  if(btnNext){ btnNext.style.display = 'none'; btnNext.disabled = false; }
   updateHangFigure(hangWrong, true);
   updateHangLevelBar();
 
@@ -2122,26 +2127,34 @@ async function finishHangRound(winnerUid){
   }
 
   // Award series point only to the first solver (once)
+  let myWins = me?.hangWins || 0;
   if(winner && winner.uid === user.uid){
-    const wins = (me.hangWins||0) + 1;
-    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: wins, score: wins}); }catch(e){}
+    myWins = (me.hangWins||0) + 1;
+    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: myWins, score: myWins}); }catch(e){}
   }
 
   const lvl = roomData.hangLevel || 1;
   const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
 
-  if(isHost){
-    // Brief pause then auto next level (or series results)
-    setTimeout(async () => {
-      if(lvl >= maxL){
-        try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(e){}
-      } else {
-        // Auto-advance to next level — no need to tap Again
-        try{ await beginRound(); }catch(e){ toast('Could not start next level'); }
-      }
-    }, 1800);
-  } else if(lvl >= maxL){
-    setTimeout(()=>showResults(), 900);
+  // Hide submit; show Next / Finish button
+  const btnSub = $('btnHangSubmit');
+  const btnNext = $('btnHangNext');
+  if(btnSub) btnSub.style.display = 'none';
+  if(btnNext){
+    if(lvl >= maxL || myWins >= maxL){
+      btnNext.textContent = 'SEE FINAL RESULTS';
+      btnNext.dataset.mode = 'results';
+    } else {
+      btnNext.textContent = 'NEXT LEVEL →';
+      btnNext.dataset.mode = 'next';
+    }
+    btnNext.style.display = 'flex';
+  }
+
+  // First to finish all 5 levels wins the match immediately
+  if(winner && winner.uid === user.uid && myWins >= maxL){
+    $('hangMsg').innerHTML = '🏆 You finished all '+maxL+' levels first!<br><span style="color:var(--violet-d)">Answer: <b>'+esc(answer)+'</b></span>';
+    if(btnNext){ btnNext.textContent = 'SEE FINAL RESULTS'; btnNext.dataset.mode = 'results'; }
   }
 }
 
@@ -2152,6 +2165,31 @@ function checkHangRaceWinner(){
   const winner = Object.values(roomData.players||{}).find(p => p.hangSolved);
   if(winner) finishHangRound(winner.uid);
 }
+
+// Next level / final results button (solo or multiplayer)
+document.addEventListener('click', async e => {
+  if(e.target?.id !== 'btnHangNext') return;
+  const mode = e.target.dataset.mode || 'next';
+  e.target.disabled = true;
+  if(mode === 'results'){
+    if(isHost){
+      try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(err){}
+    }
+    showResults();
+    e.target.disabled = false;
+    return;
+  }
+  // Next level — host starts it; solo player is always host
+  if(isHost){
+    resetRoundState();
+    try{
+      await beginRound();
+    }catch(err){ toast('Could not start next level'); }
+  } else {
+    toast('Waiting for host to start the next level…');
+  }
+  e.target.disabled = false;
+});
 
 document.addEventListener('click', async e => {
   if(e.target?.id !== 'btnHangSubmit') return;
