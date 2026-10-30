@@ -711,52 +711,39 @@ function isValidWord(w){
 // ----------------------------------
 
 /* ===== DYNAMIC SCATTERGORIES CATEGORY GENERATOR ===== */
+// Simple, clear, classic categories – easy to judge and debate
 const BASE_CATEGORIES = [
-  "A boy's name","A girl's name","An animal","A fruit","A vegetable","A color","A country","A city",
-  "Something in a kitchen","Something you wear","A job / occupation","A piece of furniture","Something in a bathroom",
-  "A sport","A school subject","A body part","Something with wheels","A tool","Something in a garden",
-  "A musical instrument","A hobby","Something soft","Something cold","Something you can open",
-  "Things found at a beach","Things that are sticky","Things that bounce","Things that are round",
-  "Ice cream flavors","Pizza toppings","Fast food items","Breakfast foods","Desserts","Candy",
-  "Cartoon characters","Superheroes","Movie titles","TV shows","Book titles","Song titles",
-  "Famous people","Celebrities","Historical figures","Presidents","Authors","Inventors",
-  "Things in space","Things in an airport","Things in a museum","Things in an office","Things on a map",
-  "Excuses for being late","Pet peeves","Fears","Reasons to smile","Things that make you happy",
-  "Board games","Video games","Apps","Websites","Brands","Cars","Shoes","Clothing brands",
-  "Flowers","Trees","Birds","Insects","Sea creatures","Farm animals","Zoo animals",
-  "Holidays","Languages","College majors","Types of music","Dances","Sports teams",
-  "Things you plug in","Things that have buttons","Things that have wheels","Items in a gift shop",
-  "Things you take on a trip","Things you find in a bag","Things you wash","Things that are green",
-  "Things that are red","Something scary","Something yucky","Something delicious","Something funny",
-  "Ways to get from A to B","Types of weather","Units of measurement","Furniture","Plants",
-  "Things at a party","Things at a carnival","Things at a football game","Things in a garden",
-  "Reasons to call 911","Things that will get you fired","Ways to kill time","Things you save up to buy",
-  "Things you get in the mail","Things you do every day","Things you store items in","Historic events",
-  "Things to do on a date","Words associated with winter","Things that can kill you","Things you buy for kids",
-  "Honeymoon spots","Computer programs","Places to hang out","Things you make","Spicy foods",
-  "Things you shouldn't touch","Foreign words used in English","Things you do at work","Things you get tickets for",
-  "Kinds of soup","Store names","Musical groups","Types of drinks","Occupations","Things you throw away",
-  "States","Vegetables","Things that are yellow","Things that fly","Things that swim","Things that crawl",
-  "Things in a hospital","Things in a classroom","Things in a garage","Things under the bed",
-  "Bad habits","Good habits","Things that smell good","Things that smell bad","Things that are loud",
-  "Things that are quiet","Things that are expensive","Things that are cheap","Things that are sharp",
-  "Things that are heavy","Things that are light","Things that melt","Things that float",
-  "Things you can recycle","Things made of wood","Things made of metal","Things made of plastic",
-  "Things you find in the fridge","Things you find in a toolbox","Things you find at a park",
-  "Things associated with summer","Things associated with winter","Things associated with Halloween",
-  "Things associated with Christmas","Things associated with birthdays","Things associated with school",
-  "Things a baby uses","Things a teenager uses","Things an adult uses","Things a grandparent uses",
-  "Things you do on a rainy day","Things you do on a sunny day","Things you do at night",
-  "Things that are square","Things that are triangular","Things that are circular",
-  "Words ending in -ing","Words ending in -ly","Four-letter words","Five-letter words",
-  "Things that are hot","Things that are wet","Things that are dry","Things that are soft",
-  "Things that are hard","Things that are fragile","Things that are strong","Things that are weak"
+  // People & names
+  "A boy's name","A girl's name","A famous person","A job / occupation",
+  // Nature & living things
+  "An animal","A bird","An insect","A fish / sea animal","A farm animal","A zoo animal",
+  "A fruit","A vegetable","A flower","A tree","A plant",
+  // Places
+  "A country","A city","A place in nature","Something found at the beach","Something found in a kitchen",
+  "Something found in a bathroom","Something found in a school","Something found in a park",
+  // Food & drink
+  "A food","A drink","A dessert","An ice cream flavor","A pizza topping","A breakfast food","A type of candy",
+  // Everyday objects
+  "Something you wear","A piece of furniture","A tool","Something with wheels","Something you can open",
+  "Something soft","Something cold","Something hot","Something that is round","Something that bounces",
+  "Something that is sticky","Something that is green","Something that is red","Something that is yellow",
+  // Activities & entertainment
+  "A sport","A hobby","A musical instrument","A movie title","A TV show","A book title","A song title",
+  "A cartoon character","A superhero","A board game","A video game",
+  // School & knowledge
+  "A school subject","A body part","A color","A language","A holiday",
+  // Simple “things that…”
+  "Things that fly","Things that swim","Things that are loud","Things that are quiet",
+  "Things that smell good","Things that smell bad","Things you take on a trip",
+  "Things you do every day","Things at a party","Things that melt","Things that float",
+  // A few fun but still clear ones
+  "An excuse for being late","Something scary","Something funny","Something delicious",
+  "A brand","A car brand","A type of weather","A type of music"
 ];
 
-const ADJECTIVES = ["rare","famous","colorful","tiny","giant","ancient","modern","delicious","scary","funny","expensive","cheap","fast","slow","bright","dark","sweet","sour","spicy","soft","hard","shiny","rusty","magical","ordinary","unusual","beautiful","ugly","powerful","gentle","wild","tame","frozen","hot","cold","wet","dry","loud","quiet","happy","sad","angry","calm","busy","lazy","clever","silly","serious","playful","brave","shy"];
-const VERBS = ["eat","wear","drive","play","read","write","watch","listen","cook","build","fix","visit","collect","avoid","love","hate","buy","sell","throw","catch","open","close","break","fix","hide","find","share","keep","lose","win"];
-const PLACES = ["kitchen","bathroom","garage","school","office","park","beach","museum","airport","hospital","zoo","farm","forest","desert","mountain","city","village","castle","spaceship","submarine","library","stadium","theater","restaurant","hotel","supermarket","factory","laboratory","garden","attic"];
-const TOPICS = ["space","ocean","jungle","history","science","music","sports","food","fashion","technology","art","nature","travel","movies","books","games","animals","plants","weather","emotions"];
+// Kept for variety but used less often and only for simple combinations
+const ADJECTIVES = ["big","small","hot","cold","soft","hard","sweet","spicy","funny","scary","loud","quiet","fast","slow"];
+const PLACES = ["kitchen","bathroom","school","park","beach","garden","garage","hospital","zoo","farm"];
 
 function seededRandom(seed){
   let s = seed % 2147483647;
@@ -773,30 +760,21 @@ function generateCategories(seedStr, count=12){
   const used = new Set();
   const result = [];
 
-  // Mix of pure base + procedural
+  // Mostly simple base categories, light variety only
   while(result.length < count){
     let cat;
     const r = rand();
-    if(r < 0.55){
-      // Pure base category
+    if(r < 0.78){
+      // Pure simple category (majority)
       cat = BASE_CATEGORIES[Math.floor(rand()*BASE_CATEGORIES.length)];
-    } else if(r < 0.72){
-      // Adjective + base
-      const adj = ADJECTIVES[Math.floor(rand()*ADJECTIVES.length)];
-      const base = BASE_CATEGORIES[Math.floor(rand()*BASE_CATEGORIES.length)];
-      cat = adj.charAt(0).toUpperCase()+adj.slice(1) + " " + base.toLowerCase();
-    } else if(r < 0.85){
-      // Things that are + adj
+    } else if(r < 0.90){
+      // Things that are + simple adjective
       const adj = ADJECTIVES[Math.floor(rand()*ADJECTIVES.length)];
       cat = "Things that are " + adj;
-    } else if(r < 0.93){
-      // Things found in a + place
+    } else {
+      // Things found in a + simple place
       const place = PLACES[Math.floor(rand()*PLACES.length)];
       cat = "Things found in a " + place;
-    } else {
-      // Reasons to + verb / Things you + verb
-      const verb = VERBS[Math.floor(rand()*VERBS.length)];
-      cat = (rand()<0.5 ? "Reasons to " : "Things you ") + verb;
     }
     const key = cat.toLowerCase();
     if(!used.has(key)){
