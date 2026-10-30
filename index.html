@@ -540,7 +540,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 
 <section id="screen-lobby" class="screen">
   <div class="top-bar">
-    <div class="logo" style="text-align:left;font-size:1.3rem;padding:0">Boggle <em>Duo</em></div>
+    <div class="logo" style="text-align:left;font-size:1.3rem;padding:0">Word <em>Arena</em></div>
     <div class="user-chip"><div class="av" id="lobbyAv">🦊</div><span id="lobbyName">—</span><span class="lvl" id="lobbyLvl">LV1</span></div>
   </div>
   <div class="stats">
@@ -550,37 +550,51 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div class="stat"><div class="v" id="stStreak">0</div><div class="l">Streak</div></div>
   </div>
 
-  <!-- GAME PICKER -->
   <div class="card">
     <h2>Choose a game</h2>
-    <p class="sub">Pick what you want to play, then host or join.</p>
-    <div class="game-picker">
-      <div class="game-card selected" data-game="boggle" id="pickBoggle">
+    <p class="sub">Tap a game to create or join a room.</p>
+    <div class="game-picker" style="grid-template-columns:1fr">
+      <div class="game-card" data-game="boggle" id="pickBoggle" style="cursor:pointer">
         <div class="icon">🎲</div>
         <div class="name">Boggle</div>
         <div class="desc">Shake the tray & find words on a 4×4 grid</div>
       </div>
-      <div class="game-card" data-game="scatter" id="pickScatter">
+      <div class="game-card" data-game="scatter" id="pickScatter" style="cursor:pointer">
         <div class="icon">✍️</div>
         <div class="name">Scattergories</div>
-        <div class="desc">Fresh letter + dynamic categories every round</div>
+        <div class="desc">Letter + categories — race to fill them in</div>
+      </div>
+      <div class="game-card" data-game="hangman" id="pickHangman" style="cursor:pointer">
+        <div class="icon">🪢</div>
+        <div class="name">Hangman Race</div>
+        <div class="desc">Drag letters, beat the clock, save your figure</div>
       </div>
     </div>
   </div>
+  <button class="btn btn-primary" id="btnInstall" style="display:none">📲 Install on phone</button>
+  <button class="btn btn-ghost" id="btnLogout">Log out</button>
+</section>
 
+<!-- Matchmaking: Create / Join after picking a game -->
+<section id="screen-match" class="screen">
+  <div class="top-bar">
+    <button class="btn btn-ghost" id="btnBackGames" style="width:auto;min-height:40px;padding:8px 14px;font-size:.9rem">← Games</button>
+    <div class="user-chip"><div class="av" id="matchAv">🦊</div><span id="matchName">—</span></div>
+  </div>
   <div class="card">
-    <h2>🎲 Host a game</h2>
-    <p class="sub">Create a room and share the code. Up to 3 players.</p>
+    <h2 id="matchGameTitle">Game</h2>
+    <p class="sub" id="matchGameSub">Create a room or join an open one.</p>
     <button class="btn btn-gold" id="btnHost">CREATE ROOM</button>
   </div>
   <div class="card">
-    <h2>🔗 Join a game</h2>
-    <p class="sub">Type the 4-letter code from your friend.</p>
+    <h2>Open rooms</h2>
+    <p class="sub">Tap a room to join, or enter a code below.</p>
+    <div id="openRoomsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;min-height:40px">
+      <div class="none-words" style="padding:8px">Looking for rooms…</div>
+    </div>
     <input type="text" id="joinCode" placeholder="CODE" maxlength="4" style="text-transform:uppercase;letter-spacing:8px;text-align:center;font-size:1.4rem;font-family:'Fredoka',sans-serif;font-weight:700">
-    <button class="btn btn-mint" id="btnJoin">JOIN ROOM</button>
+    <button class="btn btn-mint" id="btnJoin">JOIN WITH CODE</button>
   </div>
-  <button class="btn btn-primary" id="btnInstall" style="display:none">📲 Install on phone</button>
-  <button class="btn btn-ghost" id="btnLogout">Log out</button>
 </section>
 
 <section id="screen-room" class="screen">
@@ -648,6 +662,28 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 </section>
 
 <div class="live-feed" id="liveFeed"></div>
+
+<section id="screen-hangman" class="screen">
+  <div class="game-top">
+    <div class="timer" id="hangTimerRing"><span id="hangTimerText">45</span></div>
+    <div class="scores" id="hangScoreBoard"></div>
+    <button class="snd-btn" id="btnSoundHang" title="Toggle sound">🔊</button>
+  </div>
+  <div class="card" style="text-align:center;padding:14px">
+    <div style="font-size:.75rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.5px">Category</div>
+    <div id="hangCategory" style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.2rem;color:var(--violet-d);margin:4px 0 10px">—</div>
+    <!-- Individual hangman figure over a pit -->
+    <div id="hangStage" style="position:relative;height:140px;margin:0 auto 8px;max-width:220px">
+      <div id="hangPit" style="position:absolute;bottom:0;left:10%;right:10%;height:28px;background:linear-gradient(180deg,#2D3436,#1a1a1a);border-radius:0 0 50% 50%;box-shadow:inset 0 4px 12px rgba(0,0,0,.5)"></div>
+      <div id="hangFigure" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);transition:bottom .4s cubic-bezier(.34,1.4,.64,1),opacity .3s;font-size:3.2rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))">🧍</div>
+      <div id="hangStatus" style="position:absolute;top:0;left:0;right:0;font-size:.8rem;font-weight:800;color:#636E72">Save him!</div>
+    </div>
+    <div id="hangSlots" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0;min-height:48px"></div>
+    <div id="hangTray" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px;min-height:52px"></div>
+    <button class="btn btn-primary" id="btnHangSubmit" style="margin-top:12px">SUBMIT</button>
+    <div id="hangMsg" style="margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72"></div>
+  </div>
+</section>
 
 <section id="screen-results" class="screen">
   <div class="logo">Round over!</div>
@@ -798,12 +834,66 @@ function generateCategories(seedStr, count=12){
 }
 
 function randomLetter(hard=false){
-  // Heavily favor letters that work well with the broad categories above
-  // Avoid Q, U, V, X, Y, Z unless hard mode is requested
   const easy = "ABCDEFGHIJKLMNOPRSTW";
   const all = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const pool = hard ? all : easy;
   return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* ===== HANGMAN RACE – rotating word banks ===== */
+const HANG_BANKS = {
+  "Movies": ["TITANIC","AVATAR","INCEPTION","GLADIATOR","FROZEN","JAWS","MATRIX","CASABLANCA","ALIEN","UP","COCO","DUNE","JOKER","GRAVITY","INTERSTELLAR","MOANA","SHREK","BATMAN","SPIDERMAN","FROZEN","TANGLED","ALADDIN","MULAN","BRAVE","CARS","TOYSTORY","FINDINGNEMO","MONSTERS","RATATOUILLE","WALL-E"],
+  "Animals": ["ELEPHANT","GIRAFFE","DOLPHIN","PENGUIN","KANGAROO","OCTOPUS","CHEETAH","PANDA","TIGER","LION","ZEBRA","HIPPO","RHINO","EAGLE","FALCON","SHARK","WHALE","OTTER","RABBIT","SQUIRREL","HAMSTER","PARROT","FLAMINGO","PEACOCK","CROCODILE","ALLIGATOR","IGUANA","PYTHON","COBRA","BUFFALO"],
+  "Foods": ["PIZZA","BURGER","SUSHI","TACO","PASTA","SALAD","PANCAKE","WAFFLE","BURRITO","NACHOS","LASAGNA","RAMEN","CURRY","STEAK","LOBSTER","BAGEL","MUFFIN","DONUT","COOKIE","BROWNIE","POPCORN","PRETZEL","HUMMUS","FALAFEL","KEBAB","PAELLA","RISOTTO","QUICHE","CREPE","SMOOTHIE"],
+  "Countries": ["CANADA","BRAZIL","FRANCE","JAPAN","EGYPT","MEXICO","ITALY","SPAIN","INDIA","CHINA","GERMANY","NORWAY","SWEDEN","POLAND","TURKEY","GREECE","PERU","CHILE","KENYA","NIGERIA","MOROCCO","THAILAND","VIETNAM","KOREA","IRELAND","PORTUGAL","AUSTRIA","BELGIUM","DENMARK","FINLAND"],
+  "Sports": ["SOCCER","TENNIS","HOCKEY","BOXING","RUGBY","GOLF","CRICKET","BASEBALL","BASKETBALL","VOLLEYBALL","SWIMMING","CYCLING","SKIING","SURFING","SKATEBOARD","ARCHERY","FENCING","JUDO","KARATE","WRESTLING","BADMINTON","SQUASH","POLO","ROWING","SAILING","DIVING","GYMNASTICS","TRIATHLON","MARATHON","HANDBALL"],
+  "Jobs": ["DOCTOR","TEACHER","ENGINEER","LAWYER","PILOT","CHEF","NURSE","ARTIST","WRITER","ACTOR","SINGER","DANCER","FARMER","DRIVER","BUILDER","PLUMBER","ELECTRICIAN","SCIENTIST","POLICE","FIREFIGHTER","SOLDIER","SAILOR","JUDGE","DENTIST","VET","ARCHITECT","DESIGNER","PROGRAMMER","JOURNALIST","PHOTOGRAPHER"],
+  "Colors": ["CRIMSON","SCARLET","MAGENTA","INDIGO","VIOLET","AZURE","CYAN","TEAL","OLIVE","MAROON","CORAL","SALMON","IVORY","BEIGE","AMBER","GOLDEN","SILVER","COPPER","BRONZE","TURQUOISE","LAVENDER","ORCHID","RUBY","EMERALD","SAPPHIRE","PEARL","CHARCOAL","CRIMSON","FUCHSIA","LIME"],
+  "Body parts": ["SHOULDER","ELBOW","WRIST","FINGER","ANKLE","KNEE","SPINE","RIBS","SKULL","JAW","TONGUE","THROAT","STOMACH","LIVER","KIDNEY","MUSCLE","NERVE","ARTERY","VEIN","LUNG","HEART","BRAIN","LIVER","SPLEEN","PELVIS","FEMUR","TIBIA","FIBULA","RADIUS","ULNA"],
+  "Things at school": ["PENCIL","ERASER","BACKPACK","NOTEBOOK","LOCKER","DESK","CHALK","MARKER","RULER","COMPASS","LIBRARY","CAFETERIA","GYMNASIUM","PRINCIPAL","TEACHER","HOMEWORK","EXAM","RECESS","BELL","BLACKBOARD","WHITEBOARD","PROJECTOR","CALCULATOR","BINDER","FOLDER","GLUE","SCISSORS","CRAYON","PAINT","GLOBE"],
+  "Things in a kitchen": ["SPATULA","LADLE","WHISK","BLENDER","TOASTER","OVEN","FRIDGE","FREEZER","MICROWAVE","KETTLE","CUTTINGBOARD","COLANDER","GRATER","PEELER","TONGS","APRON","RECIPE","SPICE","FLOUR","SUGAR","BUTTER","OIL","PAN","POT","BOWL","PLATE","FORK","SPOON","KNIFE","MUG"]
+};
+const HANG_USED = {}; // session-level used keys
+
+function pickHangmanPuzzle(seedStr){
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
+  const rand = seededRandom(seed || Date.now());
+
+  const cats = Object.keys(HANG_BANKS);
+  // Prefer categories with unused words
+  let category = cats[Math.floor(rand()*cats.length)];
+  let words = HANG_BANKS[category].filter(w => !HANG_USED[category+'|'+w]);
+  if(!words.length){
+    // reset this category if exhausted
+    Object.keys(HANG_USED).forEach(k=>{ if(k.startsWith(category+'|')) delete HANG_USED[k]; });
+    words = [...HANG_BANKS[category]];
+  }
+  const word = words[Math.floor(rand()*words.length)];
+  HANG_USED[category+'|'+word] = true;
+
+  // Reveal ~35% of unique letters (positions)
+  const chars = word.split('');
+  const positions = chars.map((_,i)=>i).filter(i=>chars[i]!=='-'&&chars[i]!==' ');
+  const revealCount = Math.max(1, Math.floor(positions.length * 0.35));
+  // shuffle positions
+  for(let i=positions.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[positions[i],positions[j]]=[positions[j],positions[i]]}
+  const revealSet = new Set(positions.slice(0, revealCount));
+  const revealed = chars.map((ch,i)=> revealSet.has(i) ? ch : (ch==='-'||ch===' '?' ':'_'));
+
+  // Tiles: remaining letters + decoys
+  const needed = [];
+  chars.forEach((ch,i)=>{ if(!revealSet.has(i) && ch!=='-' && ch!==' ') needed.push(ch); });
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const decoys = [];
+  while(decoys.length < Math.min(5, 8-needed.length)){
+    const d = alphabet[Math.floor(rand()*26)];
+    if(!needed.includes(d) && !decoys.includes(d) && !revealSet.has(chars.indexOf(d))) decoys.push(d);
+  }
+  const tiles = [...needed, ...decoys];
+  for(let i=tiles.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}
+
+  return { category, word, revealed, tiles };
 }
 
 /* ===== STATE ===== */
@@ -813,8 +903,10 @@ let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd
 let combo=0,comboTimer=null,soundOn=true,ac=null,seenWords={};
 let prevScores={};
 let rattleInt=null,possFilter='all',possSel=null,possPaths={},solvedCache={sig:'',list:null},solveBusy='';
-let selectedGame = 'boggle'; // 'boggle' | 'scatter'
+let selectedGame = 'boggle'; // 'boggle' | 'scatter' | 'hangman'
 let scatAnswers = {}; // local answers for scatter
+let lobbyIndexRef = null;
+let hangAnswers = {}; // hangman local state
 let scatSaveTimer = null;
 
 try{soundOn=localStorage.getItem('boggle_snd')!=='0'}catch(e){}
@@ -916,31 +1008,168 @@ async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=a
 async function saveProfile(u){if(!user)return;Object.assign(profile,u);profile.level=levelFromXp(profile.xp).level;await db.ref('users/'+user.uid).update({...u,level:profile.level});refreshStats()}
 function refreshStats(){if(!profile)return;$('lobbyName').textContent=profile.name;$('lobbyLvl').textContent='LV'+profile.level;$('lobbyAv').textContent=profile.avatar||'🦊';$('stXp').textContent=profile.xp||0;const a=profile.attempts||0,c=profile.correct||0;$('stAcc').textContent=a?Math.round(c/a*100)+'%':'—';$('stWords').textContent=profile.wordsFound||0;$('stStreak').textContent=profile.streak||0}
 
-/* ===== GAME PICKER ===== */
+/* ===== GAME DASHBOARD → MATCHMAKING ===== */
+const GAME_META = {
+  boggle:  { title:'🎲 Boggle', sub:'Create a room or join an open Boggle game.' },
+  scatter: { title:'✍️ Scattergories', sub:'Create a room or join an open Scattergories game.' },
+  hangman: { title:'🪢 Hangman Race', sub:'Create a room or join an open Hangman Race.' }
+};
+
+function openMatchmaking(game){
+  selectedGame = game;
+  const meta = GAME_META[game] || GAME_META.boggle;
+  $('matchGameTitle').textContent = meta.title;
+  $('matchGameSub').textContent = meta.sub;
+  if(profile){
+    $('matchAv').textContent = profile.avatar || '🦊';
+    $('matchName').textContent = profile.name || '—';
+  }
+  show('screen-match');
+  listenOpenRooms(game);
+}
+
+function listenOpenRooms(gameType){
+  if(lobbyIndexRef){ lobbyIndexRef.off(); lobbyIndexRef = null; }
+  const list = $('openRoomsList');
+  list.innerHTML = '<div class="none-words" style="padding:8px">Looking for rooms…</div>';
+  lobbyIndexRef = db.ref('lobbyIndex/'+gameType);
+  lobbyIndexRef.on('value', snap => {
+    const data = snap.val() || {};
+    const rooms = Object.values(data).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    if(!rooms.length){
+      list.innerHTML = '<div class="none-words" style="padding:8px">No open rooms — create one!</div>';
+      return;
+    }
+    list.innerHTML = rooms.map(r => {
+      const n = r.players || 1;
+      const full = n >= MAX_PLAYERS;
+      return `<button type="button" class="btn-room-join" data-code="${esc(r.code)}" ${full?'disabled':''}
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 14px;border-radius:14px;border:2px solid ${full?'#DFE6E9':'#D6CFFF'};background:${full?'#F8F9FA':'#F3F0FF'};font-family:inherit;cursor:${full?'not-allowed':'pointer'}">
+        <span style="font-weight:900;letter-spacing:3px;color:var(--violet-d)">${esc(r.code)}</span>
+        <span style="font-size:.85rem;font-weight:700;color:#636E72">${esc(r.hostName||'Host')} · ${n}/${MAX_PLAYERS}</span>
+        <span style="font-size:.8rem;font-weight:800;color:${full?'#B2BEC3':'var(--mint)'}">${full?'Full':'Join'}</span>
+      </button>`;
+    }).join('');
+    list.querySelectorAll('.btn-room-join:not([disabled])').forEach(btn=>{
+      btn.onclick = () => joinRoomByCode(btn.dataset.code);
+    });
+  });
+}
+
 document.querySelectorAll('.game-card').forEach(card=>{
-  card.onclick=()=>{
-    document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('selected'));
-    card.classList.add('selected');
-    selectedGame = card.dataset.game;
+  card.onclick = () => {
     snd('tap');
+    openMatchmaking(card.dataset.game);
   };
 });
+
+$('btnBackGames').onclick = () => {
+  if(lobbyIndexRef){ lobbyIndexRef.off(); lobbyIndexRef = null; }
+  show('screen-lobby');
+};
 
 $('authSwitch').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back!':'Create account';$('authSub').textContent=authMode==='login'?'Enter your username & password to play.':"Pick a username and password — that's it!";$('authSubmit').textContent=authMode==='login'?'LOG IN':'SIGN UP';$('authSwitch').textContent=authMode==='login'?'New here? Create account':'Have an account? Log in';$('authErr').textContent=''};
 $('authSubmit').onclick=async()=>{const username=($('authUser').value||'').trim();const pass=$('authPass').value;$('authErr').textContent='';if(!username||username.length<3){$('authErr').textContent='Username needs at least 3 characters';return}if(!/^[a-zA-Z0-9_]+$/.test(username)){$('authErr').textContent='Letters, numbers, underscore only';return}if(!pass||pass.length<6){$('authErr').textContent='Password needs at least 6 characters';return}$('authSubmit').disabled=true;const email=userEmail(username);const unameKey=username.toLowerCase();try{if(authMode==='signup'){const cred=await auth.createUserWithEmailAndPassword(email,pass);await cred.user.updateProfile({displayName:username});const unameRef=db.ref('usernames/'+unameKey);const claimed=await unameRef.transaction(current=>{if(current===null)return cred.user.uid;return;});if(!claimed.committed){await cred.user.delete().catch(()=>{});throw new Error('Username already taken')}await loadProfile(cred.user.uid,username)}else{await auth.signInWithEmailAndPassword(email,pass)}}catch(e){let m=e.message||'Error';if(m.includes('user-not-found')||m.includes('wrong-password')||m.includes('invalid-credential'))m='Wrong username or password';else if(m.includes('email-already-in-use'))m='Username already taken';else if(m.includes('permission_denied')||m.includes('PERMISSION_DENIED'))m='Database permission error — check Firebase rules';else m=m.replace('Firebase: ','').replace(/\(auth.*?\)\.?/,'').trim();$('authErr').textContent=m}$('authSubmit').disabled=false};
 auth.onAuthStateChanged(async u=>{user=u;if(u){await loadProfile(u.uid,u.displayName||'Player');refreshStats();show('screen-lobby')}else{profile=null;show('screen-auth')}});
 $('btnLogout').onclick=()=>auth.signOut();
 
-$('btnHost').onclick=async()=>{if(!user||!profile)return;$('btnHost').disabled=true;try{const code=randCode();const gameType=selectedGame;await db.ref('rooms/'+code).set({code,hostUid:user.uid,status:'lobby',gameType,createdAt:Date.now(),maxPlayers:MAX_PLAYERS,board:null,endsAt:null,letter:null,categories:null,players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},isHost:true}}});attachRoom(code,true)}catch(e){toast('Could not create: '+e.message)}$('btnHost').disabled=false};
-$('btnJoin').onclick=async()=>{const code=($('joinCode').value||'').trim().toUpperCase();if(code.length!==4){toast('Enter a 4-letter code');return}$('btnJoin').disabled=true;try{const snap=await db.ref('rooms/'+code).once('value');if(!snap.exists()){toast('Room not found');$('btnJoin').disabled=false;return}const room=snap.val();if(room.status!=='lobby'){toast('Game already started');$('btnJoin').disabled=false;return}const n=Object.keys(room.players||{}).length;if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');$('btnJoin').disabled=false;return}if(!(room.players||{})[user.uid]){await db.ref('rooms/'+code+'/players/'+user.uid).set({uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',score:0,words:{},answers:{},isHost:false})}attachRoom(code,room.hostUid===user.uid)}catch(e){toast('Join failed: '+e.message)}$('btnJoin').disabled=false};
+async function updateLobbyIndex(code, room){
+  if(!room || room.status !== 'lobby'){
+    await db.ref('lobbyIndex/'+(room?.gameType||selectedGame)+'/'+code).remove().catch(()=>{});
+    return;
+  }
+  const n = Object.keys(room.players||{}).length;
+  await db.ref('lobbyIndex/'+room.gameType+'/'+code).set({
+    code,
+    hostName: room.players?.[room.hostUid]?.name || 'Host',
+    players: n,
+    createdAt: room.createdAt || Date.now(),
+    gameType: room.gameType
+  }).catch(()=>{});
+}
+
+$('btnHost').onclick=async()=>{
+  if(!user||!profile)return;
+  $('btnHost').disabled=true;
+  try{
+    const code=randCode();
+    const gameType=selectedGame;
+    const room={
+      code,hostUid:user.uid,status:'lobby',gameType,
+      createdAt:Date.now(),maxPlayers:MAX_PLAYERS,
+      board:null,endsAt:null,letter:null,categories:null,
+      hangCategory:null,hangWord:null,hangRevealed:null,hangTiles:null,
+      players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
+    };
+    await db.ref('rooms/'+code).set(room);
+    await updateLobbyIndex(code, room);
+    if(lobbyIndexRef){lobbyIndexRef.off();lobbyIndexRef=null}
+    attachRoom(code,true);
+  }catch(e){toast('Could not create: '+e.message)}
+  $('btnHost').disabled=false;
+};
+
+async function joinRoomByCode(code){
+  code = (code||'').trim().toUpperCase();
+  if(code.length!==4){toast('Enter a 4-letter code');return}
+  $('btnJoin').disabled=true;
+  try{
+    const snap=await db.ref('rooms/'+code).once('value');
+    if(!snap.exists()){toast('Room not found');$('btnJoin').disabled=false;return}
+    const room=snap.val();
+    if(room.status!=='lobby'){toast('Game already started');$('btnJoin').disabled=false;return}
+    if(room.gameType && room.gameType !== selectedGame){
+      toast('That room is for a different game');
+      $('btnJoin').disabled=false;return;
+    }
+    const n=Object.keys(room.players||{}).length;
+    if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');$('btnJoin').disabled=false;return}
+    if(!(room.players||{})[user.uid]){
+      await db.ref('rooms/'+code+'/players/'+user.uid).set({
+        uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',
+        score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:false
+      });
+    }
+    // refresh lobby index player count
+    const snap2 = await db.ref('rooms/'+code).once('value');
+    await updateLobbyIndex(code, snap2.val());
+    if(lobbyIndexRef){lobbyIndexRef.off();lobbyIndexRef=null}
+    attachRoom(code, room.hostUid===user.uid);
+  }catch(e){toast('Join failed: '+e.message)}
+  $('btnJoin').disabled=false;
+}
+
+$('btnJoin').onclick=()=>joinRoomByCode($('joinCode').value);
 
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
 function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':'Boggle');
+  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':'Boggle');
 }
-function leaveRoom(){if(roomId&&user){db.ref('rooms/'+roomId+'/players/'+user.uid).remove().catch(()=>{});if(isHost){db.ref('rooms/'+roomId).once('value').then(s=>{if(s.exists()&&s.val().status==='lobby')db.ref('rooms/'+roomId).remove().catch(()=>{})})}}if(roomId)db.ref('rooms/'+roomId).off();roomId=null;roomData=null;isHost=false;clearInterval(timerInterval);stopBoardFx();show('screen-lobby')}
+function leaveRoom(){
+  if(roomId&&user){
+    const code = roomId;
+    const gt = roomData?.gameType || selectedGame;
+    db.ref('rooms/'+code+'/players/'+user.uid).remove().catch(()=>{});
+    // Update or remove lobby index
+    db.ref('rooms/'+code).once('value').then(s=>{
+      if(!s.exists()){ db.ref('lobbyIndex/'+gt+'/'+code).remove().catch(()=>{}); return; }
+      const room = s.val();
+      const n = Object.keys(room.players||{}).length;
+      if(n===0 || (isHost && room.status==='lobby')){
+        db.ref('rooms/'+code).remove().catch(()=>{});
+        db.ref('lobbyIndex/'+gt+'/'+code).remove().catch(()=>{});
+      } else if(room.status==='lobby'){
+        updateLobbyIndex(code, room);
+      }
+    });
+  }
+  if(roomId)db.ref('rooms/'+roomId).off();
+  roomId=null;roomData=null;isHost=false;
+  clearInterval(timerInterval);stopBoardFx();
+  show('screen-lobby');
+}
 $('btnLeaveRoom').onclick=leaveRoom;
 
 // --------- ROUND STATE & BOARD EFFECTS ---------
@@ -1032,8 +1261,10 @@ async function beginRound(){
   if(!isHost||!roomData)return;
   const gameType = roomData.gameType || 'boggle';
 
+  // Room is no longer open for joining
+  db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
+
   if(gameType === 'scatter'){
-    // Generate letter + dynamic categories
     const letter = randomLetter(false);
     const seed = roomId + '_' + Date.now();
     const categories = generateCategories(seed, 12);
@@ -1042,6 +1273,35 @@ async function beginRound(){
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
+    });
+    resetRoundState();
+    try{
+      await db.ref('rooms/'+roomId).update(updates);
+    }catch(e){
+      toast('Could not start: '+e.message);
+    }
+    return;
+  }
+
+  if(gameType === 'hangman'){
+    const puzzle = pickHangmanPuzzle(roomId + '_' + Date.now());
+    const updates={
+      status:'playing',
+      hangCategory: puzzle.category,
+      hangWord: puzzle.word,
+      hangRevealed: puzzle.revealed,
+      hangTiles: puzzle.tiles,
+      board:null,letter:null,categories:null,
+      endsAt: Date.now() + 45000,
+      startedAt: Date.now(),
+      endedAt:null
+    };
+    Object.keys(roomData.players||{}).forEach(uid=>{
+      updates['players/'+uid+'/score']=0;
+      updates['players/'+uid+'/words']={};
+      updates['players/'+uid+'/answers']={};
+      updates['players/'+uid+'/hangSolved']=false;
+      updates['players/'+uid+'/hangWrong']=0;
     });
     resetRoundState();
     try{
@@ -1180,6 +1440,190 @@ function enterScatter(){
   boardReady = true;
   snd('go');
 }
+
+/* ===== HANGMAN RACE UI ===== */
+const HANG_STAGES = [28, 22, 16, 10, 4, -20]; // bottom px — last is into the pit
+let hangSlots = [];   // current filled letters (null = empty)
+let hangTrayTiles = [];
+let hangWrong = 0;
+const HANG_MAX_WRONG = 5;
+
+function enterHangman(){
+  if($('screen-hangman').classList.contains('active') && !roundEnded){
+    renderHangScores();
+    return;
+  }
+  resetRoundState();
+  hangWrong = 0;
+  const sb = $('btnSoundHang');
+  if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
+  show('screen-hangman');
+
+  $('hangCategory').textContent = roomData.hangCategory || '—';
+  $('hangMsg').textContent = 'Drag letters into the blanks';
+  $('hangMsg').style.color = '#636E72';
+  $('hangStatus').textContent = 'Save him!';
+  updateHangFigure(0);
+
+  // Build slots from revealed pattern
+  const revealed = roomData.hangRevealed || [];
+  hangSlots = revealed.map(ch => ch === '_' ? null : ch);
+  hangTrayTiles = (roomData.hangTiles || []).map((ch,i)=>({id:i, ch, used:false}));
+
+  renderHangSlots();
+  renderHangTray();
+  renderHangScores();
+  startHangTimer();
+  boardReady = true;
+  snd('go');
+}
+
+function updateHangFigure(wrong){
+  const fig = $('hangFigure');
+  const stage = Math.min(wrong, HANG_STAGES.length-1);
+  fig.style.bottom = HANG_STAGES[stage] + 'px';
+  if(wrong >= HANG_MAX_WRONG){
+    fig.style.opacity = '0.3';
+    $('hangStatus').textContent = 'Oh no…';
+    $('hangStatus').style.color = '#E74C3C';
+  } else if(wrong > 0){
+    $('hangStatus').textContent = (HANG_MAX_WRONG - wrong) + ' left';
+    $('hangStatus').style.color = '#E17055';
+  } else {
+    fig.style.opacity = '1';
+    $('hangStatus').textContent = 'Save him!';
+    $('hangStatus').style.color = '#636E72';
+  }
+}
+
+function renderHangSlots(){
+  const host = $('hangSlots');
+  host.innerHTML = '';
+  hangSlots.forEach((ch, i) => {
+    const slot = document.createElement('div');
+    const locked = roomData.hangRevealed && roomData.hangRevealed[i] && roomData.hangRevealed[i] !== '_';
+    slot.style.cssText = 'width:36px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.2rem;border:2px solid '+(locked?'#A29BFE':'#DFE6E9')+';background:'+(locked?'#F3F0FF':(ch?'#FFF9E6':'#F8F9FA'))+';color:var(--violet-d);cursor:'+(locked?'default':'pointer');
+    slot.textContent = ch || '';
+    slot.dataset.idx = i;
+    if(!locked){
+      slot.onclick = () => {
+        if(hangSlots[i]){
+          // return tile to tray
+          const t = hangTrayTiles.find(x=>x.used && x.ch===hangSlots[i]);
+          if(t) t.used = false;
+          hangSlots[i] = null;
+          renderHangSlots();
+          renderHangTray();
+        }
+      };
+    }
+    host.appendChild(slot);
+  });
+}
+
+function renderHangTray(){
+  const host = $('hangTray');
+  host.innerHTML = '';
+  hangTrayTiles.forEach(t => {
+    if(t.used) return;
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.textContent = t.ch;
+    tile.style.cssText = 'width:42px;height:42px;border-radius:12px;border:none;background:linear-gradient(180deg,#A29BFE,var(--violet));color:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.15rem;box-shadow:0 4px 0 var(--violet-d);cursor:pointer';
+    tile.onclick = () => {
+      const empty = hangSlots.findIndex((s,i)=> s===null && roomData.hangRevealed[i]==='_');
+      if(empty < 0) return;
+      hangSlots[empty] = t.ch;
+      t.used = true;
+      renderHangSlots();
+      renderHangTray();
+      snd('tap');
+    };
+    host.appendChild(tile);
+  });
+}
+
+function renderHangScores(){
+  const host = $('hangScoreBoard');
+  if(!host||!roomData) return;
+  const players = Object.values(roomData.players||{});
+  host.innerHTML = players.map(p=>{
+    const solved = p.hangSolved;
+    const wrong = p.hangWrong||0;
+    return `<div class="sc${p.uid===user.uid?' me':''}"><div class="n">${esc(p.avatar||'')} ${esc(p.name)}</div><div class="s">${solved?'✓':wrong+'✗'}</div></div>`;
+  }).join('');
+}
+
+function startHangTimer(){
+  clearInterval(timerInterval);
+  const tick=()=>{
+    if(!roomData||!roomData.endsAt)return;
+    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    const el=$('hangTimerText'); if(el) el.textContent=left;
+    const ring=$('hangTimerRing');
+    if(ring){
+      const pct=Math.max(0,left/45*100);
+      ring.style.setProperty('--pct',pct+'%');
+      ring.classList.toggle('low',left<=10);
+    }
+    if(left<=0 && !roundEnded) finishHangRound();
+  };
+  tick();
+  timerInterval=setInterval(tick,250);
+}
+
+async function finishHangRound(){
+  if(roundEnded) return;
+  roundEnded = true;
+  clearInterval(timerInterval);
+  // If not solved, drop into pit
+  if(!(roomData.players?.[user.uid]?.hangSolved)){
+    updateHangFigure(HANG_MAX_WRONG);
+    $('hangMsg').textContent = 'Time’s up — he fell!';
+    $('hangMsg').style.color = '#E74C3C';
+  }
+  if(isHost){
+    try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(e){}
+  }
+  setTimeout(()=>showResults(), 1200);
+}
+
+$('btnHangSubmit') && ($('btnHangSubmit').onclick = async () => {
+  if(roundEnded || !roomData) return;
+  const guess = hangSlots.map(c=>c||'').join('');
+  const answer = (roomData.hangWord||'').replace(/[-\s]/g,'');
+  if(guess.length !== answer.length){
+    $('hangMsg').textContent = 'Fill every blank first';
+    $('hangMsg').style.color = '#E17055';
+    return;
+  }
+  if(guess === answer){
+    // Correct!
+    $('hangMsg').textContent = 'Saved! ✓';
+    $('hangMsg').style.color = '#00B894';
+    updateHangFigure(0);
+    $('hangFigure').style.bottom = '40px';
+    snd('win');
+    try{
+      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangSolved:true, score:1});
+    }catch(e){}
+    // First solver can end the round early if host or we just wait for timer
+    // Mark solved for results
+  } else {
+    hangWrong++;
+    updateHangFigure(hangWrong);
+    $('hangMsg').textContent = 'Wrong — he slipped!';
+    $('hangMsg').style.color = '#E74C3C';
+    snd('bad');
+    try{
+      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWrong});
+    }catch(e){}
+    if(hangWrong >= HANG_MAX_WRONG){
+      $('hangMsg').textContent = 'He fell into the pit…';
+      // Can't solve anymore this round
+    }
+  }
+});
 
 function validateScatAnswer(val, letter){
   // Returns: 'empty' | 'invalid' | 'valid'
@@ -1345,6 +1789,7 @@ function onRoom(snap){
     if(!roundEnded || prevStatus==='results' || prevStatus==='lobby'){
       roundEnded = false;
       if(gt==='scatter') enterScatter();
+      else if(gt==='hangman') enterHangman();
       else enterGame();
     }
   }
@@ -1569,6 +2014,7 @@ async function endRound(){
 function computeResults(){
   const gt = roomData?.gameType || 'boggle';
   if(gt === 'scatter') return computeScatterResults();
+  if(gt === 'hangman') return computeHangmanResults();
 
   const players=Object.values((roomData&&roomData.players)||{});
   const found={};
@@ -1585,6 +2031,21 @@ function computeResults(){
     return{p,items,raw,final,lost:raw-final,uniqueN:items.filter(i=>!i.dupe).length,sharedN:items.filter(i=>i.dupe).length};
   });
   rows.sort((a,b)=>(b.final-a.final)||(b.uniqueN-a.uniqueN)||String(a.p.name).localeCompare(String(b.p.name)));
+  return rows;
+}
+
+function computeHangmanResults(){
+  const players = Object.values((roomData&&roomData.players)||{});
+  const rows = players.map(p=>{
+    const solved = !!p.hangSolved;
+    const wrong = p.hangWrong||0;
+    const final = solved ? Math.max(1, 5 - wrong) : 0;
+    const items = solved
+      ? [{w: roomData.hangWord||'SOLVED', pts: final, dupe:false}]
+      : [{w: 'FAILED', pts:0, dupe:true}];
+    return {p, items, raw: items.length, final, lost: solved?0:1, uniqueN: solved?1:0, sharedN:0};
+  });
+  rows.sort((a,b)=>(b.final-a.final)||(a.p.hangWrong||0)-(b.p.hangWrong||0)||String(a.p.name).localeCompare(String(b.p.name)));
   return rows;
 }
 
