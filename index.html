@@ -122,27 +122,50 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 
 .word-bar{background:#fff;border-radius:14px;min-height:52px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.28rem;letter-spacing:2px;color:var(--violet-d);box-shadow:var(--shadow);padding:10px 14px;position:relative}
 .word-bar.hint{color:#B2BEC3;font-size:.95rem;letter-spacing:0}
-.board-wrap{background:linear-gradient(160deg,#5B4CDB,#4834D4);border-radius:22px;padding:12px;box-shadow:0 8px 0 #2F1F9E,var(--shadow);touch-action:none;user-select:none;position:relative}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;aspect-ratio:1;perspective:1000px;position:relative}
+.board-wrap{--g:8px;--cp:16px;background:linear-gradient(160deg,#5B4CDB,#3A27B5);border-radius:24px;padding:var(--cp);box-shadow:0 8px 0 #2F1F9E,var(--shadow),inset 0 3px 0 rgba(255,255,255,.28),inset 0 -4px 0 rgba(0,0,0,.18),inset 0 0 0 2px rgba(255,255,255,.16);touch-action:none;user-select:none;position:relative}
+/* The dark tray inside the case */
+.board-wrap::before{content:'';position:absolute;inset:calc(var(--cp) - 9px);border-radius:16px;background:linear-gradient(180deg,#1C1175,#2A1B94);box-shadow:inset 0 5px 12px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.12);z-index:0;pointer-events:none}
+/* Sixteen recessed wells the dice sit in (same grid geometry as the board) */
+.wells{position:absolute;inset:var(--cp);display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:var(--g);z-index:0;pointer-events:none}
+.well{position:relative}
+.well::before{content:'';position:absolute;inset:calc(var(--g)/-2);border-radius:14px;background:linear-gradient(160deg,#2E1F9A,#3E2FC0);box-shadow:inset 0 4px 7px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,255,255,.1)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g);aspect-ratio:1;perspective:1000px;position:relative}
 
-/* Shake animations */
-.board.shaking .tile{animation:tileShake 0.6s infinite cubic-bezier(.36,.07,.19,.97) both}
-.board.shaking .tile:nth-child(even){animation-duration:0.5s;animation-delay:0.1s}
-.board.shaking .tile:nth-child(3n){animation-duration:0.7s;animation-delay:0.2s}
-@keyframes tileShake{
-  0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
-  25%{transform:translate(-6px,6px) rotate(-15deg) scale(1.1);box-shadow:0 10px 15px rgba(0,0,0,.3)}
-  50%{transform:translate(6px,-6px) rotate(15deg) scale(0.9);box-shadow:0 2px 5px rgba(0,0,0,.2)}
-  75%{transform:translate(-4px,-4px) rotate(-5deg) scale(1.05);box-shadow:0 6px 10px rgba(0,0,0,.25)}
+/* Glass lid that drops onto the case while it is being shaken */
+.case-lid{position:absolute;inset:-4px;border-radius:28px;z-index:6;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.05) 30%,rgba(255,255,255,0) 42%,rgba(255,255,255,.16) 54%,rgba(255,255,255,.04) 72%,rgba(255,255,255,.2) 100%);
+  border:3px solid rgba(255,255,255,.5);
+  box-shadow:inset 0 0 34px rgba(255,255,255,.2),0 12px 26px rgba(0,0,0,.25);
+  opacity:0;transform:translateY(-38px) scale(1.05) rotate(-2.5deg);
+  transition:opacity .4s ease,transform .55s cubic-bezier(.34,1.3,.64,1)}
+.case-lid::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.4) 45%,transparent 60%);background-size:250% 100%;animation:lidGlare 1.1s linear infinite}
+@keyframes lidGlare{from{background-position:150% 0}to{background-position:-50% 0}}
+.lid-tag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),#E17055);color:#6D4C00;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:1px;padding:4px 12px;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.25);white-space:nowrap}
+.board-wrap.shaking .case-lid{opacity:1;transform:none}
+
+/* Shake animations: the whole case rattles and every die jostles inside its own well */
+.board-wrap.shaking{animation:caseShake .46s infinite linear}
+@keyframes caseShake{
+  0%{transform:translate(0,0) rotate(0deg)}
+  12%{transform:translate(-9px,4px) rotate(-2.2deg)}
+  25%{transform:translate(8px,-6px) rotate(1.8deg)}
+  38%{transform:translate(-7px,-3px) rotate(-1.4deg)}
+  50%{transform:translate(9px,5px) rotate(2.2deg)}
+  63%{transform:translate(-8px,3px) rotate(-1.8deg)}
+  75%{transform:translate(6px,-5px) rotate(1.2deg)}
+  88%{transform:translate(-5px,4px) rotate(-1deg)}
+  100%{transform:translate(0,0) rotate(0deg)}
 }
-.board.shaking{animation:boardBoxShake 0.4s infinite}
-@keyframes boardBoxShake{
+.board.shaking .tile{animation:tileRattle var(--sd,.32s) infinite linear;animation-delay:var(--sdl,0s)}
+@keyframes tileRattle{
   0%,100%{transform:translate(0,0) rotate(0deg)}
-  25%{transform:translate(3px,3px) rotate(1deg)}
-  75%{transform:translate(-3px,-3px) rotate(-1deg)}
+  15%{transform:translate(var(--ax,3px),var(--ay,2px)) rotate(var(--ar,8deg))}
+  35%{transform:translate(calc(var(--ax,3px)*-1),calc(var(--ay,2px)*.4)) rotate(calc(var(--ar,8deg)*-1.2))}
+  55%{transform:translate(calc(var(--ax,3px)*.6),calc(var(--ay,2px)*-1)) rotate(calc(var(--ar,8deg)*.8))}
+  75%{transform:translate(calc(var(--ax,3px)*-.8),calc(var(--ay,2px)*.8)) rotate(calc(var(--ar,8deg)*-.6))}
 }
 
-.tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(160deg,#fff,var(--tile));color:#2D3436;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(1.5rem,9vw,2.1rem);display:grid;place-items:center;box-shadow:0 4px 0 #D4C4A8,inset 0 2px 0 #fff;cursor:pointer;transition:transform .1s,background .12s,box-shadow .12s,color .12s;position:relative;z-index:3}
+.tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(160deg,#fff,var(--tile));color:#2D3436;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(1.5rem,9vw,2.1rem);display:grid;place-items:center;box-shadow:0 4px 0 #D4C4A8,0 6px 8px rgba(0,0,0,.35),inset 0 2px 0 #fff,inset 0 -3px 6px rgba(160,130,80,.25);cursor:pointer;transition:transform .1s,background .12s,box-shadow .12s,color .12s;position:relative;z-index:3}
 .tile:active,.tile.down{transform:translateY(2px);box-shadow:0 1px 0 #D4C4A8}
 .tile.on{background:linear-gradient(160deg,#FFEAA7,var(--gold));box-shadow:0 4px 0 #E17055,0 0 18px rgba(253,203,110,.7);transform:scale(1.08);color:#6D4C00}
 .tile.path{background:linear-gradient(160deg,#FAB1A0,var(--pink));box-shadow:0 4px 0 #E84393,0 0 14px rgba(253,121,168,.5);color:#fff}
@@ -196,8 +219,44 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .res-legend .wchip{animation:none;padding:3px 8px;font-size:.72rem}
 .res-legend .wchip.dupe .wt::after{animation:none;width:calc(100% + 6px)}
 
+/* Possible words panel */
+.poss{margin-top:14px;border-top:2px dashed #DFE6E9;padding-top:14px}
+.poss h3{font-family:'Fredoka',sans-serif;font-size:1.08rem;font-weight:700;color:var(--violet-d);margin-bottom:2px}
+.poss .psub{font-size:.8rem;font-weight:700;color:#636E72;margin-bottom:10px;line-height:1.35}
+.poss .psub.searching{animation:barPulse .9s ease-in-out infinite}
+.poss-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.mini-wrap{flex-shrink:0;width:132px}
+.mini-board{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:linear-gradient(160deg,#5B4CDB,#3A27B5);padding:7px;border-radius:12px;box-shadow:0 4px 0 #2F1F9E}
+.mt{aspect-ratio:1;background:linear-gradient(160deg,#fff,var(--tile));border-radius:6px;display:grid;place-items:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.9rem;color:#2D3436;box-shadow:0 2px 0 #D4C4A8;transition:background .15s,transform .15s,color .15s}
+.mt.hl{background:linear-gradient(160deg,#FFEAA7,var(--gold));color:#6D4C00;transform:scale(1.08);box-shadow:0 2px 0 #E17055}
+.mt.hl0{background:linear-gradient(160deg,#FAB1A0,var(--pink));color:#fff;box-shadow:0 2px 0 #E84393}
+.mt-word{margin-top:8px;text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.85rem;color:var(--violet-d);min-height:1.2em;letter-spacing:1px;word-break:break-all}
+.mt-word.hint{color:#B2BEC3;font-size:.72rem;letter-spacing:0}
+.poss-stats{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.pstat{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.8rem;font-weight:800;color:#636E72}
+.pstat b{font-family:'Fredoka',sans-serif;font-size:1rem;color:var(--violet-d)}
+.pbar{height:10px;background:#DFE6E9;border-radius:8px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--mint-l));border-radius:8px}
+.pfilters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.pf{border:2px solid #DFE6E9;background:#fff;color:#636E72;font-family:inherit;font-weight:800;font-size:.75rem;padding:5px 11px;border-radius:999px;cursor:pointer}
+.pf.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.plegend{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.plegend .pw{cursor:default;font-size:.68rem;padding:2px 8px}
+.plist{max-height:340px;overflow-y:auto;background:#F8F9FA;border:2px solid #EEF0F2;border-radius:14px;padding:10px;-webkit-overflow-scrolling:touch}
+.pg+.pg{margin-top:10px}
+.pg-h{position:sticky;top:-10px;z-index:2;background:#F8F9FA;padding:4px 0;font-size:.72rem;font-weight:900;color:#636E72;text-transform:uppercase;letter-spacing:.4px}
+.pg-h span{background:#DFE6E9;border-radius:8px;padding:1px 7px;margin-left:4px;color:#4B5658}
+.pg-w{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+.pw{display:inline-flex;align-items:center;gap:4px;font-family:inherit;font-weight:800;font-size:.78rem;padding:3px 9px;border-radius:999px;border:2px solid transparent;cursor:pointer;line-height:1.3}
+.pw .pa{font-size:.72rem;letter-spacing:-1px}
+.pw.mine{background:linear-gradient(180deg,#55EFC4,var(--mint));color:#004D40}
+.pw.shared{background:#FFF3CD;color:#7A5600;border-color:var(--gold)}
+.pw.other{background:#EDE7FF;color:var(--violet-d);border-color:#CFC6FF}
+.pw.miss{background:#fff;color:#8795A1;border:2px dashed #CBD3D9}
+.pw.sel{outline:3px solid var(--pink);outline-offset:1px}
+
 @media (prefers-reduced-motion:reduce){
-  .board.shaking,.board.shaking .tile{animation:none!important}
+  .board-wrap.shaking,.board.shaking,.board.shaking .tile,.case-lid::before{animation:none!important}
   .tile.land{animation-duration:.01s!important}
 }
 
@@ -228,8 +287,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 
 @media(max-width:360px){
   .tile{font-size:1.35rem;border-radius:12px}
-  .board{gap:6px}
-  .board-wrap{padding:10px}
+  .board-wrap{--g:6px;--cp:12px}
   .logo{font-size:1.45rem}
   .code-box{font-size:1.5rem;letter-spacing:6px}
   .timer{width:64px;height:64px}
@@ -304,9 +362,11 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   </div>
   <div class="word-bar hint" id="currentWord" style="position:relative">Drag letters to spell<span class="combo-badge" id="comboBadge">×2</span></div>
   <div class="board-wrap" id="boardWrap">
+    <div class="wells" aria-hidden="true"><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div><div class="well"></div></div>
+    <div class="board" id="board"></div>
     <svg class="path-svg" id="pathSvg"></svg>
     <div class="fx-layer" id="fxLayer"></div>
-    <div class="board" id="board"></div>
+    <div class="case-lid" id="caseLid" aria-hidden="true"><span class="lid-tag">🎲 SHAKING!</span></div>
   </div>
   <div class="words-box">
     <h3>Your words · <span id="wordCount">0</span></h3>
@@ -319,6 +379,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   <div class="logo">Round over!</div>
   <div class="card">
     <div id="resultsGrid"></div>
+    <div id="possibleWrap"></div>
     <div class="xp-wrap">
       <div class="lab"><span>Level <span id="resLvl">1</span></span><span id="resXpText">0/100</span></div>
       <div class="xp-track"><div class="xp-fill" id="resXpFill"></div></div>
@@ -381,6 +442,7 @@ let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd
 let combo=0,comboTimer=null,soundOn=true,ac=null,seenWords={};
 // Track previous scores so we can animate only when an opponent scores
 let prevScores={};
+let rattleInt=null,possFilter='all',possSel=null,possPaths={},solvedCache={sig:'',list:null},solveBusy='';
 
 try{soundOn=localStorage.getItem('boggle_snd')!=='0'}catch(e){}
 const $=id=>document.getElementById(id);
@@ -503,11 +565,13 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 function randLetter(not){let l;do{l=LETTER_POOL[Math.floor(Math.random()*LETTER_POOL.length)]}while(l===not);return l}
 function canPlay(){return !!roomData&&roomData.status==='playing'&&boardReady&&!roundEnded}
 function setWordBar(msg,hint,cls){const w=$('currentWord');w.textContent=msg;w.classList.toggle('hint',!!hint);w.classList.remove('pulse','go');if(cls)w.classList.add(cls)}
-function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};resetCombo()}
+function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};possSel=null;resetCombo()}
 function stopLetterScramble(){clearInterval(scrambleInt);scrambleInt=null}
 function stopShakeCountdown(){clearInterval(shakeCd);shakeCd=null;const r=$('timerRing');if(r)r.classList.remove('prep')}
 function clearSettleTimers(){settleTimers.forEach(clearTimeout);settleTimers=[]}
-function stopBoardFx(){stopLetterScramble();stopShakeCountdown();clearSettleTimers();clearTimeout(shakeTimeout);const b=$('board');if(b)b.classList.remove('shaking')}
+function setShaking(on){const b=$('board'),w=$('boardWrap');if(b)b.classList.toggle('shaking',!!on);if(w)w.classList.toggle('shaking',!!on)}
+function stopRattle(){clearInterval(rattleInt);rattleInt=null}
+function stopBoardFx(){stopLetterScramble();stopShakeCountdown();clearSettleTimers();clearTimeout(shakeTimeout);stopRattle();setShaking(false)}
 
 // Letters on every tile keep changing while the box is shaking.
 function startLetterScramble(){
@@ -542,7 +606,8 @@ function settleBoard(grid){
   boardReady=false;
   stopShakeCountdown();
   clearSettleTimers();
-  b.classList.remove('shaking');
+  setShaking(false);
+  stopRattle();
   let maxDelay=0;
   tiles.forEach((t,i)=>{
     const r=+t.dataset.r,c=+t.dataset.c,delay=(r+c)*LAND_STEP;
@@ -621,15 +686,17 @@ function enterGame(){
   renderScores();
   if(roomData.status==='shaking'){
     renderBoard(roomData.board,true);
-    b.classList.add('shaking');
+    setShaking(true);
     setWordBar('Shaking the box…',true,'pulse');
     startLetterScramble();
     startShakeCountdown();
     snd('shake');
     try{if(navigator.vibrate)navigator.vibrate([60,40,60,40,60,40,60])}catch(e){}
+    stopRattle();
+    rattleInt=setInterval(()=>{snd('shake');try{if(navigator.vibrate)navigator.vibrate([50,30,50,30,50])}catch(e){}},480);
   }else{
     renderBoard(roomData.board,false);
-    b.classList.remove('shaking');
+    setShaking(false);
     setWordBar('Drag letters to spell',true);
     landTiles();
     startTimer();
@@ -678,6 +745,12 @@ function renderBoard(grid,hidden){
     t.className='tile';
     t.dataset.r=r;
     t.dataset.c=c;
+    // Each die rattles with its own strength, speed and timing inside its well
+    t.style.setProperty('--ax',(2+Math.random()*2.6).toFixed(1)+'px');
+    t.style.setProperty('--ay',(2+Math.random()*2.6).toFixed(1)+'px');
+    t.style.setProperty('--ar',((Math.random()<.5?-1:1)*(6+Math.random()*10)).toFixed(1)+'deg');
+    t.style.setProperty('--sd',(.26+Math.random()*.22).toFixed(2)+'s');
+    t.style.setProperty('--sdl',(-Math.random()*.4).toFixed(2)+'s');
     t.textContent=hidden?randLetter():grid[i];
     board.appendChild(t);
   }
@@ -978,6 +1051,160 @@ function updateXpBar(){
   $('resXpFill').style.width=Math.min(100,lv.into/lv.need*100)+'%';
 }
 
+/* ---------- Possible words: solve the board and show what everybody found / missed ---------- */
+function waitForDict(ms){return new Promise(res=>{const t0=Date.now();(function chk(){if(dictReady||Date.now()-t0>ms)res();else setTimeout(chk,150)})()})}
+
+// Finds every dictionary word that can be traced on the board (adjacent tiles, no tile reused, 'Qu' is one tile).
+async function findAllWords(grid){
+  await waitForDict(8000);
+  const letters=grid.map(g=>String(g).toLowerCase());
+  const avail=new Set(),starts=new Set();
+  letters.forEach(t=>{for(const ch of t)avail.add(ch);starts.add(t[0])});
+  const nbr=[];
+  for(let i=0;i<16;i++)nbr.push(neighbors(Math.floor(i/4),i%4).map(([r,c])=>r*4+c));
+  const used=new Array(16).fill(0),trail=[];
+  let w='';
+  const dfs=(i,pos)=>{
+    const t=letters[i];
+    if(!w.startsWith(t,pos))return false;
+    const np=pos+t.length;
+    trail.push(i);
+    if(np===w.length)return true;
+    used[i]=1;
+    for(const j of nbr[i]){if(!used[j]&&dfs(j,np))return true}
+    used[i]=0;trail.pop();return false;
+  };
+  const out=[];
+  let n=0;
+  for(const word of DICT){
+    if(++n%25000===0)await new Promise(r=>setTimeout(r,0));
+    const L=word.length;
+    if(L<MIN_LEN||L>17||!starts.has(word[0]))continue;
+    let ok=true;
+    for(let k=1;k<L;k++){if(!avail.has(word[k])){ok=false;break}}
+    if(!ok)continue;
+    w=word;
+    for(let s=0;s<16;s++){
+      if(letters[s][0]!==word[0])continue;
+      trail.length=0;used.fill(0);
+      if(dfs(s,0)){if(trail.length>=MIN_LEN)out.push({w:word,path:trail.slice()});break}
+    }
+  }
+  return out;
+}
+
+const POSS_FILTERS=[['all','All'],['mymiss','Missed by you'],['nobody','Nobody found'],['matched','Matched'],['mine','Yours']];
+const POSS_PASS={
+  all:()=>true,
+  mymiss:i=>i.st==='other'||i.st==='miss',
+  nobody:i=>i.st==='miss',
+  matched:i=>i.fs.length>1,
+  mine:i=>i.st==='mine'||i.st==='shared'
+};
+
+function applyHl(){
+  const host=$('possibleWrap');if(!host)return;
+  host.querySelectorAll('.mt').forEach(t=>t.classList.remove('hl','hl0'));
+  host.querySelectorAll('.pw.sel').forEach(x=>x.classList.remove('sel'));
+  const lab=host.querySelector('.mt-word');
+  if(!possSel){if(lab){lab.textContent='Tap a word to see its path';lab.classList.add('hint')}return}
+  const path=possPaths[possSel];
+  if(path)path.forEach((idx,k)=>{const t=host.querySelector('.mt[data-i="'+idx+'"]');if(t)t.classList.add(k===0?'hl0':'hl')});
+  host.querySelectorAll('.pw[data-w]').forEach(x=>{if(x.dataset.w===possSel)x.classList.add('sel')});
+  if(lab){lab.textContent=possSel.toUpperCase();lab.classList.remove('hint')}
+}
+
+function renderPossible(rows){
+  const host=$('possibleWrap');
+  if(!host||!roomData||!roomData.board||roomData.board.length!==16||!user)return;
+  const sig=roomData.board.join(',');
+
+  // Still solving (or never solved this board): show a placeholder and start the search once.
+  if(solvedCache.sig!==sig||!solvedCache.list){
+    host.innerHTML='<div class="poss"><h3>🔎 All possible words</h3><div class="psub searching">Searching the board for every word…</div></div>';
+    if(solveBusy!==sig){
+      solveBusy=sig;
+      findAllWords(roomData.board.slice()).then(list=>{
+        solvedCache={sig,list};solveBusy='';
+        if(roomData&&roomData.board&&roomData.board.join(',')===sig&&$('screen-results').classList.contains('active'))renderPossible(computeResults());
+      }).catch(e=>{
+        solveBusy='';console.warn('Word search failed',e);
+        const h=$('possibleWrap');
+        if(h)h.innerHTML='<div class="poss"><h3>🔎 All possible words</h3><div class="psub">Could not build the word list this round.</div></div>';
+      });
+    }
+    return;
+  }
+
+  // Who found what
+  const players=Object.values(roomData.players||{});
+  const fm={};
+  players.forEach(p=>Object.keys(p.words||{}).forEach(w=>{(fm[w]=fm[w]||[]).push(p)}));
+  const list=solvedCache.list.slice();
+  const have=new Set(list.map(x=>x.w));
+  Object.keys(fm).forEach(w=>{if(!have.has(w))list.push({w,path:null})});
+
+  possPaths={};
+  const items=list.map(x=>{
+    const fs=fm[x.w]||[];
+    const mine=fs.some(p=>p.uid===user.uid);
+    const st=!fs.length?'miss':mine?(fs.length>1?'shared':'mine'):'other';
+    possPaths[x.w]=x.path;
+    return{w:x.w,fs,st};
+  });
+
+  const total=items.length;
+  const nMine=items.filter(i=>i.st==='mine'||i.st==='shared').length;
+  const nMatched=items.filter(i=>i.fs.length>1).length;
+  const nOther=items.filter(i=>i.st==='other').length;
+  const nNobody=items.filter(i=>i.st==='miss').length;
+  const pct=total?Math.round(nMine/total*100):0;
+
+  const pass=POSS_PASS[possFilter]||POSS_PASS.all;
+  const shown=items.filter(pass).sort((a,b)=>(b.w.length-a.w.length)||a.w.localeCompare(b.w));
+  const groups={};
+  shown.forEach(i=>{(groups[i.w.length]=groups[i.w.length]||[]).push(i)});
+  const lens=Object.keys(groups).map(Number).sort((a,b)=>b-a);
+
+  const chip=i=>{
+    const av=i.fs.map(p=>esc(p.avatar||'🎮')).join('');
+    const tip=i.fs.length?'Found by '+esc(i.fs.map(p=>p.uid===user.uid?'you':p.name).join(', ')):'Nobody found this one';
+    return '<button type="button" class="pw '+i.st+'" data-w="'+esc(i.w)+'" title="'+tip+'"><span class="pt">'+esc(i.w.toUpperCase())+'</span>'+(av?'<span class="pa">'+av+'</span>':'')+'</button>';
+  };
+  const listHtml=lens.length
+    ?lens.map(L=>'<div class="pg"><div class="pg-h">'+L+' letters <span>'+groups[L].length+'</span></div><div class="pg-w">'+groups[L].map(chip).join('')+'</div></div>').join('')
+    :'<div class="none-words" style="padding:8px">Nothing in this filter</div>';
+
+  const mini=roomData.board.map((t,i)=>'<div class="mt" data-i="'+i+'">'+esc(t)+'</div>').join('');
+  const filters=POSS_FILTERS.map(f=>'<button type="button" class="pf'+(possFilter===f[0]?' on':'')+'" data-f="'+f[0]+'">'+f[1]+'</button>').join('');
+
+  host.innerHTML='<div class="poss">'
+    +'<h3>🔎 All possible words · '+total+'</h3>'
+    +'<div class="psub">Every word hiding on this board. Tap one to see its path.</div>'
+    +'<div class="poss-top">'
+      +'<div class="mini-wrap"><div class="mini-board">'+mini+'</div><div class="mt-word hint">Tap a word to see its path</div></div>'
+      +'<div class="poss-stats">'
+        +'<div class="pstat"><span>You found</span><b>'+nMine+' / '+total+'</b></div>'
+        +'<div class="pbar"><i style="width:'+pct+'%"></i></div>'
+        +'<div class="pstat"><span>Matched (2+ players)</span><b>'+nMatched+'</b></div>'
+        +'<div class="pstat"><span>Only others found</span><b>'+nOther+'</b></div>'
+        +'<div class="pstat"><span>Nobody found</span><b>'+nNobody+'</b></div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="pfilters">'+filters+'</div>'
+    +'<div class="plegend"><span class="pw mine">You found</span><span class="pw shared">Matched with others</span><span class="pw other">You missed</span><span class="pw miss">Nobody found</span></div>'
+    +'<div class="plist">'+listHtml+'</div>'
+    +'</div>';
+  applyHl();
+}
+
+$('possibleWrap').addEventListener('click',e=>{
+  const f=e.target.closest('[data-f]');
+  if(f){possFilter=f.dataset.f;renderPossible(computeResults());return}
+  const b=e.target.closest('.pw[data-w]');
+  if(b){possSel=possSel===b.dataset.w?null:b.dataset.w;snd('tap');applyHl()}
+});
+
 function showResults(){
   clearInterval(timerInterval);
   if(!$('screen-results').classList.contains('active'))show('screen-results');
@@ -985,7 +1212,7 @@ function showResults(){
   if(!rows.length)return;
   // Only re-draw when the words actually changed, so animations don't restart on every database tick.
   const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.items.map(i=>i.w+(i.dupe?'*':''))]));
-  if(sig!==resultsSig){resultsSig=sig;renderResults(rows)}
+  if(sig!==resultsSig){resultsSig=sig;renderResults(rows);renderPossible(rows)}
   awardResults(rows);
   if(profile)updateXpBar();
 }
