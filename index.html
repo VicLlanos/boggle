@@ -517,6 +517,35 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   .timer{width:64px;height:64px}
   .scat-letter{font-size:4rem}
 }
+/* Hangman Race */
+.hang-card{text-align:center;padding:16px 14px}
+.hang-level-bar{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:800;color:#636E72;margin-bottom:8px}
+.hang-level-bar span{background:#F3F0FF;padding:4px 10px;border-radius:99px;color:var(--violet-d)}
+.hang-cat-label{font-size:.7rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.6px}
+.hang-cat-name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.25rem;color:var(--violet-d);margin:2px 0 4px}
+.hang-hint{font-size:.85rem;font-weight:700;color:#E17055;margin-bottom:8px;min-height:1.2em}
+.hang-stage{position:relative;height:160px;margin:0 auto 6px;max-width:240px}
+.hang-gallows{width:100%;height:100%;display:block}
+.hang-figure{
+  position:absolute;left:50%;top:38px;transform:translateX(-42%);
+  font-size:2.4rem;line-height:1;
+  transition:top .45s cubic-bezier(.34,1.2,.64,1),opacity .35s,filter .35s;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));
+  z-index:2;
+}
+.hang-figure.stage-0{top:38px}
+.hang-figure.stage-1{top:48px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3)) saturate(.9)}
+.hang-figure.stage-2{top:58px}
+.hang-figure.stage-3{top:72px;transform:translateX(-42%) rotate(6deg)}
+.hang-figure.stage-4{top:88px;transform:translateX(-42%) rotate(12deg)}
+.hang-figure.stage-5{top:115px;opacity:.25;transform:translateX(-42%) rotate(25deg) scale(.85)}
+.hang-figure.saved{top:32px;filter:drop-shadow(0 0 12px #00B894)}
+.hang-status{position:absolute;top:0;left:0;right:0;font-size:.78rem;font-weight:800;color:#636E72;z-index:3}
+.hang-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0;min-height:48px}
+.hang-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px;min-height:52px}
+.hang-msg{margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72}
+#screen-hangman .timer{background:conic-gradient(#6C5CE7 var(--pct,100%),rgba(255,255,255,.22) 0)}
+#screen-hangman .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0)}
 </style>
 </head>
 <body>
@@ -669,19 +698,30 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div class="scores" id="hangScoreBoard"></div>
     <button class="snd-btn" id="btnSoundHang" title="Toggle sound">🔊</button>
   </div>
-  <div class="card" style="text-align:center;padding:14px">
-    <div style="font-size:.75rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.5px">Category</div>
-    <div id="hangCategory" style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.2rem;color:var(--violet-d);margin:4px 0 10px">—</div>
-    <!-- Individual hangman figure over a pit -->
-    <div id="hangStage" style="position:relative;height:140px;margin:0 auto 8px;max-width:220px">
-      <div id="hangPit" style="position:absolute;bottom:0;left:10%;right:10%;height:28px;background:linear-gradient(180deg,#2D3436,#1a1a1a);border-radius:0 0 50% 50%;box-shadow:inset 0 4px 12px rgba(0,0,0,.5)"></div>
-      <div id="hangFigure" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);transition:bottom .4s cubic-bezier(.34,1.4,.64,1),opacity .3s;font-size:3.2rem;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))">🧍</div>
-      <div id="hangStatus" style="position:absolute;top:0;left:0;right:0;font-size:.8rem;font-weight:800;color:#636E72">Save him!</div>
+  <div class="card hang-card">
+    <div class="hang-level-bar">
+      <span id="hangLevelLabel">Level 1 / 5</span>
+      <span id="hangSeriesScore">Series: 0</span>
     </div>
-    <div id="hangSlots" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0;min-height:48px"></div>
-    <div id="hangTray" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px;min-height:52px"></div>
-    <button class="btn btn-primary" id="btnHangSubmit" style="margin-top:12px">SUBMIT</button>
-    <div id="hangMsg" style="margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72"></div>
+    <div class="hang-cat-label">CATEGORY</div>
+    <div id="hangCategory" class="hang-cat-name">—</div>
+    <div id="hangHint" class="hang-hint">Hint: —</div>
+    <div id="hangStage" class="hang-stage">
+      <svg class="hang-gallows" viewBox="0 0 120 140" aria-hidden="true">
+        <ellipse cx="60" cy="132" rx="44" ry="9" fill="#0d0d0d"/>
+        <ellipse cx="60" cy="129" rx="40" ry="7" fill="#2D3436"/>
+        <rect x="12" y="8" width="9" height="110" rx="2" fill="#5D4037"/>
+        <rect x="12" y="8" width="72" height="9" rx="2" fill="#6D4C41"/>
+        <line id="hangRope" x1="74" y1="17" x2="74" y2="44" stroke="#8D6E63" stroke-width="3.5" stroke-linecap="round"/>
+        <circle id="hangNoose" cx="74" cy="52" r="8" fill="none" stroke="#8D6E63" stroke-width="2.5"/>
+      </svg>
+      <div id="hangFigure" class="hang-figure stage-0">🙂</div>
+      <div id="hangStatus" class="hang-status">Save him!</div>
+    </div>
+    <div id="hangSlots" class="hang-slots"></div>
+    <div id="hangTray" class="hang-tray"></div>
+    <button class="btn btn-primary" id="btnHangSubmit">SUBMIT</button>
+    <div id="hangMsg" class="hang-msg"></div>
   </div>
 </section>
 
@@ -840,20 +880,68 @@ function randomLetter(hard=false){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-/* ===== HANGMAN RACE – rotating word banks ===== */
+/* ===== HANGMAN RACE – harder rotating banks with hints ===== */
+// Each entry: [WORD, HINT]
 const HANG_BANKS = {
-  "Movies": ["TITANIC","AVATAR","INCEPTION","GLADIATOR","FROZEN","JAWS","MATRIX","CASABLANCA","ALIEN","UP","COCO","DUNE","JOKER","GRAVITY","INTERSTELLAR","MOANA","SHREK","BATMAN","SPIDERMAN","FROZEN","TANGLED","ALADDIN","MULAN","BRAVE","CARS","TOYSTORY","FINDINGNEMO","MONSTERS","RATATOUILLE","WALL-E"],
-  "Animals": ["ELEPHANT","GIRAFFE","DOLPHIN","PENGUIN","KANGAROO","OCTOPUS","CHEETAH","PANDA","TIGER","LION","ZEBRA","HIPPO","RHINO","EAGLE","FALCON","SHARK","WHALE","OTTER","RABBIT","SQUIRREL","HAMSTER","PARROT","FLAMINGO","PEACOCK","CROCODILE","ALLIGATOR","IGUANA","PYTHON","COBRA","BUFFALO"],
-  "Foods": ["PIZZA","BURGER","SUSHI","TACO","PASTA","SALAD","PANCAKE","WAFFLE","BURRITO","NACHOS","LASAGNA","RAMEN","CURRY","STEAK","LOBSTER","BAGEL","MUFFIN","DONUT","COOKIE","BROWNIE","POPCORN","PRETZEL","HUMMUS","FALAFEL","KEBAB","PAELLA","RISOTTO","QUICHE","CREPE","SMOOTHIE"],
-  "Countries": ["CANADA","BRAZIL","FRANCE","JAPAN","EGYPT","MEXICO","ITALY","SPAIN","INDIA","CHINA","GERMANY","NORWAY","SWEDEN","POLAND","TURKEY","GREECE","PERU","CHILE","KENYA","NIGERIA","MOROCCO","THAILAND","VIETNAM","KOREA","IRELAND","PORTUGAL","AUSTRIA","BELGIUM","DENMARK","FINLAND"],
-  "Sports": ["SOCCER","TENNIS","HOCKEY","BOXING","RUGBY","GOLF","CRICKET","BASEBALL","BASKETBALL","VOLLEYBALL","SWIMMING","CYCLING","SKIING","SURFING","SKATEBOARD","ARCHERY","FENCING","JUDO","KARATE","WRESTLING","BADMINTON","SQUASH","POLO","ROWING","SAILING","DIVING","GYMNASTICS","TRIATHLON","MARATHON","HANDBALL"],
-  "Jobs": ["DOCTOR","TEACHER","ENGINEER","LAWYER","PILOT","CHEF","NURSE","ARTIST","WRITER","ACTOR","SINGER","DANCER","FARMER","DRIVER","BUILDER","PLUMBER","ELECTRICIAN","SCIENTIST","POLICE","FIREFIGHTER","SOLDIER","SAILOR","JUDGE","DENTIST","VET","ARCHITECT","DESIGNER","PROGRAMMER","JOURNALIST","PHOTOGRAPHER"],
-  "Colors": ["CRIMSON","SCARLET","MAGENTA","INDIGO","VIOLET","AZURE","CYAN","TEAL","OLIVE","MAROON","CORAL","SALMON","IVORY","BEIGE","AMBER","GOLDEN","SILVER","COPPER","BRONZE","TURQUOISE","LAVENDER","ORCHID","RUBY","EMERALD","SAPPHIRE","PEARL","CHARCOAL","CRIMSON","FUCHSIA","LIME"],
-  "Body parts": ["SHOULDER","ELBOW","WRIST","FINGER","ANKLE","KNEE","SPINE","RIBS","SKULL","JAW","TONGUE","THROAT","STOMACH","LIVER","KIDNEY","MUSCLE","NERVE","ARTERY","VEIN","LUNG","HEART","BRAIN","LIVER","SPLEEN","PELVIS","FEMUR","TIBIA","FIBULA","RADIUS","ULNA"],
-  "Things at school": ["PENCIL","ERASER","BACKPACK","NOTEBOOK","LOCKER","DESK","CHALK","MARKER","RULER","COMPASS","LIBRARY","CAFETERIA","GYMNASIUM","PRINCIPAL","TEACHER","HOMEWORK","EXAM","RECESS","BELL","BLACKBOARD","WHITEBOARD","PROJECTOR","CALCULATOR","BINDER","FOLDER","GLUE","SCISSORS","CRAYON","PAINT","GLOBE"],
-  "Things in a kitchen": ["SPATULA","LADLE","WHISK","BLENDER","TOASTER","OVEN","FRIDGE","FREEZER","MICROWAVE","KETTLE","CUTTINGBOARD","COLANDER","GRATER","PEELER","TONGS","APRON","RECIPE","SPICE","FLOUR","SUGAR","BUTTER","OIL","PAN","POT","BOWL","PLATE","FORK","SPOON","KNIFE","MUG"]
+  "Movies": [
+    ["INCEPTION","Dreams within dreams"],["INTERSTELLAR","Space and time dilation"],["GLADIATOR","Are you not entertained?"],
+    ["CASABLANCA","Of all the gin joints"],["PSYCHO","Famous shower scene"],["GODFATHER","An offer you can't refuse"],
+    ["SCHINDLER","Industrialist who saved lives"],["PARASITE","Stairs and a basement"],["WHIPLASH","Drumming and perfection"],
+    ["ARRIVAL","Alien language and time"],["EXORCIST","Demonic possession"],["GOODFELLAS","Wise guys narration"],
+    ["VERTIGO","Fear of heights, Hitchcock"],["CHINATOWN","Water and corruption"],["MEMENTO","Told in reverse"]
+  ],
+  "Animals": [
+    ["PLATYPUS","Egg-laying mammal with a bill"],["ARMADILLO","Armored shell, rolls up"],["CHAMELEON","Changes color"],
+    ["NARWHAL","Tusk like a unicorn of the sea"],["AXOLOTL","Smiling salamander that stays young"],["PANGOLIN","Scaly anteater"],
+    ["OKAPI","Forest giraffe relative"],["CASSOWARY","Dangerous flightless bird"],["TAPIR","Snout like a mini elephant"],
+    ["WOMBAT","Australian burrower, cube poop"],["QUOKKA","World's happiest-looking animal"],["MANATEE","Sea cow"],
+    ["ANCHOVY","Tiny salty fish"],["CAPYBARA","Largest rodent, loves water"],["HONEYBADGER","Fearless tough mammal"]
+  ],
+  "Science": [
+    ["PHOTOSYNTHESIS","How plants make food from light"],["MOLECULE","Group of atoms bonded"],["ELECTRON","Negative particle"],
+    ["GRAVITY","What keeps us on Earth"],["EVOLUTION","Change over generations"],["DNA","Genetic blueprint"],
+    ["CATALYST","Speeds up a reaction"],["ISOTOPE","Same element, different neutrons"],["NEBULA","Cloud of gas in space"],
+    ["QUASAR","Extremely bright galactic core"],["ENTROPY","Measure of disorder"],["HYPOTHESIS","Educated guess to test"],
+    ["CHROMOSOME","Structure carrying genes"],["ANTIBODY","Immune system defender"],["FUSION","Nuclei combining, stars do this"]
+  ],
+  "Geography": [
+    ["ARCHIPELAGO","Group of islands"],["ISTHMUS","Narrow land between seas"],["SAVANNA","Grassy plain with few trees"],
+    ["TUNDRA","Cold treeless region"],["FJORD","Glacial sea inlet"],["ATOLL","Ring-shaped coral island"],
+    ["MESA","Flat-topped elevated land"],["GULF","Large ocean inlet"],["DELTA","River mouth deposit"],
+    ["PLATEAU","Elevated flat land"],["TRIBUTARY","River that feeds a larger one"],["EQUATOR","Imaginary line at 0° latitude"],
+    ["MERIDIAN","Line of longitude"],["PENINSULA","Land almost surrounded by water"],["CANYON","Deep valley with steep sides"]
+  ],
+  "Mythology": [
+    ["MINOTAUR","Bull-headed man in a labyrinth"],["MEDUSA","Snake hair, turns to stone"],["CERBERUS","Three-headed guard dog"],
+    ["PEGASUS","Winged horse"],["PHOENIX","Bird reborn from ashes"],["CYCLOPS","One-eyed giant"],
+    ["SPHINX","Riddle guardian, lion body"],["CHIMERA","Lion-goat-serpent hybrid"],["HYDRA","Many-headed serpent"],
+    ["ICARUS","Flew too close to the sun"],["ORPHEUS","Music that charmed the underworld"],["ACHILLES","Heel was his weakness"],
+    ["ODYSSEUS","Long journey home from Troy"],["THOR","Norse god of thunder"],["ANUBIS","Egyptian jackal-headed god"]
+  ],
+  "Music": [
+    ["SYMPHONY","Long orchestral work"],["CRESCENDO","Gradually getting louder"],["ARPEGGIO","Notes of a chord played in sequence"],
+    ["FALSETTO","High voice above normal range"],["STACCATO","Short, detached notes"],["VIBRATO","Slight pitch waver"],
+    ["OVERTURE","Orchestral intro to an opera"],["SONATA","Multi-movement solo piece"],["BALLAD","Slow emotional song"],
+    ["HARMONY","Notes sounding well together"],["RHYTHM","Pattern of beats"],["MELODY","Main tune of a piece"],
+    ["TEMPO","Speed of the music"],["CHORD","Three or more notes at once"],["OCTAVE","Eight notes apart"]
+  ],
+  "Literature": [
+    ["METAPHOR","Comparison without like/as"],["PROTAGONIST","Main character"],["ANTAGONIST","Opposing force"],
+    ["SOLILOQUY","Speech alone on stage"],["ALLITERATION","Repeated starting sounds"],["ONOMATOPOEIA","Word that sounds like its meaning"],
+    ["HYPERBOLE","Extreme exaggeration"],["IRONIC","Opposite of what's expected"],["NARRATOR","Who tells the story"],
+    ["CLIMAX","Turning point of the plot"],["EPILOGUE","Section after the main story"],["FORESHADOW","Hint of what's to come"],
+    ["SATIRE","Humor that criticizes"],["TRAGEDY","Serious play with a sad end"],["BALLAD","Narrative poem or song"]
+  ],
+  "Technology": [
+    ["ALGORITHM","Step-by-step problem solution"],["ENCRYPTION","Scrambling data for security"],["BANDWIDTH","Data transfer capacity"],
+    ["FIREWALL","Network security barrier"],["CACHE","Temporary high-speed storage"],["PROTOCOL","Rules for communication"],
+    ["COMPILER","Translates code to machine language"],["DATABASE","Organized collection of data"],["INTERFACE","Point of interaction"],
+    ["PIXEL","Tiny dot that makes up a screen"],["ROUTER","Directs network traffic"],["SERVER","Computer that provides services"],
+    ["FIRMWARE","Software embedded in hardware"],["LATENCY","Delay in data transfer"],["CLOUD","Remote computing resources"]
+  ]
 };
-const HANG_USED = {}; // session-level used keys
+const HANG_USED = {};
+const HANG_MAX_LEVELS = 5;
 
 function pickHangmanPuzzle(seedStr){
   let seed = 0;
@@ -861,39 +949,35 @@ function pickHangmanPuzzle(seedStr){
   const rand = seededRandom(seed || Date.now());
 
   const cats = Object.keys(HANG_BANKS);
-  // Prefer categories with unused words
   let category = cats[Math.floor(rand()*cats.length)];
-  let words = HANG_BANKS[category].filter(w => !HANG_USED[category+'|'+w]);
-  if(!words.length){
-    // reset this category if exhausted
+  let entries = HANG_BANKS[category].filter(([w]) => !HANG_USED[category+'|'+w]);
+  if(!entries.length){
     Object.keys(HANG_USED).forEach(k=>{ if(k.startsWith(category+'|')) delete HANG_USED[k]; });
-    words = [...HANG_BANKS[category]];
+    entries = [...HANG_BANKS[category]];
   }
-  const word = words[Math.floor(rand()*words.length)];
+  const [word, hint] = entries[Math.floor(rand()*entries.length)];
   HANG_USED[category+'|'+word] = true;
 
-  // Reveal ~35% of unique letters (positions)
   const chars = word.split('');
-  const positions = chars.map((_,i)=>i).filter(i=>chars[i]!=='-'&&chars[i]!==' ');
-  const revealCount = Math.max(1, Math.floor(positions.length * 0.35));
-  // shuffle positions
+  const positions = chars.map((_,i)=>i).filter(i=>/[A-Z]/.test(chars[i]));
+  // Reveal fewer letters for harder words (~25%)
+  const revealCount = Math.max(1, Math.floor(positions.length * 0.25));
   for(let i=positions.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[positions[i],positions[j]]=[positions[j],positions[i]]}
   const revealSet = new Set(positions.slice(0, revealCount));
   const revealed = chars.map((ch,i)=> revealSet.has(i) ? ch : (ch==='-'||ch===' '?' ':'_'));
 
-  // Tiles: remaining letters + decoys
   const needed = [];
-  chars.forEach((ch,i)=>{ if(!revealSet.has(i) && ch!=='-' && ch!==' ') needed.push(ch); });
+  chars.forEach((ch,i)=>{ if(!revealSet.has(i) && /[A-Z]/.test(ch)) needed.push(ch); });
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const decoys = [];
-  while(decoys.length < Math.min(5, 8-needed.length)){
+  while(decoys.length < Math.min(6, Math.max(3, 10-needed.length))){
     const d = alphabet[Math.floor(rand()*26)];
-    if(!needed.includes(d) && !decoys.includes(d) && !revealSet.has(chars.indexOf(d))) decoys.push(d);
+    if(!needed.includes(d) && !decoys.includes(d)) decoys.push(d);
   }
   const tiles = [...needed, ...decoys];
   for(let i=tiles.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}
 
-  return { category, word, revealed, tiles };
+  return { category, word, hint, revealed, tiles };
 }
 
 /* ===== STATE ===== */
@@ -1284,11 +1368,15 @@ async function beginRound(){
   }
 
   if(gameType === 'hangman'){
-    const puzzle = pickHangmanPuzzle(roomId + '_' + Date.now());
+    const level = (roomData.hangLevel || 0) + 1;
+    const puzzle = pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
     const updates={
       status:'playing',
+      hangLevel: level,
+      hangMaxLevels: HANG_MAX_LEVELS,
       hangCategory: puzzle.category,
       hangWord: puzzle.word,
+      hangHint: puzzle.hint,
       hangRevealed: puzzle.revealed,
       hangTiles: puzzle.tiles,
       board:null,letter:null,categories:null,
@@ -1297,6 +1385,8 @@ async function beginRound(){
       endedAt:null
     };
     Object.keys(roomData.players||{}).forEach(uid=>{
+      // Keep series score (hangWins); reset per-level state
+      if(level === 1) updates['players/'+uid+'/hangWins']=0;
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
@@ -1442,30 +1532,31 @@ function enterScatter(){
 }
 
 /* ===== HANGMAN RACE UI ===== */
-const HANG_STAGES = [28, 22, 16, 10, 4, -20]; // bottom px — last is into the pit
-let hangSlots = [];   // current filled letters (null = empty)
+let hangSlots = [];
 let hangTrayTiles = [];
 let hangWrong = 0;
 const HANG_MAX_WRONG = 5;
+const HANG_FACES = ['🙂','😐','😟','😰','😱','💀'];
 
 function enterHangman(){
   if($('screen-hangman').classList.contains('active') && !roundEnded){
     renderHangScores();
+    updateHangLevelBar();
     return;
   }
   resetRoundState();
-  hangWrong = 0;
+  hangWrong = roomData.players?.[user.uid]?.hangWrong || 0;
   const sb = $('btnSoundHang');
   if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-hangman');
 
   $('hangCategory').textContent = roomData.hangCategory || '—';
-  $('hangMsg').textContent = 'Drag letters into the blanks';
+  $('hangHint').textContent = 'Hint: ' + (roomData.hangHint || '—');
+  $('hangMsg').textContent = 'Tap letters to fill the blanks';
   $('hangMsg').style.color = '#636E72';
-  $('hangStatus').textContent = 'Save him!';
-  updateHangFigure(0);
+  updateHangFigure(hangWrong);
+  updateHangLevelBar();
 
-  // Build slots from revealed pattern
   const revealed = roomData.hangRevealed || [];
   hangSlots = revealed.map(ch => ch === '_' ? null : ch);
   hangTrayTiles = (roomData.hangTiles || []).map((ch,i)=>({id:i, ch, used:false}));
@@ -1478,19 +1569,28 @@ function enterHangman(){
   snd('go');
 }
 
+function updateHangLevelBar(){
+  const lvl = roomData.hangLevel || 1;
+  const max = roomData.hangMaxLevels || HANG_MAX_LEVELS;
+  if($('hangLevelLabel')) $('hangLevelLabel').textContent = 'Level '+lvl+' / '+max;
+  const me = roomData.players?.[user.uid];
+  const wins = me?.hangWins || 0;
+  if($('hangSeriesScore')) $('hangSeriesScore').textContent = 'Your wins: '+wins;
+}
+
 function updateHangFigure(wrong){
   const fig = $('hangFigure');
-  const stage = Math.min(wrong, HANG_STAGES.length-1);
-  fig.style.bottom = HANG_STAGES[stage] + 'px';
+  if(!fig) return;
+  const stage = Math.min(Math.max(wrong,0), HANG_MAX_WRONG);
+  fig.className = 'hang-figure stage-'+stage;
+  fig.textContent = HANG_FACES[stage] || '💀';
   if(wrong >= HANG_MAX_WRONG){
-    fig.style.opacity = '0.3';
-    $('hangStatus').textContent = 'Oh no…';
+    $('hangStatus').textContent = 'Fell into the pit!';
     $('hangStatus').style.color = '#E74C3C';
   } else if(wrong > 0){
-    $('hangStatus').textContent = (HANG_MAX_WRONG - wrong) + ' left';
+    $('hangStatus').textContent = (HANG_MAX_WRONG - wrong) + ' chances left';
     $('hangStatus').style.color = '#E17055';
   } else {
-    fig.style.opacity = '1';
     $('hangStatus').textContent = 'Save him!';
     $('hangStatus').style.color = '#636E72';
   }
@@ -1576,43 +1676,57 @@ async function finishHangRound(){
   if(roundEnded) return;
   roundEnded = true;
   clearInterval(timerInterval);
-  // If not solved, drop into pit
-  if(!(roomData.players?.[user.uid]?.hangSolved)){
+  const me = roomData.players?.[user.uid];
+  if(!(me?.hangSolved)){
     updateHangFigure(HANG_MAX_WRONG);
-    $('hangMsg').textContent = 'Time’s up — he fell!';
+    $('hangMsg').textContent = "Time's up — he fell!";
     $('hangMsg').style.color = '#E74C3C';
+  }
+  // Award win point to solvers
+  if(me?.hangSolved && isHost){
+    // host also updates others' wins when moving to results — each client updates own
+  }
+  if(me?.hangSolved){
+    const wins = (me.hangWins||0) + 1;
+    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: wins, score: wins}); }catch(e){}
   }
   if(isHost){
     try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(e){}
   }
-  setTimeout(()=>showResults(), 1200);
+  setTimeout(()=>showResults(), 900);
 }
 
-$('btnHangSubmit') && ($('btnHangSubmit').onclick = async () => {
+document.addEventListener('click', async e => {
+  if(e.target?.id !== 'btnHangSubmit') return;
   if(roundEnded || !roomData) return;
+  if(roomData.players?.[user.uid]?.hangSolved) return;
+  if(hangWrong >= HANG_MAX_WRONG){
+    $('hangMsg').textContent = 'No chances left — he already fell';
+    $('hangMsg').style.color = '#E74C3C';
+    return;
+  }
   const guess = hangSlots.map(c=>c||'').join('');
   const answer = (roomData.hangWord||'').replace(/[-\s]/g,'');
-  if(guess.length !== answer.length){
+  if(guess.length !== answer.length || hangSlots.some(c=>!c)){
     $('hangMsg').textContent = 'Fill every blank first';
     $('hangMsg').style.color = '#E17055';
     return;
   }
   if(guess === answer){
-    // Correct!
     $('hangMsg').textContent = 'Saved! ✓';
     $('hangMsg').style.color = '#00B894';
-    updateHangFigure(0);
-    $('hangFigure').style.bottom = '40px';
+    const fig = $('hangFigure');
+    if(fig){ fig.className = 'hang-figure saved'; fig.textContent = '😄'; }
+    $('hangStatus').textContent = 'Rescued!';
+    $('hangStatus').style.color = '#00B894';
     snd('win');
     try{
       await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangSolved:true, score:1});
     }catch(e){}
-    // First solver can end the round early if host or we just wait for timer
-    // Mark solved for results
   } else {
     hangWrong++;
     updateHangFigure(hangWrong);
-    $('hangMsg').textContent = 'Wrong — he slipped!';
+    $('hangMsg').textContent = 'Wrong — he slips closer to the pit!';
     $('hangMsg').style.color = '#E74C3C';
     snd('bad');
     try{
@@ -1620,7 +1734,6 @@ $('btnHangSubmit') && ($('btnHangSubmit').onclick = async () => {
     }catch(e){}
     if(hangWrong >= HANG_MAX_WRONG){
       $('hangMsg').textContent = 'He fell into the pit…';
-      // Can't solve anymore this round
     }
   }
 });
@@ -2036,14 +2149,20 @@ function computeResults(){
 
 function computeHangmanResults(){
   const players = Object.values((roomData&&roomData.players)||{});
+  const level = roomData.hangLevel || 1;
+  const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
   const rows = players.map(p=>{
     const solved = !!p.hangSolved;
     const wrong = p.hangWrong||0;
-    const final = solved ? Math.max(1, 5 - wrong) : 0;
+    const wins = p.hangWins || 0;
+    // Series score is hangWins; this level contributes +1 if solved
+    const final = wins + (solved && !p._counted ? 0 : 0);
+    // Display series wins as score
+    const seriesScore = wins;
     const items = solved
-      ? [{w: roomData.hangWord||'SOLVED', pts: final, dupe:false}]
-      : [{w: 'FAILED', pts:0, dupe:true}];
-    return {p, items, raw: items.length, final, lost: solved?0:1, uniqueN: solved?1:0, sharedN:0};
+      ? [{w: (roomData.hangWord||'SOLVED')+' ✓', pts:1, dupe:false}]
+      : [{w: 'Fell (level '+level+')', pts:0, dupe:true}];
+    return {p, items, raw: items.length, final: seriesScore, lost: solved?0:1, uniqueN: seriesScore, sharedN:0, level, maxL};
   });
   rows.sort((a,b)=>(b.final-a.final)||(a.p.hangWrong||0)-(b.p.hangWrong||0)||String(a.p.name).localeCompare(String(b.p.name)));
   return rows;
@@ -2528,12 +2647,23 @@ $('btnBackLobby').onclick=leaveRoom;
 
 $('btnPlayAgain').onclick=async()=>{
   if(isHost){
-    // Host starts a fresh round — all clients will be pulled in via onRoom
     resetRoundState();
+    const gt = roomData?.gameType || selectedGame;
+    // Hangman best-of-5: advance level or start new series
+    if(gt === 'hangman'){
+      const lvl = roomData.hangLevel || 1;
+      if(lvl >= HANG_MAX_LEVELS){
+        // Series over — reset level counter for a new match
+        await db.ref('rooms/'+roomId).update({hangLevel: 0}).catch(()=>{});
+        // also reset wins
+        const ups = {};
+        Object.keys(roomData.players||{}).forEach(uid=>{ ups['players/'+uid+'/hangWins']=0; });
+        await db.ref('rooms/'+roomId).update(ups).catch(()=>{});
+      }
+    }
     await beginRound();
   }else{
-    toast('Waiting for host to start the next round…');
-    // Stay ready; when host starts, onRoom will reset roundEnded and call enterScatter/enterGame
+    toast('Waiting for host to start the next level…');
   }
 };
 
