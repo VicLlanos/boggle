@@ -295,14 +295,190 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .game-card .name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem;color:var(--violet-d)}
 .game-card .desc{font-size:.75rem;font-weight:700;color:#636E72;margin-top:4px;line-height:1.3}
 
-/* ===== SCATTERGORIES UI ===== */
-.scat-letter{font-family:'Fredoka',sans-serif;font-weight:700;font-size:4.5rem;color:var(--violet-d);text-align:center;line-height:1;margin:8px 0;text-shadow:0 4px 0 rgba(108,92,231,.15)}
-.scat-cats{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
-.scat-row{background:#F8F9FA;border-radius:14px;padding:12px;border:2px solid #EEF0F2}
-.scat-row label{font-size:.78rem;font-weight:800;color:#636E72;margin-bottom:6px;text-transform:none;letter-spacing:0}
-.scat-row input{margin-bottom:0;font-size:1rem;padding:12px 14px}
-.scat-row.filled{border-color:var(--mint);background:#F0FFF8}
-.scat-status{font-size:.8rem;font-weight:700;color:#636E72;text-align:center;margin-top:6px}
+/* ===== SCATTERGORIES UI – completely distinct immersive look ===== */
+#screen-scatter{
+  --scat-accent:#FF6B6B;
+  --scat-deep:#C0392B;
+  --scat-paper:#FFFBF0;
+  --scat-ink:#2C1810;
+  --scat-line:#E8D9C0;
+}
+#screen-scatter .game-top{margin-bottom:4px}
+#screen-scatter .timer{
+  background:conic-gradient(#FF6B6B var(--pct,100%),rgba(255,255,255,.22) 0);
+  box-shadow:0 4px 18px rgba(192,57,43,.35);
+}
+#screen-scatter .timer.low{
+  background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0);
+}
+#screen-scatter .sc.me{border-color:#FF6B6B}
+#screen-scatter .sc .s{color:#C0392B}
+
+.scat-hero{
+  background:linear-gradient(145deg,#FF8A80 0%,#FF6B6B 40%,#E74C3C 100%);
+  border-radius:22px;
+  padding:18px 16px 14px;
+  box-shadow:0 10px 0 #A93226,0 14px 28px rgba(0,0,0,.22),inset 0 2px 0 rgba(255,255,255,.35);
+  position:relative;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+.scat-hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.25),transparent 55%);
+  pointer-events:none;
+}
+.scat-hero-label{
+  font-size:.72rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.85);text-align:center;margin-bottom:2px;position:relative;
+}
+.scat-letter{
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  font-size:5.2rem;color:#fff;text-align:center;line-height:1;
+  text-shadow:0 4px 0 rgba(0,0,0,.18),0 0 30px rgba(255,255,255,.3);
+  position:relative;
+  animation:letterPop .7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes letterPop{
+  0%{transform:scale(.2) rotate(-12deg);opacity:0}
+  60%{transform:scale(1.12) rotate(3deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.scat-letter.pulse-letter{animation:letterPulse 1.8s ease-in-out infinite}
+@keyframes letterPulse{
+  0%,100%{transform:scale(1);text-shadow:0 4px 0 rgba(0,0,0,.18),0 0 30px rgba(255,255,255,.3)}
+  50%{transform:scale(1.06);text-shadow:0 4px 0 rgba(0,0,0,.18),0 0 40px rgba(255,255,255,.55)}
+}
+.scat-progress-wrap{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:10px;position:relative;
+}
+.scat-progress-bar{
+  flex:1;height:8px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;
+}
+.scat-progress-bar i{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,#FFEAA7,#FDCB6E);
+  border-radius:99px;transition:width .35s cubic-bezier(.34,1.4,.64,1);
+  box-shadow:0 0 8px rgba(253,203,110,.6);
+}
+.scat-progress-text{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:.85rem;
+  color:#fff;min-width:48px;text-align:right;text-shadow:0 1px 2px rgba(0,0,0,.2);
+}
+
+.scat-pad{
+  background:var(--scat-paper);
+  border-radius:18px;
+  padding:14px 12px 16px;
+  box-shadow:0 8px 0 #D4C4A8,0 12px 24px rgba(0,0,0,.15),inset 0 1px 0 #fff;
+  position:relative;
+  border:1px solid #EDE0C8;
+}
+.scat-pad::before{ /* subtle lined-paper effect */
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background-image:repeating-linear-gradient(
+    transparent,transparent 31px,
+    var(--scat-line) 31px,var(--scat-line) 32px
+  );
+  opacity:.45;mask-image:linear-gradient(to bottom,transparent 0%,#000 8%,#000 92%,transparent 100%);
+}
+.scat-pad-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.scat-pad-title{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem;color:var(--scat-ink);
+}
+.scat-pad-hint{
+  font-size:.72rem;font-weight:800;color:#A08060;background:#F5EBD8;
+  padding:3px 9px;border-radius:99px;
+}
+
+.scat-cats{
+  display:flex;flex-direction:column;gap:8px;
+  max-height:48vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-right:2px;position:relative;z-index:1;
+}
+.scat-row{
+  background:rgba(255,255,255,.72);
+  border-radius:12px;padding:10px 12px;
+  border:2px solid transparent;
+  transition:border-color .2s,background .2s,transform .15s,box-shadow .2s;
+  animation:catSlideIn .45s cubic-bezier(.34,1.4,.64,1) both;
+  animation-delay:calc(var(--i,0)*55ms);
+}
+@keyframes catSlideIn{
+  from{opacity:0;transform:translateY(14px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.scat-row:focus-within{
+  border-color:#FF6B6B;
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(255,107,107,.18);
+  transform:scale(1.015);
+}
+.scat-row.filled{
+  border-color:#00B894;
+  background:linear-gradient(135deg,#E8FFF6,#F0FFF8);
+}
+.scat-row.filled:focus-within{
+  border-color:#00B894;
+  box-shadow:0 0 0 4px rgba(0,184,148,.18);
+}
+.scat-row .cat-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  background:#FF6B6B;color:#fff;
+  font-size:.7rem;font-weight:900;margin-right:6px;flex-shrink:0;
+}
+.scat-row.filled .cat-num{background:#00B894}
+.scat-row label{
+  font-size:.8rem;font-weight:800;color:#5D4E37;
+  margin-bottom:6px;text-transform:none;letter-spacing:0;
+  display:flex;align-items:center;line-height:1.3;
+}
+.scat-row input{
+  margin-bottom:0;font-size:1.05rem;padding:11px 13px;
+  border:2px solid #E8D9C0;background:#FFFEF9;
+  border-radius:10px;font-weight:700;color:var(--scat-ink);
+  transition:border-color .15s,box-shadow .15s;
+}
+.scat-row input:focus{
+  border-color:#FF6B6B;
+  box-shadow:0 0 0 3px rgba(255,107,107,.2);
+  outline:none;
+}
+.scat-row.filled input{
+  border-color:#55EFC4;
+  background:#F7FFFC;
+}
+.scat-row .check{
+  position:absolute;right:18px;bottom:18px;
+  font-size:1.1rem;opacity:0;transform:scale(.5);
+  transition:opacity .25s,transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.scat-row.filled .check{opacity:1;transform:scale(1)}
+
+.scat-status{
+  font-size:.8rem;font-weight:700;color:#8B7355;
+  text-align:center;margin-top:10px;position:relative;z-index:1;
+  min-height:1.2em;
+}
+.scat-status.good{color:#00B894}
+.scat-status.warn{color:#E17055}
+
+/* Floating spark when a good answer is typed */
+.scat-spark{
+  position:fixed;pointer-events:none;z-index:9990;
+  font-size:1.4rem;animation:scatSparkFly .7s ease forwards;
+}
+@keyframes scatSparkFly{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-80%) scale(1.6)}
+}
 
 @media(max-width:360px){
   .tile{font-size:1.35rem;border-radius:12px}
@@ -310,7 +486,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   .logo{font-size:1.45rem}
   .code-box{font-size:1.5rem;letter-spacing:6px}
   .timer{width:64px;height:64px}
-  .scat-letter{font-size:3.6rem}
+  .scat-letter{font-size:4rem}
 }
 </style>
 </head>
@@ -353,12 +529,12 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
       <div class="game-card selected" data-game="boggle" id="pickBoggle">
         <div class="icon">🎲</div>
         <div class="name">Boggle</div>
-        <div class="desc">Find words on a 4×4 grid</div>
+        <div class="desc">Shake the tray & find words on a 4×4 grid</div>
       </div>
       <div class="game-card" data-game="scatter" id="pickScatter">
-        <div class="icon">📝</div>
+        <div class="icon">✍️</div>
         <div class="name">Scattergories</div>
-        <div class="desc">Dynamic categories + letter</div>
+        <div class="desc">Fresh letter + dynamic categories every round</div>
       </div>
     </div>
   </div>
@@ -413,18 +589,32 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   </div>
 </section>
 
-<!-- SCATTERGORIES SCREEN -->
+<!-- SCATTERGORIES SCREEN – immersive notepad style -->
 <section id="screen-scatter" class="screen">
   <div class="game-top">
     <div class="timer" id="scatTimerRing"><span id="scatTimerText">180</span></div>
     <div class="scores" id="scatScoreBoard"></div>
     <button class="snd-btn" id="btnSoundScat" title="Toggle sound" aria-label="Toggle sound">🔊</button>
   </div>
-  <div class="card" style="padding:16px 14px">
-    <div style="text-align:center;font-size:.8rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.5px">Letter</div>
+
+  <!-- Dramatic letter hero -->
+  <div class="scat-hero">
+    <div class="scat-hero-label">Letter of the round</div>
     <div class="scat-letter" id="scatLetter">?</div>
+    <div class="scat-progress-wrap">
+      <div class="scat-progress-bar"><i id="scatProgressFill"></i></div>
+      <div class="scat-progress-text" id="scatProgressText">0/12</div>
+    </div>
+  </div>
+
+  <!-- Lined-paper answer pad -->
+  <div class="scat-pad">
+    <div class="scat-pad-header">
+      <div class="scat-pad-title">Your answers</div>
+      <div class="scat-pad-hint">Must start with the letter</div>
+    </div>
     <div class="scat-cats" id="scatCats"></div>
-    <div class="scat-status" id="scatStatus">Fill in answers that start with the letter</div>
+    <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
   </div>
 </section>
 
@@ -907,52 +1097,135 @@ function enterGame(){
   }
 }
 
+function updateScatProgress(){
+  const total = (roomData.categories || []).length || 12;
+  const filled = Object.values(scatAnswers).filter(v => v && v.trim()).length;
+  const pct = Math.round((filled / total) * 100);
+  const fill = $('scatProgressFill');
+  const txt = $('scatProgressText');
+  if(fill) fill.style.width = pct + '%';
+  if(txt) txt.textContent = filled + '/' + total;
+
+  const status = $('scatStatus');
+  if(!status) return;
+  if(filled === 0){
+    status.textContent = 'Tap a category and start typing…';
+    status.className = 'scat-status';
+  } else if(filled < total){
+    status.textContent = filled + ' of ' + total + ' answered — keep going!';
+    status.className = 'scat-status good';
+  } else {
+    status.textContent = 'All filled! Sit tight or tweak answers.';
+    status.className = 'scat-status good';
+  }
+}
+
+function scatSparkAt(el){
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  const s = document.createElement('div');
+  s.className = 'scat-spark';
+  s.textContent = '✨';
+  s.style.left = (r.left + r.width/2) + 'px';
+  s.style.top = (r.top + r.height/2) + 'px';
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 700);
+}
+
 function enterScatter(){
-  if($('screen-scatter').classList.contains('active')&&!roundEnded){
+  if($('screen-scatter').classList.contains('active') && !roundEnded){
     renderScatScores();
     return;
   }
   resetRoundState();
-  const sb=$('btnSoundScat');if(sb){sb.textContent=soundOn?'🔊':'🔇';sb.onclick=toggleSound}
+  const sb = $('btnSoundScat');
+  if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-scatter');
-  $('scatLetter').textContent = roomData.letter || '?';
+
+  // Dramatic letter reveal
+  const letterEl = $('scatLetter');
+  letterEl.classList.remove('pulse-letter');
+  letterEl.textContent = roomData.letter || '?';
+  // Restart pop animation
+  letterEl.style.animation = 'none';
+  void letterEl.offsetWidth;
+  letterEl.style.animation = '';
+  setTimeout(() => letterEl.classList.add('pulse-letter'), 800);
+
   renderScatCategories();
   renderScatScores();
+  updateScatProgress();
   startScatTimer();
   boardReady = true;
+  snd('go');
 }
 
 function renderScatCategories(){
   const cats = roomData.categories || [];
+  const letter = (roomData.letter || '?').toUpperCase();
   const host = $('scatCats');
   host.innerHTML = '';
-  cats.forEach((cat,i)=>{
+
+  cats.forEach((cat, i) => {
     const row = document.createElement('div');
     row.className = 'scat-row';
-    row.innerHTML = `<label>${i+1}. ${esc(cat)}</label>
-      <input type="text" data-idx="${i}" placeholder="Starts with ${roomData.letter||'?'}" maxlength="32" autocomplete="off" autocapitalize="off">`;
+    row.style.setProperty('--i', i);
+    row.innerHTML = `
+      <label><span class="cat-num">${i+1}</span>${esc(cat)}</label>
+      <input type="text" data-idx="${i}" placeholder="Starts with ${letter}…" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <span class="check">✓</span>`;
     const inp = row.querySelector('input');
-    // Restore previous answer if any
-    const prev = (roomData.players?.[user.uid]?.answers||{})[i];
-    if(prev){inp.value=prev;row.classList.add('filled');scatAnswers[i]=prev}
-    inp.addEventListener('input',()=>{
+
+    // Restore previous answer
+    const prev = (roomData.players?.[user.uid]?.answers || {})[i];
+    if(prev){
+      inp.value = prev;
+      row.classList.add('filled');
+      scatAnswers[i] = prev;
+    }
+
+    inp.addEventListener('input', () => {
       const val = inp.value.trim();
+      const wasEmpty = !scatAnswers[i];
       scatAnswers[i] = val;
-      row.classList.toggle('filled', !!val);
-      // Debounced save to Firebase
+
+      const startsOk = !val || val.toLowerCase().startsWith(letter.toLowerCase());
+      row.classList.toggle('filled', !!val && startsOk);
+
+      if(val && startsOk && wasEmpty){
+        snd('ok');
+        scatSparkAt(inp);
+        try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
+      }
+
+      updateScatProgress();
       clearTimeout(scatSaveTimer);
-      scatSaveTimer = setTimeout(()=>saveScatAnswers(), 600);
+      scatSaveTimer = setTimeout(() => saveScatAnswers(), 500);
     });
+
+    // Enter / Tab advances to next empty field
+    inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        const next = host.querySelector(`.scat-row:not(.filled) input`) || host.querySelector(`input[data-idx="${(i+1)%cats.length}"]`);
+        if(next) next.focus();
+      }
+    });
+
     host.appendChild(row);
   });
+
+  updateScatProgress();
 }
 
 async function saveScatAnswers(){
-  if(!roomId||!user||roundEnded)return;
+  if(!roomId || !user || roundEnded) return;
   const answers = {};
-  Object.keys(scatAnswers).forEach(k=>{if(scatAnswers[k])answers[k]=scatAnswers[k]});
+  Object.keys(scatAnswers).forEach(k => {
+    if(scatAnswers[k] && scatAnswers[k].trim()) answers[k] = scatAnswers[k].trim();
+  });
   try{
-    await db.ref('rooms/'+roomId+'/players/'+user.uid).update({answers});
+    await db.ref('rooms/' + roomId + '/players/' + user.uid).update({ answers });
   }catch(e){}
 }
 
