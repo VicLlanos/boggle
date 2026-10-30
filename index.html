@@ -2095,15 +2095,30 @@ async function finishHangRound(winnerUid){
     : players.find(p => p.hangSolved);
   const me = roomData.players?.[user.uid];
 
+  const answer = (roomData.hangWord || '').toUpperCase();
+
+  // Always show the correct answer so everyone can learn it
   if(winner){
     const name = winner.uid === user.uid ? 'You' : (winner.name || 'Someone');
-    $('hangMsg').textContent = name + ' won this level!';
+    $('hangMsg').innerHTML = name + ' won this level!<br><span style="color:var(--violet-d)">Answer: <b>'+esc(answer)+'</b></span>';
     $('hangMsg').style.color = '#00B894';
     if(winner.uid === user.uid) hangSaved();
-  } else if(!(me?.hangSolved)){
+  } else {
     updateHangFigure(HANG_MAX_WRONG);
-    $('hangMsg').textContent = "Time's up — nobody solved it!";
+    $('hangMsg').innerHTML = "Time's up — nobody solved it!<br><span style=\"color:var(--violet-d)\">Answer: <b>"+esc(answer)+'</b></span>';
     $('hangMsg').style.color = '#E74C3C';
+  }
+  // Fill the letter slots with the real answer for a clear visual reveal
+  if(answer && $('hangSlots')){
+    const chars = answer.replace(/[-\s]/g,'').split('');
+    const slots = $('hangSlots').children;
+    let ci = 0;
+    for(let i=0;i<slots.length && ci<chars.length;i++){
+      slots[i].textContent = chars[ci++];
+      slots[i].style.background = '#E8FFF6';
+      slots[i].style.borderColor = '#00B894';
+      slots[i].style.color = '#00695C';
+    }
   }
 
   // Award series point only to the first solver (once)
