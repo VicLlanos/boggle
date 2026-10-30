@@ -711,39 +711,70 @@ function isValidWord(w){
 // ----------------------------------
 
 /* ===== DYNAMIC SCATTERGORIES CATEGORY GENERATOR ===== */
-// Simple, clear, classic categories – easy to judge and debate
+// Broad, high-yield categories — many answers exist for almost every letter
+// Avoided narrow ones (farm animal, insect, pizza topping, etc.) that leave players stuck on letters like N, Q, X
 const BASE_CATEGORIES = [
-  // People & names
-  "A boy's name","A girl's name","A famous person","A job / occupation",
-  // Nature & living things
-  "An animal","A bird","An insect","A fish / sea animal","A farm animal","A zoo animal",
-  "A fruit","A vegetable","A flower","A tree","A plant",
-  // Places
-  "A country","A city","A place in nature","Something found at the beach","Something found in a kitchen",
-  "Something found in a bathroom","Something found in a school","Something found in a park",
-  // Food & drink
-  "A food","A drink","A dessert","An ice cream flavor","A pizza topping","A breakfast food","A type of candy",
-  // Everyday objects
-  "Something you wear","A piece of furniture","A tool","Something with wheels","Something you can open",
-  "Something soft","Something cold","Something hot","Something that is round","Something that bounces",
-  "Something that is sticky","Something that is green","Something that is red","Something that is yellow",
-  // Activities & entertainment
-  "A sport","A hobby","A musical instrument","A movie title","A TV show","A book title","A song title",
-  "A cartoon character","A superhero","A board game","A video game",
-  // School & knowledge
-  "A school subject","A body part","A color","A language","A holiday",
-  // Simple “things that…”
-  "Things that fly","Things that swim","Things that are loud","Things that are quiet",
-  "Things that smell good","Things that smell bad","Things you take on a trip",
-  "Things you do every day","Things at a party","Things that melt","Things that float",
-  // A few fun but still clear ones
-  "An excuse for being late","Something scary","Something funny","Something delicious",
-  "A brand","A car brand","A type of weather","A type of music"
-];
+  // Names & people (huge answer pools)
+  "A boy's name",
+  "A girl's name",
+  "A famous person",
+  "A job or occupation",
 
-// Kept for variety but used less often and only for simple combinations
-const ADJECTIVES = ["big","small","hot","cold","soft","hard","sweet","spicy","funny","scary","loud","quiet","fast","slow"];
-const PLACES = ["kitchen","bathroom","school","park","beach","garden","garage","hospital","zoo","farm"];
+  // Living things (keep broad)
+  "An animal",
+  "A fruit or vegetable",
+  "A plant or flower",
+
+  // Places
+  "A country",
+  "A city",
+  "Something you find in a house",
+  "Something you find in a kitchen",
+  "Something you find at school",
+  "Something you find at the beach",
+  "Something you find in a park",
+
+  // Food & drink (broad)
+  "A food",
+  "A drink",
+  "A dessert or sweet",
+  "Something you eat for breakfast",
+
+  // Objects & things
+  "Something you wear",
+  "A piece of furniture",
+  "Something with wheels",
+  "Something you can hold in your hand",
+  "Something soft",
+  "Something hard",
+  "Something cold",
+  "Something hot",
+  "Something round",
+  "Something that makes a sound",
+
+  // Entertainment & culture
+  "A movie or TV show",
+  "A book or song title",
+  "A cartoon or superhero character",
+  "A sport or game",
+  "A hobby",
+  "A musical instrument",
+  "A brand or company",
+
+  // Everyday & abstract (still clear, many options)
+  "A color",
+  "A body part",
+  "A school subject",
+  "A holiday or celebration",
+  "A type of weather",
+  "Something you do every day",
+  "Something you take on a trip",
+  "Things at a party",
+  "An excuse for being late",
+  "Something that makes you happy",
+  "Something scary",
+  "Something funny"
+];
 
 function seededRandom(seed){
   let s = seed % 2147483647;
@@ -752,40 +783,23 @@ function seededRandom(seed){
 }
 
 function generateCategories(seedStr, count=12){
-  // Deterministic but highly varied generator
+  // Pick 12 unique categories from the broad list only (no sparse procedural combos)
   let seed = 0;
   for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
   const rand = seededRandom(seed || Date.now());
 
-  const used = new Set();
-  const result = [];
-
-  // Mostly simple base categories, light variety only
-  while(result.length < count){
-    let cat;
-    const r = rand();
-    if(r < 0.78){
-      // Pure simple category (majority)
-      cat = BASE_CATEGORIES[Math.floor(rand()*BASE_CATEGORIES.length)];
-    } else if(r < 0.90){
-      // Things that are + simple adjective
-      const adj = ADJECTIVES[Math.floor(rand()*ADJECTIVES.length)];
-      cat = "Things that are " + adj;
-    } else {
-      // Things found in a + simple place
-      const place = PLACES[Math.floor(rand()*PLACES.length)];
-      cat = "Things found in a " + place;
-    }
-    const key = cat.toLowerCase();
-    if(!used.has(key)){
-      used.add(key);
-      result.push(cat);
-    }
+  const pool = [...BASE_CATEGORIES];
+  // Fisher-Yates shuffle with seeded random
+  for(let i=pool.length-1;i>0;i--){
+    const j = Math.floor(rand()*(i+1));
+    [pool[i],pool[j]] = [pool[j],pool[i]];
   }
-  return result;
+  return pool.slice(0, Math.min(count, pool.length));
 }
 
 function randomLetter(hard=false){
+  // Heavily favor letters that work well with the broad categories above
+  // Avoid Q, U, V, X, Y, Z unless hard mode is requested
   const easy = "ABCDEFGHIJKLMNOPRSTW";
   const all = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const pool = hard ? all : easy;
@@ -1168,17 +1182,20 @@ function enterScatter(){
 }
 
 function validateScatAnswer(val, letter){
-  // Returns: 'empty' | 'invalid' | 'dubious' | 'valid'
+  // Returns: 'empty' | 'invalid' | 'valid'
+  // Names, multi-word answers, and proper nouns are allowed.
+  // Semantic fit is handled by the challenge system after the round.
   if(!val || !val.trim()) return 'empty';
-  const cleaned = val.trim().toLowerCase();
+  const cleaned = val.trim();
   if(cleaned.length < 2) return 'invalid';
-  if(letter && !cleaned.startsWith(letter.toLowerCase())) return 'invalid';
-  // Prefer real English words (uses the same dictionary as Boggle)
-  if(dictReady && isValidWord(cleaned)) return 'valid';
-  // Allow proper names / multi-word phrases that start with the letter
-  // but mark them as "dubious" so the player knows they may be challenged
-  if(/^[a-z][a-z\s\-']+$/i.test(cleaned) && cleaned.length >= 3) return 'dubious';
-  return 'invalid';
+  // Must start with the round letter (case-insensitive)
+  if(letter && !cleaned.toLowerCase().startsWith(letter.toLowerCase())) return 'invalid';
+  // Allow letters, spaces, hyphens, apostrophes (names & 2-word answers OK)
+  // Reject pure numbers / symbols / gibberish
+  if(!/^[a-zA-Z][a-zA-Z\s\-'.]*$/.test(cleaned)) return 'invalid';
+  // Block answers that are only the letter itself
+  if(cleaned.replace(/[\s\-'.]/g,'').length < 2) return 'invalid';
+  return 'valid';
 }
 
 function applyScatRowState(row, state){
@@ -1249,7 +1266,7 @@ function renderScatCategories(){
     inp.addEventListener('keydown', e => {
       if(e.key === 'Enter'){
         e.preventDefault();
-        const next = host.querySelector(`.scat-row:not(.valid):not(.dubious) input`) ||
+        const next = host.querySelector(`.scat-row:not(.valid) input`) ||
                      host.querySelector(`input[data-idx="${(i+1)%cats.length}"]`);
         if(next) next.focus();
       }
@@ -1317,10 +1334,16 @@ function onRoom(snap){
   $('waitingMsg').style.display=(isHost&&st==='lobby')?'none':'block';
   $('waitingMsg').textContent=isHost?'':'Waiting for host…';
 
-  if(st==='shaking')roundEnded=false;
+  // New round starting — reset local round state for ALL players
+  // (Scattergories goes straight to 'playing', Boggle uses 'shaking' first)
+  if((st==='shaking' || st==='playing') && (prevStatus==='results' || prevStatus==='lobby' || prevStatus===null || roundEnded)){
+    roundEnded = false;
+  }
+  if(st==='shaking') roundEnded = false;
 
   if(st==='shaking'||st==='playing'){
-    if(!roundEnded){
+    if(!roundEnded || prevStatus==='results' || prevStatus==='lobby'){
+      roundEnded = false;
       if(gt==='scatter') enterScatter();
       else enterGame();
     }
@@ -2044,11 +2067,12 @@ $('btnBackLobby').onclick=leaveRoom;
 
 $('btnPlayAgain').onclick=async()=>{
   if(isHost){
+    // Host starts a fresh round — all clients will be pulled in via onRoom
+    resetRoundState();
     await beginRound();
   }else{
-    toast('Waiting for host…');
-    resetRoundState();
-    show('screen-room');
+    toast('Waiting for host to start the next round…');
+    // Stay ready; when host starts, onRoom will reset roundEnded and call enterScatter/enterGame
   }
 };
 
