@@ -617,12 +617,10 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   </div>
   <div class="card">
     <h2>Open rooms</h2>
-    <p class="sub">Tap a room to join, or enter a code below.</p>
-    <div id="openRoomsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;min-height:40px">
+    <p class="sub">Tap any room below to join instantly — no code needed.</p>
+    <div id="openRoomsList" style="display:flex;flex-direction:column;gap:8px;min-height:48px">
       <div class="none-words" style="padding:8px">Looking for rooms…</div>
     </div>
-    <input type="text" id="joinCode" placeholder="CODE" maxlength="4" style="text-transform:uppercase;letter-spacing:8px;text-align:center;font-size:1.4rem;font-family:'Fredoka',sans-serif;font-weight:700">
-    <button class="btn btn-mint" id="btnJoin">JOIN WITH CODE</button>
   </div>
 </section>
 
@@ -1195,35 +1193,30 @@ $('btnHost').onclick=async()=>{
 
 async function joinRoomByCode(code){
   code = (code||'').trim().toUpperCase();
-  if(code.length!==4){toast('Enter a 4-letter code');return}
-  $('btnJoin').disabled=true;
+  if(code.length!==4){toast('Invalid room');return}
   try{
     const snap=await db.ref('rooms/'+code).once('value');
-    if(!snap.exists()){toast('Room not found');$('btnJoin').disabled=false;return}
+    if(!snap.exists()){toast('Room not found');return}
     const room=snap.val();
-    if(room.status!=='lobby'){toast('Game already started');$('btnJoin').disabled=false;return}
+    if(room.status!=='lobby'){toast('Game already started');return}
     if(room.gameType && room.gameType !== selectedGame){
       toast('That room is for a different game');
-      $('btnJoin').disabled=false;return;
+      return;
     }
     const n=Object.keys(room.players||{}).length;
-    if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');$('btnJoin').disabled=false;return}
+    if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');return}
     if(!(room.players||{})[user.uid]){
       await db.ref('rooms/'+code+'/players/'+user.uid).set({
         uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',
         score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:false
       });
     }
-    // refresh lobby index player count
     const snap2 = await db.ref('rooms/'+code).once('value');
     await updateLobbyIndex(code, snap2.val());
     if(lobbyIndexRef){lobbyIndexRef.off();lobbyIndexRef=null}
     attachRoom(code, room.hostUid===user.uid);
   }catch(e){toast('Join failed: '+e.message)}
-  $('btnJoin').disabled=false;
 }
-
-$('btnJoin').onclick=()=>joinRoomByCode($('joinCode').value);
 
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
