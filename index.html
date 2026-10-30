@@ -419,21 +419,40 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   box-shadow:0 0 0 4px rgba(255,107,107,.18);
   transform:scale(1.015);
 }
-.scat-row.filled{
+.scat-row.filled, .scat-row.valid{
   border-color:#00B894;
   background:linear-gradient(135deg,#E8FFF6,#F0FFF8);
 }
-.scat-row.filled:focus-within{
+.scat-row.filled:focus-within, .scat-row.valid:focus-within{
   border-color:#00B894;
   box-shadow:0 0 0 4px rgba(0,184,148,.18);
+}
+.scat-row.dubious{
+  border-color:#F39C12;
+  background:linear-gradient(135deg,#FFF8E7,#FFFBF0);
+}
+.scat-row.dubious:focus-within{
+  border-color:#F39C12;
+  box-shadow:0 0 0 4px rgba(243,156,18,.2);
+}
+.scat-row.invalid{
+  border-color:#E74C3C;
+  background:linear-gradient(135deg,#FFECEC,#FFF5F5);
+}
+.scat-row.invalid:focus-within{
+  border-color:#E74C3C;
+  box-shadow:0 0 0 4px rgba(231,76,60,.18);
 }
 .scat-row .cat-num{
   display:inline-flex;align-items:center;justify-content:center;
   width:22px;height:22px;border-radius:50%;
   background:#FF6B6B;color:#fff;
   font-size:.7rem;font-weight:900;margin-right:6px;flex-shrink:0;
+  transition:background .2s;
 }
-.scat-row.filled .cat-num{background:#00B894}
+.scat-row.valid .cat-num, .scat-row.filled .cat-num{background:#00B894}
+.scat-row.dubious .cat-num{background:#F39C12}
+.scat-row.invalid .cat-num{background:#E74C3C}
 .scat-row label{
   font-size:.8rem;font-weight:800;color:#5D4E37;
   margin-bottom:6px;text-transform:none;letter-spacing:0;
@@ -443,24 +462,34 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   margin-bottom:0;font-size:1.05rem;padding:11px 13px;
   border:2px solid #E8D9C0;background:#FFFEF9;
   border-radius:10px;font-weight:700;color:var(--scat-ink);
-  transition:border-color .15s,box-shadow .15s;
+  transition:border-color .15s,box-shadow .15s,background .15s;
 }
 .scat-row input:focus{
   border-color:#FF6B6B;
   box-shadow:0 0 0 3px rgba(255,107,107,.2);
   outline:none;
 }
-.scat-row.filled input{
+.scat-row.valid input, .scat-row.filled input{
   border-color:#55EFC4;
   background:#F7FFFC;
 }
+.scat-row.dubious input{
+  border-color:#F7C948;
+  background:#FFFDF5;
+}
+.scat-row.invalid input{
+  border-color:#FF7675;
+  background:#FFF8F8;
+}
 .scat-row .check{
   position:absolute;right:18px;bottom:18px;
-  font-size:1.1rem;opacity:0;transform:scale(.5);
+  font-size:1.15rem;opacity:0;transform:scale(.5);
   transition:opacity .25s,transform .3s cubic-bezier(.34,1.56,.64,1);
   pointer-events:none;
 }
-.scat-row.filled .check{opacity:1;transform:scale(1)}
+.scat-row.valid .check, .scat-row.filled .check{opacity:1;transform:scale(1);color:#00B894}
+.scat-row.dubious .check{opacity:1;transform:scale(1);color:#F39C12;content:'?'}
+.scat-row.invalid .check{opacity:1;transform:scale(1);color:#E74C3C}
 
 .scat-status{
   font-size:.8rem;font-weight:700;color:#8B7355;
@@ -1016,7 +1045,7 @@ async function beginRound(){
     const letter = randomLetter(false);
     const seed = roomId + '_' + Date.now();
     const categories = generateCategories(seed, 12);
-    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null};
+    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null,rejected:null,challenges:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
@@ -1160,6 +1189,37 @@ function enterScatter(){
   snd('go');
 }
 
+function validateScatAnswer(val, letter){
+  // Returns: 'empty' | 'invalid' | 'dubious' | 'valid'
+  if(!val || !val.trim()) return 'empty';
+  const cleaned = val.trim().toLowerCase();
+  if(cleaned.length < 2) return 'invalid';
+  if(letter && !cleaned.startsWith(letter.toLowerCase())) return 'invalid';
+  // Prefer real English words (uses the same dictionary as Boggle)
+  if(dictReady && isValidWord(cleaned)) return 'valid';
+  // Allow proper names / multi-word phrases that start with the letter
+  // but mark them as "dubious" so the player knows they may be challenged
+  if(/^[a-z][a-z\s\-']+$/i.test(cleaned) && cleaned.length >= 3) return 'dubious';
+  return 'invalid';
+}
+
+function applyScatRowState(row, state){
+  row.classList.remove('filled','valid','dubious','invalid');
+  const check = row.querySelector('.check');
+  if(state === 'valid' || state === 'filled'){
+    row.classList.add('valid','filled');
+    if(check) check.textContent = '✓';
+  } else if(state === 'dubious'){
+    row.classList.add('dubious');
+    if(check) check.textContent = '?';
+  } else if(state === 'invalid'){
+    row.classList.add('invalid');
+    if(check) check.textContent = '!';
+  } else {
+    if(check) check.textContent = '';
+  }
+}
+
 function renderScatCategories(){
   const cats = roomData.categories || [];
   const letter = (roomData.letter || '?').toUpperCase();
@@ -1173,29 +1233,33 @@ function renderScatCategories(){
     row.innerHTML = `
       <label><span class="cat-num">${i+1}</span>${esc(cat)}</label>
       <input type="text" data-idx="${i}" placeholder="Starts with ${letter}…" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <span class="check">✓</span>`;
+      <span class="check"></span>`;
     const inp = row.querySelector('input');
 
-    // Restore previous answer
+    // Restore previous answer + re-validate
     const prev = (roomData.players?.[user.uid]?.answers || {})[i];
     if(prev){
       inp.value = prev;
-      row.classList.add('filled');
       scatAnswers[i] = prev;
+      applyScatRowState(row, validateScatAnswer(prev, letter));
     }
 
     inp.addEventListener('input', () => {
       const val = inp.value.trim();
       const wasEmpty = !scatAnswers[i];
+      const prevState = validateScatAnswer(scatAnswers[i] || '', letter);
       scatAnswers[i] = val;
 
-      const startsOk = !val || val.toLowerCase().startsWith(letter.toLowerCase());
-      row.classList.toggle('filled', !!val && startsOk);
+      const state = validateScatAnswer(val, letter);
+      applyScatRowState(row, state);
 
-      if(val && startsOk && wasEmpty){
+      // Positive feedback only when becoming valid for the first time
+      if(state === 'valid' && prevState !== 'valid'){
         snd('ok');
         scatSparkAt(inp);
-        try{ if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
+        try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+      } else if(state === 'invalid' && val.length > 1){
+        // soft warning, no harsh sound every keystroke
       }
 
       updateScatProgress();
@@ -1203,11 +1267,12 @@ function renderScatCategories(){
       scatSaveTimer = setTimeout(() => saveScatAnswers(), 500);
     });
 
-    // Enter / Tab advances to next empty field
+    // Enter advances to next incomplete field
     inp.addEventListener('keydown', e => {
       if(e.key === 'Enter'){
         e.preventDefault();
-        const next = host.querySelector(`.scat-row:not(.filled) input`) || host.querySelector(`input[data-idx="${(i+1)%cats.length}"]`);
+        const next = host.querySelector(`.scat-row:not(.valid):not(.dubious) input`) ||
+                     host.querySelector(`input[data-idx="${(i+1)%cats.length}"]`);
         if(next) next.focus();
       }
     });
@@ -1526,6 +1591,8 @@ function computeScatterResults(){
   const players = Object.values((roomData&&roomData.players)||{});
   const cats = roomData.categories || [];
   const letter = (roomData.letter||'').toLowerCase();
+  // rejected answers stored as { "uid_catIndex": true }
+  const rejected = roomData.rejected || {};
 
   // Collect answers per category
   const byCat = {};
@@ -1544,23 +1611,37 @@ function computeScatterResults(){
     });
   });
 
-  // Score: unique answers only
+  // Score: unique + not rejected
   const rows = players.map(p=>{
     let final = 0;
     const items = [];
     cats.forEach((cat,i)=>{
       const entry = byCat[i][p.uid];
       if(!entry) return;
-      // Count how many players have the same normalized answer
-      const same = Object.values(byCat[i]).filter(e=>e.norm===entry.norm).length;
+      const key = p.uid + '_' + i;
+      const isRejected = !!rejected[key];
+      // Count how many players have the same normalized answer (and not rejected)
+      const same = Object.values(byCat[i]).filter(e=>{
+        const k = e.p.uid + '_' + i;
+        return e.norm===entry.norm && !rejected[k];
+      }).length;
       const dupe = same > 1;
-      if(!dupe) final += 1;
-      items.push({w: entry.raw, pts: dupe?0:1, dupe, cat, with: Object.values(byCat[i]).filter(e=>e.norm===entry.norm && e.p.uid!==p.uid).map(e=>e.p.name)});
+      const pts = (dupe || isRejected) ? 0 : 1;
+      if(pts) final += 1;
+      items.push({
+        w: entry.raw,
+        pts,
+        dupe,
+        rejected: isRejected,
+        cat,
+        catIndex: i,
+        with: Object.values(byCat[i]).filter(e=>e.norm===entry.norm && e.p.uid!==p.uid).map(e=>e.p.name)
+      });
     });
-    return {p, items, raw: items.length, final, lost: items.filter(i=>i.dupe).length, uniqueN: items.filter(i=>!i.dupe).length, sharedN: items.filter(i=>i.dupe).length};
+    return {p, items, raw: items.length, final, lost: items.filter(i=>i.dupe||i.rejected).length, uniqueN: items.filter(i=>!i.dupe&&!i.rejected).length, sharedN: items.filter(i=>i.dupe).length};
   });
 
-  // Write scores back so live scoreboard stays correct (best-effort)
+  // Write scores back
   rows.forEach(r=>{
     if(r.p.uid === user.uid){
       db.ref('rooms/'+roomId+'/players/'+user.uid).update({score: r.final}).catch(()=>{});
@@ -1600,6 +1681,167 @@ function renderResults(rows){
     ?shared.size+(shared.size===1?' shared answer was':' shared answers were')+' crossed out'
     :'No shared answers this round';
 
+  // ===== SCATTERGORIES: summary + unanimous challenge system =====
+  if(gt === 'scatter'){
+    const cats = roomData.categories || [];
+    const letter = roomData.letter || '?';
+    const rejected = roomData.rejected || {};
+    const challenges = roomData.challenges || {}; // { "uid_cat": { by, votes: {uid: true/false} } }
+    const players = Object.values(roomData.players || {});
+    const playerCount = players.length;
+
+    // Scoreboard cards
+    const cards = rows.map((r,i)=>{
+      const rank = rows.findIndex(x=>x.final===r.final)+1;
+      const isTop = rank===1;
+      const detail = r.uniqueN + ' scored' + (r.lost ? ' · ' + r.lost + ' lost' : '');
+      return '<div class="res-card'+(isTop?' win':'')+(r.p.uid===user.uid?' me':'')+'" style="--i:'+i+'">'
+        +'<div class="res-head">'
+        +'<div class="rk">'+(isTop?'👑':rank)+'</div>'
+        +'<div class="info"><div class="n">'+esc(r.p.avatar||'')+' '+esc(r.p.name)+(r.p.uid===user.uid?' (you)':'')+'</div><div class="d">'+detail+'</div></div>'
+        +'<div class="pts-wrap"><div class="pts">'+r.final+'</div></div>'
+        +'</div></div>';
+    }).join('');
+
+    let detailHtml = '<div class="poss" style="margin-top:12px">';
+    detailHtml += '<h3>📝 Letter <span style="color:var(--violet-d)">'+esc(letter)+'</span> · Review & Challenge</h3>';
+    detailHtml += '<div class="psub" style="margin-bottom:12px">Challenge an answer if it does not fit the category. <b>Everyone must agree</b> to reject it (in 1v1 both players, in 3-player all three).</div>';
+
+    cats.forEach((cat, ci) => {
+      detailHtml += '<div style="background:#F8F9FA;border-radius:14px;padding:12px;margin-bottom:10px;border:2px solid #EEF0F2">';
+      detailHtml += '<div style="font-weight:900;font-size:.9rem;color:var(--violet-d);margin-bottom:8px">'+(ci+1)+'. '+esc(cat)+'</div>';
+
+      let hasAny = false;
+      players.forEach(p => {
+        const ans = (p.answers || {})[ci];
+        if(!ans || !ans.trim()) return;
+        hasAny = true;
+        const key = p.uid + '_' + ci;
+        const isRejected = !!rejected[key];
+        const ch = challenges[key] || null;
+        const norm = ans.trim().toLowerCase();
+        const sameCount = players.filter(op => {
+          const oa = (op.answers||{})[ci];
+          return oa && oa.trim().toLowerCase() === norm && !rejected[op.uid+'_'+ci];
+        }).length;
+        const isDupe = sameCount > 1;
+
+        detailHtml += '<div style="display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap">';
+        detailHtml += '<span style="font-size:1.15rem">'+(p.avatar||'🎮')+'</span>';
+        detailHtml += '<span style="font-weight:800;min-width:60px">'+(p.uid===user.uid?'You':esc(p.name))+'</span>';
+        detailHtml += '<span class="wchip '+(isRejected||isDupe?'dupe':'')+'" style="animation:none"><span class="wt">'+(isRejected?'~~':'')+esc(ans.toUpperCase())+(isRejected?'~~':'')+'</span>';
+        if(!isRejected && !isDupe) detailHtml += '<b>+1</b>';
+        detailHtml += '</span>';
+
+        if(isRejected){
+          detailHtml += '<span style="font-size:.75rem;font-weight:800;color:#E74C3C">Rejected by agreement</span>';
+          // Allow re-open only if everyone agrees again (simple restore by any player for now)
+          detailHtml += '<button type="button" class="btn-restore" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #00B894;background:#fff;color:#00B894;cursor:pointer">Restore</button>';
+        } else if(ch){
+          // Open challenge – show votes
+          const votes = ch.votes || {};
+          const agreeCount = Object.values(votes).filter(v=>v===true).length;
+          const needed = playerCount; // unanimous
+          detailHtml += '<span style="font-size:.72rem;font-weight:700;color:#E17055">Challenge open · '+agreeCount+'/'+needed+' agree to reject</span>';
+
+          // Current user vote buttons
+          if(votes[user.uid] === undefined){
+            detailHtml += '<button type="button" class="btn-vote-yes" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #E74C3C;background:#fff;color:#E74C3C;cursor:pointer">Reject it</button>';
+            detailHtml += '<button type="button" class="btn-vote-no" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #636E72;background:#fff;color:#636E72;cursor:pointer">Keep it</button>';
+          } else {
+            detailHtml += '<span style="font-size:.7rem;font-weight:700;color:#636E72">You voted: '+(votes[user.uid]?'Reject':'Keep')+'</span>';
+          }
+        } else {
+          // No challenge yet – allow starting one (cannot challenge your own answer)
+          if(p.uid !== user.uid){
+            detailHtml += '<button type="button" class="btn-challenge" data-uid="'+p.uid+'" data-cat="'+ci+'" data-word="'+esc(ans)+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #FF7675;background:#fff;color:#E74C3C;cursor:pointer">Challenge</button>';
+          }
+        }
+        detailHtml += '</div>';
+      });
+
+      if(!hasAny) detailHtml += '<div class="none-words">No answers</div>';
+      detailHtml += '</div>';
+    });
+
+    detailHtml += '</div>';
+
+    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+title+'</div><div class="s">'+sub+'</div></div>'+cards;
+    $('possibleWrap').innerHTML = detailHtml;
+
+    // --- Wire buttons ---
+    // Start a challenge
+    $('possibleWrap').querySelectorAll('.btn-challenge').forEach(btn => {
+      btn.onclick = async () => {
+        const uid = btn.dataset.uid;
+        const cat = btn.dataset.cat;
+        const key = uid + '_' + cat;
+        try{
+          await db.ref('rooms/'+roomId+'/challenges/'+key).set({
+            by: user.uid,
+            word: btn.dataset.word,
+            catIndex: +cat,
+            votes: { [user.uid]: true }, // challenger already votes to reject
+            createdAt: Date.now()
+          });
+          toast('Challenge started – everyone must agree to reject');
+          snd('tap');
+        }catch(e){ toast('Could not start challenge'); }
+      };
+    });
+
+    // Vote YES (reject)
+    $('possibleWrap').querySelectorAll('.btn-vote-yes').forEach(btn => {
+      btn.onclick = async () => {
+        const key = btn.dataset.key;
+        try{
+          await db.ref('rooms/'+roomId+'/challenges/'+key+'/votes/'+user.uid).set(true);
+          // Check if unanimous
+          const snap = await db.ref('rooms/'+roomId+'/challenges/'+key).once('value');
+          const ch = snap.val();
+          if(ch && ch.votes){
+            const allAgree = players.every(p => ch.votes[p.uid] === true);
+            if(allAgree){
+              await db.ref('rooms/'+roomId+'/rejected/'+key).set(true);
+              await db.ref('rooms/'+roomId+'/challenges/'+key).remove();
+              toast('Everyone agreed – answer rejected');
+              snd('bad');
+            } else {
+              toast('Your vote recorded');
+            }
+          }
+        }catch(e){ toast('Vote failed'); }
+      };
+    });
+
+    // Vote NO (keep)
+    $('possibleWrap').querySelectorAll('.btn-vote-no').forEach(btn => {
+      btn.onclick = async () => {
+        const key = btn.dataset.key;
+        try{
+          // Any "Keep" vote immediately closes the challenge and keeps the answer
+          await db.ref('rooms/'+roomId+'/challenges/'+key).remove();
+          toast('Answer kept – challenge closed');
+          snd('ok');
+        }catch(e){ toast('Could not close challenge'); }
+      };
+    });
+
+    // Restore a previously rejected answer (requires starting a new agreement, but for simplicity any player can restore)
+    $('possibleWrap').querySelectorAll('.btn-restore').forEach(btn => {
+      btn.onclick = async () => {
+        const key = btn.dataset.key;
+        if(!confirm('Restore this answer? It will get its point back.')) return;
+        try{
+          await db.ref('rooms/'+roomId+'/rejected/'+key).remove();
+          toast('Answer restored');
+        }catch(e){ toast('Could not restore'); }
+      };
+    });
+    return;
+  }
+
+  // ===== Original Boggle results =====
   const cards=rows.map((r,i)=>{
     const rank=rows.findIndex(x=>x.final===r.final)+1;
     const isTop=rank===1;
@@ -1627,16 +1869,7 @@ function renderResults(rows){
 
   $('resultsGrid').innerHTML='<div class="res-banner"><div class="t">'+title+'</div><div class="s">'+sub+'</div></div>'+cards+legend;
   $('resultsGrid').querySelectorAll('.pts').forEach(el=>animateScore(el,+el.dataset.from,+el.dataset.to,+el.dataset.delay));
-
-  // For scatter we can show categories + letter
-  if(gt==='scatter' && roomData.categories){
-    const extra = document.createElement('div');
-    extra.className='poss';
-    extra.innerHTML = `<h3>📝 Categories used · Letter ${esc(roomData.letter||'?')}</h3>
-      <div class="psub">${roomData.categories.map((c,i)=>`<div style="margin:4px 0"><b>${i+1}.</b> ${esc(c)}</div>`).join('')}</div>`;
-    $('possibleWrap').innerHTML='';
-    $('possibleWrap').appendChild(extra);
-  }
+  $('possibleWrap').innerHTML = '';
 }
 
 function awardResults(rows,force){
