@@ -1034,7 +1034,7 @@ const hangPick = arr => arr[Math.floor(Math.random() * arr.length)];
 async function wikiGet(params, ms){
   const url = WIKI_API + '?' + new URLSearchParams(Object.assign({format:'json',formatversion:'2',origin:'*'}, params));
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), ms || 5000);
+  const timer = setTimeout(() => ctl.abort(), ms || 3000);
   try{
     const r = await fetch(url, {signal: ctl.signal});
     if(!r.ok) throw new Error('wiki http ' + r.status);
@@ -1111,10 +1111,10 @@ async function hangTryCategory(cat){
 
 async function hangDynamicPuzzle(deadline){
   let netFails = 0;
-  for(let attempt = 0; attempt < 8 && Date.now() < deadline && netFails < 2; attempt++){
+  for(let attempt = 0; attempt < 5 && Date.now() < deadline && netFails < 2; attempt++){
     try{
       let cat = hangPick(HANG_ROOTS);
-      const depth = 1 + Math.floor(Math.random() * 3);
+      const depth = 1 + Math.floor(Math.random() * 2);
       for(let d = 0; d < depth; d++){
         const subs = await hangSubcats(cat);
         if(!subs.length) break;
@@ -1131,20 +1131,33 @@ async function hangDynamicPuzzle(deadline){
   return null;
 }
 
-// Pre-fetch upcoming puzzles in the background so rounds start instantly
-const HANG_QUEUE = [];
-let hangFetching = false;
-async function hangPrefetch(){
-  if(hangFetching || HANG_QUEUE.length >= 2) return;
-  hangFetching = true;
+// Stock of ready-to-play puzzles. Filled in the background by several parallel workers and
+// saved on this device, so a round can start instantly (even in a later session).
+const HANG_POOL_KEY = 'hangPoolV1';
+const HANG_TARGET = 8;
+let HANG_QUEUE = [];
+try{
+  HANG_QUEUE = (JSON.parse(localStorage.getItem(HANG_POOL_KEY) || '[]') || [])
+    .filter(q => q && q.word && q.hint && q.category && !HANG_RECENT.includes(q.word));
+}catch(e){ HANG_QUEUE = []; }
+function hangSavePool(){ try{ localStorage.setItem(HANG_POOL_KEY, JSON.stringify(HANG_QUEUE.slice(0, 20))); }catch(e){} }
+let hangWorkers = 0;
+async function hangWorker(){
+  hangWorkers++;
   try{
-    for(let i = 0; i < 6 && HANG_QUEUE.length < 2; i++){
-      const r = await hangDynamicPuzzle(Date.now() + 9000);
+    for(let i = 0; i < 4 && HANG_QUEUE.length < HANG_TARGET; i++){
+      const r = await hangDynamicPuzzle(Date.now() + 6000);
       if(!r) break;
       if(HANG_QUEUE.some(q => q.word === r.word) || HANG_RECENT.includes(r.word)) continue;
       HANG_QUEUE.push(r);
+      hangSavePool();
     }
-  }catch(e){} finally { hangFetching = false; }
+  }catch(e){} finally { hangWorkers--; }
+}
+function hangPrefetch(){
+  // up to 3 requests in parallel until the stock is full
+  const need = Math.min(3, HANG_TARGET - HANG_QUEUE.length) - hangWorkers;
+  for(let i = 0; i < need; i++) hangWorker();
 }
 
 // Turn (category, word, hint) into the room data: ~35-40% of letters revealed + letter tiles
@@ -1191,20 +1204,22 @@ function pickLocalHangmanPuzzle(seedStr){
 }
 
 async function pickHangmanPuzzle(seedStr){
-  // 1) a puzzle that was pre-fetched while players were waiting / playing
+  hangPrefetch();
+  // Use a ready puzzle immediately. If none is ready, wait only briefly (max 1.5s) for the first one.
   const t0 = Date.now();
-  while(!HANG_QUEUE.length && hangFetching && Date.now() - t0 < 8000) await hangSleep(150);
-  let dyn = HANG_QUEUE.shift() || null;
-  // 2) otherwise fetch one right now (max ~8s)
-  if(!dyn){
-    dyn = await Promise.race([hangDynamicPuzzle(Date.now() + 7500), hangSleep(8000).then(() => null)]);
+  while(!HANG_QUEUE.length && hangWorkers > 0 && Date.now() - t0 < 1500) await hangSleep(60);
+  let dyn = null;
+  while(HANG_QUEUE.length && !dyn){
+    const c = HANG_QUEUE.shift();
+    if(c && !HANG_RECENT.includes(c.word)) dyn = c;
   }
-  hangPrefetch();   // keep the queue topped up for the next level (not awaited)
+  hangSavePool();
+  hangPrefetch();   // top the stock back up in the background (not awaited)
   if(dyn){
     hangRememberWord(dyn.word);
     return buildHangPuzzle(dyn.category, dyn.word, dyn.hint);
   }
-  // 3) offline fallback
+  // nothing ready (offline / very slow): never make players wait, use the built-in bank
   return pickLocalHangmanPuzzle(seedStr);
 }
 
@@ -1329,6 +1344,7 @@ const GAME_META = {
 
 function openMatchmaking(game){
   selectedGame = game;
+  if(game === 'hangman') hangPrefetch();   // warm up fresh puzzles as soon as Hangman is chosen
   const meta = GAME_META[game] || GAME_META.boggle;
   $('matchGameTitle').textContent = meta.title;
   $('matchGameSub').textContent = meta.sub;
@@ -1593,7 +1609,6 @@ async function beginRound(){
 
   if(gameType === 'hangman'){
     const level = (roomData.hangLevel || 0) + 1;
-    if(!HANG_QUEUE.length) toast('Finding a fresh puzzle…');
     const puzzle = await pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
     const updates={
       status:'playing',
