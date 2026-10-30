@@ -527,17 +527,14 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .hang-stage{position:relative;height:180px;margin:0 auto 8px;max-width:260px}
 .hang-scene{width:100%;height:100%;display:block;overflow:visible}
 .hang-status{position:absolute;top:2px;left:0;right:0;font-size:.78rem;font-weight:800;color:#636E72;z-index:3;text-align:center;pointer-events:none}
-.hang-body{transition:transform .5s cubic-bezier(.34,1.2,.64,1),opacity .4s}
-.hang-part{opacity:0;transition:opacity .35s ease}
-.hang-part.on{opacity:1}
-.hang-body.stage-0{transform:translateY(0)}
-.hang-body.stage-1{transform:translateY(8px)}
-.hang-body.stage-2{transform:translateY(16px)}
-.hang-body.stage-3{transform:translateY(28px) rotate(5deg);transform-origin:74px 42px}
-.hang-body.stage-4{transform:translateY(42px) rotate(12deg);transform-origin:74px 42px}
-.hang-body.stage-5{transform:translateY(82px) rotate(30deg) scale(.88);transform-origin:74px 42px;opacity:.3}
-.hang-body.saved{transform:translateY(-6px)}
-.hang-body.saved .hang-part{opacity:1}
+.hang-scene .bl{transform-box:fill-box;transform-origin:50% 100%;animation:hangBlIdle 3.2s ease-in-out infinite;animation-delay:var(--d,0s)}
+.hang-scene.landed .bl{animation:hangBlBounce .9s cubic-bezier(.3,1.5,.5,1) both;animation-delay:var(--d,0s)}
+@keyframes hangBlIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
+@keyframes hangBlBounce{0%{transform:translateY(0)}30%{transform:translateY(-9px) scale(1.07)}60%{transform:translateY(2px)}100%{transform:translateY(0)}}
+#hangRope{transform-origin:93px 24px}
+.hang-scene.landed #hangRope{animation:hangRopeSwing 1.6s ease-out both}
+@keyframes hangRopeSwing{0%{transform:rotate(14deg)}25%{transform:rotate(-9deg)}50%{transform:rotate(5deg)}75%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.hang-scene .bl,.hang-scene.landed .bl,.hang-scene.landed #hangRope{animation:none}}
 .hang-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0;min-height:48px}
 .hang-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px;min-height:52px}
 .hang-msg{margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72}
@@ -703,42 +700,68 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div id="hangHint" class="hang-hint">Hint: —</div>
     <div id="hangStage" class="hang-stage">
       <div id="hangStatus" class="hang-status">Save him!</div>
-      <svg class="hang-scene" viewBox="0 0 140 160" aria-hidden="true">
-        <!-- Pit -->
-        <ellipse cx="78" cy="150" rx="48" ry="10" fill="#0a0a0a"/>
-        <ellipse cx="78" cy="147" rx="44" ry="8" fill="#1e272e"/>
-        <path d="M34 147 Q78 138 122 147" fill="none" stroke="#0d0d0d" stroke-width="3"/>
+      <svg id="hangScene" class="hang-scene" viewBox="0 0 140 160" aria-hidden="true">
+        <defs>
+          <!-- keeps the falling man hidden below the front lip of the pit -->
+          <clipPath id="hangClip"><rect x="-20" y="-40" width="180" height="190"/></clipPath>
+        </defs>
+        <!-- Pit (back): hole + back row of balloons -->
+        <ellipse cx="78" cy="148" rx="50" ry="10" fill="#0a0a0a"/>
+        <ellipse cx="78" cy="146" rx="46" ry="8" fill="#1e272e"/>
+        <g id="hangBalloonsBack"></g>
         <!-- Gallows post + beam -->
         <rect x="18" y="12" width="10" height="120" rx="2" fill="#5D4037"/>
         <rect x="14" y="8" width="18" height="12" rx="2" fill="#4E342E"/>
         <rect x="18" y="12" width="78" height="10" rx="2" fill="#6D4C41"/>
         <rect x="88" y="12" width="10" height="14" rx="1" fill="#5D4037"/>
-        <!-- Rope from beam -->
-        <line x1="93" y1="26" x2="93" y2="40" stroke="#8D6E63" stroke-width="3" stroke-linecap="round"/>
-        <!-- Figure group (slides toward pit) -->
-        <g id="hangBody" class="hang-body stage-0">
-          <!-- noose -->
-          <circle cx="93" cy="48" r="9" fill="none" stroke="#8D6E63" stroke-width="2.5"/>
-          <line x1="93" y1="40" x2="93" y2="39" stroke="#8D6E63" stroke-width="3"/>
-          <!-- head -->
-          <circle class="hang-part" data-part="0" cx="93" cy="56" r="11" fill="#FFE0B2" stroke="#5D4037" stroke-width="1.5"/>
-          <!-- eyes / face worry grows via opacity of X eyes -->
-          <g class="hang-part" data-part="0">
-            <circle cx="89" cy="54" r="1.6" fill="#333"/>
-            <circle cx="97" cy="54" r="1.6" fill="#333"/>
-            <path d="M89 61 Q93 64 97 61" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round"/>
-          </g>
-          <!-- torso -->
-          <line class="hang-part" data-part="1" x1="93" y1="67" x2="93" y2="95" stroke="#37474F" stroke-width="4" stroke-linecap="round"/>
-          <!-- left arm -->
-          <line class="hang-part" data-part="2" x1="93" y1="75" x2="78" y2="88" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- right arm -->
-          <line class="hang-part" data-part="3" x1="93" y1="75" x2="108" y2="88" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- left leg -->
-          <line class="hang-part" data-part="4" x1="93" y1="95" x2="82" y2="115" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- right leg -->
-          <line class="hang-part" data-part="4" x1="93" y1="95" x2="104" y2="115" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
+        <!-- Rope the man holds on to -->
+        <g id="hangRope">
+          <line x1="93" y1="26" x2="93" y2="78" stroke="#8D6E63" stroke-width="3" stroke-linecap="round"/>
+          <line x1="93" y1="26" x2="93" y2="78" stroke="#6D4C41" stroke-width="3" stroke-dasharray="1.6 2.4"/>
+          <circle cx="93" cy="78.5" r="2.4" fill="#6D4C41"/>
         </g>
+        <!-- Rope climber (animated from JS) -->
+        <g clip-path="url(#hangClip)">
+          <g id="hangBody" transform="translate(0 0)">
+            <!-- legs (swing from the hips) -->
+            <g id="hLegL"><line x1="91.5" y1="80" x2="91.5" y2="97" stroke="#37474F" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="91" cy="99" rx="3.4" ry="1.9" fill="#E17055"/></g>
+            <g id="hLegR"><line x1="94.5" y1="80" x2="94.5" y2="97" stroke="#37474F" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="95" cy="99" rx="3.4" ry="1.9" fill="#E17055"/></g>
+            <!-- torso -->
+            <rect x="88" y="61" width="10" height="21" rx="4" fill="#6C5CE7"/>
+            <!-- arms -->
+            <path id="hArmL" d="M89.5 64.5 Q76 50 91.6 36" fill="none" stroke="#6C5CE7" stroke-width="3.4" stroke-linecap="round"/>
+            <path id="hArmR" d="M96.5 64.5 Q110 50 94.4 36" fill="none" stroke="#6C5CE7" stroke-width="3.4" stroke-linecap="round"/>
+            <!-- head -->
+            <circle cx="93" cy="52" r="8.5" fill="#FFE0B2" stroke="#5D4037" stroke-width="1.2"/>
+            <path d="M84.6 50 Q83.5 41.5 93 41.8 Q102.5 41.5 101.4 50 Q98 45 93 45.6 Q88 45 84.6 50Z" fill="#5D4037"/>
+            <line id="hBrowL" x1="85.8" y1="45.5" x2="91.2" y2="48" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <line id="hBrowR" x1="100.2" y1="45.5" x2="94.8" y2="48" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <circle id="hEyeWL" cx="89.5" cy="51.5" r="2.4" fill="#fff" stroke="#5D4037" stroke-width=".5"/>
+            <circle id="hEyeWR" cx="96.5" cy="51.5" r="2.4" fill="#fff" stroke="#5D4037" stroke-width=".5"/>
+            <circle cx="89.5" cy="50.9" r="1.2" fill="#2d3436"/>
+            <circle cx="96.5" cy="50.9" r="1.2" fill="#2d3436"/>
+            <path id="hMouth" d="M89.8 57 Q93 59.5 96.2 57" fill="none" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <ellipse id="hMouthO" cx="93" cy="57.4" rx="2.4" ry="0" fill="#5D1F1F" opacity="0"/>
+            <path id="hSweat" d="M101.5 46.5 Q103.7 49.8 101.5 51 Q99.3 49.8 101.5 46.5Z" fill="#74B9FF" opacity="0"/>
+            <!-- friction marks where the grip is slipping -->
+            <g id="hSlip" opacity="0" stroke="#E17055" stroke-width="1.2" stroke-linecap="round">
+              <line id="hSlip1" x1="98.2" y1="30" x2="98.2" y2="34"/>
+              <line id="hSlip2" x1="100.2" y1="28" x2="100.2" y2="33"/>
+            </g>
+            <!-- hands -->
+            <circle id="hHandL" cx="91.6" cy="36" r="2.7" fill="#FFE0B2" stroke="#5D4037" stroke-width="1"/>
+            <circle id="hHandR" cx="94.4" cy="36" r="2.7" fill="#FFE0B2" stroke="#5D4037" stroke-width="1"/>
+            <!-- happy stars -->
+            <g id="hStars" opacity="0">
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#FDCB6E">★</text>
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#FD79A8" transform="rotate(120 93 52)">★</text>
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#55EFC4" transform="rotate(240 93 52)">★</text>
+            </g>
+          </g>
+        </g>
+        <!-- Pit (front): front balloons + lip -->
+        <g id="hangBalloonsFront"></g>
+        <path d="M28 148 A50 10 0 0 0 128 148" fill="none" stroke="#0d0d0d" stroke-width="3" stroke-linecap="round"/>
       </svg>
     </div>
     <div id="hangSlots" class="hang-slots"></div>
@@ -1570,7 +1593,7 @@ function enterHangman(){
   $('hangHint').textContent = 'Hint: ' + (roomData.hangHint || '—');
   $('hangMsg').textContent = 'Tap letters to fill the blanks';
   $('hangMsg').style.color = '#636E72';
-  updateHangFigure(hangWrong);
+  updateHangFigure(hangWrong, true);
   updateHangLevelBar();
 
   const revealed = roomData.hangRevealed || [];
@@ -1594,24 +1617,179 @@ function updateHangLevelBar(){
   if($('hangSeriesScore')) $('hangSeriesScore').textContent = 'Your wins: '+wins;
 }
 
-function updateHangFigure(wrong){
+/* ---------- Rope climber + balloon pit ----------
+   Wrong guess 0 = gripping the rope with both hands, 1-2 = slipping,
+   3 = one hand lets go, 4 = hanging on by one hand, 5 = falls into the balloon pit. */
+const HANG_REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const HANG_BASE = {bodyY:0,rot:0,Lgrip:1,Rgrip:1,LropeY:36,RropeY:36,Lfx:76,Lfy:40,Rfx:110,Rfy:40,bendL:16,bendR:16,
+  brow:-0.8,curve:0.8,open:0,sweat:0,eyeW:2.4,slip:0,legAmp:1.5,stars:0,flail:0};
+const HANG_STAGES = [
+  Object.assign({}, HANG_BASE),
+  Object.assign({}, HANG_BASE, {bodyY:5,LropeY:39,RropeY:39,bendL:12,bendR:12,brow:0,curve:0.2,sweat:0.4,eyeW:2.6,slip:0.6,legAmp:3}),
+  Object.assign({}, HANG_BASE, {bodyY:11,LropeY:44,RropeY:44,bendL:8,bendR:8,brow:0.5,curve:-0.3,open:0.2,sweat:0.8,eyeW:2.8,slip:0.9,legAmp:5}),
+  Object.assign({}, HANG_BASE, {bodyY:17,LropeY:49,RropeY:49,Rgrip:0,Rfx:112,Rfy:44,bendL:4,bendR:3,brow:0.9,curve:-0.8,open:0.5,sweat:1,eyeW:3,slip:1,legAmp:9,flail:1}),
+  Object.assign({}, HANG_BASE, {bodyY:22,LropeY:53,RropeY:53,Rgrip:0,Rfx:113,Rfy:42,bendL:1.5,bendR:3,brow:1,curve:-1,open:0.8,sweat:1,eyeW:3.2,slip:1,legAmp:14,flail:1}),
+  // landed in the balloons, cheering
+  Object.assign({}, HANG_BASE, {bodyY:74,Lgrip:0,Rgrip:0,Lfx:81,Lfy:38,Rfx:105,Rfy:38,bendL:3,bendR:3,brow:-0.3,curve:0.9,open:0.5,eyeW:2.4,legAmp:0,stars:1,flail:0.4})
+];
+const HANG_SAVED = Object.assign({}, HANG_BASE, {bodyY:-3,bendL:18,bendR:18,brow:-0.2,curve:1,open:0.4,eyeW:2.3,legAmp:4,stars:1});
+const HANG_EASE = {
+  out:p=>1-(1-p)*(1-p),
+  in:p=>p*p,
+  io:p=>p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2
+};
+let HS = Object.assign({}, HANG_STAGES[0]);
+let hangTween = null, hangRaf = 0, hangStageNow = -1, hangBalloonsBuilt = false;
+
+function buildHangBalloons(){
+  if(hangBalloonsBuilt) return;
+  const back = $('hangBalloonsBack'), front = $('hangBalloonsFront');
+  if(!back || !front) return;
+  const colors = ['#FF7675','#FDCB6E','#55EFC4','#74B9FF','#A29BFE','#FD79A8'];
+  let n = 0;
+  const make = (xs, cy) => xs.map(cx => {
+    const c = colors[(n++) % colors.length];
+    const d = ((n * 0.37) % 1).toFixed(2);
+    return '<g class="bl" style="--d:'+d+'s">'
+      + '<ellipse cx="'+cx+'" cy="'+cy+'" rx="8" ry="9" fill="'+c+'"/>'
+      + '<ellipse cx="'+(cx-2.8)+'" cy="'+(cy-3.2)+'" rx="1.7" ry="2.6" fill="#fff" opacity=".5" transform="rotate(-20 '+(cx-2.8)+' '+(cy-3.2)+')"/>'
+      + '<path d="M'+(cx-1.5)+' '+(cy+8.6)+' L'+cx+' '+(cy+11)+' L'+(cx+1.5)+' '+(cy+8.6)+'Z" fill="'+c+'"/>'
+      + '</g>';
+  }).join('');
+  back.innerHTML  = make([38,52,66,80,94,108,120], 135);
+  front.innerHTML = make([48,64,80,96,112], 139) + make([40,56,72,88,104,118], 145);
+  hangBalloonsBuilt = true;
+}
+
+function hangKick(){
+  if(!hangRaf) hangRaf = requestAnimationFrame(hangFrame);
+}
+function hangSet(target){
+  hangTween = null;
+  Object.assign(HS, target);
+  hangKick();
+}
+function hangTo(target, dur, easeFn, done){
+  if(HANG_REDUCED) dur = 0;
+  hangTween = {from:Object.assign({}, HS), to:target, t0:performance.now(), dur:dur, ease:easeFn||HANG_EASE.io, done:done};
+  hangKick();
+}
+function hangFrame(now){
+  hangRaf = 0;
+  const scr = $('screen-hangman');
+  if(!scr || !scr.classList.contains('active')){ return; } // loop restarts via hangKick()
+  if(hangTween){
+    const tw = hangTween;
+    const p = tw.dur > 0 ? Math.min(1, (now - tw.t0) / tw.dur) : 1;
+    const e = tw.ease(p);
+    for(const k in tw.to){ HS[k] = tw.from[k] + (tw.to[k] - tw.from[k]) * e; }
+    if(p >= 1){ hangTween = null; if(tw.done) tw.done(); }
+  }
+  renderHangFigure(now / 1000);
+  hangRaf = requestAnimationFrame(hangFrame);
+}
+
+function renderHangFigure(t){
+  const s = HS;
   const body = $('hangBody');
   if(!body) return;
-  const stage = Math.min(Math.max(wrong,0), HANG_MAX_WRONG);
-  body.className = 'hang-body stage-'+stage;
-  // Reveal body parts progressively with each wrong guess
-  // 0 wrong: only head visible (hanging on rope)
-  // 1: torso, 2: left arm, 3: right arm, 4: legs, 5: fall into pit
-  body.querySelectorAll('.hang-part').forEach(el => {
-    const need = parseInt(el.getAttribute('data-part'), 10);
-    el.classList.toggle('on', stage >= need);
+  const lerp = (a,b,k) => a + (b - a) * k;
+  const f = n => n.toFixed(2);
+  body.setAttribute('transform', 'translate(0 '+f(s.bodyY)+') rotate('+f(s.rot)+' 93 70)');
+
+  // hands: blend between "holding the rope" and "free in the air"
+  const wob = HANG_REDUCED ? 0 : 1;
+  const fwL = (1 - s.Lgrip) * s.flail * wob, fwR = (1 - s.Rgrip) * s.flail * wob;
+  const Lx = lerp(s.Lfx + Math.sin(t*9)*3*fwL, 91.6, s.Lgrip);
+  const Ly = lerp(s.Lfy + Math.cos(t*8)*3*fwL, s.LropeY - s.bodyY, s.Lgrip);
+  const Rx = lerp(s.Rfx + Math.sin(t*10+1)*3.5*fwR, 94.4, s.Rgrip);
+  const Ry = lerp(s.Rfy + Math.cos(t*9+1)*3.5*fwR, s.RropeY - s.bodyY, s.Rgrip);
+  const SLx = 89.5, SRx = 96.5, Sy = 64.5;
+  $('hArmL').setAttribute('d', 'M'+SLx+' '+Sy+' Q'+f((SLx+Lx)/2 - s.bendL)+' '+f((Sy+Ly)/2)+' '+f(Lx)+' '+f(Ly));
+  $('hArmR').setAttribute('d', 'M'+SRx+' '+Sy+' Q'+f((SRx+Rx)/2 + s.bendR)+' '+f((Sy+Ry)/2)+' '+f(Rx)+' '+f(Ry));
+  $('hHandL').setAttribute('cx', f(Lx)); $('hHandL').setAttribute('cy', f(Ly));
+  $('hHandR').setAttribute('cx', f(Rx)); $('hHandR').setAttribute('cy', f(Ry));
+
+  // friction marks beside the gripping hand
+  const hs = $('hSlip');
+  hs.setAttribute('opacity', f(s.slip * 0.85 * (0.6 + 0.4*Math.sin(t*12))));
+  const gy = Math.min(Ly, Ry);
+  $('hSlip1').setAttribute('y1', f(gy - 7)); $('hSlip1').setAttribute('y2', f(gy - 3));
+  $('hSlip2').setAttribute('y1', f(gy - 9)); $('hSlip2').setAttribute('y2', f(gy - 4));
+
+  // legs kick harder the closer he is to falling
+  const amp = HANG_REDUCED ? 0 : s.legAmp;
+  const freq = 4 + amp * 0.45;
+  $('hLegL').setAttribute('transform', 'rotate('+f(-3 + Math.sin(t*freq)*amp)+' 91.5 80)');
+  $('hLegR').setAttribute('transform', 'rotate('+f(3 + Math.sin(t*freq+2.3)*amp)+' 94.5 80)');
+
+  // face
+  const bo = 46.5;
+  $('hBrowL').setAttribute('y1', f(bo + s.brow*1.2)); $('hBrowL').setAttribute('y2', f(bo - s.brow*2));
+  $('hBrowR').setAttribute('y1', f(bo + s.brow*1.2)); $('hBrowR').setAttribute('y2', f(bo - s.brow*2));
+  $('hEyeWL').setAttribute('r', f(s.eyeW)); $('hEyeWR').setAttribute('r', f(s.eyeW));
+  $('hMouth').setAttribute('d', 'M89.8 57 Q93 '+f(57 + s.curve*3.2)+' 96.2 57');
+  $('hMouth').setAttribute('opacity', f(Math.max(0, 1 - s.open*2)));
+  const mo = $('hMouthO');
+  mo.setAttribute('ry', f(s.open*3.2)); mo.setAttribute('rx', f(2.2 + s.open*0.8));
+  mo.setAttribute('opacity', s.open > 0.12 ? '1' : '0');
+  const sw = $('hSweat');
+  sw.setAttribute('opacity', f(s.sweat));
+  sw.setAttribute('transform', 'translate(0 '+f(HANG_REDUCED ? 0 : ((t*2.2)%1)*3)+')');
+
+  // stars circle his head when he's happy
+  const st = $('hStars');
+  st.setAttribute('opacity', f(s.stars));
+  st.setAttribute('transform', 'rotate('+f(HANG_REDUCED ? 0 : t*120)+' 93 52)');
+}
+
+function hangFall(){
+  hangStageNow = 5;
+  const scene = $('hangScene');
+  // 1) grip gives out
+  hangTo({Lgrip:0,Rgrip:0,bodyY:HS.bodyY+3,brow:1,open:1,eyeW:3.4,curve:-1,slip:0,sweat:0,
+          Lfx:76,Lfy:42,Rfx:112,Rfy:42,bendL:2,bendR:2,flail:1,legAmp:16}, 260, HANG_EASE.out, () => {
+    // 2) drop into the pit
+    hangTo({bodyY:100,rot:35}, 430, HANG_EASE.in, () => {
+      if(scene) scene.classList.add('landed');   // balloons bounce, rope swings
+      // 3) bounce up out of the balloons
+      hangTo({bodyY:58,rot:-14,brow:-0.3,curve:0.9,open:0.5,eyeW:2.4,stars:1,legAmp:0,
+              Lfx:81,Lfy:38,Rfx:105,Rfy:38,flail:0.4}, 380, HANG_EASE.out, () => {
+        // 4) settle among the balloons
+        hangTo({bodyY:74,rot:0}, 500, HANG_EASE.io);
+      });
+    });
   });
-  // At stage 0 still show head so you see him on the rope
-  if(stage === 0){
-    body.querySelectorAll('.hang-part[data-part="0"]').forEach(el => el.classList.add('on'));
+}
+
+function hangSaved(){
+  hangStageNow = -2;
+  const scene = $('hangScene');
+  if(scene) scene.classList.remove('landed');
+  hangTo(HANG_SAVED, 500, HANG_EASE.out);
+}
+
+function updateHangFigure(wrong, immediate){
+  buildHangBalloons();
+  const scene = $('hangScene');
+  const stage = Math.min(Math.max(wrong,0), HANG_MAX_WRONG);
+  const prev = hangStageNow;
+  if(stage < HANG_MAX_WRONG){
+    hangStageNow = stage;
+    if(scene) scene.classList.remove('landed');
+    if(immediate || prev === -1 || prev === HANG_MAX_WRONG) hangSet(HANG_STAGES[stage]);
+    else hangTo(HANG_STAGES[stage], 650, HANG_EASE.io);
+  } else if(prev !== HANG_MAX_WRONG){
+    if(immediate){
+      hangStageNow = HANG_MAX_WRONG;
+      hangSet(HANG_STAGES[HANG_MAX_WRONG]);
+      if(scene) scene.classList.add('landed');
+    } else {
+      hangFall();
+    }
   }
   if(wrong >= HANG_MAX_WRONG){
-    $('hangStatus').textContent = 'Fell into the pit!';
+    $('hangStatus').textContent = 'Fell into the balloon pit!';
     $('hangStatus').style.color = '#E74C3C';
   } else if(wrong > 0){
     $('hangStatus').textContent = (HANG_MAX_WRONG - wrong) + ' chances left';
@@ -1705,7 +1883,7 @@ async function finishHangRound(){
   const me = roomData.players?.[user.uid];
   if(!(me?.hangSolved)){
     updateHangFigure(HANG_MAX_WRONG);
-    $('hangMsg').textContent = "Time's up — he fell!";
+    $('hangMsg').textContent = "Time's up — he let go!";
     $('hangMsg').style.color = '#E74C3C';
   }
   // Award win point to solvers
@@ -1727,7 +1905,7 @@ document.addEventListener('click', async e => {
   if(roundEnded || !roomData) return;
   if(roomData.players?.[user.uid]?.hangSolved) return;
   if(hangWrong >= HANG_MAX_WRONG){
-    $('hangMsg').textContent = 'No chances left — he already fell';
+    $('hangMsg').textContent = 'No chances left — he already fell (into balloons!)';
     $('hangMsg').style.color = '#E74C3C';
     return;
   }
@@ -1741,11 +1919,7 @@ document.addEventListener('click', async e => {
   if(guess === answer){
     $('hangMsg').textContent = 'Saved! ✓';
     $('hangMsg').style.color = '#00B894';
-    const body = $('hangBody');
-    if(body){
-      body.className = 'hang-body saved';
-      body.querySelectorAll('.hang-part').forEach(el => el.classList.add('on'));
-    }
+    hangSaved();
     $('hangStatus').textContent = 'Rescued!';
     $('hangStatus').style.color = '#00B894';
     snd('win');
@@ -1755,14 +1929,14 @@ document.addEventListener('click', async e => {
   } else {
     hangWrong++;
     updateHangFigure(hangWrong);
-    $('hangMsg').textContent = 'Wrong — he slips closer to the pit!';
+    $('hangMsg').textContent = 'Wrong — his grip is slipping!';
     $('hangMsg').style.color = '#E74C3C';
     snd('bad');
     try{
       await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWrong});
     }catch(e){}
     if(hangWrong >= HANG_MAX_WRONG){
-      $('hangMsg').textContent = 'He fell into the pit…';
+      $('hangMsg').textContent = 'He let go and fell into the balloons!';
     }
   }
 });
