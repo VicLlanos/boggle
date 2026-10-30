@@ -926,22 +926,23 @@ function randomLetter(hard=false){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-/* ===== HANGMAN RACE – harder rotating banks with hints ===== */
-// Each entry: [WORD, HINT]
+/* ===== HANGMAN RACE – built-in OFFLINE fallback bank (live puzzles are generated below) ===== */
+// Each entry: [WORD, HINT]. WORD is a real item from the category (single word, A-Z only); HINT describes that word, never the game.
 const HANG_BANKS = {
   "Movies": [
-    ["INCEPTION","Dreams within dreams"],["INTERSTELLAR","Space and time dilation"],["GLADIATOR","Are you not entertained?"],
-    ["CASABLANCA","Of all the gin joints"],["PSYCHO","Famous shower scene"],["GODFATHER","An offer you can't refuse"],
-    ["SCHINDLER","Industrialist who saved lives"],["PARASITE","Stairs and a basement"],["WHIPLASH","Drumming and perfection"],
-    ["ARRIVAL","Alien language and time"],["EXORCIST","Demonic possession"],["GOODFELLAS","Wise guys narration"],
-    ["VERTIGO","Fear of heights, Hitchcock"],["CHINATOWN","Water and corruption"],["MEMENTO","Told in reverse"]
+    ["INCEPTION","Thief enters people's dreams to plant an idea"],["INTERSTELLAR","Astronauts travel through a wormhole to save humanity"],["GLADIATOR","Betrayed Roman general fights in the arena"],
+    ["CASABLANCA","Classic wartime romance set in Morocco"],["PSYCHO","Hitchcock thriller set at the Bates Motel"],["TITANIC","Doomed ocean liner and a Jack and Rose love story"],
+    ["AVATAR","Blue-skinned Na'vi on the moon Pandora"],["JAWS","Spielberg shark thriller: you're gonna need a bigger boat"],["SHREK","Green ogre, a talking donkey and Princess Fiona"],
+    ["FROZEN","Sisters Elsa and Anna and a snowman named Olaf"],["COCO","Boy visits the Land of the Dead on Day of the Dead"],["PARASITE","Poor family infiltrates a rich household; Korean Best Picture winner"],
+    ["JOKER","Arthur Fleck becomes Batman's nemesis"],["ENCANTO","Madrigal family and a magical house in Colombia"],["MOANA","Polynesian teen sails to restore the heart of Te Fiti"],
+    ["ROCKY","Philadelphia boxer who goes the distance"],["VERTIGO","Hitchcock film about a detective afraid of heights"],["GREASE","Danny and Sandy at Rydell High"]
   ],
   "Animals": [
-    ["PLATYPUS","Egg-laying mammal with a bill"],["ARMADILLO","Armored shell, rolls up"],["CHAMELEON","Changes color"],
-    ["NARWHAL","Tusk like a unicorn of the sea"],["AXOLOTL","Smiling salamander that stays young"],["PANGOLIN","Scaly anteater"],
-    ["OKAPI","Forest giraffe relative"],["CASSOWARY","Dangerous flightless bird"],["TAPIR","Snout like a mini elephant"],
+    ["PLATYPUS","Egg-laying mammal with a bill"],["ARMADILLO","Armored shell, rolls up"],["CHAMELEON","Lizard that changes color"],
+    ["NARWHAL","Whale with a tusk like a unicorn of the sea"],["AXOLOTL","Smiling salamander that stays young"],["PANGOLIN","Scaly anteater"],
+    ["OKAPI","Forest giraffe relative with striped legs"],["CASSOWARY","Dangerous flightless bird"],["TAPIR","Snout like a mini elephant"],
     ["WOMBAT","Australian burrower, cube poop"],["QUOKKA","World's happiest-looking animal"],["MANATEE","Sea cow"],
-    ["ANCHOVY","Tiny salty fish"],["CAPYBARA","Largest rodent, loves water"],["HONEYBADGER","Fearless tough mammal"]
+    ["ANCHOVY","Tiny salty fish on pizza"],["CAPYBARA","Largest rodent, loves water"],["HONEYBADGER","Fearless tough mammal"]
   ],
   "Science": [
     ["PHOTOSYNTHESIS","How plants make food from light"],["MOLECULE","Group of atoms bonded"],["ELECTRON","Negative particle"],
@@ -951,11 +952,12 @@ const HANG_BANKS = {
     ["CHROMOSOME","Structure carrying genes"],["ANTIBODY","Immune system defender"],["FUSION","Nuclei combining, stars do this"]
   ],
   "Geography": [
-    ["ARCHIPELAGO","Group of islands"],["ISTHMUS","Narrow land between seas"],["SAVANNA","Grassy plain with few trees"],
-    ["TUNDRA","Cold treeless region"],["FJORD","Glacial sea inlet"],["ATOLL","Ring-shaped coral island"],
-    ["MESA","Flat-topped elevated land"],["GULF","Large ocean inlet"],["DELTA","River mouth deposit"],
-    ["PLATEAU","Elevated flat land"],["TRIBUTARY","River that feeds a larger one"],["EQUATOR","Imaginary line at 0° latitude"],
-    ["MERIDIAN","Line of longitude"],["PENINSULA","Land almost surrounded by water"],["CANYON","Deep valley with steep sides"]
+    ["EGYPT","Land of pyramids and the Sphinx"],["SAHARA","World's largest hot desert, in northern Africa"],["AMAZON","Giant South American rainforest and river"],
+    ["EVEREST","Tallest mountain above sea level"],["KILIMANJARO","Africa's highest peak, in Tanzania"],["NILE","Longest river in Africa, flows north to the Mediterranean"],
+    ["ICELAND","Island nation of geysers, glaciers and volcanoes"],["AUSTRALIA","Country and continent home to kangaroos"],["BRAZIL","Largest country in South America"],
+    ["ANTARCTICA","Frozen continent at the South Pole"],["MADAGASCAR","Large island off Africa's east coast, home of lemurs"],["VENICE","Italian city built on canals"],
+    ["SINGAPORE","Island city-state in Southeast Asia"],["PHILIPPINES","Archipelago of over 7,000 islands in Southeast Asia"],["MANILA","Capital city of the Philippines"],
+    ["SWITZERLAND","Alpine country famous for chocolate and neutrality"],["GREENLAND","World's largest island, mostly covered in ice"]
   ],
   "Mythology": [
     ["MINOTAUR","Bull-headed man in a labyrinth"],["MEDUSA","Snake hair, turns to stone"],["CERBERUS","Three-headed guard dog"],
@@ -965,49 +967,194 @@ const HANG_BANKS = {
     ["ODYSSEUS","Long journey home from Troy"],["THOR","Norse god of thunder"],["ANUBIS","Egyptian jackal-headed god"]
   ],
   "Music": [
-    ["SYMPHONY","Long orchestral work"],["CRESCENDO","Gradually getting louder"],["ARPEGGIO","Notes of a chord played in sequence"],
-    ["FALSETTO","High voice above normal range"],["STACCATO","Short, detached notes"],["VIBRATO","Slight pitch waver"],
-    ["OVERTURE","Orchestral intro to an opera"],["SONATA","Multi-movement solo piece"],["BALLAD","Slow emotional song"],
-    ["HARMONY","Notes sounding well together"],["RHYTHM","Pattern of beats"],["MELODY","Main tune of a piece"],
-    ["TEMPO","Speed of the music"],["CHORD","Three or more notes at once"],["OCTAVE","Eight notes apart"]
+    ["BEYONCE","Singer of Halo and Single Ladies"],["ADELE","British singer behind Hello and Rolling in the Deep"],["MADONNA","Queen of Pop known for Like a Prayer"],
+    ["METALLICA","Heavy metal band behind Enter Sandman"],["NIRVANA","Grunge band led by Kurt Cobain"],["COLDPLAY","British band behind Yellow and Viva la Vida"],
+    ["MOZART","Child prodigy who composed The Magic Flute"],["BEETHOVEN","Deaf composer of the Ninth Symphony"],["ELVIS","The King of Rock and Roll"],
+    ["ABBA","Swedish group behind Dancing Queen"],["QUEEN","Rock band fronted by Freddie Mercury"],["RIHANNA","Barbados-born singer of Umbrella"],
+    ["SHAKIRA","Colombian star behind Hips Don't Lie"],["EMINEM","Rapper known as Slim Shady"],["THRILLER","Michael Jackson's best-selling album"],
+    ["BTS","K-pop group with seven members and a fan base called ARMY"]
   ],
   "Literature": [
-    ["METAPHOR","Comparison without like/as"],["PROTAGONIST","Main character"],["ANTAGONIST","Opposing force"],
-    ["SOLILOQUY","Speech alone on stage"],["ALLITERATION","Repeated starting sounds"],["ONOMATOPOEIA","Word that sounds like its meaning"],
-    ["HYPERBOLE","Extreme exaggeration"],["IRONIC","Opposite of what's expected"],["NARRATOR","Who tells the story"],
-    ["CLIMAX","Turning point of the plot"],["EPILOGUE","Section after the main story"],["FORESHADOW","Hint of what's to come"],
-    ["SATIRE","Humor that criticizes"],["TRAGEDY","Serious play with a sad end"],["BALLAD","Narrative poem or song"]
+    ["HAMLET","Danish prince in Shakespeare's tragedy: to be or not to be"],["MACBETH","Scottish general driven by witches' prophecy and ambition"],["DRACULA","Bram Stoker's vampire count from Transylvania"],
+    ["FRANKENSTEIN","Mary Shelley's novel about a scientist's monstrous creation"],["ODYSSEY","Homer's epic about a long voyage home"],["HOBBIT","Bilbo Baggins' adventure with dwarves and a dragon"],
+    ["MATILDA","Roald Dahl's girl with telekinetic powers"],["EMMA","Jane Austen's matchmaking heroine"],["DUNE","Frank Herbert's sci-fi epic on a desert planet"],
+    ["ILIAD","Homer's epic about the Trojan War"],["ULYSSES","James Joyce novel set in a single day in Dublin"],["DICKENS","Author of Oliver Twist and A Christmas Carol"],
+    ["TOLKIEN","Author who created Middle-earth"],["SHAKESPEARE","Bard of Avon who wrote Romeo and Juliet"],["HEMINGWAY","Author of The Old Man and the Sea"]
   ],
   "Technology": [
-    ["ALGORITHM","Step-by-step problem solution"],["ENCRYPTION","Scrambling data for security"],["BANDWIDTH","Data transfer capacity"],
-    ["FIREWALL","Network security barrier"],["CACHE","Temporary high-speed storage"],["PROTOCOL","Rules for communication"],
-    ["COMPILER","Translates code to machine language"],["DATABASE","Organized collection of data"],["INTERFACE","Point of interaction"],
-    ["PIXEL","Tiny dot that makes up a screen"],["ROUTER","Directs network traffic"],["SERVER","Computer that provides services"],
-    ["FIRMWARE","Software embedded in hardware"],["LATENCY","Delay in data transfer"],["CLOUD","Remote computing resources"]
+    ["PYTHON","Popular programming language named after a comedy group"],["JAVASCRIPT","Language that makes web pages interactive"],["ANDROID","Google's mobile operating system with a green robot"],
+    ["LINUX","Open-source operating system with a penguin mascot"],["GOOGLE","Search giant founded by Larry Page and Sergey Brin"],["NETFLIX","Streaming service that began by mailing DVDs"],
+    ["TESLA","Electric car maker led by Elon Musk"],["WINDOWS","Microsoft's best-known operating system"],["FACEBOOK","Social network created by Mark Zuckerberg"],
+    ["INSTAGRAM","Photo-sharing app owned by Meta"],["YOUTUBE","Video platform bought by Google in 2006"],["BLUETOOTH","Short-range wireless tech named after a Viking king"],
+    ["WIKIPEDIA","Free online encyclopedia anyone can edit"],["ALEXA","Amazon's voice assistant"],["PLAYSTATION","Sony's gaming console"]
   ]
 };
 const HANG_USED = {};
 const HANG_MAX_LEVELS = 5;
 
-function pickHangmanPuzzle(seedStr){
-  let seed = 0;
-  for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
-  const rand = seededRandom(seed || Date.now());
+/* ===== DYNAMIC PUZZLES =====
+   Every puzzle is generated live: a random Wikipedia category is walked down to a random
+   sub-category, a well-known single-word article is picked from it, the category name becomes
+   the CATEGORY and the article's own description (with the answer masked) becomes the HINT.
+   Only the host fetches; everyone else just reads the puzzle from the room.
+   The small built-in bank above is used ONLY if the network is unreachable. */
+const HANG_USED_KEY = 'hangUsedWordsV2';
+let HANG_RECENT = [];
+try{ HANG_RECENT = JSON.parse(localStorage.getItem(HANG_USED_KEY) || '[]') || []; }catch(e){ HANG_RECENT = []; }
+function hangRememberWord(w){
+  HANG_RECENT.push(w);
+  if(HANG_RECENT.length > 400) HANG_RECENT = HANG_RECENT.slice(-400);
+  try{ localStorage.setItem(HANG_USED_KEY, JSON.stringify(HANG_RECENT)); }catch(e){}
+}
 
-  const cats = Object.keys(HANG_BANKS);
-  let category = cats[Math.floor(rand()*cats.length)];
-  let entries = HANG_BANKS[category].filter(([w]) => !HANG_USED[category+'|'+w]);
-  if(!entries.length){
-    Object.keys(HANG_USED).forEach(k=>{ if(k.startsWith(category+'|')) delete HANG_USED[k]; });
-    entries = [...HANG_BANKS[category]];
+const WIKI_API = 'https://en.wikipedia.org/w/api.php';
+// Broad starting points only – the actual category (and every answer) is discovered live below them.
+const HANG_ROOTS = [
+  'Films by genre','Television series by genre','Video games by genre','Disney animated films','Pixar films',
+  'Mammals','Birds','Fish','Reptiles','Insects','Dinosaurs','Plants','Fruits','Vegetables','Spices','Desserts','Cheeses',
+  'Countries in Africa','Countries in Asia','Countries in Europe','Capitals in Europe','Islands','Mountains','Rivers','Deserts','Lakes','Volcanoes',
+  'Musical instruments','Musical groups by genre','Albums by genre','Music genres',
+  'Greek mythology','Norse mythology','Egyptian mythology','Japanese mythology','Mythological creatures','Legendary creatures',
+  'Solar System','Constellations','Chemical elements','Minerals',
+  'Programming languages','Operating systems','Social media','Video game consoles','Mobile phones',
+  'Summer Olympic sports','Board games','Card games','Toys','Dances','Novels by genre','Children\'s literature','Shakespearean characters','Marvel Comics characters','Inventions'
+];
+// Keep it family friendly and skip maintenance / list pages
+const HANG_BLOCK = /(\bsex|porn|erotic|nude|nudity|adult film|\brape|abuse|suicid|murder|\bkill|massacre|genocide|terror|nazi|holocaust|slaver|prostitut|\bdrugs?\b|cocaine|heroin|\bdeath|\bdead\b|\bdied\b|victim|crime|criminal|shooting|assault|fetish|fascis|racis|\bwar crimes?)/i;
+const HANG_BADCAT = /(wikipedia|articles|stubs?\b|redirects?|disambiguation|templates?|^category:lists? |lists? of|navigational|\busers?\b|portal|maintenance|categories|\bby (year|decade|century|date))/i;
+
+function hangPlain(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function hangNorm(title){
+  const bare = hangPlain(String(title||'').replace(/\s*\([^)]*\)\s*/g,'')).trim().toUpperCase();
+  return /^[A-Z]{4,12}$/.test(bare) ? bare : '';
+}
+const hangSleep = ms => new Promise(r => setTimeout(r, ms));
+const hangPick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+async function wikiGet(params, ms){
+  const url = WIKI_API + '?' + new URLSearchParams(Object.assign({format:'json',formatversion:'2',origin:'*'}, params));
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), ms || 5000);
+  try{
+    const r = await fetch(url, {signal: ctl.signal});
+    if(!r.ok) throw new Error('wiki http ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(timer); }
+}
+
+const HANG_SUBCACHE = new Map();
+async function hangSubcats(cat){
+  if(HANG_SUBCACHE.has(cat)) return HANG_SUBCACHE.get(cat);
+  const d = await wikiGet({action:'query',list:'categorymembers',cmtitle:'Category:'+cat,cmtype:'subcat',cmlimit:'100'});
+  const subs = ((d.query && d.query.categorymembers) || [])
+    .map(m => String(m.title||'').replace(/^Category:/,''))
+    .filter(t => t && !HANG_BLOCK.test(t) && !HANG_BADCAT.test(t));
+  HANG_SUBCACHE.set(cat, subs);
+  return subs;
+}
+
+async function hangPagesFor(cat, prefix){
+  const p = {action:'query',generator:'categorymembers',gcmtitle:'Category:'+cat,gcmtype:'page',gcmnamespace:'0',gcmlimit:'20',
+             prop:'extracts|description|pageviews',exintro:'1',explaintext:'1',exsentences:'2',exlimit:'max',pvipdays:'30'};
+  if(prefix) p.gcmstartsortkeyprefix = prefix;   // random starting letter = different slice every time
+  const d = await wikiGet(p);
+  return (d.query && d.query.pages) || [];
+}
+
+// Hint = the article's own short description (or first sentence) with the answer masked out
+function hangBuildHint(title, word, desc, ext){
+  const bare = hangPlain(String(title).replace(/\s*\([^)]*\)\s*/g,'')).trim();
+  const re = new RegExp(bare.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\w*', 'gi');
+  let h = hangPlain(desc || '').trim();
+  if(h.length < 10){
+    const clean = hangPlain(ext || '').replace(/\s*\([^)]*\)/g,'').replace(/\s+/g,' ').trim();
+    const m = clean.match(/^.*?[.!?](?=\s|$)/);
+    h = m ? m[0] : clean;
   }
-  const [word, hint] = entries[Math.floor(rand()*entries.length)];
-  HANG_USED[category+'|'+word] = true;
+  h = h.replace(re, '_____').replace(/\s+/g,' ').trim();
+  if(h.length > 140){ h = h.slice(0,140); h = h.slice(0, h.lastIndexOf(' ')) + '…'; }
+  if(h.length < 10) return '';
+  // the hint must still say something useful once the answer is masked out
+  const meaningful = h.replace(/_____/g,' ').split(/[^A-Za-z0-9]+/).filter(w => w.length >= 3 && !/^(the|and|for|with|was|are|its|that|this|from|has|had|have|his|her)$/i.test(w));
+  if(meaningful.length < 2) return '';
+  if(h.toUpperCase().replace(/[^A-Z]/g,'').includes(word)) return '';   // never leak the answer
+  return h.charAt(0).toUpperCase() + h.slice(1);
+}
 
+function hangCandidate(pg){
+  const word = hangNorm(pg.title);
+  if(!word || HANG_RECENT.includes(word)) return null;
+  const desc = String(pg.description || '').trim();
+  const ext = String(pg.extract || '').trim();
+  if(!desc && ext.length < 40) return null;
+  if(/may refer to|disambiguation/i.test(desc + ' ' + ext.slice(0,80))) return null;
+  if(HANG_BLOCK.test(pg.title + ' ' + desc)) return null;
+  // only reasonably well-known articles, so puzzles stay fair
+  const views = Object.values(pg.pageviews || {}).filter(v => typeof v === 'number');
+  const avg = views.length ? views.reduce((a,b)=>a+b,0) / views.length : 0;
+  if(avg < 60) return null;
+  const hint = hangBuildHint(pg.title, word, desc, ext);
+  if(!hint || HANG_BLOCK.test(hint)) return null;
+  return {word, hint};
+}
+
+async function hangTryCategory(cat){
+  const letters = 'ABCDEFGHIJKLMNOPRSTUVW';
+  let pages = await hangPagesFor(cat, letters[Math.floor(Math.random() * letters.length)]);
+  if(!pages.length) pages = await hangPagesFor(cat, '');
+  const cands = pages.map(hangCandidate).filter(Boolean);
+  if(!cands.length) return null;
+  const c = hangPick(cands);
+  const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+  return {category: label, word: c.word, hint: c.hint};
+}
+
+async function hangDynamicPuzzle(deadline){
+  let netFails = 0;
+  for(let attempt = 0; attempt < 8 && Date.now() < deadline && netFails < 2; attempt++){
+    try{
+      let cat = hangPick(HANG_ROOTS);
+      const depth = 1 + Math.floor(Math.random() * 3);
+      for(let d = 0; d < depth; d++){
+        const subs = await hangSubcats(cat);
+        if(!subs.length) break;
+        cat = hangPick(subs);
+      }
+      let res = await hangTryCategory(cat);
+      if(!res){                       // nothing usable here – look one level deeper
+        const subs = await hangSubcats(cat);
+        if(subs.length) res = await hangTryCategory(hangPick(subs));
+      }
+      if(res) return res;
+    }catch(e){ netFails++; await hangSleep(150); }   // two network failures in a row = offline, give up quickly
+  }
+  return null;
+}
+
+// Pre-fetch upcoming puzzles in the background so rounds start instantly
+const HANG_QUEUE = [];
+let hangFetching = false;
+async function hangPrefetch(){
+  if(hangFetching || HANG_QUEUE.length >= 2) return;
+  hangFetching = true;
+  try{
+    for(let i = 0; i < 6 && HANG_QUEUE.length < 2; i++){
+      const r = await hangDynamicPuzzle(Date.now() + 9000);
+      if(!r) break;
+      if(HANG_QUEUE.some(q => q.word === r.word) || HANG_RECENT.includes(r.word)) continue;
+      HANG_QUEUE.push(r);
+    }
+  }catch(e){} finally { hangFetching = false; }
+}
+
+// Turn (category, word, hint) into the room data: ~35-40% of letters revealed + letter tiles
+function buildHangPuzzle(category, word, hint, rand){
+  rand = rand || Math.random;
   const chars = word.split('');
   const positions = chars.map((_,i)=>i).filter(i=>/[A-Z]/.test(chars[i]));
-  // Reveal fewer letters for harder words (~25%)
-  const revealCount = Math.max(1, Math.floor(positions.length * 0.25));
+  // Reveal 35-40% of the letters to help players (always leave at least one blank to solve)
+  const revealRatio = 0.35 + rand() * 0.05;
+  const revealCount = Math.min(positions.length - 1, Math.max(1, Math.round(positions.length * revealRatio)));
   for(let i=positions.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[positions[i],positions[j]]=[positions[j],positions[i]]}
   const revealSet = new Set(positions.slice(0, revealCount));
   const revealed = chars.map((ch,i)=> revealSet.has(i) ? ch : (ch==='-'||ch===' '?' ':'_'));
@@ -1022,8 +1169,43 @@ function pickHangmanPuzzle(seedStr){
   }
   const tiles = [...needed, ...decoys];
   for(let i=tiles.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}
-
   return { category, word, hint, revealed, tiles };
+}
+
+// Offline-only fallback (small built-in bank above)
+function pickLocalHangmanPuzzle(seedStr){
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
+  const rand = seededRandom(seed || Date.now());
+  const cats = Object.keys(HANG_BANKS);
+  let category = cats[Math.floor(rand()*cats.length)];
+  let entries = HANG_BANKS[category].filter(([w]) => !HANG_USED[category+'|'+w] && !HANG_RECENT.includes(w));
+  if(!entries.length){
+    Object.keys(HANG_USED).forEach(k=>{ if(k.startsWith(category+'|')) delete HANG_USED[k]; });
+    entries = [...HANG_BANKS[category]];
+  }
+  const [word, hint] = entries[Math.floor(rand()*entries.length)];
+  HANG_USED[category+'|'+word] = true;
+  hangRememberWord(word);
+  return buildHangPuzzle(category, word, hint, rand);
+}
+
+async function pickHangmanPuzzle(seedStr){
+  // 1) a puzzle that was pre-fetched while players were waiting / playing
+  const t0 = Date.now();
+  while(!HANG_QUEUE.length && hangFetching && Date.now() - t0 < 8000) await hangSleep(150);
+  let dyn = HANG_QUEUE.shift() || null;
+  // 2) otherwise fetch one right now (max ~8s)
+  if(!dyn){
+    dyn = await Promise.race([hangDynamicPuzzle(Date.now() + 7500), hangSleep(8000).then(() => null)]);
+  }
+  hangPrefetch();   // keep the queue topped up for the next level (not awaited)
+  if(dyn){
+    hangRememberWord(dyn.word);
+    return buildHangPuzzle(dyn.category, dyn.word, dyn.hint);
+  }
+  // 3) offline fallback
+  return pickLocalHangmanPuzzle(seedStr);
 }
 
 /* ===== STATE ===== */
@@ -1224,6 +1406,7 @@ $('btnHost').onclick=async()=>{
   try{
     const code=randCode();
     const gameType=selectedGame;
+    if(gameType==='hangman') hangPrefetch();   // start fetching fresh puzzles while players join
     const room={
       code,hostUid:user.uid,status:'lobby',gameType,
       createdAt:Date.now(),maxPlayers:MAX_PLAYERS,
@@ -1410,7 +1593,8 @@ async function beginRound(){
 
   if(gameType === 'hangman'){
     const level = (roomData.hangLevel || 0) + 1;
-    const puzzle = pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
+    if(!HANG_QUEUE.length) toast('Finding a fresh puzzle…');
+    const puzzle = await pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
     const updates={
       status:'playing',
       hangLevel: level,
