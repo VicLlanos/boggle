@@ -524,23 +524,20 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .hang-cat-label{font-size:.7rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.6px}
 .hang-cat-name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.25rem;color:var(--violet-d);margin:2px 0 4px}
 .hang-hint{font-size:.85rem;font-weight:700;color:#E17055;margin-bottom:8px;min-height:1.2em}
-.hang-stage{position:relative;height:160px;margin:0 auto 6px;max-width:240px}
-.hang-gallows{width:100%;height:100%;display:block}
-.hang-figure{
-  position:absolute;left:50%;top:38px;transform:translateX(-42%);
-  font-size:2.4rem;line-height:1;
-  transition:top .45s cubic-bezier(.34,1.2,.64,1),opacity .35s,filter .35s;
-  filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));
-  z-index:2;
-}
-.hang-figure.stage-0{top:38px}
-.hang-figure.stage-1{top:48px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3)) saturate(.9)}
-.hang-figure.stage-2{top:58px}
-.hang-figure.stage-3{top:72px;transform:translateX(-42%) rotate(6deg)}
-.hang-figure.stage-4{top:88px;transform:translateX(-42%) rotate(12deg)}
-.hang-figure.stage-5{top:115px;opacity:.25;transform:translateX(-42%) rotate(25deg) scale(.85)}
-.hang-figure.saved{top:32px;filter:drop-shadow(0 0 12px #00B894)}
-.hang-status{position:absolute;top:0;left:0;right:0;font-size:.78rem;font-weight:800;color:#636E72;z-index:3}
+.hang-stage{position:relative;height:180px;margin:0 auto 8px;max-width:260px}
+.hang-scene{width:100%;height:100%;display:block;overflow:visible}
+.hang-status{position:absolute;top:2px;left:0;right:0;font-size:.78rem;font-weight:800;color:#636E72;z-index:3;text-align:center;pointer-events:none}
+.hang-body{transition:transform .5s cubic-bezier(.34,1.2,.64,1),opacity .4s}
+.hang-part{opacity:0;transition:opacity .35s ease}
+.hang-part.on{opacity:1}
+.hang-body.stage-0{transform:translateY(0)}
+.hang-body.stage-1{transform:translateY(8px)}
+.hang-body.stage-2{transform:translateY(16px)}
+.hang-body.stage-3{transform:translateY(28px) rotate(5deg);transform-origin:74px 42px}
+.hang-body.stage-4{transform:translateY(42px) rotate(12deg);transform-origin:74px 42px}
+.hang-body.stage-5{transform:translateY(82px) rotate(30deg) scale(.88);transform-origin:74px 42px;opacity:.3}
+.hang-body.saved{transform:translateY(-6px)}
+.hang-body.saved .hang-part{opacity:1}
 .hang-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0;min-height:48px}
 .hang-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px;min-height:52px}
 .hang-msg{margin-top:8px;font-weight:800;font-size:.9rem;min-height:1.2em;color:#636E72}
@@ -705,16 +702,44 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div id="hangCategory" class="hang-cat-name">—</div>
     <div id="hangHint" class="hang-hint">Hint: —</div>
     <div id="hangStage" class="hang-stage">
-      <svg class="hang-gallows" viewBox="0 0 120 140" aria-hidden="true">
-        <ellipse cx="60" cy="132" rx="44" ry="9" fill="#0d0d0d"/>
-        <ellipse cx="60" cy="129" rx="40" ry="7" fill="#2D3436"/>
-        <rect x="12" y="8" width="9" height="110" rx="2" fill="#5D4037"/>
-        <rect x="12" y="8" width="72" height="9" rx="2" fill="#6D4C41"/>
-        <line id="hangRope" x1="74" y1="17" x2="74" y2="44" stroke="#8D6E63" stroke-width="3.5" stroke-linecap="round"/>
-        <circle id="hangNoose" cx="74" cy="52" r="8" fill="none" stroke="#8D6E63" stroke-width="2.5"/>
-      </svg>
-      <div id="hangFigure" class="hang-figure stage-0">🙂</div>
       <div id="hangStatus" class="hang-status">Save him!</div>
+      <svg class="hang-scene" viewBox="0 0 140 160" aria-hidden="true">
+        <!-- Pit -->
+        <ellipse cx="78" cy="150" rx="48" ry="10" fill="#0a0a0a"/>
+        <ellipse cx="78" cy="147" rx="44" ry="8" fill="#1e272e"/>
+        <path d="M34 147 Q78 138 122 147" fill="none" stroke="#0d0d0d" stroke-width="3"/>
+        <!-- Gallows post + beam -->
+        <rect x="18" y="12" width="10" height="120" rx="2" fill="#5D4037"/>
+        <rect x="14" y="8" width="18" height="12" rx="2" fill="#4E342E"/>
+        <rect x="18" y="12" width="78" height="10" rx="2" fill="#6D4C41"/>
+        <rect x="88" y="12" width="10" height="14" rx="1" fill="#5D4037"/>
+        <!-- Rope from beam -->
+        <line x1="93" y1="26" x2="93" y2="40" stroke="#8D6E63" stroke-width="3" stroke-linecap="round"/>
+        <!-- Figure group (slides toward pit) -->
+        <g id="hangBody" class="hang-body stage-0">
+          <!-- noose -->
+          <circle cx="93" cy="48" r="9" fill="none" stroke="#8D6E63" stroke-width="2.5"/>
+          <line x1="93" y1="40" x2="93" y2="39" stroke="#8D6E63" stroke-width="3"/>
+          <!-- head -->
+          <circle class="hang-part" data-part="0" cx="93" cy="56" r="11" fill="#FFE0B2" stroke="#5D4037" stroke-width="1.5"/>
+          <!-- eyes / face worry grows via opacity of X eyes -->
+          <g class="hang-part" data-part="0">
+            <circle cx="89" cy="54" r="1.6" fill="#333"/>
+            <circle cx="97" cy="54" r="1.6" fill="#333"/>
+            <path d="M89 61 Q93 64 97 61" fill="none" stroke="#333" stroke-width="1.2" stroke-linecap="round"/>
+          </g>
+          <!-- torso -->
+          <line class="hang-part" data-part="1" x1="93" y1="67" x2="93" y2="95" stroke="#37474F" stroke-width="4" stroke-linecap="round"/>
+          <!-- left arm -->
+          <line class="hang-part" data-part="2" x1="93" y1="75" x2="78" y2="88" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- right arm -->
+          <line class="hang-part" data-part="3" x1="93" y1="75" x2="108" y2="88" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- left leg -->
+          <line class="hang-part" data-part="4" x1="93" y1="95" x2="82" y2="115" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- right leg -->
+          <line class="hang-part" data-part="4" x1="93" y1="95" x2="104" y2="115" stroke="#37474F" stroke-width="3.5" stroke-linecap="round"/>
+        </g>
+      </svg>
     </div>
     <div id="hangSlots" class="hang-slots"></div>
     <div id="hangTray" class="hang-tray"></div>
@@ -1529,8 +1554,6 @@ let hangSlots = [];
 let hangTrayTiles = [];
 let hangWrong = 0;
 const HANG_MAX_WRONG = 5;
-const HANG_FACES = ['🙂','😐','😟','😰','😱','💀'];
-
 function enterHangman(){
   if($('screen-hangman').classList.contains('active') && !roundEnded){
     renderHangScores();
@@ -1572,11 +1595,21 @@ function updateHangLevelBar(){
 }
 
 function updateHangFigure(wrong){
-  const fig = $('hangFigure');
-  if(!fig) return;
+  const body = $('hangBody');
+  if(!body) return;
   const stage = Math.min(Math.max(wrong,0), HANG_MAX_WRONG);
-  fig.className = 'hang-figure stage-'+stage;
-  fig.textContent = HANG_FACES[stage] || '💀';
+  body.className = 'hang-body stage-'+stage;
+  // Reveal body parts progressively with each wrong guess
+  // 0 wrong: only head visible (hanging on rope)
+  // 1: torso, 2: left arm, 3: right arm, 4: legs, 5: fall into pit
+  body.querySelectorAll('.hang-part').forEach(el => {
+    const need = parseInt(el.getAttribute('data-part'), 10);
+    el.classList.toggle('on', stage >= need);
+  });
+  // At stage 0 still show head so you see him on the rope
+  if(stage === 0){
+    body.querySelectorAll('.hang-part[data-part="0"]').forEach(el => el.classList.add('on'));
+  }
   if(wrong >= HANG_MAX_WRONG){
     $('hangStatus').textContent = 'Fell into the pit!';
     $('hangStatus').style.color = '#E74C3C';
@@ -1708,8 +1741,11 @@ document.addEventListener('click', async e => {
   if(guess === answer){
     $('hangMsg').textContent = 'Saved! ✓';
     $('hangMsg').style.color = '#00B894';
-    const fig = $('hangFigure');
-    if(fig){ fig.className = 'hang-figure saved'; fig.textContent = '😄'; }
+    const body = $('hangBody');
+    if(body){
+      body.className = 'hang-body saved';
+      body.querySelectorAll('.hang-part').forEach(el => el.classList.add('on'));
+    }
     $('hangStatus').textContent = 'Rescued!';
     $('hangStatus').style.color = '#00B894';
     snd('win');
