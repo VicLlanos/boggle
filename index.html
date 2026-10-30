@@ -1787,14 +1787,16 @@ let hangSlots = [];
 let hangTrayTiles = [];
 let hangWrong = 0;
 const HANG_MAX_WRONG = 5;
-function enterHangman(){
-  if($('screen-hangman').classList.contains('active') && !roundEnded){
+function enterHangman(force){
+  // When force=true (new level), always rebuild the full puzzle UI
+  if(!force && $('screen-hangman').classList.contains('active') && !roundEnded){
     renderHangScores();
     updateHangLevelBar();
     return;
   }
   resetRoundState();
-  hangWrong = roomData.players?.[user.uid]?.hangWrong || 0;
+  roundEnded = false;
+  hangWrong = 0;
   const sb = $('btnSoundHang');
   if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-hangman');
@@ -1807,7 +1809,7 @@ function enterHangman(){
   const btnNext = $('btnHangNext');
   if(btnSub){ btnSub.style.display = 'flex'; btnSub.disabled = false; }
   if(btnNext){ btnNext.style.display = 'none'; btnNext.disabled = false; }
-  updateHangFigure(hangWrong, true);
+  updateHangFigure(0, true);
   updateHangLevelBar();
 
   const revealed = roomData.hangRevealed || [];
@@ -2394,14 +2396,20 @@ function onRoom(snap){
   }
   if(st==='shaking') roundEnded = false;
 
+  // Hangman: detect a new level (word/level changed) even when status stays 'playing'
+  const hangSig = gt==='hangman' ? ((roomData.hangLevel||0)+'|'+(roomData.hangWord||'')+'|'+(roomData.startedAt||'')) : '';
+  const hangPuzzleChanged = gt==='hangman' && hangSig && hangSig !== window._lastHangSig;
+
   if(st==='shaking'||st==='playing'){
-    if(!roundEnded || prevStatus==='results' || prevStatus==='lobby'){
+    if(!roundEnded || prevStatus==='results' || prevStatus==='lobby' || hangPuzzleChanged){
       roundEnded = false;
       if(gt==='scatter') enterScatter();
-      else if(gt==='hangman') enterHangman();
+      else if(gt==='hangman'){
+        window._lastHangSig = hangSig;
+        enterHangman(true); // force full refresh for new level
+      }
       else enterGame();
     } else if(gt==='hangman' && st==='playing'){
-      // Already in a hangman level — check if someone won the race
       checkHangRaceWinner();
       renderHangScores();
     }
