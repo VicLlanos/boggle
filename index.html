@@ -1624,7 +1624,10 @@ async function beginRound(){
   }
 
   if(gameType === 'hangman'){
-    const level = (roomData.hangLevel || 0) + 1;
+    let prevLevel = roomData.hangLevel || 0;
+    // If previous series already finished (level >= 5), start a fresh series at 1
+    if(prevLevel >= HANG_MAX_LEVELS) prevLevel = 0;
+    const level = prevLevel + 1;
     const puzzle = await pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
     const updates={
       status:'playing',
@@ -1641,7 +1644,7 @@ async function beginRound(){
       endedAt:null
     };
     Object.keys(roomData.players||{}).forEach(uid=>{
-      // Keep series score (hangWins); reset per-level state
+      // Fresh series at level 1: clear wins. Later levels: keep wins, reset per-level flags
       if(level === 1) updates['players/'+uid+'/hangWins']=0;
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
@@ -2161,19 +2164,20 @@ async function finishHangRound(winnerUid){
     }catch(e){}
   }
 
-  // Award series point only to the first solver (once)
+  // Award +1 win for this level only (cap by level index so one answer never equals 5 wins)
   let myWins = me?.hangWins || 0;
   if(winner && winner.uid === user.uid){
-    myWins = (me.hangWins||0) + 1;
+    myWins = Math.min(lvl, (me.hangWins || 0) + 1);
     try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: myWins, score: myWins}); }catch(e){}
   }
 
-  // Hide submit; show Next / Finish below the answer (not overlapping)
+  // Series ends only after level 5 is finished — not after a single early win
+  const seriesDone = lvl >= maxL;
+
   const btnSub = $('btnHangSubmit');
   const btnNext = $('btnHangNext');
   if(btnSub) btnSub.style.display = 'none';
   if(btnNext){
-    const seriesDone = lvl >= maxL || myWins >= maxL;
     if(seriesDone){
       btnNext.textContent = 'SEE FINAL RESULTS';
       btnNext.dataset.mode = 'results';
@@ -2184,12 +2188,12 @@ async function finishHangRound(winnerUid){
     btnNext.style.display = 'flex';
   }
 
-  if(winner && winner.uid === user.uid && myWins >= maxL){
+  // Championship line only on the final level
+  if(seriesDone && winner && winner.uid === user.uid){
     $('hangMsg').innerHTML =
-      '<div style="margin-bottom:4px">🏆 You finished all '+maxL+' levels first!</div>'+
+      '<div style="margin-bottom:4px">🏆 Series complete — you have '+myWins+' win'+(myWins===1?'':'s')+'!</div>'+
       '<div style="font-size:.8rem;font-weight:700;color:#636E72">'+esc(cat)+'</div>'+
       '<div>Answer: <b>'+esc(answer)+'</b></div>';
-    if(btnNext){ btnNext.textContent = 'SEE FINAL RESULTS'; btnNext.dataset.mode = 'results'; }
   }
 }
 
