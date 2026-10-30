@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<title>Boggle Duo</title>
+<title>Boggle Duo + Scattergories</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -286,12 +286,31 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 /* Loading indicator for dictionary */
 .dict-status{font-size:.75rem;font-weight:700;color:#636E72;text-align:center;margin-top:4px;opacity:.8}
 
+/* ===== GAME PICKER ===== */
+.game-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+.game-card{background:#fff;border-radius:16px;padding:18px 14px;text-align:center;border:3px solid #DFE6E9;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.game-card:active{transform:scale(.97)}
+.game-card.selected{border-color:var(--violet);background:#F3F0FF;box-shadow:0 0 0 4px rgba(108,92,231,.2)}
+.game-card .icon{font-size:2.2rem;margin-bottom:6px}
+.game-card .name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem;color:var(--violet-d)}
+.game-card .desc{font-size:.75rem;font-weight:700;color:#636E72;margin-top:4px;line-height:1.3}
+
+/* ===== SCATTERGORIES UI ===== */
+.scat-letter{font-family:'Fredoka',sans-serif;font-weight:700;font-size:4.5rem;color:var(--violet-d);text-align:center;line-height:1;margin:8px 0;text-shadow:0 4px 0 rgba(108,92,231,.15)}
+.scat-cats{display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
+.scat-row{background:#F8F9FA;border-radius:14px;padding:12px;border:2px solid #EEF0F2}
+.scat-row label{font-size:.78rem;font-weight:800;color:#636E72;margin-bottom:6px;text-transform:none;letter-spacing:0}
+.scat-row input{margin-bottom:0;font-size:1rem;padding:12px 14px}
+.scat-row.filled{border-color:var(--mint);background:#F0FFF8}
+.scat-status{font-size:.8rem;font-weight:700;color:#636E72;text-align:center;margin-top:6px}
+
 @media(max-width:360px){
   .tile{font-size:1.35rem;border-radius:12px}
   .board-wrap{--g:8px;--cp:13px}
   .logo{font-size:1.45rem}
   .code-box{font-size:1.5rem;letter-spacing:6px}
   .timer{width:64px;height:64px}
+  .scat-letter{font-size:3.6rem}
 }
 </style>
 </head>
@@ -325,6 +344,25 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div class="stat"><div class="v" id="stWords">0</div><div class="l">Words</div></div>
     <div class="stat"><div class="v" id="stStreak">0</div><div class="l">Streak</div></div>
   </div>
+
+  <!-- GAME PICKER -->
+  <div class="card">
+    <h2>Choose a game</h2>
+    <p class="sub">Pick what you want to play, then host or join.</p>
+    <div class="game-picker">
+      <div class="game-card selected" data-game="boggle" id="pickBoggle">
+        <div class="icon">🎲</div>
+        <div class="name">Boggle</div>
+        <div class="desc">Find words on a 4×4 grid</div>
+      </div>
+      <div class="game-card" data-game="scatter" id="pickScatter">
+        <div class="icon">📝</div>
+        <div class="name">Scattergories</div>
+        <div class="desc">Dynamic categories + letter</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <h2>🎲 Host a game</h2>
     <p class="sub">Create a room and share the code. Up to 3 players.</p>
@@ -348,7 +386,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   <div class="card">
     <h2>Share this code</h2>
     <div class="code-box" id="roomCodeDisplay">----</div>
-    <p class="sub" style="text-align:center">Max 3 players</p>
+    <p class="sub" style="text-align:center" id="roomGameLabel">Max 3 players · Boggle</p>
     <div class="players" id="playerList"></div>
     <button class="btn btn-primary" id="btnStart" style="display:none">▶ START GAME</button>
     <p class="sub" id="waitingMsg" style="text-align:center;margin:10px 0 0">Waiting for host…</p>
@@ -374,6 +412,22 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
     <div class="tags" id="wordTags"></div>
   </div>
 </section>
+
+<!-- SCATTERGORIES SCREEN -->
+<section id="screen-scatter" class="screen">
+  <div class="game-top">
+    <div class="timer" id="scatTimerRing"><span id="scatTimerText">180</span></div>
+    <div class="scores" id="scatScoreBoard"></div>
+    <button class="snd-btn" id="btnSoundScat" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+  </div>
+  <div class="card" style="padding:16px 14px">
+    <div style="text-align:center;font-size:.8rem;font-weight:800;color:#636E72;text-transform:uppercase;letter-spacing:.5px">Letter</div>
+    <div class="scat-letter" id="scatLetter">?</div>
+    <div class="scat-cats" id="scatCats"></div>
+    <div class="scat-status" id="scatStatus">Fill in answers that start with the letter</div>
+  </div>
+</section>
+
 <div class="live-feed" id="liveFeed"></div>
 
 <section id="screen-results" class="screen">
@@ -437,13 +491,120 @@ function isValidWord(w){
 }
 // ----------------------------------
 
+/* ===== DYNAMIC SCATTERGORIES CATEGORY GENERATOR ===== */
+const BASE_CATEGORIES = [
+  "A boy's name","A girl's name","An animal","A fruit","A vegetable","A color","A country","A city",
+  "Something in a kitchen","Something you wear","A job / occupation","A piece of furniture","Something in a bathroom",
+  "A sport","A school subject","A body part","Something with wheels","A tool","Something in a garden",
+  "A musical instrument","A hobby","Something soft","Something cold","Something you can open",
+  "Things found at a beach","Things that are sticky","Things that bounce","Things that are round",
+  "Ice cream flavors","Pizza toppings","Fast food items","Breakfast foods","Desserts","Candy",
+  "Cartoon characters","Superheroes","Movie titles","TV shows","Book titles","Song titles",
+  "Famous people","Celebrities","Historical figures","Presidents","Authors","Inventors",
+  "Things in space","Things in an airport","Things in a museum","Things in an office","Things on a map",
+  "Excuses for being late","Pet peeves","Fears","Reasons to smile","Things that make you happy",
+  "Board games","Video games","Apps","Websites","Brands","Cars","Shoes","Clothing brands",
+  "Flowers","Trees","Birds","Insects","Sea creatures","Farm animals","Zoo animals",
+  "Holidays","Languages","College majors","Types of music","Dances","Sports teams",
+  "Things you plug in","Things that have buttons","Things that have wheels","Items in a gift shop",
+  "Things you take on a trip","Things you find in a bag","Things you wash","Things that are green",
+  "Things that are red","Something scary","Something yucky","Something delicious","Something funny",
+  "Ways to get from A to B","Types of weather","Units of measurement","Furniture","Plants",
+  "Things at a party","Things at a carnival","Things at a football game","Things in a garden",
+  "Reasons to call 911","Things that will get you fired","Ways to kill time","Things you save up to buy",
+  "Things you get in the mail","Things you do every day","Things you store items in","Historic events",
+  "Things to do on a date","Words associated with winter","Things that can kill you","Things you buy for kids",
+  "Honeymoon spots","Computer programs","Places to hang out","Things you make","Spicy foods",
+  "Things you shouldn't touch","Foreign words used in English","Things you do at work","Things you get tickets for",
+  "Kinds of soup","Store names","Musical groups","Types of drinks","Occupations","Things you throw away",
+  "States","Vegetables","Things that are yellow","Things that fly","Things that swim","Things that crawl",
+  "Things in a hospital","Things in a classroom","Things in a garage","Things under the bed",
+  "Bad habits","Good habits","Things that smell good","Things that smell bad","Things that are loud",
+  "Things that are quiet","Things that are expensive","Things that are cheap","Things that are sharp",
+  "Things that are heavy","Things that are light","Things that melt","Things that float",
+  "Things you can recycle","Things made of wood","Things made of metal","Things made of plastic",
+  "Things you find in the fridge","Things you find in a toolbox","Things you find at a park",
+  "Things associated with summer","Things associated with winter","Things associated with Halloween",
+  "Things associated with Christmas","Things associated with birthdays","Things associated with school",
+  "Things a baby uses","Things a teenager uses","Things an adult uses","Things a grandparent uses",
+  "Things you do on a rainy day","Things you do on a sunny day","Things you do at night",
+  "Things that are square","Things that are triangular","Things that are circular",
+  "Words ending in -ing","Words ending in -ly","Four-letter words","Five-letter words",
+  "Things that are hot","Things that are wet","Things that are dry","Things that are soft",
+  "Things that are hard","Things that are fragile","Things that are strong","Things that are weak"
+];
+
+const ADJECTIVES = ["rare","famous","colorful","tiny","giant","ancient","modern","delicious","scary","funny","expensive","cheap","fast","slow","bright","dark","sweet","sour","spicy","soft","hard","shiny","rusty","magical","ordinary","unusual","beautiful","ugly","powerful","gentle","wild","tame","frozen","hot","cold","wet","dry","loud","quiet","happy","sad","angry","calm","busy","lazy","clever","silly","serious","playful","brave","shy"];
+const VERBS = ["eat","wear","drive","play","read","write","watch","listen","cook","build","fix","visit","collect","avoid","love","hate","buy","sell","throw","catch","open","close","break","fix","hide","find","share","keep","lose","win"];
+const PLACES = ["kitchen","bathroom","garage","school","office","park","beach","museum","airport","hospital","zoo","farm","forest","desert","mountain","city","village","castle","spaceship","submarine","library","stadium","theater","restaurant","hotel","supermarket","factory","laboratory","garden","attic"];
+const TOPICS = ["space","ocean","jungle","history","science","music","sports","food","fashion","technology","art","nature","travel","movies","books","games","animals","plants","weather","emotions"];
+
+function seededRandom(seed){
+  let s = seed % 2147483647;
+  if(s<=0)s+=2147483646;
+  return function(){s = s*16807 % 2147483647; return (s-1)/2147483646};
+}
+
+function generateCategories(seedStr, count=12){
+  // Deterministic but highly varied generator
+  let seed = 0;
+  for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
+  const rand = seededRandom(seed || Date.now());
+
+  const used = new Set();
+  const result = [];
+
+  // Mix of pure base + procedural
+  while(result.length < count){
+    let cat;
+    const r = rand();
+    if(r < 0.55){
+      // Pure base category
+      cat = BASE_CATEGORIES[Math.floor(rand()*BASE_CATEGORIES.length)];
+    } else if(r < 0.72){
+      // Adjective + base
+      const adj = ADJECTIVES[Math.floor(rand()*ADJECTIVES.length)];
+      const base = BASE_CATEGORIES[Math.floor(rand()*BASE_CATEGORIES.length)];
+      cat = adj.charAt(0).toUpperCase()+adj.slice(1) + " " + base.toLowerCase();
+    } else if(r < 0.85){
+      // Things that are + adj
+      const adj = ADJECTIVES[Math.floor(rand()*ADJECTIVES.length)];
+      cat = "Things that are " + adj;
+    } else if(r < 0.93){
+      // Things found in a + place
+      const place = PLACES[Math.floor(rand()*PLACES.length)];
+      cat = "Things found in a " + place;
+    } else {
+      // Reasons to + verb / Things you + verb
+      const verb = VERBS[Math.floor(rand()*VERBS.length)];
+      cat = (rand()<0.5 ? "Reasons to " : "Things you ") + verb;
+    }
+    const key = cat.toLowerCase();
+    if(!used.has(key)){
+      used.add(key);
+      result.push(cat);
+    }
+  }
+  return result;
+}
+
+function randomLetter(hard=false){
+  const easy = "ABCDEFGHIJKLMNOPRSTW";
+  const all = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const pool = hard ? all : easy;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* ===== STATE ===== */
 const AVATARS=['🦊','🐸','🐯','🐼','🦉','🐙','🦄','🐲','🐰','🐨'];
 let user=null,profile=null,roomId=null,roomData=null,isHost=false,localWords=new Set(),path=[],selecting=false,timerInterval=null,roundEnded=false,authMode='login';
 let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd=null,shakeTimeout=null,settleTimers=[];
 let combo=0,comboTimer=null,soundOn=true,ac=null,seenWords={};
-// Track previous scores so we can animate only when an opponent scores
 let prevScores={};
 let rattleInt=null,possFilter='all',possSel=null,possPaths={},solvedCache={sig:'',list:null},solveBusy='';
+let selectedGame = 'boggle'; // 'boggle' | 'scatter'
+let scatAnswers = {}; // local answers for scatter
+let scatSaveTimer = null;
 
 try{soundOn=localStorage.getItem('boggle_snd')!=='0'}catch(e){}
 const $=id=>document.getElementById(id);
@@ -480,7 +641,7 @@ function snd(kind){
   else if(kind==='win'){beep(523,.12,'triangle',.12);setTimeout(()=>beep(659,.12,'triangle',.11),100);setTimeout(()=>beep(784,.12,'triangle',.1),200);setTimeout(()=>beep(1046,.25,'triangle',.1),320)}
   else if(kind==='opp'){beep(400,.06,'sine',.07);setTimeout(()=>beep(520,.09,'triangle',.08),50)}
 }
-function toggleSound(){soundOn=!soundOn;try{localStorage.setItem('boggle_snd',soundOn?'1':'0')}catch(e){}const b=$('btnSound');if(b)b.textContent=soundOn?'🔊':'🔇';if(soundOn){ensureAudio();snd('tap')}}
+function toggleSound(){soundOn=!soundOn;try{localStorage.setItem('boggle_snd',soundOn?'1':'0')}catch(e){}const b=$('btnSound');if(b)b.textContent=soundOn?'🔊':'🔇';const b2=$('btnSoundScat');if(b2)b2.textContent=soundOn?'🔊':'🔇';if(soundOn){ensureAudio();snd('tap')}}
 function updateComboUI(){
   const b=$('comboBadge');if(!b)return;
   if(combo>=2){b.textContent='×'+combo;b.classList.add('on')}else b.classList.remove('on');
@@ -544,17 +705,30 @@ async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=a
 async function saveProfile(u){if(!user)return;Object.assign(profile,u);profile.level=levelFromXp(profile.xp).level;await db.ref('users/'+user.uid).update({...u,level:profile.level});refreshStats()}
 function refreshStats(){if(!profile)return;$('lobbyName').textContent=profile.name;$('lobbyLvl').textContent='LV'+profile.level;$('lobbyAv').textContent=profile.avatar||'🦊';$('stXp').textContent=profile.xp||0;const a=profile.attempts||0,c=profile.correct||0;$('stAcc').textContent=a?Math.round(c/a*100)+'%':'—';$('stWords').textContent=profile.wordsFound||0;$('stStreak').textContent=profile.streak||0}
 
+/* ===== GAME PICKER ===== */
+document.querySelectorAll('.game-card').forEach(card=>{
+  card.onclick=()=>{
+    document.querySelectorAll('.game-card').forEach(c=>c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedGame = card.dataset.game;
+    snd('tap');
+  };
+});
+
 $('authSwitch').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back!':'Create account';$('authSub').textContent=authMode==='login'?'Enter your username & password to play.':"Pick a username and password — that's it!";$('authSubmit').textContent=authMode==='login'?'LOG IN':'SIGN UP';$('authSwitch').textContent=authMode==='login'?'New here? Create account':'Have an account? Log in';$('authErr').textContent=''};
 $('authSubmit').onclick=async()=>{const username=($('authUser').value||'').trim();const pass=$('authPass').value;$('authErr').textContent='';if(!username||username.length<3){$('authErr').textContent='Username needs at least 3 characters';return}if(!/^[a-zA-Z0-9_]+$/.test(username)){$('authErr').textContent='Letters, numbers, underscore only';return}if(!pass||pass.length<6){$('authErr').textContent='Password needs at least 6 characters';return}$('authSubmit').disabled=true;const email=userEmail(username);const unameKey=username.toLowerCase();try{if(authMode==='signup'){const cred=await auth.createUserWithEmailAndPassword(email,pass);await cred.user.updateProfile({displayName:username});const unameRef=db.ref('usernames/'+unameKey);const claimed=await unameRef.transaction(current=>{if(current===null)return cred.user.uid;return;});if(!claimed.committed){await cred.user.delete().catch(()=>{});throw new Error('Username already taken')}await loadProfile(cred.user.uid,username)}else{await auth.signInWithEmailAndPassword(email,pass)}}catch(e){let m=e.message||'Error';if(m.includes('user-not-found')||m.includes('wrong-password')||m.includes('invalid-credential'))m='Wrong username or password';else if(m.includes('email-already-in-use'))m='Username already taken';else if(m.includes('permission_denied')||m.includes('PERMISSION_DENIED'))m='Database permission error — check Firebase rules';else m=m.replace('Firebase: ','').replace(/\(auth.*?\)\.?/,'').trim();$('authErr').textContent=m}$('authSubmit').disabled=false};
 auth.onAuthStateChanged(async u=>{user=u;if(u){await loadProfile(u.uid,u.displayName||'Player');refreshStats();show('screen-lobby')}else{profile=null;show('screen-auth')}});
 $('btnLogout').onclick=()=>auth.signOut();
 
-$('btnHost').onclick=async()=>{if(!user||!profile)return;$('btnHost').disabled=true;try{const code=randCode();await db.ref('rooms/'+code).set({code,hostUid:user.uid,status:'lobby',createdAt:Date.now(),maxPlayers:MAX_PLAYERS,board:null,endsAt:null,players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},isHost:true}}});attachRoom(code,true)}catch(e){toast('Could not create: '+e.message)}$('btnHost').disabled=false};
-$('btnJoin').onclick=async()=>{const code=($('joinCode').value||'').trim().toUpperCase();if(code.length!==4){toast('Enter a 4-letter code');return}$('btnJoin').disabled=true;try{const snap=await db.ref('rooms/'+code).once('value');if(!snap.exists()){toast('Room not found');$('btnJoin').disabled=false;return}const room=snap.val();if(room.status!=='lobby'){toast('Game already started');$('btnJoin').disabled=false;return}const n=Object.keys(room.players||{}).length;if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');$('btnJoin').disabled=false;return}if(!(room.players||{})[user.uid]){await db.ref('rooms/'+code+'/players/'+user.uid).set({uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',score:0,words:{},isHost:false})}attachRoom(code,room.hostUid===user.uid)}catch(e){toast('Join failed: '+e.message)}$('btnJoin').disabled=false};
+$('btnHost').onclick=async()=>{if(!user||!profile)return;$('btnHost').disabled=true;try{const code=randCode();const gameType=selectedGame;await db.ref('rooms/'+code).set({code,hostUid:user.uid,status:'lobby',gameType,createdAt:Date.now(),maxPlayers:MAX_PLAYERS,board:null,endsAt:null,letter:null,categories:null,players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},isHost:true}}});attachRoom(code,true)}catch(e){toast('Could not create: '+e.message)}$('btnHost').disabled=false};
+$('btnJoin').onclick=async()=>{const code=($('joinCode').value||'').trim().toUpperCase();if(code.length!==4){toast('Enter a 4-letter code');return}$('btnJoin').disabled=true;try{const snap=await db.ref('rooms/'+code).once('value');if(!snap.exists()){toast('Room not found');$('btnJoin').disabled=false;return}const room=snap.val();if(room.status!=='lobby'){toast('Game already started');$('btnJoin').disabled=false;return}const n=Object.keys(room.players||{}).length;if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');$('btnJoin').disabled=false;return}if(!(room.players||{})[user.uid]){await db.ref('rooms/'+code+'/players/'+user.uid).set({uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',score:0,words:{},answers:{},isHost:false})}attachRoom(code,room.hostUid===user.uid)}catch(e){toast('Join failed: '+e.message)}$('btnJoin').disabled=false};
 
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
-function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h}
+function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
+  const gt=roomData.gameType||'boggle';
+  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':'Boggle');
+}
 function leaveRoom(){if(roomId&&user){db.ref('rooms/'+roomId+'/players/'+user.uid).remove().catch(()=>{});if(isHost){db.ref('rooms/'+roomId).once('value').then(s=>{if(s.exists()&&s.val().status==='lobby')db.ref('rooms/'+roomId).remove().catch(()=>{})})}}if(roomId)db.ref('rooms/'+roomId).off();roomId=null;roomData=null;isHost=false;clearInterval(timerInterval);stopBoardFx();show('screen-lobby')}
 $('btnLeaveRoom').onclick=leaveRoom;
 
@@ -566,7 +740,7 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 function randLetter(not){let l;do{l=LETTER_POOL[Math.floor(Math.random()*LETTER_POOL.length)]}while(l===not);return l}
 function canPlay(){return !!roomData&&roomData.status==='playing'&&boardReady&&!roundEnded}
 function setWordBar(msg,hint,cls){const w=$('currentWord');w.textContent=msg;w.classList.toggle('hint',!!hint);w.classList.remove('pulse','go');if(cls)w.classList.add(cls)}
-function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};possSel=null;resetCombo()}
+function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};possSel=null;resetCombo();scatAnswers={}}
 function stopLetterScramble(){clearInterval(scrambleInt);scrambleInt=null}
 function stopShakeCountdown(){clearInterval(shakeCd);shakeCd=null;const r=$('timerRing');if(r)r.classList.remove('prep')}
 function clearSettleTimers(){settleTimers.forEach(clearTimeout);settleTimers=[]}
@@ -642,12 +816,35 @@ function landTiles(){
   boardReady=true;
 }
 
-// --------- SHAKE MECHANIC ---------
+// --------- SHAKE MECHANIC + BEGIN ROUND ---------
 async function beginRound(){
   if(!isHost||!roomData)return;
+  const gameType = roomData.gameType || 'boggle';
+
+  if(gameType === 'scatter'){
+    // Generate letter + dynamic categories
+    const letter = randomLetter(false);
+    const seed = roomId + '_' + Date.now();
+    const categories = generateCategories(seed, 12);
+    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null};
+    Object.keys(roomData.players||{}).forEach(uid=>{
+      updates['players/'+uid+'/score']=0;
+      updates['players/'+uid+'/words']={};
+      updates['players/'+uid+'/answers']={};
+    });
+    resetRoundState();
+    try{
+      await db.ref('rooms/'+roomId).update(updates);
+    }catch(e){
+      toast('Could not start: '+e.message);
+    }
+    return;
+  }
+
+  // Original Boggle path
   const board=scrambleBoard();
-  const updates={status:'shaking',board,endsAt:null,startedAt:null,endedAt:null};
-  Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={}});
+  const updates={status:'shaking',board,endsAt:null,startedAt:null,endedAt:null,letter:null,categories:null};
+  Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={};updates['players/'+uid+'/answers']={}});
   resetRoundState();
   try{
     await db.ref('rooms/'+roomId).update(updates);
@@ -668,6 +865,12 @@ async function beginRound(){
 $('btnStart').onclick=beginRound;
 
 function enterGame(){
+  const gt = roomData.gameType || 'boggle';
+  if(gt === 'scatter'){
+    enterScatter();
+    return;
+  }
+
   if($('screen-game').classList.contains('active')&&!roundEnded){
     renderScores();
     return;
@@ -704,11 +907,92 @@ function enterGame(){
   }
 }
 
+function enterScatter(){
+  if($('screen-scatter').classList.contains('active')&&!roundEnded){
+    renderScatScores();
+    return;
+  }
+  resetRoundState();
+  const sb=$('btnSoundScat');if(sb){sb.textContent=soundOn?'🔊':'🔇';sb.onclick=toggleSound}
+  show('screen-scatter');
+  $('scatLetter').textContent = roomData.letter || '?';
+  renderScatCategories();
+  renderScatScores();
+  startScatTimer();
+  boardReady = true;
+}
+
+function renderScatCategories(){
+  const cats = roomData.categories || [];
+  const host = $('scatCats');
+  host.innerHTML = '';
+  cats.forEach((cat,i)=>{
+    const row = document.createElement('div');
+    row.className = 'scat-row';
+    row.innerHTML = `<label>${i+1}. ${esc(cat)}</label>
+      <input type="text" data-idx="${i}" placeholder="Starts with ${roomData.letter||'?'}" maxlength="32" autocomplete="off" autocapitalize="off">`;
+    const inp = row.querySelector('input');
+    // Restore previous answer if any
+    const prev = (roomData.players?.[user.uid]?.answers||{})[i];
+    if(prev){inp.value=prev;row.classList.add('filled');scatAnswers[i]=prev}
+    inp.addEventListener('input',()=>{
+      const val = inp.value.trim();
+      scatAnswers[i] = val;
+      row.classList.toggle('filled', !!val);
+      // Debounced save to Firebase
+      clearTimeout(scatSaveTimer);
+      scatSaveTimer = setTimeout(()=>saveScatAnswers(), 600);
+    });
+    host.appendChild(row);
+  });
+}
+
+async function saveScatAnswers(){
+  if(!roomId||!user||roundEnded)return;
+  const answers = {};
+  Object.keys(scatAnswers).forEach(k=>{if(scatAnswers[k])answers[k]=scatAnswers[k]});
+  try{
+    await db.ref('rooms/'+roomId+'/players/'+user.uid).update({answers});
+  }catch(e){}
+}
+
+function renderScatScores(){
+  const players=Object.values(roomData.players||{});
+  const boardEl=$('scatScoreBoard');
+  boardEl.innerHTML=players.map(p=>{
+    const isMe=p.uid===user.uid;
+    const score=p.score||0;
+    const prev=prevScores[p.uid]||0;
+    const pulse=score>prev?' pulse':'';
+    if(score!==prev)prevScores[p.uid]=score;
+    return `<div class="sc ${isMe?'me':''}${pulse}" data-uid="${p.uid}"><div class="n">${p.name}${isMe?' · you':''}</div><div class="s">${score}</div></div>`;
+  }).join('');
+}
+
+function startScatTimer(){
+  clearInterval(timerInterval);
+  let lastShown=-1;
+  const tick=()=>{
+    if(!roomData||!roomData.endsAt)return;
+    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    const shown=Math.min(left,ROUND_SECONDS);
+    $('scatTimerText').textContent=shown;
+    $('scatTimerRing').style.setProperty('--pct',(shown/ROUND_SECONDS*100)+'%');
+    $('scatTimerRing').classList.toggle('low',left<=30&&left>0);
+    if(left<=10&&left>0&&shown!==lastShown)snd('tick');
+    lastShown=shown;
+    if(left<=0&&!roundEnded)endRound()
+  };
+  tick();
+  timerInterval=setInterval(tick,250);
+}
+
 function onRoom(snap){
   if(!snap.exists()){toast('Room closed');leaveRoom();return}
   const prevStatus=roomData?roomData.status:null;
   roomData=snap.val();
   const st=roomData.status;
+  const gt = roomData.gameType || 'boggle';
 
   renderPlayers();
   isHost=roomData.hostUid===user.uid;
@@ -717,15 +1001,16 @@ function onRoom(snap){
   $('waitingMsg').style.display=(isHost&&st==='lobby')?'none':'block';
   $('waitingMsg').textContent=isHost?'':'Waiting for host…';
 
-  // A shake always begins a brand-new round, so everybody (even from the results screen) is pulled in.
   if(st==='shaking')roundEnded=false;
 
   if(st==='shaking'||st==='playing'){
-    if(!roundEnded)enterGame();
+    if(!roundEnded){
+      if(gt==='scatter') enterScatter();
+      else enterGame();
+    }
   }
 
-  // Shake -> play: letters settle into place and the clock starts.
-  if(prevStatus==='shaking'&&st==='playing'&&!roundEnded&&$('screen-game').classList.contains('active')){
+  if(prevStatus==='shaking'&&st==='playing'&&!roundEnded&&gt==='boggle'&&$('screen-game').classList.contains('active')){
     settleBoard(roomData.board);
     startTimer();
   }
@@ -746,7 +1031,6 @@ function renderBoard(grid,hidden){
     t.className='tile';
     t.dataset.r=r;
     t.dataset.c=c;
-    // Each die rattles with its own strength, speed and timing inside its well
     t.style.setProperty('--ax',(2+Math.random()*2).toFixed(1)+'px');
     t.style.setProperty('--ay',(2+Math.random()*2).toFixed(1)+'px');
     t.style.setProperty('--ar',((Math.random()<.5?-1:1)*(5+Math.random()*9)).toFixed(1)+'deg');
@@ -764,14 +1048,12 @@ function renderScores(){
   boardEl.innerHTML=players.map(p=>{
     const isMe=p.uid===user.uid;
     const score=p.score||0;
-    // Animate score increase for any player (including self)
     const prev=prevScores[p.uid]||0;
     const pulse=score>prev?' pulse':'';
     if(score!==prev)prevScores[p.uid]=score;
     return `<div class="sc ${isMe?'me':''}${pulse}" data-uid="${p.uid}"><div class="n">${p.name}${isMe?' · you':''}</div><div class="s">${score}</div></div>`;
   }).join('');
 
-  // Live feed: notify when an opponent finds a NEW word — NEVER reveal the actual word
   if(roomData.status==='playing'&&!roundEnded){
     players.forEach(p=>{
       if(p.uid===user.uid)return;
@@ -780,9 +1062,7 @@ function renderScores(){
         const key=p.uid+':'+w;
         if(!seenWords[key]){
           seenWords[key]=1;
-          // Skip the very first paint of the room so we don't spam on join
           if(Object.keys(seenWords).length>1){
-            // Privacy-safe message — no word revealed
             const msgs=[
               `${p.avatar||'🎮'} ${p.name} found a word!`,
               `${p.avatar||'🎮'} ${p.name} scored!`,
@@ -791,7 +1071,6 @@ function renderScores(){
             ];
             liveToast(msgs[Math.floor(Math.random()*msgs.length)]);
             snd('opp');
-            // Subtle pulse on that player's score chip
             const chip=boardEl.querySelector(`.sc[data-uid="${p.uid}"]`);
             if(chip){
               chip.classList.remove('pulse');
@@ -878,7 +1157,6 @@ async function submitPath(){
     return;
   }
   
-  // Combo multiplier (caps at ×4)
   bumpCombo();
   const mult=Math.min(4,Math.max(1,combo));
   const base=wordScore(w);
@@ -898,11 +1176,9 @@ async function submitPath(){
   tiles.forEach(t=>t&&t.classList.add('ok'));
   setTimeout(clearPath,400);
   
-  // Visual + audio juice
   if(base>=5||mult>=3)snd('big');else snd('ok');
   try{if(navigator.vibrate)navigator.vibrate(mult>=2?[12,30,18]:15)}catch(e){}
   
-  // Spark from the last tile
   if(tiles.length){
     const last=tiles[tiles.length-1];
     if(last){
@@ -925,7 +1201,6 @@ async function submitPath(){
   toast(w.toUpperCase()+' · +'+pts+(mult>1?' (combo ×'+mult+')':''));
 }
 
-// Stops everything that belongs to a running round on this device.
 function finishLocalRound(){
   roundEnded=true;
   clearInterval(timerInterval);
@@ -933,24 +1208,29 @@ function finishLocalRound(){
   selecting=false;
   path=[];
   clearPath();
-  $('timerRing').classList.remove('low');
+  $('timerRing')?.classList.remove('low');
+  $('scatTimerRing')?.classList.remove('low');
+  // Final save of scatter answers
+  if((roomData?.gameType||'boggle')==='scatter') saveScatAnswers();
 }
 
 async function endRound(){
   if(roundEnded)return;
   finishLocalRound();
-  // Small grace period so every player's last in-flight word lands before the host closes the round.
   if(isHost&&roomData){
     const rid=roomId;
+    // For scatter, also compute final scores server-side style (client does it)
     setTimeout(()=>{db.ref('rooms/'+rid).update({status:'results',endedAt:Date.now()}).catch(()=>{})},900);
   }
   setTimeout(showResults,350);
-  // Safety net: if the host never flips the room to "results", still settle this player's rewards.
   setTimeout(()=>{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)},6000);
 }
 
-/* ---------- Boggle scoring: a word found by 2+ players is crossed out and scores nothing ---------- */
+/* ---------- Boggle scoring ---------- */
 function computeResults(){
+  const gt = roomData?.gameType || 'boggle';
+  if(gt === 'scatter') return computeScatterResults();
+
   const players=Object.values((roomData&&roomData.players)||{});
   const found={};
   players.forEach(p=>Object.keys(p.words||{}).forEach(w=>{found[w]=(found[w]||0)+1}));
@@ -965,6 +1245,55 @@ function computeResults(){
     const final=items.reduce((s,i)=>s+(i.dupe?0:i.pts),0);
     return{p,items,raw,final,lost:raw-final,uniqueN:items.filter(i=>!i.dupe).length,sharedN:items.filter(i=>i.dupe).length};
   });
+  rows.sort((a,b)=>(b.final-a.final)||(b.uniqueN-a.uniqueN)||String(a.p.name).localeCompare(String(b.p.name)));
+  return rows;
+}
+
+function computeScatterResults(){
+  const players = Object.values((roomData&&roomData.players)||{});
+  const cats = roomData.categories || [];
+  const letter = (roomData.letter||'').toLowerCase();
+
+  // Collect answers per category
+  const byCat = {};
+  cats.forEach((_,i)=>byCat[i]={});
+
+  players.forEach(p=>{
+    const ans = p.answers || {};
+    Object.keys(ans).forEach(idx=>{
+      const raw = (ans[idx]||'').trim();
+      if(!raw)return;
+      const norm = raw.toLowerCase();
+      // Must start with the letter
+      if(letter && !norm.startsWith(letter)) return;
+      if(norm.length < 2) return;
+      byCat[idx][p.uid] = {raw, norm, p};
+    });
+  });
+
+  // Score: unique answers only
+  const rows = players.map(p=>{
+    let final = 0;
+    const items = [];
+    cats.forEach((cat,i)=>{
+      const entry = byCat[i][p.uid];
+      if(!entry) return;
+      // Count how many players have the same normalized answer
+      const same = Object.values(byCat[i]).filter(e=>e.norm===entry.norm).length;
+      const dupe = same > 1;
+      if(!dupe) final += 1;
+      items.push({w: entry.raw, pts: dupe?0:1, dupe, cat, with: Object.values(byCat[i]).filter(e=>e.norm===entry.norm && e.p.uid!==p.uid).map(e=>e.p.name)});
+    });
+    return {p, items, raw: items.length, final, lost: items.filter(i=>i.dupe).length, uniqueN: items.filter(i=>!i.dupe).length, sharedN: items.filter(i=>i.dupe).length};
+  });
+
+  // Write scores back so live scoreboard stays correct (best-effort)
+  rows.forEach(r=>{
+    if(r.p.uid === user.uid){
+      db.ref('rooms/'+roomId+'/players/'+user.uid).update({score: r.final}).catch(()=>{});
+    }
+  });
+
   rows.sort((a,b)=>(b.final-a.final)||(b.uniqueN-a.uniqueN)||String(a.p.name).localeCompare(String(b.p.name)));
   return rows;
 }
@@ -984,7 +1313,8 @@ function animateScore(el,from,to,delay){
 }
 
 function renderResults(rows){
-  const top=rows[0].final;
+  const gt = roomData?.gameType || 'boggle';
+  const top=rows[0]?.final ?? 0;
   const leaders=rows.filter(r=>r.final===top);
   const shared=new Set();
   rows.forEach(r=>r.items.forEach(i=>{if(i.dupe)shared.add(i.w)}));
@@ -994,17 +1324,17 @@ function renderResults(rows){
   else if(leaders.length>1)title='🤝 It\'s a tie!';
   else title='👑 '+esc(leaders[0].p.name)+' wins!';
   const sub=shared.size
-    ?shared.size+(shared.size===1?' shared word was':' shared words were')+' crossed out'
-    :'No shared words this round';
+    ?shared.size+(shared.size===1?' shared answer was':' shared answers were')+' crossed out'
+    :'No shared answers this round';
 
   const cards=rows.map((r,i)=>{
     const rank=rows.findIndex(x=>x.final===r.final)+1;
     const isTop=rank===1;
     const chips=r.items.map((it,k)=>{
       const d=250+Math.min(k,24)*40;
-      const tip=it.dupe?' title="Also found by '+esc(it.with.join(', '))+'"':'';
+      const tip=it.dupe?' title="Also found by '+esc((it.with||[]).join(', '))+'"':'';
       return '<span class="wchip'+(it.dupe?' dupe':'')+'" style="--d:'+d+'"'+tip+'><span class="wt">'+esc(it.w.toUpperCase())+'</span>'+(it.dupe?'':'<b>+'+it.pts+'</b>')+'</span>';
-    }).join('')||'<span class="none-words">No words found</span>';
+    }).join('')||'<span class="none-words">No answers</span>';
     const strikeEnd=250+Math.min(Math.max(r.items.length-1,0),24)*40+450+350;
     const detail=r.uniqueN+' scored'+(r.sharedN?' · '+r.sharedN+' crossed out':'');
     return '<div class="res-card'+(isTop?' win':'')+(r.p.uid===user.uid?' me':'')+'" style="--i:'+i+'">'
@@ -1024,9 +1354,18 @@ function renderResults(rows){
 
   $('resultsGrid').innerHTML='<div class="res-banner"><div class="t">'+title+'</div><div class="s">'+sub+'</div></div>'+cards+legend;
   $('resultsGrid').querySelectorAll('.pts').forEach(el=>animateScore(el,+el.dataset.from,+el.dataset.to,+el.dataset.delay));
+
+  // For scatter we can show categories + letter
+  if(gt==='scatter' && roomData.categories){
+    const extra = document.createElement('div');
+    extra.className='poss';
+    extra.innerHTML = `<h3>📝 Categories used · Letter ${esc(roomData.letter||'?')}</h3>
+      <div class="psub">${roomData.categories.map((c,i)=>`<div style="margin:4px 0"><b>${i+1}.</b> ${esc(c)}</div>`).join('')}</div>`;
+    $('possibleWrap').innerHTML='';
+    $('possibleWrap').appendChild(extra);
+  }
 }
 
-// XP / streak / best score are granted exactly once per round, using the final (de-duplicated) scores.
 function awardResults(rows,force){
   if(resultsAwarded||!rows||!rows.length||!profile)return;
   if(!force&&!(roomData&&roomData.status==='results'))return;
@@ -1052,10 +1391,9 @@ function updateXpBar(){
   $('resXpFill').style.width=Math.min(100,lv.into/lv.need*100)+'%';
 }
 
-/* ---------- Possible words: solve the board and show what everybody found / missed ---------- */
+/* ---------- Possible words (Boggle only) ---------- */
 function waitForDict(ms){return new Promise(res=>{const t0=Date.now();(function chk(){if(dictReady||Date.now()-t0>ms)res();else setTimeout(chk,150)})()})}
 
-// Finds every dictionary word that can be traced on the board (adjacent tiles, no tile reused, 'Qu' is one tile).
 async function findAllWords(grid){
   await waitForDict(8000);
   const letters=grid.map(g=>String(g).toLowerCase());
@@ -1116,11 +1454,13 @@ function applyHl(){
 }
 
 function renderPossible(rows){
+  const gt = roomData?.gameType || 'boggle';
+  if(gt === 'scatter') return; // handled in renderResults
+
   const host=$('possibleWrap');
   if(!host||!roomData||!roomData.board||roomData.board.length!==16||!user)return;
   const sig=roomData.board.join(',');
 
-  // Still solving (or never solved this board): show a placeholder and start the search once.
   if(solvedCache.sig!==sig||!solvedCache.list){
     host.innerHTML='<div class="poss"><h3>🔎 All possible words</h3><div class="psub searching">Searching the board for every word…</div></div>';
     if(solveBusy!==sig){
@@ -1137,7 +1477,6 @@ function renderPossible(rows){
     return;
   }
 
-  // Who found what
   const players=Object.values(roomData.players||{});
   const fm={};
   players.forEach(p=>Object.keys(p.words||{}).forEach(w=>{(fm[w]=fm[w]||[]).push(p)}));
@@ -1211,9 +1550,8 @@ function showResults(){
   if(!$('screen-results').classList.contains('active'))show('screen-results');
   const rows=computeResults();
   if(!rows.length)return;
-  // Only re-draw when the words actually changed, so animations don't restart on every database tick.
   const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.items.map(i=>i.w+(i.dupe?'*':''))]));
-  if(sig!==resultsSig){resultsSig=sig;renderResults(rows);renderPossible(rows)}
+  if(sig!==resultsSig){resultsSig=sig;renderResults(rows);if((roomData?.gameType||'boggle')==='boggle')renderPossible(rows)}
   awardResults(rows);
   if(profile)updateXpBar();
 }
@@ -1239,7 +1577,6 @@ const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isAndroid = /android/i.test(navigator.userAgent);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-// Show install prompt for Android/PC
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1254,13 +1591,10 @@ window.addEventListener('appinstalled', () => {
 
 if (btnInstall) {
   btnInstall.onclick = async () => {
-    // If user is on iOS, we can't use the native prompt. Tell them how.
     if (isIOS) {
       toast('On iPhone: Tap Share (⬆️) → Add to Home Screen');
       return;
     }
-    
-    // If user is on Android and the prompt is ready
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -1268,13 +1602,11 @@ if (btnInstall) {
       btnInstall.style.display = 'none';
       if (outcome === 'accepted') toast('Installing…');
     } else {
-      // Android fallback if prompt is not ready yet (needs to wait for SW)
       toast('Use browser menu (⋮) → Install App');
     }
   };
 }
 
-// Force button to show on Mobile if it's not a standalone app
 if ((isIOS || isAndroid) && !isStandalone) {
   btnInstall.style.display = 'flex';
 }
