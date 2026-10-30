@@ -938,18 +938,18 @@ const HANG_BANKS = {
     ["ROCKY","Philadelphia boxer who goes the distance"],["VERTIGO","Hitchcock film about a detective afraid of heights"],["GREASE","Danny and Sandy at Rydell High"]
   ],
   "Animals": [
-    ["PLATYPUS","Egg-laying mammal with a bill"],["ARMADILLO","Armored shell, rolls up"],["CHAMELEON","Lizard that changes color"],
-    ["NARWHAL","Whale with a tusk like a unicorn of the sea"],["AXOLOTL","Smiling salamander that stays young"],["PANGOLIN","Scaly anteater"],
-    ["OKAPI","Forest giraffe relative with striped legs"],["CASSOWARY","Dangerous flightless bird"],["TAPIR","Snout like a mini elephant"],
-    ["WOMBAT","Australian burrower, cube poop"],["QUOKKA","World's happiest-looking animal"],["MANATEE","Sea cow"],
-    ["ANCHOVY","Tiny salty fish on pizza"],["CAPYBARA","Largest rodent, loves water"],["HONEYBADGER","Fearless tough mammal"]
+    ["ELEPHANT","Largest land animal, long trunk"],["GIRAFFE","Tallest animal, long neck"],["DOLPHIN","Smart sea mammal that clicks"],
+    ["PENGUIN","Flightless bird that loves ice"],["KANGAROO","Hops and has a pouch"],["TIGER","Big striped cat"],
+    ["ZEBRA","Horse-like with black and white stripes"],["PANDA","Black and white bear that eats bamboo"],["OCTOPUS","Sea animal with eight arms"],
+    ["EAGLE","Large bird of prey"],["SHARK","Ocean predator with sharp teeth"],["RABBIT","Soft animal with long ears"],
+    ["TURTLE","Shell on its back, moves slowly"],["CAMEL","Desert animal with humps"],["WHALE","Largest animal in the ocean"]
   ],
   "Science": [
-    ["PHOTOSYNTHESIS","How plants make food from light"],["MOLECULE","Group of atoms bonded"],["ELECTRON","Negative particle"],
-    ["GRAVITY","What keeps us on Earth"],["EVOLUTION","Change over generations"],["DNA","Genetic blueprint"],
-    ["CATALYST","Speeds up a reaction"],["ISOTOPE","Same element, different neutrons"],["NEBULA","Cloud of gas in space"],
-    ["QUASAR","Extremely bright galactic core"],["ENTROPY","Measure of disorder"],["HYPOTHESIS","Educated guess to test"],
-    ["CHROMOSOME","Structure carrying genes"],["ANTIBODY","Immune system defender"],["FUSION","Nuclei combining, stars do this"]
+    ["GRAVITY","What keeps us on Earth"],["PLANET","Earth is one of these"],["OXYGEN","Gas we breathe"],
+    ["ATOM","Tiny building block of matter"],["MAGNET","Attracts iron and steel"],["ROBOT","Machine that can move and work"],
+    ["TELESCOPE","Tool for looking at stars"],["VOLCANO","Mountain that can erupt"],["FOSSIL","Old bones turned to stone"],
+    ["ENERGY","Power that makes things work"],["WATER","H2O, covers most of Earth"],["CLOUD","White or gray shape in the sky"],
+    ["RAINBOW","Colors in the sky after rain"],["COMET","Icy space rock with a tail"],["GALAXY","Huge group of stars like the Milky Way"]
   ],
   "Geography": [
     ["EGYPT","Land of pyramids and the Sphinx"],["SAHARA","World's largest hot desert, in northern Africa"],["AMAZON","Giant South American rainforest and river"],
@@ -1105,8 +1105,14 @@ async function hangTryCategory(cat){
   const cands = pages.map(hangCandidate).filter(Boolean);
   if(!cands.length) return null;
   const c = hangPick(cands);
-  const label = cat.charAt(0).toUpperCase() + cat.slice(1);
-  return {category: label, word: c.word, hint: c.hint};
+  // Human-readable category from root only (never use a country/page title as the category)
+  const label = (HANG_ROOTS.find(r => cat.toLowerCase().includes(r.toLowerCase())) || cat.split(/[/]/).pop() || 'General')
+    .replace(/_/g,' ');
+  const nice = label.charAt(0).toUpperCase() + label.slice(1);
+  // Never allow category name == answer (e.g. "Liberia" / "LIBERIA")
+  if(hangNorm(nice) === c.word || nice.toUpperCase() === c.word) return null;
+  if(c.word.length < 4 || c.word.length > 14) return null;
+  return {category: nice, word: c.word, hint: c.hint};
 }
 
 async function hangDynamicPuzzle(deadline){
@@ -1165,8 +1171,8 @@ function buildHangPuzzle(category, word, hint, rand){
   rand = rand || Math.random;
   const chars = word.split('');
   const positions = chars.map((_,i)=>i).filter(i=>/[A-Z]/.test(chars[i]));
-  // Reveal 35-40% of the letters to help players (always leave at least one blank to solve)
-  const revealRatio = 0.35 + rand() * 0.05;
+  // Reveal ~50% of the letters (always leave at least one blank to solve)
+  const revealRatio = 0.50;
   const revealCount = Math.min(positions.length - 1, Math.max(1, Math.round(positions.length * revealRatio)));
   for(let i=positions.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[positions[i],positions[j]]=[positions[j],positions[i]]}
   const revealSet = new Set(positions.slice(0, revealCount));
@@ -1204,23 +1210,27 @@ function pickLocalHangmanPuzzle(seedStr){
 }
 
 async function pickHangmanPuzzle(seedStr){
+  // Prefer the curated local bank (clear categories, fair difficulty).
+  // Dynamic queue is only a supplement and must pass safety checks.
   hangPrefetch();
-  // Use a ready puzzle immediately. If none is ready, wait only briefly (max 1.5s) for the first one.
-  const t0 = Date.now();
-  while(!HANG_QUEUE.length && hangWorkers > 0 && Date.now() - t0 < 1500) await hangSleep(60);
+  const local = pickLocalHangmanPuzzle(seedStr);
+  // Occasionally try a dynamic puzzle if one is already ready and safe
   let dyn = null;
   while(HANG_QUEUE.length && !dyn){
     const c = HANG_QUEUE.shift();
-    if(c && !HANG_RECENT.includes(c.word)) dyn = c;
+    if(!c || !c.word || !c.category) continue;
+    if(HANG_RECENT.includes(c.word)) continue;
+    if(hangNorm(c.category) === c.word) continue; // category must not be the answer
+    if(c.word.length < 4 || c.word.length > 12) continue;
+    dyn = c;
   }
   hangSavePool();
-  hangPrefetch();   // top the stock back up in the background (not awaited)
-  if(dyn){
+  hangPrefetch();
+  if(dyn && Math.random() < 0.25){
     hangRememberWord(dyn.word);
     return buildHangPuzzle(dyn.category, dyn.word, dyn.hint);
   }
-  // nothing ready (offline / very slow): never make players wait, use the built-in bank
-  return pickLocalHangmanPuzzle(seedStr);
+  return local;
 }
 
 /* ===== STATE ===== */
@@ -2075,28 +2085,57 @@ function startHangTimer(){
   timerInterval=setInterval(tick,250);
 }
 
-async function finishHangRound(){
+async function finishHangRound(winnerUid){
   if(roundEnded) return;
   roundEnded = true;
   clearInterval(timerInterval);
+  const players = Object.values(roomData.players||{});
+  const winner = winnerUid
+    ? players.find(p => p.uid === winnerUid)
+    : players.find(p => p.hangSolved);
   const me = roomData.players?.[user.uid];
-  if(!(me?.hangSolved)){
+
+  if(winner){
+    const name = winner.uid === user.uid ? 'You' : (winner.name || 'Someone');
+    $('hangMsg').textContent = name + ' won this level!';
+    $('hangMsg').style.color = '#00B894';
+    if(winner.uid === user.uid) hangSaved();
+  } else if(!(me?.hangSolved)){
     updateHangFigure(HANG_MAX_WRONG);
-    $('hangMsg').textContent = "Time's up — he let go!";
+    $('hangMsg').textContent = "Time's up — nobody solved it!";
     $('hangMsg').style.color = '#E74C3C';
   }
-  // Award win point to solvers
-  if(me?.hangSolved && isHost){
-    // host also updates others' wins when moving to results — each client updates own
-  }
-  if(me?.hangSolved){
+
+  // Award series point only to the first solver (once)
+  if(winner && winner.uid === user.uid){
     const wins = (me.hangWins||0) + 1;
     try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWins: wins, score: wins}); }catch(e){}
   }
+
+  const lvl = roomData.hangLevel || 1;
+  const maxL = roomData.hangMaxLevels || HANG_MAX_LEVELS;
+
   if(isHost){
-    try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(e){}
+    // Brief pause then auto next level (or series results)
+    setTimeout(async () => {
+      if(lvl >= maxL){
+        try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(e){}
+      } else {
+        // Auto-advance to next level — no need to tap Again
+        try{ await beginRound(); }catch(e){ toast('Could not start next level'); }
+      }
+    }, 1800);
+  } else if(lvl >= maxL){
+    setTimeout(()=>showResults(), 900);
   }
-  setTimeout(()=>showResults(), 900);
+}
+
+// If another player solves first, end the level for everyone
+function checkHangRaceWinner(){
+  if(roundEnded || !roomData || roomData.gameType !== 'hangman') return;
+  if(roomData.status !== 'playing') return;
+  const winner = Object.values(roomData.players||{}).find(p => p.hangSolved);
+  if(winner) finishHangRound(winner.uid);
 }
 
 document.addEventListener('click', async e => {
@@ -2104,7 +2143,7 @@ document.addEventListener('click', async e => {
   if(roundEnded || !roomData) return;
   if(roomData.players?.[user.uid]?.hangSolved) return;
   if(hangWrong >= HANG_MAX_WRONG){
-    $('hangMsg').textContent = 'No chances left — he already fell (into balloons!)';
+    $('hangMsg').textContent = 'No chances left';
     $('hangMsg').style.color = '#E74C3C';
     return;
   }
@@ -2116,7 +2155,7 @@ document.addEventListener('click', async e => {
     return;
   }
   if(guess === answer){
-    $('hangMsg').textContent = 'Saved! ✓';
+    $('hangMsg').textContent = 'Saved! ✓ You won the level!';
     $('hangMsg').style.color = '#00B894';
     hangSaved();
     $('hangStatus').textContent = 'Rescued!';
@@ -2125,17 +2164,19 @@ document.addEventListener('click', async e => {
     try{
       await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangSolved:true, score:1});
     }catch(e){}
+    // Race: first correct answer ends the level
+    finishHangRound(user.uid);
   } else {
     hangWrong++;
     updateHangFigure(hangWrong);
-    $('hangMsg').textContent = 'Wrong — his grip is slipping!';
+    $('hangMsg').textContent = 'Wrong — try again!';
     $('hangMsg').style.color = '#E74C3C';
     snd('bad');
     try{
       await db.ref('rooms/'+roomId+'/players/'+user.uid).update({hangWrong});
     }catch(e){}
     if(hangWrong >= HANG_MAX_WRONG){
-      $('hangMsg').textContent = 'He let go and fell into the balloons!';
+      $('hangMsg').textContent = 'No chances left';
     }
   }
 });
@@ -2306,6 +2347,10 @@ function onRoom(snap){
       if(gt==='scatter') enterScatter();
       else if(gt==='hangman') enterHangman();
       else enterGame();
+    } else if(gt==='hangman' && st==='playing'){
+      // Already in a hangman level — check if someone won the race
+      checkHangRaceWinner();
+      renderHangScores();
     }
   }
 
