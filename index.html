@@ -2429,22 +2429,26 @@ function onRoom(snap){
   }
   if(st==='shaking') roundEnded = false;
 
-  // Hangman: detect a new level (word/level changed) even when status stays 'playing'
+  // Hangman: only rebuild UI when the puzzle itself changes (new level),
+  // never on hangSolved / hangWins updates — those must keep the answer reveal
   const hangSig = gt==='hangman' ? ((roomData.hangLevel||0)+'|'+(roomData.hangWord||'')+'|'+(roomData.startedAt||'')) : '';
   const hangPuzzleChanged = gt==='hangman' && hangSig && hangSig !== window._lastHangSig;
 
   if(st==='shaking'||st==='playing'){
-    if(!roundEnded || prevStatus==='results' || prevStatus==='lobby' || hangPuzzleChanged){
+    if(gt==='hangman'){
+      if(hangPuzzleChanged || prevStatus==='results' || prevStatus==='lobby' || prevStatus===null){
+        window._lastHangSig = hangSig;
+        roundEnded = false;
+        enterHangman(true);
+      } else {
+        checkHangRaceWinner();
+        renderHangScores();
+        updateHangLevelBar();
+      }
+    } else if(!roundEnded || prevStatus==='results' || prevStatus==='lobby'){
       roundEnded = false;
       if(gt==='scatter') enterScatter();
-      else if(gt==='hangman'){
-        window._lastHangSig = hangSig;
-        enterHangman(true); // force full refresh for new level
-      }
       else enterGame();
-    } else if(gt==='hangman' && st==='playing'){
-      checkHangRaceWinner();
-      renderHangScores();
     }
   }
 
