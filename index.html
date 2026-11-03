@@ -816,7 +816,7 @@ input:focus-visible{outline:none}
   </div>
   <div class="card hang-card">
     <div class="hang-level-bar">
-      <span id="hangLevelLabel">Level 1 / 5</span>
+      <span id="hangLevelLabel">Level 1 / 10</span>
       <span id="hangSeriesScore">Series: 0</span>
     </div>
     <div class="hang-cat-label">CATEGORY</div>
@@ -907,7 +907,7 @@ input:focus-visible{outline:none}
   </div>
   <div class="card draw-card">
     <div class="draw-level-bar">
-      <span id="drawLevelLabel">Level 1 / 5</span>
+      <span id="drawLevelLabel">Level 1 / 10</span>
       <span id="drawSeriesScore">Your wins: 0</span>
     </div>
     <div class="draw-role" id="drawRole">Waiting…</div>
@@ -1164,27 +1164,98 @@ const HANG_USED = {};
 const HANG_MAX_LEVELS = 5;
 
 /* ===== SKETCH RACE – drawable word bank ===== */
-const DRAW_WORDS = [
+const DRAW_WORDS_EASY = [
   "APPLE","HOUSE","CAT","DOG","CAR","TREE","SUN","MOON","STAR","FISH",
-  "BIRD","BOOK","PHONE","CAKE","PIZZA","HAT","SHOE","BALL","KEY","DOOR",
-  "CHAIR","TABLE","CLOCK","FLOWER","CLOUD","RAIN","SNOW","BOAT","PLANE","TRAIN",
-  "BIKE","ROBOT","GHOST","DRAGON","CASTLE","CROWN","SWORD","SHIELD","HEART","SMILE",
-  "EYE","HAND","FOOT","NOSE","EAR","MOUTH","GUITAR","PIANO","DRUM","CAMERA",
-  "UMBRELLA","BALLOON","CANDLE","LADDER","BRIDGE","MOUNTAIN","RIVER","ISLAND","VOLCANO","RAINBOW",
-  "BUTTERFLY","SPIDER","SNAKE","ELEPHANT","GIRAFFE","PENGUIN","DOLPHIN","SHARK","OCTOPUS","WHALE",
-  "PIZZA","BURGER","ICE CREAM","COOKIE","BANANA","ORANGE","GRAPE","CARROT","TOMATO","CORN",
-  "SOCCER","BASKETBALL","TENNIS","BASEBALL","SKATEBOARD","SURF","SKI","SWIM","RUN","JUMP",
-  "PENCIL","ERASER","SCISSORS","GLUE","PAINT","BRUSH","CANVAS","FRAME","MIRROR","LAMP"
+  "BIRD","BOOK","PHONE","CAKE","HAT","SHOE","BALL","KEY","DOOR","CHAIR",
+  "TABLE","CLOCK","FLOWER","CLOUD","RAIN","SNOW","BOAT","PLANE","TRAIN","BIKE",
+  "ROBOT","GHOST","CROWN","SWORD","HEART","SMILE","EYE","HAND","FOOT","NOSE",
+  "EAR","MOUTH","GUITAR","PIANO","DRUM","CAMERA","UMBRELLA","BALLOON","CANDLE","LADDER",
+  "BRIDGE","MOUNTAIN","RIVER","ISLAND","RAINBOW","BUTTERFLY","SPIDER","SNAKE","ELEPHANT","GIRAFFE",
+  "PENGUIN","DOLPHIN","SHARK","OCTOPUS","WHALE","PIZZA","BURGER","COOKIE","BANANA","ORANGE",
+  "GRAPE","CARROT","TOMATO","CORN","SOCCER BALL","BASKETBALL","TENNIS RACKET","PENCIL","ERASER","SCISSORS",
+  "GLUE","PAINTBRUSH","MIRROR","LAMP","BED","CUP","FORK","SPOON","KNIFE","BAG",
+  "BOX","BUS","COW","DUCK","FROG","GOAT","HORSE","KING","LION","MOUSE",
+  "NEST","OWL","PIG","QUEEN","RING","SOCK","TENT","VASE","WOLF","ANT",
+  "BEE","EGG","FAN","ICE CUBE","KITE","LEAF","MAP","NUT","PEN","RAT",
+  "TEACUP","VAN","SPIDER WEB","YAK","ZIPPER","BOWL","PLATE","TOOTH","BONE","TAIL"
 ];
-function pickDrawWord(seed){
-  let s = 0;
-  for(let i=0;i<(seed||'').length;i++) s = (s*31 + seed.charCodeAt(i)) >>> 0;
-  const used = (roomData && roomData.drawHistory) ? roomData.drawHistory.map(h => (h.word||'').toUpperCase()) : [];
-  const pool = DRAW_WORDS.filter(w => !used.includes(w));
-  const list = pool.length ? pool : DRAW_WORDS;
-  return list[s % list.length];
-}
+const DRAW_WORDS_MED = [
+  "CASTLE","DRAGON","VOLCANO","SKATEBOARD","ICE CREAM","TELESCOPE","SUBMARINE","HELICOPTER","TRACTOR","WINDMILL",
+  "LIGHTHOUSE","SCARECROW","SNOWMAN","MERMAID","UNICORN","PIRATE","NINJA","WIZARD","VAMPIRE","ZOMBIE",
+  "SUPERHERO","ROCKET","SATELLITE","ASTRONAUT","DINOSAUR","KANGAROO","KOALA","LLAMA","PANDA","RHINO",
+  "HIPPO","CHEETAH","PEACOCK","FLAMINGO","SCORPION","LOBSTER","JELLYFISH","SEAHORSE","STARFISH","MUSHROOM",
+  "PINEAPPLE","WATERMELON","CUPCAKE","POPCORN","SANDWICH","SPAGHETTI","SUSHI","TACO","WAFFLE","BACKPACK",
+  "SUITCASE","PASSPORT","COMPASS","BINOCULARS","FLASHLIGHT","HAMMOCK","CAMPFIRE","CANOE","SURFBOARD","TROPHY",
+  "MEDAL","WHISTLE","HELMET","GLOVES","SCARF","SUNGLASSES","LIBRARY","MUSEUM","STADIUM","AIRPORT",
+  "HOSPITAL","FOUNTAIN","STATUE","PYRAMID","TEMPLE","PALACE","TUNNEL","TRAFFIC LIGHT","FIRE HYDRANT","MAILBOX",
+  "POSTCARD","NEWSPAPER","CALENDAR","ALARM CLOCK","TOOTHBRUSH","TOOTHPASTE","SHAMPOO","SOAP","TOWEL","PILLOW",
+  "BLANKET","CURTAIN","CARPET","SOFA","BOOKSHELF","REFRIGERATOR","MICROWAVE","TOASTER","BLENDER","VACUUM",
+  "BROOM","HAMMER","SCREWDRIVER","WRENCH","NAIL","ROPE","PADLOCK","WALLET","CREDIT CARD","COIN",
+  "PIGGY BANK","DIAMOND","PEARL","HOT DOG","FRENCH FRIES","MILKSHAKE","DONUT","PRETZEL","CHEESE","BREAD",
+  "TOAST","PANCAKE","OMELET","SALAD","CORN DOG","LOLLIPOP","CANDY CANE","GIFT BOX","BIRTHDAY CAKE","CANDLE"
+];
+// Hard but still drawable: specific objects, animals, scenes, tools — no abstract ideas
+const DRAW_WORDS_HARD = [
+  "CHAMELEON","PLATYPUS","NARWHAL","AXOLOTL","CAPYBARA","SLOTH","ARMADILLO","PORCUPINE","HEDGEHOG","MEERKAT",
+  "PLATYPUS","WALRUS","MANATEE","ANTEATER","TAPIR","OKAPI","PANGOLIN","QUOKKA","WOMBAT","CASSOWARY",
+  "PELICAN","TOUCAN","PUFFIN","ALBATROSS","OSTRICH","EMU","KIWI BIRD","MANTIS","DRAGONFLY","CATERPILLAR",
+  "COCOON","CHRYSALIS","FIREFLY","CENTIPEDE","TARANTULA","STINGRAY","ANGLERFISH","PUFFERFISH","CLOWNFISH","BARRACUDA",
+  "LIGHTHOUSE","SHIPWRECK","ANCHOR","PIRATE SHIP","TREASURE CHEST","DOUBLOON","CANNON","TELESCOPE","SEXTANT","COMPASS ROSE",
+  "WINDMILL","WATER WHEEL","AQUEDUCT","DRAWBRIDGE","PORTCULLIS","CATAPULT","TREBUCHET","BATTERING RAM","SUIT OF ARMOR","CHAINMAIL",
+  "SAMURAI","KATANA","SHURIKEN","DOJO","ARCHERY TARGET","CROSSBOW","LONGBOW","QUIVER","SHIELD","HELMET",
+  "XYLOPHONE","ACCORDION","BAGPIPES","HARMONICA","TROMBONE","FRENCH HORN","CELLO","HARP","BANJO","UKULELE",
+  "TYPEWRITER","PHONOGRAPH","CASSETTE TAPE","FLOPPY DISK","ABACUS","SUNDIAL","HOURGLASS","METRONOME","TUNING FORK","SEISMOGRAPH",
+  "STETHOSCOPE","THERMOMETER","SYRINGE","BANDAGE","CRUTCH","WHEELCHAIR","AMBULANCE","FIRE TRUCK","POLICE CAR","TOW TRUCK",
+  "BULLDOZER","EXCAVATOR","CRANE","FORKLIFT","CEMENT MIXER","DUMP TRUCK","STEAMROLLER","TRACTOR","COMBINE HARVESTER","PLOW",
+  "HOT AIR BALLOON","PARACHUTE","HANG GLIDER","ZIPLINE","ROLLER COASTER","FERRIS WHEEL","CAROUSEL","BUMPER CARS","WATER SLIDE","TRAMPOLINE",
+  "IGLOO","TOTEM POLE","SANDCASTLE","SNOW FORT","TREEHOUSE","BIRDHOUSE","DOGHOUSE","LIGHTHOUSE","WINDMILL","WATER TOWER",
+  "EASEL","PALETTE","PAINT TUBE","CHALKBOARD","GLOBE","ABACUS","PROTRACTOR","RULER","COMPASS TOOL","MICROSCOPE",
+  "KALEIDOSCOPE","BINOCULARS","PERISCOPE","MAGNIFYING GLASS","PRISM","HOURGLASS","POCKET WATCH","GRANDFATHER CLOCK","CANDELABRA","CHANDELIER",
+  "ESCALATOR","ELEVATOR","REVOLVING DOOR","TURNSTILE","VENDING MACHINE","PARKING METER","STREET LAMP","MANHOLE COVER","HYDRANT","BENCH",
+  "PICNIC BASKET","THERMOS","COOLER","GRILL","SKEWER","CORN ON THE COB","SMORES","LANTERN","SLEEPING BAG","BACKPACK",
+  "SNOW GLOBE","MUSIC BOX","JACK IN THE BOX","RUBIKS CUBE","YO YO","SLINKY","FIDGET SPINNER","NERF GUN","WATER GUN","FRISBEE",
+  "BOOMERANG","HORSESHOE","TROPHY CUP","GOLD MEDAL","FINISH LINE","STOPWATCH","SCOREBOARD","REFEREE","POMEL HORSE","BALANCE BEAM",
+  "POGO STICK","UNICYCLE","TANDEM BIKE","RECUMBENT BIKE","SCOOTER","SEGWAY","HOVERBOARD","ROLLER SKATES","ICE SKATES","SNOWBOARD",
+  "TOTEM","MASK","PUPPET","MARIONETTE","SHADOW PUPPET","ORIGAMI","PAPER AIRPLANE","PAPER BOAT","SNOWFLAKE CUTOUT","STAINED GLASS"
+];
+const DRAW_WORDS = (() => {
+  const seen = new Set();
+  const out = [];
+  [...DRAW_WORDS_EASY, ...DRAW_WORDS_MED, ...DRAW_WORDS_HARD].forEach(w => {
+    const u = String(w).toUpperCase().trim();
+    if(u && !seen.has(u)){ seen.add(u); out.push(u); }
+  });
+  return out;
+})();
 
+function pickDrawWord(seed, level){
+  const used = new Set();
+  if(roomData){
+    (roomData.drawHistory || []).forEach(h => { if(h && h.word) used.add(String(h.word).toUpperCase()); });
+    (roomData.drawUsedWords || []).forEach(w => used.add(String(w).toUpperCase()));
+    if(roomData.drawWord) used.add(String(roomData.drawWord).toUpperCase());
+  }
+  const lvl = level || (roomData && roomData.drawLevel) || 1;
+  let preferred;
+  if(lvl <= 3) preferred = DRAW_WORDS_EASY;
+  else if(lvl <= 6) preferred = [...DRAW_WORDS_MED, ...DRAW_WORDS_EASY];
+  else preferred = [...DRAW_WORDS_HARD, ...DRAW_WORDS_MED];
+
+  const pickFrom = (arr) => arr.map(w => String(w).toUpperCase()).filter(w => !used.has(w));
+  let pool = pickFrom(preferred);
+  if(pool.length < 5) pool = pickFrom(DRAW_WORDS);
+  if(!pool.length) pool = DRAW_WORDS.slice();
+
+  let s = 0;
+  const src = String(seed || '') + '|' + Date.now() + '|' + Math.random() + '|' + pool.length + '|' + lvl;
+  for(let i=0;i<src.length;i++) s = (Math.imul(s, 16777619) ^ src.charCodeAt(i)) >>> 0;
+  try{
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    s ^= buf[0];
+  }catch(e){ s ^= (Math.random()*0xFFFFFFFF)>>>0; }
+  return pool[s % pool.length];
+}
 
 /* ===== DYNAMIC PUZZLES =====
    Every puzzle is generated live: a random Wikipedia category is walked down to a random
@@ -1943,14 +2014,17 @@ async function beginRound(){
     if(!playerIds.length){ toast('Need at least one player'); return; }
     const drawerIdx = (level - 1) % playerIds.length;
     const drawerUid = playerIds[drawerIdx];
-    const word = pickDrawWord(roomId + '_' + Date.now() + '_' + level);
+    const word = pickDrawWord(roomId + '_' + Date.now() + '_' + level, level);
+    const prevUsed = Array.isArray(roomData.drawUsedWords) ? roomData.drawUsedWords.slice() : [];
+    if(word && !prevUsed.includes(word)) prevUsed.push(word);
     const updates = {
       status: 'playing',
       drawLevel: level,
       drawMaxLevels: DRAW_MAX_LEVELS,
       drawWord: word,
       drawDrawerUid: drawerUid,
-      drawStrokes: null,
+      drawUsedWords: level === 1 ? [word] : prevUsed,
+      drawStrokes: [],
       drawGuesses: null,
       board: null, letter: null, categories: null,
       hangCategory: null, hangWord: null,
@@ -2907,15 +2981,17 @@ function getDrawCanvas(){
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const tw = Math.floor(w * dpr), th = Math.floor(h * dpr);
     if(c.width !== tw || c.height !== th){
-      // preserve drawing when resizing if possible
+      // Preserve drawing on resize only if not intentionally clearing
       let bak = null;
-      try{ if(drawCtx && c.width) bak = c.toDataURL(); }catch(e){}
+      if(!window._drawSkipRestore){
+        try{ if(drawCtx && c.width) bak = c.toDataURL(); }catch(e){}
+      }
       c.width = tw; c.height = th;
       drawCtx = c.getContext('2d');
       drawCtx.lineCap = 'round';
       drawCtx.lineJoin = 'round';
       drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if(bak){
+      if(bak && !window._drawSkipRestore){
         const img = new Image();
         img.onload = () => { try{ drawCtx.drawImage(img, 0, 0, w, h); }catch(e){} };
         img.src = bak;
@@ -2934,15 +3010,20 @@ function getDrawCanvas(){
 }
 
 function clearDrawCanvas(){
-  const c = getDrawCanvas();
-  if(!c || !drawCtx) return;
-  // Reset transform temporarily to clear full buffer, then restore DPR scale
+  const c = $('drawCanvas');
+  if(!c) return;
+  // Force a clean slate — do not restore any previous bitmap
+  window._drawSkipRestore = true;
+  getDrawCanvas(); // ensure sized
+  if(!drawCtx) return;
   drawCtx.setTransform(1,0,0,1,0,0);
   drawCtx.clearRect(0,0,c.width,c.height);
   drawCtx.fillStyle = '#fff';
   drawCtx.fillRect(0,0,c.width,c.height);
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  window._drawSkipRestore = false;
+  drawStrokeBuf = [];
 }
 
 function canvasPos(e){
@@ -3011,7 +3092,12 @@ function enterDraw(force){
   const sb = $('btnSoundDraw');
   if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-draw');
+  // Always start each level on a blank canvas (ignore any leftover strokes)
+  window._drawSkipRestore = true;
+  drawStrokeBuf = [];
   clearDrawCanvas();
+  // Detach old stroke listener before replaying anything
+  if(roomId){ try{ db.ref('rooms/'+roomId+'/drawStrokes').off(); }catch(e){} }
   updateDrawLevelBar();
   renderDrawScores();
 
@@ -3078,26 +3164,39 @@ function enterDraw(force){
   // Hide next button until level ends
   const btnN = $('btnDrawNext'); if(btnN) btnN.style.display = 'none';
 
-  // Replay existing strokes (for late joiners / sync)
-  replayDrawStrokes(roomData.drawStrokes || []);
+  // Replay existing strokes only if this level already has some (late join mid-round)
+  const existingStrokes = Array.isArray(roomData.drawStrokes) ? roomData.drawStrokes : [];
+  if(existingStrokes.length){
+    replayDrawStrokes(existingStrokes);
+  } else {
+    clearDrawCanvas();
+  }
 
-  // Live stroke listener
-  if(drawStrokeUnsub){ try{ db.ref('rooms/'+roomId+'/drawStrokes').off(); }catch(e){} }
+  // Live stroke listener for guessers
   if(roomId){
-    let lastLen = (roomData.drawStrokes || []).length;
+    let lastLen = existingStrokes.length;
+    db.ref('rooms/'+roomId+'/drawStrokes').off();
     db.ref('rooms/'+roomId+'/drawStrokes').on('value', snap => {
-      if(isDrawer()) return; // drawer already has local drawing
-      const strokes = snap.val() || [];
-      if(strokes.length < lastLen){
-        // cleared
+      const strokes = snap.val();
+      const arr = Array.isArray(strokes) ? strokes : [];
+      // Empty / cleared → blank canvas for everyone who isn't actively drawing this stroke
+      if(!arr.length){
+        if(!isDrawer() || !drawIsDrawing){
+          clearDrawCanvas();
+        }
+        lastLen = 0;
+        return;
+      }
+      if(isDrawer()) return; // drawer draws locally
+      if(arr.length < lastLen){
         clearDrawCanvas();
         lastLen = 0;
       }
-      if(strokes.length > lastLen){
-        for(let i = lastLen; i < strokes.length; i++){
-          applyStrokePoint(strokes[i], strokes[i].tool || 'pen');
+      if(arr.length > lastLen){
+        for(let i = lastLen; i < arr.length; i++){
+          applyStrokePoint(arr[i], arr[i].tool || 'pen');
         }
-        lastLen = strokes.length;
+        lastLen = arr.length;
       }
     });
   }
@@ -3391,7 +3490,13 @@ document.addEventListener('click', e => {
     }
     if(isHost){
       resetRoundState();
-      beginRound().catch(()=>toast('Could not start next level'));
+      clearDrawCanvas();
+      Promise.resolve(db.ref('rooms/'+roomId+'/drawStrokes').set([]))
+        .catch(()=>{})
+        .then(() => beginRound())
+        .catch(()=>toast('Could not start next level'))
+        .finally(() => { e.target.disabled = false; });
+      return;
     } else {
       toast('Waiting for host to start the next level…');
     }
