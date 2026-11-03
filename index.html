@@ -12,7 +12,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<title>Word Arena — Boggle, Scattergories & Hangman</title>
+<title>Word Arena · Boggle, Scattergories &amp; Hangman</title>
+<meta name="description" content="Word Arena: real-time word games for friends. Play Boggle, Scattergories with auto-checked answers, and Hangman Race.">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -543,6 +544,23 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 #btnHangNext,#btnHangSubmit{width:100%}
 #screen-hangman .timer{background:conic-gradient(#6C5CE7 var(--pct,100%),rgba(255,255,255,.22) 0)}
 #screen-hangman .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0)}
+
+/* ===== Accessibility ===== */
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){.blob,.code-box,.timer.low,.scat-letter.pulse-letter,.word-bar.pulse{animation:none!important}.screen.active{animation-duration:.01s}}
+/* ===== Scattergories auto-check ===== */
+.scat-row{position:relative}
+.scat-row .check{right:22px;bottom:auto;top:48px}
+.scat-row.checking{border-color:#74B9FF;background:linear-gradient(135deg,#EAF4FF,#F4FAFF)}
+.scat-row.checking .check{opacity:1;transform:scale(1);color:#0984E3;animation:checkSpin 1s linear infinite}
+@keyframes checkSpin{to{transform:scale(1) rotate(360deg)}}
+.scat-note{font-size:.74rem;font-weight:700;line-height:1.35;margin-top:6px;min-height:0;color:#8B7355}
+.scat-note:empty{display:none}
+.scat-row.valid .scat-note{color:#00896A}
+.scat-row.dubious .scat-note{color:#B7791F}
+.scat-row.invalid .scat-note{color:#C0392B}
+.scat-row input{padding-right:40px}
 </style>
 </head>
 <body>
@@ -588,7 +606,7 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
       <div class="game-card" data-game="scatter" id="pickScatter" style="cursor:pointer">
         <div class="icon">✍️</div>
         <div class="name">Scattergories</div>
-        <div class="desc">Letter + categories — race to fill them in</div>
+        <div class="desc">Letter + categories. Every answer is auto-checked against its category</div>
       </div>
       <div class="game-card" data-game="hangman" id="pickHangman" style="cursor:pointer">
         <div class="icon">🪢</div>
@@ -678,10 +696,10 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
   <div class="scat-pad">
     <div class="scat-pad-header">
       <div class="scat-pad-title">Your answers</div>
-      <div class="scat-pad-hint">Must start with letter · system checks category fit</div>
+      <div class="scat-pad-hint">Auto-checked as you type</div>
     </div>
     <div class="scat-cats" id="scatCats"></div>
-    <div class="scat-status" id="scatStatus">Tap a category and start typing — answers are checked for category fit</div>
+    <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
   </div>
 </section>
 
@@ -813,7 +831,7 @@ const FALLBACK_WORDS = "ace act add age ago aid aim air ale all and ant any ape 
 FALLBACK_WORDS.split(' ').forEach(w=>{if(w.length>=3)DICT.add(w)});
 
 async function loadDictionary(){
-  const cached = localStorage.getItem('wordarena_dict_v1');
+  const cached = localStorage.getItem('boggle_dict_v1');
   if(cached){
     cached.split(',').forEach(w=>DICT.add(w));
     dictReady = true;
@@ -824,7 +842,7 @@ async function loadDictionary(){
     const text = await res.text();
     const words = text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>w.length>=3 && /^[a-z]+$/.test(w));
     words.forEach(w=>DICT.add(w));
-    localStorage.setItem('wordarena_dict_v1', words.join(','));
+    localStorage.setItem('boggle_dict_v1', words.join(','));
     dictReady = true;
   } catch(e) {
     console.warn('Could not download full dictionary. Using fallback.', e);
@@ -1248,11 +1266,12 @@ let prevScores={};
 let rattleInt=null,possFilter='all',possSel=null,possPaths={},solvedCache={sig:'',list:null},solveBusy='';
 let selectedGame = 'boggle'; // 'boggle' | 'scatter' | 'hangman'
 let scatAnswers = {}; // local answers for scatter
+let scatVerdicts = {}; // auto-check result per category: 'ok' | 'maybe' | 'no'
 let lobbyIndexRef = null;
 let hangAnswers = {}; // hangman local state
 let scatSaveTimer = null;
 
-try{soundOn=localStorage.getItem('wordarena_snd')!=='0'}catch(e){}
+try{soundOn=localStorage.getItem('boggle_snd')!=='0'}catch(e){}
 const $=id=>document.getElementById(id);
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2400)}
 function liveToast(msg){
@@ -1287,7 +1306,7 @@ function snd(kind){
   else if(kind==='win'){beep(523,.12,'triangle',.12);setTimeout(()=>beep(659,.12,'triangle',.11),100);setTimeout(()=>beep(784,.12,'triangle',.1),200);setTimeout(()=>beep(1046,.25,'triangle',.1),320)}
   else if(kind==='opp'){beep(400,.06,'sine',.07);setTimeout(()=>beep(520,.09,'triangle',.08),50)}
 }
-function toggleSound(){soundOn=!soundOn;try{localStorage.setItem('wordarena_snd',soundOn?'1':'0')}catch(e){}const b=$('btnSound');if(b)b.textContent=soundOn?'🔊':'🔇';const b2=$('btnSoundScat');if(b2)b2.textContent=soundOn?'🔊':'🔇';const b3=$('btnSoundHang');if(b3)b3.textContent=soundOn?'🔊':'🔇';if(soundOn){ensureAudio();snd('tap')}}
+function toggleSound(){soundOn=!soundOn;try{localStorage.setItem('boggle_snd',soundOn?'1':'0')}catch(e){}const b=$('btnSound');if(b)b.textContent=soundOn?'🔊':'🔇';const b2=$('btnSoundScat');if(b2)b2.textContent=soundOn?'🔊':'🔇';if(soundOn){ensureAudio();snd('tap')}}
 function updateComboUI(){
   const b=$('comboBadge');if(!b)return;
   if(combo>=2){b.textContent='×'+combo;b.classList.add('on')}else b.classList.remove('on');
@@ -1353,9 +1372,9 @@ function refreshStats(){if(!profile)return;$('lobbyName').textContent=profile.na
 
 /* ===== GAME DASHBOARD → MATCHMAKING ===== */
 const GAME_META = {
-  boggle:  { title:'🎲 Boggle', sub:'Shake the tray and find words on a 4×4 grid with friends.' },
-  scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
-  hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' }
+  boggle:  { title:'🎲 Boggle', sub:'Create a room or join an open Boggle game.' },
+  scatter: { title:'✍️ Scattergories', sub:'Create a room or join an open Scattergories game.' },
+  hangman: { title:'🪢 Hangman Race', sub:'Create a room or join an open Hangman Race.' }
 };
 
 function openMatchmaking(game){
@@ -1608,8 +1627,9 @@ async function beginRound(){
     const letter = randomLetter(false);
     const seed = roomId + '_' + Date.now();
     const categories = generateCategories(seed, 12);
-    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null,rejected:null,challenges:null};
+    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null,rejected:null,challenges:null,forgiven:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
+      updates['players/'+uid+'/verdicts']=null;
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
@@ -1739,16 +1759,14 @@ function updateScatProgress(){
 
   const status = $('scatStatus');
   if(!status) return;
-  // Don't overwrite a live category-fit warning
-  if(status.classList.contains('warn') && status.textContent.includes('might not fit')) return;
   if(filled === 0){
-    status.textContent = 'Tap a category and start typing — answers are checked for category fit';
+    status.textContent = 'Tap a category and start typing…';
     status.className = 'scat-status';
   } else if(filled < total){
     status.textContent = filled + ' of ' + total + ' answered — keep going!';
     status.className = 'scat-status good';
   } else {
-    status.textContent = 'All filled! Sit tight or tweak answers before time runs out.';
+    status.textContent = 'All filled! Sit tight or tweak answers.';
     status.className = 'scat-status good';
   }
 }
@@ -1771,6 +1789,7 @@ function enterScatter(){
     return;
   }
   resetRoundState();
+  scatAnswers = {}; scatVerdicts = {};
   const sb = $('btnSoundScat');
   if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-scatter');
@@ -2275,150 +2294,96 @@ document.addEventListener('click', async e => {
   }
 });
 
-/* ===== SCATTERGORIES CATEGORY FIT VALIDATION (first-layer system check) =====
-   Uses Datamuse (free, no key) + heuristics so the system can flag answers that
-   clearly do not belong to the category. Players can still challenge later. */
-const scatFitCache = new Map(); // key: letter|category|answer → state
+/* ===== SCATTERGORIES CATEGORY VERIFIER (first layer of validation) =====
+   Layer 1: built-in word lists for closed sets (instant, works offline).
+   Layer 2: Wikidata. The answer is looked up and its "is a / subclass of / parent taxon" chain is
+            tested against the category's classes, so "Tiger" is confirmed as an animal and "Table" is not.
+   Verdicts: ok = confirmed in category · maybe = real but unconfirmed (counts, players may challenge)
+             no = not a real word/name, or clearly something else (auto-rejected, can be restored). */
+const ScatVerify=(()=>{
+  const LEX={
+    country:'afghanistan albania algeria andorra angola argentina armenia australia austria azerbaijan bahamas bahrain bangladesh barbados belarus belgium belize benin bhutan bolivia bosnia botswana brazil brunei bulgaria burundi cambodia cameroon canada chad chile china colombia comoros congo croatia cuba cyprus czechia denmark djibouti dominica ecuador egypt eritrea estonia eswatini ethiopia fiji finland france gabon gambia georgia germany ghana greece grenada guatemala guinea guyana haiti honduras hungary iceland india indonesia iran iraq ireland israel italy jamaica japan jordan kazakhstan kenya kiribati kosovo kuwait kyrgyzstan laos latvia lebanon lesotho liberia libya liechtenstein lithuania luxembourg madagascar malawi malaysia maldives mali malta mauritania mauritius mexico micronesia moldova monaco mongolia montenegro morocco mozambique myanmar namibia nauru nepal netherlands nicaragua niger nigeria norway oman pakistan palau panama paraguay peru philippines poland portugal qatar romania russia rwanda samoa senegal serbia seychelles singapore slovakia slovenia somalia spain sudan suriname sweden switzerland syria taiwan tajikistan tanzania thailand togo tonga trinidad tunisia turkey turkmenistan tuvalu uganda ukraine uruguay uzbekistan vanuatu venezuela vietnam yemen zambia zimbabwe',
+    color:'red orange yellow green blue purple violet indigo pink brown black white gray grey gold silver teal cyan magenta maroon navy beige turquoise lavender lime olive peach coral crimson scarlet amber ivory khaki mint salmon tan aqua azure bronze burgundy cream fuchsia lilac mauve ochre plum rose ruby sapphire emerald',
+    part:'arm leg hand foot head neck back chest hip knee ankle elbow wrist finger thumb toe nail eye ear nose mouth lip tongue tooth teeth chin cheek face hair skin brain heart lung liver kidney stomach spine rib shoulder thigh calf shin heel palm belly waist forehead eyebrow eyelash jaw throat bone muscle',
+    inst:'piano guitar violin cello viola harp flute oboe clarinet bassoon trumpet trombone tuba horn drum cymbal xylophone harmonica accordion banjo ukulele saxophone organ piccolo bagpipe tambourine triangle marimba sitar mandolin harpsichord recorder kazoo bongo synthesizer',
+    animal:'ant ape bat bear bee bird boar buffalo butterfly camel cat cheetah chicken cobra cow crab crocodile crow deer dog dolphin donkey dove dragonfly duck eagle eel elephant falcon fish flamingo fox frog gazelle giraffe goat goose gorilla hamster hawk hedgehog hippo horse hyena iguana jaguar kangaroo koala lemur leopard lion lizard llama lobster monkey moose mouse octopus ostrich otter owl panda parrot peacock pelican penguin pig pigeon rabbit raccoon rat raven rhino salmon seal shark sheep snail snake sparrow spider squid squirrel swan tiger toad turkey turtle vulture walrus whale wolf worm yak zebra',
+    produce:'apple apricot avocado banana beet blueberry broccoli cabbage carrot cauliflower celery cherry coconut corn cucumber date eggplant fig garlic grape grapefruit guava kale kiwi lemon lettuce lime lychee mango melon mushroom nectarine okra olive onion orange papaya peach pear pea pepper pineapple plum pomegranate potato pumpkin radish raspberry spinach strawberry tomato turnip watermelon yam zucchini'
+  };
+  // category text -> classes it accepts (Wikidata QIDs). strict = a confident mismatch is auto-rejected.
+  const R={
+    "A boy's name":{t:['Q12308941','Q3409032']},"A girl's name":{t:['Q11879590','Q3409032']},
+    "A famous person":{t:['Q5']},"A job or occupation":{t:['Q12737077','Q28640']},
+    "An animal":{t:['Q729'],lex:'animal',strict:1},"A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
+    "A plant or flower":{t:['Q756','Q506']},"A country":{t:['Q6256'],lex:'country',strict:1},"A city":{t:['Q515','Q1549591'],strict:1},
+    "A food":{t:['Q2095','Q746549']},"A drink":{t:['Q40050']},"A dessert or sweet":{t:['Q182413']},
+    "Something you eat for breakfast":{t:['Q2095','Q746549']},"A piece of furniture":{t:['Q14745']},"Something with wheels":{t:['Q42889']},
+    "A movie or TV show":{t:['Q11424','Q5398426','Q15416']},"A book or song title":{t:['Q571','Q7725634','Q7366','Q482994']},
+    "A cartoon or superhero character":{t:['Q95074','Q188784','Q1114461']},"A sport or game":{t:['Q349','Q11410']},
+    "A hobby":{t:['Q47728']},"A musical instrument":{t:['Q34379'],lex:'inst',strict:1},"A brand or company":{t:['Q431289','Q4830453','Q783794']},
+    "A color":{t:['Q1075'],lex:'color'},"A body part":{t:['Q4936952'],lex:'part'},"A school subject":{t:['Q11862829','Q2465832']},
+    "A holiday or celebration":{t:['Q1445650','Q132241']}
+  };
+  const SETS={};
+  const has=(k,w)=>{(SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));return SETS[k].has(w)||SETS[k].has(w.replace(/(es|s)$/,''))};
+  const dictHas=w=>{const t=w.split(/[\s\-']+/).filter(x=>x.length>=3);return dictReady&&DICT.size>50000&&t.length>0&&t.every(x=>DICT.has(x)||DICT.has(x.replace(/(es|s)$/,'')))};
+  const cache={};
+  const lbl=h=>h.label+(h.description?' ('+h.description+')':'');
+  async function jget(url){const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(t)}}
+  const search=async term=>((await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbsearchentities',search:term,language:'en',uselang:'en',type:'item',limit:'7',format:'json',origin:'*'}))).search)||[];
+  async function match(ids,targets){
+    const q='SELECT ?i WHERE{VALUES ?i{'+ids.map(i=>'wd:'+i).join(' ')+'} VALUES ?t{'+targets.map(t=>'wd:'+t).join(' ')+'} ?i wdt:P31?/(wdt:P279|wdt:P171)* ?t} LIMIT 1';
+    const d=await jget('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(q));
+    const b=(d.results&&d.results.bindings)||[];return b.length?b[0].i.value.split('/').pop():null;
+  }
+  async function check(cat,val){
+    const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat],short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=cat.charAt(0).toLowerCase()+cat.slice(1);
+    if(rule&&rule.lex&&has(rule.lex,norm))return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'};
+    const ck=cat+'|'+norm;if(cache[ck])return cache[ck];
+    let res;
+    try{
+      if(!rule){                                    // subjective category: only reject nonsense
+        if(dictHas(norm))res={v:'maybe',note:'Real word. This category is a judgement call, so others may challenge it.'};
+        else{const h=await search(val);res=h.length?{v:'maybe',note:'Found “'+lbl(h[0])+'”. Judgement-call category, others may challenge.'}:{v:'no',note:'Not recognised as a real word or name.'}}
+      }else{
+        const hits=await search(val);
+        if(!hits.length)res=dictHas(norm)&&!rule.strict?{v:'maybe',note:'Real word, but couldn’t confirm it’s '+art+'.'}:{v:'no',note:'Not recognised as a real word or name.'};
+        else{
+          const id=await match(hits.map(h=>h.id),rule.t),h0=hits.find(h=>h.id===id);
+          if(id)res={v:'ok',note:'Confirmed: '+lbl(h0)};
+          else if(rule.strict)res={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
+          else res={v:'maybe',note:'Found “'+lbl(hits[0])+'” but couldn’t confirm it’s '+art+'. Others may challenge.'};
+        }
+      }
+    }catch(e){return{v:'maybe',note:'Couldn’t reach the fact-checker, so this is unverified.',offline:1}}
+    return cache[ck]=res;
+  }
+  return{check};
+})();
 
-function basicScatFormat(val, letter){
+function validateScatAnswer(val, letter){
+  // Returns: 'empty' | 'invalid' | 'valid'
+  // Names, multi-word answers, and proper nouns are allowed.
+  // Semantic fit is handled by the challenge system after the round.
   if(!val || !val.trim()) return 'empty';
   const cleaned = val.trim();
   if(cleaned.length < 2) return 'invalid';
+  // Must start with the round letter (case-insensitive)
   if(letter && !cleaned.toLowerCase().startsWith(letter.toLowerCase())) return 'invalid';
+  // Allow letters, spaces, hyphens, apostrophes (names & 2-word answers OK)
+  // Reject pure numbers / symbols / gibberish
   if(!/^[a-zA-Z][a-zA-Z\s\-'.]*$/.test(cleaned)) return 'invalid';
+  // Block answers that are only the letter itself
   if(cleaned.replace(/[\s\-'.]/g,'').length < 2) return 'invalid';
   return 'valid';
 }
 
-function categoryQueryFor(cat){
-  // Map human category phrases to good Datamuse "means-like" / topic queries
-  const c = (cat || '').toLowerCase();
-  if(/boy.?s?\s*name|male\s*name|man.?s?\s*name/.test(c)) return 'boy name';
-  if(/girl.?s?\s*name|female\s*name|woman.?s?\s*name/.test(c)) return 'girl name';
-  if(/famous\s*person|celebrity|actor|actress|singer/.test(c)) return 'famous person';
-  if(/job|occupation|profession|career/.test(c)) return 'job occupation';
-  if(/animal|creature|beast|pet/.test(c)) return 'animal';
-  if(/fruit|vegetable|produce/.test(c)) return 'fruit vegetable';
-  if(/plant|flower|tree|bush/.test(c)) return 'plant flower';
-  if(/country|nation/.test(c)) return 'country';
-  if(/city|town|capital/.test(c)) return 'city';
-  if(/house|home|room/.test(c)) return 'household item';
-  if(/kitchen/.test(c)) return 'kitchen item';
-  if(/school|classroom/.test(c)) return 'school item';
-  if(/beach|ocean|sea/.test(c)) return 'beach item';
-  if(/park/.test(c)) return 'park item';
-  if(/food|meal|dish|cuisine/.test(c)) return 'food';
-  if(/drink|beverage|liquid/.test(c)) return 'drink';
-  if(/dessert|sweet|candy|cake|cookie/.test(c)) return 'dessert';
-  if(/breakfast/.test(c)) return 'breakfast food';
-  if(/wear|clothing|clothes|apparel|outfit/.test(c)) return 'clothing';
-  if(/furniture|chair|table|sofa/.test(c)) return 'furniture';
-  if(/wheel|vehicle|car|bike|truck/.test(c)) return 'vehicle';
-  if(/hold|hand|object|thing you can hold/.test(c)) return 'handheld object';
-  if(/soft|hard|cold|hot|round|sound/.test(c)) return c.replace(/something\s*(that\s*)?(is\s*|you\s*)?/,'');
-  if(/movie|tv\s*show|film|series/.test(c)) return 'movie or tv show';
-  if(/book|song|title/.test(c)) return 'book or song';
-  if(/cartoon|superhero|character/.test(c)) return 'cartoon character';
-  if(/sport|game/.test(c)) return 'sport';
-  if(/hobby/.test(c)) return 'hobby';
-  if(/instrument|musical/.test(c)) return 'musical instrument';
-  if(/brand|company|product/.test(c)) return 'brand';
-  if(/color|colour/.test(c)) return 'color';
-  if(/body\s*part/.test(c)) return 'body part';
-  if(/school\s*subject|subject/.test(c)) return 'school subject';
-  if(/holiday|celebration|festival/.test(c)) return 'holiday';
-  if(/weather/.test(c)) return 'weather';
-  if(/every\s*day|daily|routine/.test(c)) return 'daily activity';
-  if(/trip|travel|vacation/.test(c)) return 'travel item';
-  if(/party/.test(c)) return 'party item';
-  if(/excuse|late/.test(c)) return 'excuse';
-  if(/happy|joy|make you happy/.test(c)) return 'happy thing';
-  if(/scary|frighten|fear/.test(c)) return 'scary thing';
-  if(/funny|joke|humor/.test(c)) return 'funny thing';
-  // fallback: strip common prefixes
-  return c.replace(/^(a|an|something|things?|type of|piece of)\s+/i,'').trim() || 'thing';
-}
-
-async function checkCategoryFit(answer, category, letter){
-  const cleaned = (answer || '').trim();
-  const fmt = basicScatFormat(cleaned, letter);
-  if(fmt !== 'valid') return fmt;
-
-  const key = ((letter||'') + '|' + (category||'') + '|' + cleaned.toLowerCase()).toLowerCase();
-  if(scatFitCache.has(key)) return scatFitCache.get(key);
-
-  // Heuristic shortcuts for names (very common category)
-  const catL = (category || '').toLowerCase();
-  const isNameCat = /name/.test(catL);
-  if(isNameCat){
-    // Proper-looking single or double names are usually accepted; mark valid
-    // (challenge system handles real disputes). We still reject obvious non-names.
-    if(/^(the|a|an|and|or|of|in|on|at|to|for|with|my|your)\b/i.test(cleaned)) {
-      scatFitCache.set(key, 'invalid');
-      return 'invalid';
-    }
-    // Short common words that are never names
-    const neverNames = new Set(['the','and','for','are','but','not','you','all','can','had','her','was','one','our','out','day','get','has','him','his','how','man','new','now','old','see','two','way','who','boy','did','its','let','put','say','she','too','use']);
-    if(neverNames.has(cleaned.toLowerCase().split(/\s+/)[0])) {
-      scatFitCache.set(key, 'dubious');
-      return 'dubious';
-    }
-    scatFitCache.set(key, 'valid');
-    return 'valid';
-  }
-
-  // Use Datamuse means-like + spelled-like for semantic check
-  try{
-    const q = categoryQueryFor(category);
-    const sp = letter ? (letter.toLowerCase() + '*') : '*';
-    // Prefer exact-ish match first
-    const url1 = `https://api.datamuse.com/words?sp=${encodeURIComponent(cleaned.toLowerCase())}&md=d&max=5`;
-    const url2 = `https://api.datamuse.com/words?ml=${encodeURIComponent(q)}&sp=${encodeURIComponent(sp)}&max=40`;
-
-    const [r1, r2] = await Promise.all([
-      fetch(url1).then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch(url2).then(r => r.ok ? r.json() : []).catch(() => [])
-    ]);
-
-    const ansLower = cleaned.toLowerCase();
-    // Exact word exists in English?
-    const exact = (r1 || []).some(w => (w.word || '').toLowerCase() === ansLower);
-    // Appears among related words for the category?
-    const related = (r2 || []).some(w => {
-      const ww = (w.word || '').toLowerCase();
-      return ww === ansLower || ww.replace(/-/g,' ') === ansLower || ansLower.includes(ww) || ww.includes(ansLower);
-    });
-
-    // Score: if exact + related → strong valid; exact only → valid; related only → valid; neither → dubious
-    let state = 'dubious';
-    if(exact && related) state = 'valid';
-    else if(exact || related) state = 'valid';
-    else if((r1 || []).length === 0 && cleaned.split(/\s+/).length === 1) state = 'dubious'; // unknown single word
-    else state = 'dubious'; // multi-word creative answers stay possible but flagged
-
-    // Soften for broad categories where creative answers are expected
-    if(/something|thing|excuse|happy|scary|funny|party|trip|everyday|daily/.test(catL)) {
-      if(state === 'dubious' && exact) state = 'valid';
-    }
-
-    scatFitCache.set(key, state);
-    return state;
-  } catch(e){
-    // Network fail → fall back to format-only valid so play continues offline
-    scatFitCache.set(key, 'valid');
-    return 'valid';
-  }
-}
-
-// Synchronous format-only for instant UI feedback; async fit runs after
-function validateScatAnswer(val, letter){
-  return basicScatFormat(val, letter);
-}
-
 function applyScatRowState(row, state){
-  row.classList.remove('filled','valid','dubious','invalid');
+  row.classList.remove('filled','valid','dubious','invalid','checking');
   const check = row.querySelector('.check');
-  if(state === 'valid' || state === 'filled'){
+  if(state === 'checking'){
+    row.classList.add('checking');
+    if(check) check.textContent = '◌';
+  } else if(state === 'valid' || state === 'filled'){
     row.classList.add('valid','filled');
     if(check) check.textContent = '✓';
   } else if(state === 'dubious'){
@@ -2445,64 +2410,51 @@ function renderScatCategories(){
     row.innerHTML = `
       <label><span class="cat-num">${i+1}</span>${esc(cat)}</label>
       <input type="text" data-idx="${i}" placeholder="Starts with ${letter}…" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <span class="check"></span>`;
+      <span class="check"></span>
+      <div class="scat-note" aria-live="polite"></div>`;
     const inp = row.querySelector('input');
+    const noteEl = row.querySelector('.scat-note');
+    let vTimer = null;
+    const runVerify = async () => {
+      const val = inp.value.trim();
+      if(validateScatAnswer(val, letter) !== 'valid') return;
+      applyScatRowState(row, 'checking'); noteEl.textContent = 'Checking “' + val + '”…';
+      const res = await ScatVerify.check(cat, val);
+      if(inp.value.trim() !== val || roundEnded) return;          // typed something else meanwhile
+      const before = scatVerdicts[i];
+      scatVerdicts[i] = res.v;
+      applyScatRowState(row, res.v === 'ok' ? 'valid' : res.v === 'no' ? 'invalid' : 'dubious');
+      noteEl.textContent = res.note;
+      if(res.v === 'ok' && before !== 'ok'){ snd('ok'); scatSparkAt(inp); try{ navigator.vibrate && navigator.vibrate(12) }catch(e){} }
+      else if(res.v === 'no' && before !== 'no') snd('bad');
+      clearTimeout(scatSaveTimer); scatSaveTimer = setTimeout(saveScatAnswers, 200);
+    };
+    inp.addEventListener('blur', () => { clearTimeout(vTimer); if(scatVerdicts[i] === undefined) runVerify(); });
 
-    // Restore previous answer + re-validate (format + category fit)
+    // Restore previous answer + re-validate
     const prev = (roomData.players?.[user.uid]?.answers || {})[i];
     if(prev){
       inp.value = prev;
       scatAnswers[i] = prev;
-      applyScatRowState(row, validateScatAnswer(prev, letter));
-      // Async category check for restored answers
-      checkCategoryFit(prev, cat, letter).then(fit => {
-        if(scatAnswers[i] === prev) applyScatRowState(row, fit);
-      });
+      const pv = (roomData.players?.[user.uid]?.verdicts || {})[i];
+      if(pv){ scatVerdicts[i] = pv; applyScatRowState(row, pv === 'ok' ? 'valid' : pv === 'no' ? 'invalid' : 'dubious'); }
+      else { applyScatRowState(row, validateScatAnswer(prev, letter)); setTimeout(runVerify, 300 + i * 120); }
     }
 
-    let fitTimer = null;
     inp.addEventListener('input', () => {
       const val = inp.value.trim();
-      const prevState = validateScatAnswer(scatAnswers[i] || '', letter);
+      const wasEmpty = !scatAnswers[i];
       scatAnswers[i] = val;
+      delete scatVerdicts[i];
+      clearTimeout(vTimer);
 
-      // Instant format feedback
-      const fmt = validateScatAnswer(val, letter);
-      applyScatRowState(row, fmt);
+      const state = validateScatAnswer(val, letter);
+      if(state === 'valid'){ applyScatRowState(row, 'checking'); noteEl.textContent = ''; vTimer = setTimeout(runVerify, 650); }
+      else { applyScatRowState(row, state); noteEl.textContent = state === 'invalid' && val ? 'Must start with ' + letter + ' and use letters only.' : ''; }
 
       updateScatProgress();
       clearTimeout(scatSaveTimer);
       scatSaveTimer = setTimeout(() => saveScatAnswers(), 500);
-
-      // Debounced semantic category-fit check (first-layer system validation)
-      clearTimeout(fitTimer);
-      if(fmt === 'valid' && val.length >= 2){
-        fitTimer = setTimeout(async () => {
-          const fit = await checkCategoryFit(val, cat, letter);
-          // Only update if the input still matches what we checked
-          if((scatAnswers[i] || '').trim() === val){
-            applyScatRowState(row, fit);
-            if(fit === 'valid' && prevState !== 'valid'){
-              snd('ok');
-              scatSparkAt(inp);
-              try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
-            } else if(fit === 'dubious'){
-              // gentle feedback that system is unsure about category fit
-              const status = $('scatStatus');
-              if(status){
-                status.textContent = '“' + val + '” might not fit “' + cat + '” — you can still keep it';
-                status.className = 'scat-status warn';
-              }
-            } else if(fit === 'invalid'){
-              const status = $('scatStatus');
-              if(status){
-                status.textContent = 'Doesn’t look like it belongs in this category';
-                status.className = 'scat-status warn';
-              }
-            }
-          }
-        }, 650);
-      }
     });
 
     // Enter advances to next incomplete field
@@ -2523,12 +2475,12 @@ function renderScatCategories(){
 
 async function saveScatAnswers(){
   if(!roomId || !user || roundEnded) return;
-  const answers = {};
+  const answers = {}, verdicts = {};
   Object.keys(scatAnswers).forEach(k => {
-    if(scatAnswers[k] && scatAnswers[k].trim()) answers[k] = scatAnswers[k].trim();
+    if(scatAnswers[k] && scatAnswers[k].trim()){ answers[k] = scatAnswers[k].trim(); if(scatVerdicts[k]) verdicts[k] = scatVerdicts[k]; }
   });
   try{
-    await db.ref('rooms/' + roomId + '/players/' + user.uid).update({ answers });
+    await db.ref('rooms/' + roomId + '/players/' + user.uid).update({ answers, verdicts });
   }catch(e){}
 }
 
@@ -2879,6 +2831,9 @@ function computeScatterResults(){
   const letter = (roomData.letter||'').toLowerCase();
   // rejected answers stored as { "uid_catIndex": true }
   const rejected = roomData.rejected || {};
+  const forgiven = roomData.forgiven || {};
+  // rejected by agreement, or auto-rejected by the category check (unless restored)
+  const isRej = (pp,i) => !!rejected[pp.uid+'_'+i] || ((pp.verdicts||{})[i]==='no' && !forgiven[pp.uid+'_'+i]);
 
   // Collect answers per category
   const byCat = {};
@@ -2905,11 +2860,11 @@ function computeScatterResults(){
       const entry = byCat[i][p.uid];
       if(!entry) return;
       const key = p.uid + '_' + i;
-      const isRejected = !!rejected[key];
+      const isRejected = isRej(p, i);
       // Count how many players have the same normalized answer (and not rejected)
       const same = Object.values(byCat[i]).filter(e=>{
         const k = e.p.uid + '_' + i;
-        return e.norm===entry.norm && !rejected[k];
+        return e.norm===entry.norm && !isRej(e.p, i);
       }).length;
       const dupe = same > 1;
       const pts = (dupe || isRejected) ? 0 : 1;
@@ -3047,12 +3002,13 @@ function renderResults(rows){
         if(!ans || !ans.trim()) return;
         hasAny = true;
         const key = p.uid + '_' + ci;
-        const isRejected = !!rejected[key];
+        const auto = (p.verdicts||{})[ci]==='no' && !(roomData.forgiven||{})[key] && !rejected[key];
+        const isRejected = !!rejected[key] || auto;
         const ch = challenges[key] || null;
         const norm = ans.trim().toLowerCase();
         const sameCount = players.filter(op => {
           const oa = (op.answers||{})[ci];
-          return oa && oa.trim().toLowerCase() === norm && !rejected[op.uid+'_'+ci];
+          return oa && oa.trim().toLowerCase() === norm && !rejected[op.uid+'_'+ci] && !((op.verdicts||{})[ci]==='no' && !(roomData.forgiven||{})[op.uid+'_'+ci]);
         }).length;
         const isDupe = sameCount > 1;
 
@@ -3060,11 +3016,11 @@ function renderResults(rows){
         detailHtml += '<span style="font-size:1.15rem">'+(p.avatar||'🎮')+'</span>';
         detailHtml += '<span style="font-weight:800;min-width:60px">'+(p.uid===user.uid?'You':esc(p.name))+'</span>';
         detailHtml += '<span class="wchip '+(isRejected||isDupe?'dupe':'')+'" style="animation:none"><span class="wt">'+(isRejected?'~~':'')+esc(ans.toUpperCase())+(isRejected?'~~':'')+'</span>';
-        if(!isRejected && !isDupe) detailHtml += '<b>+1</b>';
+        if(!isRejected && !isDupe) detailHtml += '<b>+1'+((p.verdicts||{})[ci]==='ok'?' ✓':'')+'</b>';
         detailHtml += '</span>';
 
         if(isRejected){
-          detailHtml += '<span style="font-size:.75rem;font-weight:800;color:#E74C3C">Rejected by agreement</span>';
+          detailHtml += '<span style="font-size:.75rem;font-weight:800;color:#E74C3C">'+(auto?'Auto-check: doesn’t fit the category':'Rejected by agreement')+'</span>';
           // Allow re-open only if everyone agrees again (simple restore by any player for now)
           detailHtml += '<button type="button" class="btn-restore" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #00B894;background:#fff;color:#00B894;cursor:pointer">Restore</button>';
         } else if(ch){
@@ -3164,6 +3120,7 @@ function renderResults(rows){
         if(!confirm('Restore this answer? It will get its point back.')) return;
         try{
           await db.ref('rooms/'+roomId+'/rejected/'+key).remove();
+          await db.ref('rooms/'+roomId+'/forgiven/'+key).set(true);
           toast('Answer restored');
         }catch(e){ toast('Could not restore'); }
       };
@@ -3455,7 +3412,7 @@ if (btnInstall) {
   };
 }
 
-if ((isIOS || isAndroid) && !isStandalone) {
+if ((isIOS || isAndroid) && !isStandalone && btnInstall) {
   btnInstall.style.display = 'flex';
 }
 
