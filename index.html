@@ -2304,16 +2304,16 @@ const ScatVerify=(()=>{
   const LEX={
     country:'afghanistan albania algeria andorra angola argentina armenia australia austria azerbaijan bahamas bahrain bangladesh barbados belarus belgium belize benin bhutan bolivia bosnia botswana brazil brunei bulgaria burundi cambodia cameroon canada chad chile china colombia comoros congo croatia cuba cyprus czechia denmark djibouti dominica ecuador egypt eritrea estonia eswatini ethiopia fiji finland france gabon gambia georgia germany ghana greece grenada guatemala guinea guyana haiti honduras hungary iceland india indonesia iran iraq ireland israel italy jamaica japan jordan kazakhstan kenya kiribati kosovo kuwait kyrgyzstan laos latvia lebanon lesotho liberia libya liechtenstein lithuania luxembourg madagascar malawi malaysia maldives mali malta mauritania mauritius mexico micronesia moldova monaco mongolia montenegro morocco mozambique myanmar namibia nauru nepal netherlands nicaragua niger nigeria norway oman pakistan palau panama paraguay peru philippines poland portugal qatar romania russia rwanda samoa senegal serbia seychelles singapore slovakia slovenia somalia spain sudan suriname sweden switzerland syria taiwan tajikistan tanzania thailand togo tonga trinidad tunisia turkey turkmenistan tuvalu uganda ukraine uruguay uzbekistan vanuatu venezuela vietnam yemen zambia zimbabwe',
     color:'red orange yellow green blue purple violet indigo pink brown black white gray grey gold silver teal cyan magenta maroon navy beige turquoise lavender lime olive peach coral crimson scarlet amber ivory khaki mint salmon tan aqua azure bronze burgundy cream fuchsia lilac mauve ochre plum rose ruby sapphire emerald',
-    part:'arm leg hand foot head neck back chest hip knee ankle elbow wrist finger thumb toe nail eye ear nose mouth lip tongue tooth teeth chin cheek face hair skin brain heart lung liver kidney stomach spine rib shoulder thigh calf shin heel palm belly waist forehead eyebrow eyelash jaw throat bone muscle',
+    part:'gum gums tonsil tonsils uvula scalp temple nostril eyelid pupil iris retina cornea earlobe armpit groin navel knuckle fist sole instep bicep biceps tricep triceps abdomen pelvis skull jawbone collarbone sternum hamstring quadricep pancreas bladder intestine colon esophagus artery vein nerve tendon ligament cartilage joint ribcage diaphragm appendix gallbladder spleen windpipe larynx molar canine incisor arm leg hand foot head neck back chest hip knee ankle elbow wrist finger thumb toe nail eye ear nose mouth lip tongue tooth teeth chin cheek face hair skin brain heart lung liver kidney stomach spine rib shoulder thigh calf shin heel palm belly waist forehead eyebrow eyelash jaw throat bone muscle',
     inst:'piano guitar violin cello viola harp flute oboe clarinet bassoon trumpet trombone tuba horn drum cymbal xylophone harmonica accordion banjo ukulele saxophone organ piccolo bagpipe tambourine triangle marimba sitar mandolin harpsichord recorder kazoo bongo synthesizer',
-    animal:'ant ape bat bear bee bird boar buffalo butterfly camel cat cheetah chicken cobra cow crab crocodile crow deer dog dolphin donkey dove dragonfly duck eagle eel elephant falcon fish flamingo fox frog gazelle giraffe goat goose gorilla hamster hawk hedgehog hippo horse hyena iguana jaguar kangaroo koala lemur leopard lion lizard llama lobster monkey moose mouse octopus ostrich otter owl panda parrot peacock pelican penguin pig pigeon rabbit raccoon rat raven rhino salmon seal shark sheep snail snake sparrow spider squid squirrel swan tiger toad turkey turtle vulture walrus whale wolf worm yak zebra',
-    produce:'apple apricot avocado banana beet blueberry broccoli cabbage carrot cauliflower celery cherry coconut corn cucumber date eggplant fig garlic grape grapefruit guava kale kiwi lemon lettuce lime lychee mango melon mushroom nectarine okra olive onion orange papaya peach pear pea pepper pineapple plum pomegranate potato pumpkin radish raspberry spinach strawberry tomato turnip watermelon yam zucchini'
+    animal:'alpaca anteater antelope armadillo badger bison beaver bobcat camel caterpillar chameleon chimpanzee cougar coyote crane cricket dingo eel emu ferret gecko gibbon hare heron hornet kiwi ladybug lynx mole mosquito moth mule newt ocelot orca panther pony porcupine puma quail reindeer rooster scorpion skunk sloth stork tapir termite tortoise trout wasp weasel wombat ant ape bat bear bee bird boar buffalo butterfly camel cat cheetah chicken cobra cow crab crocodile crow deer dog dolphin donkey dove dragonfly duck eagle eel elephant falcon fish flamingo fox frog gazelle giraffe goat goose gorilla hamster hawk hedgehog hippo horse hyena iguana jaguar kangaroo koala lemur leopard lion lizard llama lobster monkey moose mouse octopus ostrich otter owl panda parrot peacock pelican penguin pig pigeon rabbit raccoon rat raven rhino salmon seal shark sheep snail snake sparrow spider squid squirrel swan tiger toad turkey turtle vulture walrus whale wolf worm yak zebra',
+    produce:'artichoke asparagus bean beetroot blackberry cantaloupe celery clementine cranberry currant dragonfruit durian jackfruit leek mandarin mulberry nut papaya parsnip persimmon pomelo quince rhubarb shallot squash tangerine apple apricot avocado banana beet blueberry broccoli cabbage carrot cauliflower celery cherry coconut corn cucumber date eggplant fig garlic grape grapefruit guava kale kiwi lemon lettuce lime lychee mango melon mushroom nectarine okra olive onion orange papaya peach pear pea pepper pineapple plum pomegranate potato pumpkin radish raspberry spinach strawberry tomato turnip watermelon yam zucchini'
   };
   // category text -> classes it accepts (Wikidata QIDs). strict = a confident mismatch is auto-rejected.
   const R={
     "A boy's name":{t:['Q12308941','Q3409032']},"A girl's name":{t:['Q11879590','Q3409032']},
     "A famous person":{t:['Q5']},"A job or occupation":{t:['Q12737077','Q28640']},
-    "An animal":{t:['Q729'],lex:'animal',strict:1},"A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
+    "An animal":{t:['Q729','Q7377','Q5113','Q10811','Q10908','Q1390','Q1358','Q127282','Q10915'],lex:'animal',strict:1},"A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
     "A plant or flower":{t:['Q756','Q506']},"A country":{t:['Q6256'],lex:'country',strict:1},"A city":{t:['Q515','Q1549591'],strict:1},
     "A food":{t:['Q2095','Q746549']},"A drink":{t:['Q40050']},"A dessert or sweet":{t:['Q182413']},
     "Something you eat for breakfast":{t:['Q2095','Q746549']},"A piece of furniture":{t:['Q14745']},"Something with wheels":{t:['Q42889']},
@@ -2328,12 +2328,32 @@ const ScatVerify=(()=>{
   const dictHas=w=>{const t=w.split(/[\s\-']+/).filter(x=>x.length>=3);return dictReady&&DICT.size>50000&&t.length>0&&t.every(x=>DICT.has(x)||DICT.has(x.replace(/(es|s)$/,'')))};
   const cache={};
   const lbl=h=>h.label+(h.description?' ('+h.description+')':'');
-  async function jget(url){const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(t)}}
+  async function jget(url,n=2){for(let k=0;k<n;k++){const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){if(k===n-1){console.warn('Fact-check request failed:',e);throw e}}finally{clearTimeout(t)}}}
   const search=async term=>((await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbsearchentities',search:term,language:'en',uselang:'en',type:'item',limit:'7',format:'json',origin:'*'}))).search)||[];
+  // Walk "instance of / subclass of / parent taxon" upwards using the same API host as the search.
+  async function parents(ids){
+    const d=await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbgetentities',ids:ids.join('|'),props:'claims',format:'json',origin:'*'}));
+    const out={};
+    Object.values(d.entities||{}).forEach(e=>{const par=[];['P31','P279','P171'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));out[e.id]=par});
+    return out;
+  }
+  // returns {id: matched hit id | null, complete: true when the whole ancestry was explored}
   async function match(ids,targets){
-    const q='SELECT ?i WHERE{VALUES ?i{'+ids.map(i=>'wd:'+i).join(' ')+'} VALUES ?t{'+targets.map(t=>'wd:'+t).join(' ')+'} ?i wdt:P31?/(wdt:P279|wdt:P171)* ?t} LIMIT 1';
-    const d=await jget('https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(q));
-    const b=(d.results&&d.results.bindings)||[];return b.length?b[0].i.value.split('/').pop():null;
+    const T=new Set(targets),seen=new Set(ids),from={};ids.forEach(i=>from[i]=i);
+    let level=ids.slice();
+    for(let depth=0;depth<9;depth++){
+      if(!level.length)return{id:null,complete:true};
+      const next=[];
+      for(let k=0;k<level.length;k+=40){
+        const pm=await parents(level.slice(k,k+40));
+        for(const id in pm)for(const par of pm[id]){
+          if(T.has(par))return{id:from[id],complete:true};
+          if(!seen.has(par)){seen.add(par);from[par]=from[id];next.push(par)}
+        }
+      }
+      level=next.slice(0,80);
+    }
+    return{id:null,complete:false};
   }
   async function check(cat,val){
     const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat],short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=cat.charAt(0).toLowerCase()+cat.slice(1);
@@ -2348,13 +2368,13 @@ const ScatVerify=(()=>{
         const hits=await search(val);
         if(!hits.length)res=dictHas(norm)&&!rule.strict?{v:'maybe',note:'Real word, but couldn’t confirm it’s '+art+'.'}:{v:'no',note:'Not recognised as a real word or name.'};
         else{
-          const id=await match(hits.map(h=>h.id),rule.t),h0=hits.find(h=>h.id===id);
+          const mr=await match(hits.map(h=>h.id),rule.t),id=mr.id,h0=hits.find(h=>h.id===id);
           if(id)res={v:'ok',note:'Confirmed: '+lbl(h0)};
-          else if(rule.strict)res={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
+          else if(rule.strict&&mr.complete)res={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
           else res={v:'maybe',note:'Found “'+lbl(hits[0])+'” but couldn’t confirm it’s '+art+'. Others may challenge.'};
         }
       }
-    }catch(e){return{v:'maybe',note:'Couldn’t reach the fact-checker, so this is unverified.',offline:1}}
+    }catch(e){return{v:'maybe',note:(dictHas(norm)?'Real word, but the':'The')+' online fact-checker isn’t reachable right now, so this is unverified. Others can challenge it.',offline:1}}
     return cache[ck]=res;
   }
   return{check};
@@ -2990,7 +3010,7 @@ function renderResults(rows){
 
     let detailHtml = '<div class="poss" style="margin-top:12px">';
     detailHtml += '<h3>📝 Letter <span style="color:var(--violet-d)">'+esc(letter)+'</span> · Review & Challenge</h3>';
-    detailHtml += '<div class="psub" style="margin-bottom:12px">Challenge an answer if it does not fit the category. <b>Everyone must agree</b> to reject it (in 1v1 both players, in 3-player all three).</div>';
+    detailHtml += '<div class="psub" style="margin-bottom:12px">Challenge an answer if it does not fit the category. An answer <b>keeps its point unless it is challenged and rejected</b>. To reject, every other player must vote Reject (in 1v1 the owner must concede). Any Keep vote ends the challenge. Scoring: +1 per answer nobody else wrote; identical answers score 0 for everyone who wrote them.</div>';
 
     cats.forEach((cat, ci) => {
       detailHtml += '<div style="background:#F8F9FA;border-radius:14px;padding:12px;margin-bottom:10px;border:2px solid #EEF0F2">';
@@ -3026,14 +3046,17 @@ function renderResults(rows){
         } else if(ch){
           // Open challenge – show votes
           const votes = ch.votes || {};
-          const agreeCount = Object.values(votes).filter(v=>v===true).length;
-          const needed = playerCount; // unanimous
+          const jury = players.filter(op => op.uid !== p.uid || players.length < 3);
+          const needed = jury.length;
+          const agreeCount = jury.filter(op => votes[op.uid] === true).length;
           detailHtml += '<span style="font-size:.72rem;font-weight:700;color:#E17055">Challenge open · '+agreeCount+'/'+needed+' agree to reject</span>';
 
           // Current user vote buttons
-          if(votes[user.uid] === undefined){
-            detailHtml += '<button type="button" class="btn-vote-yes" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #E74C3C;background:#fff;color:#E74C3C;cursor:pointer">Reject it</button>';
-            detailHtml += '<button type="button" class="btn-vote-no" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #636E72;background:#fff;color:#636E72;cursor:pointer">Keep it</button>';
+          if(!jury.some(op => op.uid === user.uid)){
+            detailHtml += '<span style="font-size:.7rem;font-weight:700;color:#636E72">Others are voting on your answer</span>';
+          } else if(votes[user.uid] === undefined){
+            detailHtml += '<button type="button" class="btn-vote-yes" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #E74C3C;background:#fff;color:#E74C3C;cursor:pointer">'+(p.uid===user.uid?'Concede':'Reject it')+'</button>';
+            detailHtml += '<button type="button" class="btn-vote-no" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #636E72;background:#fff;color:#636E72;cursor:pointer">'+(p.uid===user.uid?'Defend':'Keep it')+'</button>';
           } else {
             detailHtml += '<span style="font-size:.7rem;font-weight:700;color:#636E72">You voted: '+(votes[user.uid]?'Reject':'Keep')+'</span>';
           }
@@ -3086,7 +3109,9 @@ function renderResults(rows){
           const snap = await db.ref('rooms/'+roomId+'/challenges/'+key).once('value');
           const ch = snap.val();
           if(ch && ch.votes){
-            const allAgree = players.every(p => ch.votes[p.uid] === true);
+            const all = Object.values(roomData.players||{}), owner = key.split('_')[0];
+            const jury = all.filter(p => p.uid !== owner || all.length < 3);
+            const allAgree = jury.length > 0 && jury.every(p => ch.votes[p.uid] === true);
             if(allAgree){
               await db.ref('rooms/'+roomId+'/rejected/'+key).set(true);
               await db.ref('rooms/'+roomId+'/challenges/'+key).remove();
@@ -3343,7 +3368,7 @@ function showResults(){
   if(!$('screen-results').classList.contains('active'))show('screen-results');
   const rows=computeResults();
   if(!rows.length)return;
-  const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.items.map(i=>i.w+(i.dupe?'*':''))]));
+  const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.final,r.items.map(i=>i.w+(i.dupe?'*':'')+(i.rejected?'x':''))]))+JSON.stringify([roomData.challenges||0,roomData.rejected||0,roomData.forgiven||0]);
   if(sig!==resultsSig){resultsSig=sig;renderResults(rows);if((roomData?.gameType||'boggle')==='boggle')renderPossible(rows)}
   awardResults(rows);
   if(profile)updateXpBar();
