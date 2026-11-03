@@ -731,7 +731,7 @@ input:focus-visible{outline:none}
 <div class="word-rain" id="wordRain" aria-hidden="true"></div>
 
 <div class="profile-overlay" id="profileOverlay" aria-hidden="true">
-  <div class="profile-sheet" role="dialog" aria-label="Edit profile" onclick="event.stopPropagation()">
+  <div class="profile-sheet" role="dialog" aria-label="Edit profile">
     <h2>Your profile</h2>
     <p class="sub">Customize how you appear to other players.</p>
     <div class="profile-preview">
@@ -2051,24 +2051,18 @@ async function saveProfileEditor(){
   }
 }
 
+(function bindProfileButtons(){
+  const sv=$('btnProfSave'), cn=$('btnProfCancel'), ov=$('profileOverlay');
+  if(sv) sv.addEventListener('click', function(e){ e.preventDefault(); saveProfileEditor(); });
+  if(cn) cn.addEventListener('click', function(e){ e.preventDefault(); closeProfileEditor(); });
+  if(ov) ov.addEventListener('click', function(e){ if(e.target===ov) closeProfileEditor(); });
+})();
 document.addEventListener('click', function(e){
   var t = e.target;
   if(t && t.closest && t.closest('#btnOpenProfile')){
     e.preventDefault();
     openProfileEditor();
     return;
-  }
-  if(t && t.id === 'btnProfCancel'){
-    closeProfileEditor();
-    return;
-  }
-  if(t && t.id === 'profileOverlay'){
-    closeProfileEditor();
-    return;
-  }
-  if(t && t.id === 'btnProfSave'){
-    e.preventDefault();
-    saveProfileEditor();
   }
 });
 document.addEventListener('input', function(e){
