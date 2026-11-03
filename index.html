@@ -2441,7 +2441,13 @@ const ScatVerify=(()=>{
     part:'gum gums tonsil tonsils uvula scalp temple nostril eyelid pupil iris retina cornea earlobe armpit groin navel knuckle fist sole instep bicep biceps tricep triceps abdomen pelvis skull jawbone collarbone sternum hamstring quadricep pancreas bladder intestine colon esophagus artery vein nerve tendon ligament cartilage joint ribcage diaphragm appendix gallbladder spleen windpipe larynx molar canine incisor arm leg hand foot head neck back chest hip knee ankle elbow wrist finger thumb toe nail eye ear nose mouth lip tongue tooth teeth chin cheek face hair skin brain heart lung liver kidney stomach spine rib shoulder thigh calf shin heel palm belly waist forehead eyebrow eyelash jaw throat bone muscle',
     inst:'piano guitar violin cello viola harp flute oboe clarinet bassoon trumpet trombone tuba horn drum cymbal xylophone harmonica accordion banjo ukulele saxophone organ piccolo bagpipe tambourine triangle marimba sitar mandolin harpsichord recorder kazoo bongo synthesizer',
     animal:'alpaca anteater antelope armadillo badger bison beaver bobcat camel caterpillar chameleon chimpanzee cougar coyote crane cricket dingo eel emu ferret gecko gibbon hare heron hornet kiwi ladybug lynx mole mosquito moth mule newt ocelot orca panther pony porcupine puma quail reindeer rooster scorpion skunk sloth stork tapir termite tortoise trout wasp weasel wombat ant ape bat bear bee bird boar buffalo butterfly camel cat cheetah chicken cobra cow crab crocodile crow deer dog dolphin donkey dove dragonfly duck eagle eel elephant falcon fish flamingo fox frog gazelle giraffe goat goose gorilla hamster hawk hedgehog hippo horse hyena iguana jaguar kangaroo koala lemur leopard lion lizard llama lobster monkey moose mouse octopus ostrich otter owl panda parrot peacock pelican penguin pig pigeon rabbit raccoon rat raven rhino salmon seal shark sheep snail snake sparrow spider squid squirrel swan tiger toad turkey turtle vulture walrus whale wolf worm yak zebra',
-    produce:'artichoke asparagus bean beetroot blackberry cantaloupe celery clementine cranberry currant dragonfruit durian jackfruit leek mandarin mulberry nut papaya parsnip persimmon pomelo quince rhubarb shallot squash tangerine apple apricot avocado banana beet blueberry broccoli cabbage carrot cauliflower celery cherry coconut corn cucumber date eggplant fig garlic grape grapefruit guava kale kiwi lemon lettuce lime lychee mango melon mushroom nectarine okra olive onion orange papaya peach pear pea pepper pineapple plum pomegranate potato pumpkin radish raspberry spinach strawberry tomato turnip watermelon yam zucchini'
+    produce:'artichoke asparagus bean beetroot blackberry cantaloupe celery clementine cranberry currant dragonfruit durian jackfruit leek mandarin mulberry nut papaya parsnip persimmon pomelo quince rhubarb shallot squash tangerine apple apricot avocado banana beet blueberry broccoli cabbage carrot cauliflower celery cherry coconut corn cucumber date eggplant fig garlic grape grapefruit guava kale kiwi lemon lettuce lime lychee mango melon mushroom nectarine okra olive onion orange papaya peach pear pea pepper pineapple plum pomegranate potato pumpkin radish raspberry spinach strawberry tomato turnip watermelon yam zucchini',
+    travel:'bag backpack suitcase luggage passport ticket wallet phone charger camera map guidebook sunglasses hat sunscreen towel swimsuit toothbrush toothpaste soap shampoo deodorant medicine firstaid snacks water bottle umbrella raincoat jacket shoes boots sandals flipflops sneakers headphones book magazine pillow blanket tent sleepingbag flashlight lantern compass binoculars keys card cash money creditcard id boardingpass earplugs neckpillow eye mask adapter converter',
+    house:'sofa couch chair table bed desk lamp mirror clock vase rug carpet curtain blinds pillow blanket sheet towel soap shampoo toothbrush toothpaste plate bowl cup glass fork knife spoon pan pot kettle microwave oven fridge refrigerator stove sink faucet toilet shower bathtub soap dish sponge broom mop vacuum dustpan trash bin garbage can broomstick iron ironingboard hanger wardrobe closet shelf drawer cabinet counter refrigerator freezer dishwasher washer dryer',
+    kitchen:'spoon fork knife plate bowl cup glass pan pot kettle spatula ladle colander cuttingboard oven mitt apron microwave fridge stove sink dishwasher toaster blender mixer whisk peeler grater measuringcup measuring spoon',
+    clothing:'shirt pants jeans shorts skirt dress jacket coat sweater hoodie sweatshirt socks shoes boots sandals sneakers hat cap scarf gloves belt tie underwear bra swimsuit raincoat umbrella',
+    soft:'pillow blanket cushion towel cotton wool silk velvet fleece plush teddy sponge foam mattress cloud',
+    hard:'rock stone brick metal steel iron wood table desk chair wall floor concrete glass diamond bone'
   };
   // category text -> classes it accepts (Wikidata QIDs). strict = a confident mismatch is auto-rejected.
   const R={
@@ -2455,7 +2461,27 @@ const ScatVerify=(()=>{
     "A cartoon or superhero character":{t:['Q95074','Q188784','Q1114461']},"A sport or game":{t:['Q349','Q11410']},
     "A hobby":{t:['Q47728']},"A musical instrument":{t:['Q34379'],lex:'inst',strict:1},"A brand or company":{t:['Q431289','Q4830453','Q783794']},
     "A color":{t:['Q1075'],lex:'color'},"A body part":{t:['Q4936952'],lex:'part'},"A school subject":{t:['Q11862829','Q2465832']},
-    "A holiday or celebration":{t:['Q1445650','Q132241']}
+    "A holiday or celebration":{t:['Q1445650','Q132241']},
+    "Something you take on a trip":{lex:'travel'},
+    "Something you find in a house":{lex:'house'},
+    "Something you find in a kitchen":{lex:'kitchen'},
+    "Something you find at school":{t:['Q2424752','Q11463']},
+    "Something you find at the beach":{t:['Q34763','Q23444']},
+    "Something you find in a park":{t:['Q22698','Q1107656']},
+    "Something you wear":{lex:'clothing',t:['Q11460','Q11457']},
+    "Something soft":{lex:'soft'},
+    "Something hard":{lex:'hard'},
+    "Something cold":{t:['Q11473']},
+    "Something hot":{t:['Q11473']},
+    "Something round":{},
+    "Something that makes a sound":{t:['Q11461']},
+    "Something you can hold in your hand":{},
+    "Something you do every day":{},
+    "Things at a party":{},
+    "An excuse for being late":{},
+    "Something that makes you happy":{},
+    "Something scary":{},
+    "Something funny":{}
   };
   const SETS={};
   const has=(k,w)=>{(SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));return SETS[k].has(w)||SETS[k].has(w.replace(/(es|s)$/,''))};
@@ -2491,13 +2517,46 @@ const ScatVerify=(()=>{
   }
   async function check(cat,val){
     const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat],short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=cat.charAt(0).toLowerCase()+cat.slice(1);
+    // Fast path: built-in lexicon match (common sense lists)
     if(rule&&rule.lex&&has(rule.lex,norm))return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'};
+    // Also try plural/singular variants against lexicon
+    if(rule&&rule.lex){
+      const variants=[norm, norm.replace(/s$/,''), norm+'s', norm.replace(/ies$/,'y'), norm.replace(/es$/,'')];
+      for(const v of variants){ if(v!==norm && has(rule.lex,v)) return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'}; }
+    }
     const ck=cat+'|'+norm;if(cache[ck])return cache[ck];
     let res;
     try{
-      if(!rule){                                    // subjective category: only reject nonsense
+      // Categories with only a lexicon (no Wikidata types) — still try a light Datamuse relatedness check
+      if(rule && rule.lex && !(rule.t&&rule.t.length)){
+        try{
+          const q = rule.lex === 'travel' ? 'travel item packing' :
+                    rule.lex === 'house' ? 'household item furniture' :
+                    rule.lex === 'kitchen' ? 'kitchen utensil' :
+                    rule.lex === 'clothing' ? 'clothing apparel' :
+                    rule.lex === 'soft' ? 'soft object' :
+                    rule.lex === 'hard' ? 'hard object' : rule.lex;
+          const r = await fetch('https://api.datamuse.com/words?ml='+encodeURIComponent(q)+'&sp='+encodeURIComponent(norm[0]+'*')+'&max=40').then(x=>x.ok?x.json():[]);
+          const hit = (r||[]).some(w => (w.word||'').toLowerCase().replace(/-/g,' ') === norm || (w.word||'').toLowerCase() === norm);
+          if(hit){ res={v:'ok',note:'Confirmed: '+val+' is a common “'+short+'”'}; return cache[ck]=res; }
+        }catch(e){}
+        // Concrete real word in a lex-only category → accept with confidence for common-sense categories
+        if(dictHas(norm) && ['travel','house','kitchen','clothing','soft','hard'].includes(rule.lex)){
+          res={v:'ok',note:'Looks good: “'+val+'” is a reasonable answer for “'+short+'”'};
+          return cache[ck]=res;
+        }
+        if(dictHas(norm)) res={v:'maybe',note:'Real word. Not in the common list for “'+short+'”, so others may challenge.'};
+        else res={v:'no',note:'Not recognised as a real word.'};
+        return cache[ck]=res;
+      }
+
+      if(!rule){                                    // fully subjective category
         if(dictHas(norm))res={v:'maybe',note:'Real word. This category is a judgement call, so others may challenge it.'};
         else{const h=await search(val);res=h.length?{v:'maybe',note:'Found “'+lbl(h[0])+'”. Judgement-call category, others may challenge.'}:{v:'no',note:'Not recognised as a real word or name.'}}
+      }else if(!(rule.t&&rule.t.length)){
+        // rule exists but empty types
+        if(dictHas(norm))res={v:'maybe',note:'Real word. Others may challenge if it doesn’t fit.'};
+        else res={v:'no',note:'Not recognised as a real word or name.'};
       }else{
         const hits=await search(val);
         if(!hits.length)res=dictHas(norm)&&!rule.strict?{v:'maybe',note:'Real word, but couldn’t confirm it’s '+art+'.'}:{v:'no',note:'Not recognised as a real word or name.'};
