@@ -179,7 +179,10 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 .pslot.host{border-color:var(--gold)}
 .pslot.empty{opacity:.55;border-style:dashed}
 .pslot .av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.pslot .nm{flex:1;font-weight:800}
+.pslot .nm{flex:1;font-weight:800;min-width:0}
+.pslot .nm .pname{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pslot .nm .ptitle{display:block;font-size:.68rem;font-weight:800;color:#7C6F9A;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pslot .nm .ptitle.founder{color:#B8860B}
 .pslot .bdg{font-size:.7rem;font-weight:900;padding:4px 8px;border-radius:8px;background:#DFE6E9;color:#636E72}
 .pslot.host .bdg{background:var(--gold);color:#6D4C00}
 
@@ -1813,11 +1816,49 @@ function neighbors(r,c){const o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;
 function pathToWord(grid,p){return p.map(({r,c})=>{const ch=grid[r*4+c];return ch==='Qu'?'QU':ch}).join('').toLowerCase()}
 function userEmail(username){return username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'')+'@boggle.local'}
 
-async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=await ref.once('value');if(snap.exists()){profile=snap.val();if(name&&name!==profile.name){profile.name=name;await ref.update({name})}/* Founder on load */if(String(profile.name||'').trim().toLowerCase()==='koyvic'){profile.title='Founder';await ref.update({title:'Founder'}).catch(()=>{})}}else{profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],title:'Newcomer',bio:'',createdAt:Date.now()};await ref.set(profile)}return profile}
-async function saveProfile(u){if(!user)return;Object.assign(profile,u);profile.level=levelFromXp(profile.xp).level;await db.ref('users/'+user.uid).update({...u,level:profile.level});refreshStats()}
+async function loadProfile(uid,name){
+  const ref=db.ref('users/'+uid);
+  // Merge any locally saved cosmetics (survives rule/permission issues)
+  let local = null;
+  try{ local = JSON.parse(localStorage.getItem('wa_profile_'+uid)||'null'); }catch(e){ local=null; }
+  const snap=await ref.once('value');
+  if(snap.exists()){
+    profile=snap.val()||{};
+    // Do NOT overwrite a customized profile name with Auth displayName every login
+    if(!profile.name) profile.name = name || 'Player';
+    if(!profile.avatar) profile.avatar = (local&&local.avatar) || AVATARS[Math.floor(Math.random()*AVATARS.length)];
+    if(local){
+      if(local.avatar) profile.avatar = local.avatar;
+      if(local.title) profile.title = local.title;
+      if(local.bio!=null) profile.bio = local.bio;
+      if(local.name) profile.name = local.name;
+    }
+  }else{
+    profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:(local&&local.avatar)||AVATARS[Math.floor(Math.random()*AVATARS.length)],title:(local&&local.title)||'Newcomer',bio:(local&&local.bio)||'',createdAt:Date.now()};
+    try{ await ref.set(profile); }catch(e){ console.warn('profile create failed', e); }
+  }
+  if(String(profile.name||'').trim().toLowerCase()==='koyvic') profile.title='Founder';
+  try{ localStorage.setItem('wa_profile_'+uid, JSON.stringify({name:profile.name,avatar:profile.avatar,title:profile.title,bio:profile.bio||''})); }catch(e){}
+  return profile;
+}
+async function saveProfile(u){
+  if(!user||!profile)return;
+  Object.assign(profile,u);
+  profile.level=levelFromXp(profile.xp||0).level;
+  const payload={...u,level:profile.level};
+  try{
+    await db.ref('users/'+user.uid).update(payload);
+  }catch(e){
+    console.warn('saveProfile firebase failed', e);
+    throw e;
+  }
+  try{ localStorage.setItem('wa_profile_'+user.uid, JSON.stringify({name:profile.name,avatar:profile.avatar,title:profile.title,bio:profile.bio||''})); }catch(e){}
+  refreshStats();
+}
 function refreshStats(){
   if(!profile)return;
   const nameEl=$('lobbyName'); if(nameEl) nameEl.textContent=profile.name;
+  const chip=$('btnOpenProfile'); if(chip) chip.title=(profile.title?profile.title+' · ':'')+'Edit profile';
   const lvlEl=$('lobbyLvl'); if(lvlEl) lvlEl.textContent='LV'+profile.level;
   const avEl=$('lobbyAv'); if(avEl) avEl.textContent=profile.avatar||'🦊';
   const mx=$('matchName'); if(mx) mx.textContent=profile.name;
@@ -1939,7 +1980,8 @@ function renderProfTitles(){
 }
 
 async function saveProfileEditor(){
-  if(!user || !profile) return;
+  if(!user){ toast('Not signed in'); return; }
+  if(!profile){ profile = { name:'Player', xp:0, avatar:'🦊', title:'Newcomer', bio:'' }; }
   const nameIn = $('profNameInput');
   const bioIn = $('profBioInput');
   let name = (nameIn && nameIn.value ? nameIn.value : '').trim().replace(/\s+/g,' ');
@@ -1947,40 +1989,58 @@ async function saveProfileEditor(){
   if(name.length > 16) name = name.slice(0,16);
   const bio = (bioIn && bioIn.value ? bioIn.value : '').trim().slice(0,48);
   const avatar = profDraft.avatar || profile.avatar || '🦊';
-  // Exclusive title lock
-  let title = isFounderName(name) ? 'Founder' : (profDraft.title || 'Newcomer');
+  let title = isFounderName(name) ? 'Founder' : (profDraft.title || profile.title || 'Newcomer');
   if(title === 'Founder' && !isFounderName(name)) title = 'Newcomer';
   const btn = $('btnProfSave');
   if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
+  // Update local state immediately so UI never feels broken
+  profile.name = name;
+  profile.avatar = avatar;
+  profile.title = title;
+  profile.bio = bio;
+  refreshStats();
   try{
-    // Direct write so we always persist avatar/title/bio
-    profile.name = name;
-    profile.avatar = avatar;
-    profile.title = title;
-    profile.bio = bio;
-    profile.level = levelFromXp(profile.xp || 0).level;
-    await db.ref('users/'+user.uid).update({
-      name: profile.name,
-      avatar: profile.avatar,
-      title: profile.title,
-      bio: profile.bio,
-      level: profile.level
-    });
-    refreshStats();
-    if(roomId){
-      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({
-        name: profile.name,
-        avatar: profile.avatar
-      }).catch(function(){});
+    localStorage.setItem('wa_profile_'+user.uid, JSON.stringify({name, avatar, title, bio}));
+  }catch(e){}
+  let remoteOk = false;
+  try{
+    if(user.updateProfile){
+      await user.updateProfile({ displayName: name });
     }
-    closeProfileEditor();
-    toast(isFounderName(name) ? 'Profile saved · Founder' : 'Profile updated');
-    snd('ok');
+  }catch(e){ console.warn('auth profile update failed', e); }
+  try{
+    await db.ref('users/'+user.uid).update({
+      name: name,
+      avatar: avatar,
+      title: title,
+      bio: bio,
+      level: levelFromXp(profile.xp||0).level
+    });
+    remoteOk = true;
   }catch(e){
-    console.warn('Profile save failed', e);
-    toast('Could not save profile');
-  }finally{
-    if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
+    console.warn('users/ update failed', e);
+    // Fallback: try set with merge via transaction-less read-modify
+    try{
+      const snap = await db.ref('users/'+user.uid).once('value');
+      const cur = snap.val() || {};
+      cur.name = name; cur.avatar = avatar; cur.title = title; cur.bio = bio;
+      await db.ref('users/'+user.uid).set(cur);
+      remoteOk = true;
+    }catch(e2){
+      console.warn('users/ set failed', e2);
+    }
+  }
+  if(roomId){
+    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({ name, avatar, title }); }catch(e){}
+  }
+  if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
+  closeProfileEditor();
+  if(remoteOk){
+    toast(isFounderName(name) ? 'Profile saved · Founder' : 'Profile saved');
+    snd('ok');
+  } else {
+    toast('Saved on this device (cloud sync blocked — check Firebase rules)');
+    snd('ok');
   }
 }
 
@@ -2115,7 +2175,7 @@ $('btnHost').onclick=async()=>{
       createdAt:Date.now(),maxPlayers:maxPlayersFor(gameType),
       board:null,endsAt:null,letter:null,categories:null,
       hangCategory:null,hangWord:null,hangRevealed:null,hangTiles:null,
-      players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
+      players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
     };
     await db.ref('rooms/'+code).set(room);
     await updateLobbyIndex(code, room);
@@ -2141,7 +2201,10 @@ async function joinRoomByCode(code){
     const cap=room.maxPlayers||maxPlayersFor(room.gameType||selectedGame);if(n>=cap&&!(room.players||{})[user.uid]){toast('Room full (max '+cap+')');return}
     if(!(room.players||{})[user.uid]){
       await db.ref('rooms/'+code+'/players/'+user.uid).set({
-        uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',
+        uid:user.uid,
+        name:profile.name,
+        avatar:profile.avatar||'🦊',
+        title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),
         score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:false
       });
     }
@@ -2154,7 +2217,7 @@ async function joinRoomByCode(code){
 
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
-function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
+function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
   $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
