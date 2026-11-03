@@ -1495,7 +1495,9 @@ function pickDrawWord(seed, level){
     crypto.getRandomValues(buf);
     s ^= buf[0];
   }catch(e){ s ^= (Math.random()*0xFFFFFFFF)>>>0; }
-  return pool[s % pool.length];
+  // `s ^= buf[0]` yields a SIGNED int; a negative index returned undefined (Firebase rejects undefined)
+  const word = pool[(s >>> 0) % pool.length];
+  return word || pool[Math.floor(Math.random()*pool.length)] || 'APPLE';
 }
 
 /* ===== DYNAMIC PUZZLES =====
