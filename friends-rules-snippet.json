@@ -1,0 +1,37 @@
+{
+  "_README": "MERGE these nodes into the top-level \"rules\" of your Realtime Database rules (don't replace your existing ones). Remove this _README key before publishing.",
+  "rules": {
+    "usernames": {
+      ".read": "auth != null",
+      "$name": { ".write": "auth != null && !data.exists() && newData.val() === auth.uid" }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": { ".write": "auth != null && auth.uid === $uid" }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$fid": { ".write": "auth != null && (auth.uid === $uid || auth.uid === $fid)" }
+      }
+    },
+    "friendRequests": {
+      "$to": {
+        ".read": "auth != null && auth.uid === $to",
+        "$from": { ".write": "auth != null && (auth.uid === $from || auth.uid === $to)" }
+      }
+    },
+    "friendSent": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$to": { ".write": "auth != null && (auth.uid === $uid || auth.uid === $to)" }
+      }
+    }
+  }
+}
