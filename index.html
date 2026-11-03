@@ -607,9 +607,12 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .draw-tools .tool-btn.on{border-color:var(--violet);background:#F3F0FF}
 .draw-guess-area{margin-top:10px}
 .draw-guess-area input{margin-bottom:8px}
-.draw-guesses{max-height:90px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
-.draw-guess-item{font-size:.85rem;font-weight:700;padding:6px 10px;border-radius:10px;background:#F8F9FA}
-.draw-guess-item.correct{background:linear-gradient(135deg,#E8FFF6,#F0FFF8);color:#00695C}
+.draw-guesses-wrap{margin-top:10px;background:#F8F9FA;border-radius:14px;padding:10px 12px;border:2px solid #EEF0F2;max-height:130px;overflow-y:auto}
+.draw-guesses-wrap h4{font-size:.72rem;font-weight:900;color:#636E72;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.draw-guesses{display:flex;flex-direction:column;gap:4px}
+.draw-guess-item{font-size:.85rem;font-weight:700;padding:6px 10px;border-radius:10px;background:#fff;border:1px solid #EEF0F2}
+.draw-guess-item.correct{background:linear-gradient(135deg,#E8FFF6,#F0FFF8);color:#00695C;border-color:#00B894;font-weight:900}
+.draw-guess-item .who{opacity:.7;font-size:.75rem;margin-right:6px}
 .draw-status{text-align:center;font-weight:800;font-size:.88rem;color:#636E72;min-height:1.3em;margin-top:6px}
 
 /* Hangman Race */
@@ -711,7 +714,7 @@ input:focus-visible{outline:none}
       <div class="game-card" data-game="draw" id="pickDraw" style="cursor:pointer">
         <div class="icon">🎨</div>
         <div class="name">Sketch Race</div>
-        <div class="desc">One draws, others race to guess — 5 rounds</div>
+        <div class="desc">One draws, others race to guess — up to 6 players, 10 rounds</div>
       </div>
     </div>
   </div>
@@ -925,7 +928,10 @@ input:focus-visible{outline:none}
     <div class="draw-guess-area" id="drawGuessArea" style="display:none">
       <input type="text" id="drawGuessInput" placeholder="Type your guess…" maxlength="32" autocomplete="off" autocapitalize="off">
       <button class="btn btn-mint" id="btnDrawGuess" style="min-height:46px">GUESS</button>
-      <div class="draw-guesses" id="drawGuessList"></div>
+    </div>
+    <div class="draw-guesses-wrap" id="drawGuessesWrap">
+      <h4>Live guesses</h4>
+      <div class="draw-guesses" id="drawGuessList"><div class="none-words" style="font-size:.8rem">No guesses yet…</div></div>
     </div>
     <div class="draw-status" id="drawStatus">Get ready…</div>
     <div class="hang-end-actions" style="margin-top:10px">
@@ -957,7 +963,8 @@ input:focus-visible{outline:none}
 const firebaseConfig={apiKey:"AIzaSyDQ297TWTIRzV_IUq_8buocCf9Xsi3iCGU",authDomain:"boggle-eb8a9.firebaseapp.com",databaseURL:"https://boggle-eb8a9-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"boggle-eb8a9",storageBucket:"boggle-eb8a9.firebasestorage.app",messagingSenderId:"1077661800224",appId:"1:1077661800224:web:aae382ce2afddaee3da945",measurementId:"G-B9970XTCQX"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.database();
-const MAX_PLAYERS=3,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=5;
+const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10;
+function maxPlayersFor(gt){return (gt==='draw'||selectedGame==='draw')?DRAW_MAX_PLAYERS:MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -1618,7 +1625,7 @@ const GAME_META = {
   boggle:  { title:'🎲 Boggle', sub:'Shake the tray and find words on a 4×4 grid with friends.' },
   scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
-  draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess the word — 5 levels.' }
+  draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' }
 };
 
 function openMatchmaking(game){
@@ -1649,11 +1656,11 @@ function listenOpenRooms(gameType){
     }
     list.innerHTML = rooms.map(r => {
       const n = r.players || 1;
-      const full = n >= MAX_PLAYERS;
+      const cap = maxPlayersFor(gameType); const full = n >= cap;
       return `<button type="button" class="btn-room-join" data-code="${esc(r.code)}" ${full?'disabled':''}
         style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 14px;border-radius:14px;border:2px solid ${full?'#DFE6E9':'#D6CFFF'};background:${full?'#F8F9FA':'#F3F0FF'};font-family:inherit;cursor:${full?'not-allowed':'pointer'}">
         <span style="font-weight:900;letter-spacing:3px;color:var(--violet-d)">${esc(r.code)}</span>
-        <span style="font-size:.85rem;font-weight:700;color:#636E72">${esc(r.hostName||'Host')} · ${n}/${MAX_PLAYERS}</span>
+        <span style="font-size:.85rem;font-weight:700;color:#636E72">${esc(r.hostName||'Host')} · ${n}/${cap}</span>
         <span style="font-size:.8rem;font-weight:800;color:${full?'#B2BEC3':'var(--mint)'}">${full?'Full':'Join'}</span>
       </button>`;
     }).join('');
@@ -1704,7 +1711,7 @@ $('btnHost').onclick=async()=>{
     if(gameType==='hangman') hangPrefetch();   // start fetching fresh puzzles while players join
     const room={
       code,hostUid:user.uid,status:'lobby',gameType,
-      createdAt:Date.now(),maxPlayers:MAX_PLAYERS,
+      createdAt:Date.now(),maxPlayers:maxPlayersFor(gameType),
       board:null,endsAt:null,letter:null,categories:null,
       hangCategory:null,hangWord:null,hangRevealed:null,hangTiles:null,
       players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
@@ -1730,7 +1737,7 @@ async function joinRoomByCode(code){
       return;
     }
     const n=Object.keys(room.players||{}).length;
-    if(n>=MAX_PLAYERS&&!(room.players||{})[user.uid]){toast('Room full (max 3)');return}
+    const cap=room.maxPlayers||maxPlayersFor(room.gameType||selectedGame);if(n>=cap&&!(room.players||{})[user.uid]){toast('Room full (max '+cap+')');return}
     if(!(room.players||{})[user.uid]){
       await db.ref('rooms/'+code+'/players/'+user.uid).set({
         uid:user.uid,name:profile.name,avatar:profile.avatar||'🐸',
@@ -1746,9 +1753,9 @@ async function joinRoomByCode(code){
 
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);show('screen-room')}
 
-function renderPlayers(){const players=Object.values(roomData.players||{});let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<MAX_PLAYERS;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
+function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''}"><div class="av">${p.avatar||'🎮'}</div><div class="nm">${p.name}${p.uid===user.uid?' (you)':''}</div><div class="bdg">${p.uid===roomData.hostUid?'HOST':'PLAYER'}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race':'Boggle');
+  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':'Boggle');
 }
 function leaveRoom(){
   if(roomId&&user){
@@ -3026,23 +3033,47 @@ function enterDraw(force){
     wordBox.style.display = 'block';
     $('drawSecretWord').textContent = word;
     tools.style.display = 'flex';
-    guessArea.style.display = 'none';
+    guessArea.style.display = 'none';  // drawer doesn't type guesses
     $('drawStatus').textContent = 'Draw the word clearly — others are guessing!';
     $('drawStatus').style.color = '#636E72';
     bindDrawCanvas();
   } else {
     // Guessers must NEVER see the secret word until the round ends
     wordBox.style.display = 'none';
-    $('drawSecretWord').textContent = '';  // clear any leftover text from a previous level
+    $('drawSecretWord').textContent = '';
     tools.style.display = 'none';
     guessArea.style.display = 'block';
     const gi = $('drawGuessInput');
     if(gi){ gi.value = ''; gi.disabled = false; }
     const bg = $('btnDrawGuess'); if(bg) bg.disabled = false;
-    $('drawGuessList').innerHTML = '';
     $('drawStatus').textContent = 'Watch the canvas and type your guess';
     $('drawStatus').style.color = '#636E72';
     unbindDrawCanvas();
+  }
+  // Live guesses visible to EVERYONE (drawer + guessers)
+  const gw = $('drawGuessesWrap'); if(gw) gw.style.display = 'block';
+  renderDrawGuesses(roomData.drawGuesses || {});
+  // Live listener for new guesses
+  if(roomId){
+    db.ref('rooms/'+roomId+'/drawGuesses').off();
+    db.ref('rooms/'+roomId+'/drawGuesses').on('value', snap => {
+      const data = snap.val() || {};
+      renderDrawGuesses(data);
+      // If someone else got it right, end the round for us too
+      if(!roundEnded){
+        const hit = Object.values(data).find(g => g && g.correct);
+        if(hit){
+          const wuid = hit.uid;
+          if(wuid && wuid !== (user && user.uid)){
+            // status ping for non-winners
+            if(!isDrawer() && !drawLocalSolved){
+              $('drawStatus').textContent = (hit.name||'Someone') + ' got it!';
+              $('drawStatus').style.color = '#00B894';
+            }
+          }
+        }
+      }
+    });
   }
   // Hide next button until level ends
   const btnN = $('btnDrawNext'); if(btnN) btnN.style.display = 'none';
@@ -3168,44 +3199,77 @@ function startDrawTimer(){
   timerInterval = setInterval(tick, 250);
 }
 
+function renderDrawGuesses(guessMap){
+  const list = $('drawGuessList');
+  if(!list) return;
+  const entries = [];
+  if(guessMap){
+    // Support both array-style (push keys) and uid-map
+    Object.keys(guessMap).forEach(k => {
+      const g = guessMap[k];
+      if(!g || !g.guess) return;
+      entries.push({
+        key: k,
+        guess: g.guess,
+        correct: !!g.correct,
+        name: g.name || 'Player',
+        avatar: g.avatar || '🎮',
+        uid: g.uid || k,
+        at: g.at || 0
+      });
+    });
+  }
+  entries.sort((a,b) => (b.at||0) - (a.at||0));
+  if(!entries.length){
+    list.innerHTML = '<div class="none-words" style="font-size:.8rem">No guesses yet…</div>';
+    return;
+  }
+  list.innerHTML = entries.map(e => {
+    const mine = e.uid === (user && user.uid);
+    const label = e.correct ? ('✓ ' + esc(e.guess)) : esc(e.guess);
+    return '<div class="draw-guess-item'+(e.correct?' correct':'')+'">'
+      +'<span class="who">'+esc(e.avatar)+' '+(mine?'You':esc(e.name))+'</span>'
+      +label
+      +'</div>';
+  }).join('');
+}
+
 async function submitDrawGuess(){
   if(roundEnded || isDrawer() || drawLocalSolved) return;
   const input = $('drawGuessInput');
   const guess = (input.value || '').trim().toUpperCase().replace(/[^A-Z ]/g,'');
   if(!guess || guess.length < 2) return;
   const answer = (roomData.drawWord || '').toUpperCase().replace(/[^A-Z ]/g,'');
-  // Add to local list
-  const list = $('drawGuessList');
-  const item = document.createElement('div');
-  item.className = 'draw-guess-item';
-  item.textContent = guess;
+  const correct = guess === answer || guess.replace(/\s+/g,'') === answer.replace(/\s+/g,'');
+  const payload = {
+    guess,
+    correct,
+    uid: user.uid,
+    name: (profile && profile.name) || 'Player',
+    avatar: (profile && profile.avatar) || '🎮',
+    at: Date.now()
+  };
+  try{
+    // Shared log — every client listens and renders
+    await db.ref('rooms/'+roomId+'/drawGuesses').push(payload);
+  }catch(e){ toast('Could not send guess'); return; }
 
-  if(guess === answer || guess.replace(/\s+/g,'') === answer.replace(/\s+/g,'')){
-    item.classList.add('correct');
-    item.textContent = '✓ ' + guess;
-    list.prepend(item);
+  if(correct){
     drawLocalSolved = true;
     $('drawStatus').textContent = 'Correct! You got it!';
     $('drawStatus').style.color = '#00B894';
     snd('win');
-    input.disabled = true;
-    $('btnDrawGuess').disabled = true;
+    if(input) input.disabled = true;
+    const bg = $('btnDrawGuess'); if(bg) bg.disabled = true;
     try{
       await db.ref('rooms/'+roomId+'/players/'+user.uid).update({drawSolved: true, score: 1});
-      // Also record guess for others
-      await db.ref('rooms/'+roomId+'/drawGuesses/'+user.uid).set({guess, correct: true, at: Date.now()});
     }catch(e){}
     finishDrawRound(user.uid);
   } else {
-    list.prepend(item);
     $('drawStatus').textContent = 'Not quite — keep trying!';
     $('drawStatus').style.color = '#E17055';
     snd('bad');
-    input.value = '';
-    input.focus();
-    try{
-      await db.ref('rooms/'+roomId+'/drawGuesses/'+user.uid).set({guess, correct: false, at: Date.now()});
-    }catch(e){}
+    if(input){ input.value = ''; input.focus(); }
   }
 }
 
@@ -3242,6 +3306,9 @@ async function finishDrawRound(winnerUid){
   }
   $('drawGuessArea').style.display = 'none';
   $('drawTools').style.display = 'none';
+  // Keep shared guess log visible so everyone sees who got it
+  renderDrawGuesses(roomData.drawGuesses || {});
+
 
   // History + score (host writes)
   if(isHost && answer){
