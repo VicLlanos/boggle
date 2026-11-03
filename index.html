@@ -711,7 +711,7 @@ input:focus-visible{outline:none}
 .profile-preview .meta .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.1rem;color:var(--violet-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .profile-preview .meta .tl{font-size:.78rem;font-weight:800;color:#636E72}
 .avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 14px}
-.avatar-opt{aspect-ratio:1;border-radius:14px;border:2px solid #E8E0FF;background:#fff;font-size:1.35rem;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s,background .12s}
+.avatar-opt{aspect-ratio:1;border-radius:14px;border:2px solid #E8E0FF;background:#fff;font-size:1.35rem;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s,background .12s;pointer-events:auto;position:relative;z-index:2;-webkit-user-select:none;user-select:none}
 .avatar-opt:active{transform:scale(.94)}
 .avatar-opt.on{border-color:var(--violet);background:#F3F0FF;box-shadow:0 0 0 3px rgba(124,92,255,.2)}
 .title-row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
@@ -1813,7 +1813,7 @@ function neighbors(r,c){const o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;
 function pathToWord(grid,p){return p.map(({r,c})=>{const ch=grid[r*4+c];return ch==='Qu'?'QU':ch}).join('').toLowerCase()}
 function userEmail(username){return username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'')+'@boggle.local'}
 
-async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=await ref.once('value');if(snap.exists()){profile=snap.val();if(name&&name!==profile.name){profile.name=name;await ref.update({name})}}else{profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],title:'Newcomer',bio:'',createdAt:Date.now()};await ref.set(profile)}return profile}
+async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=await ref.once('value');if(snap.exists()){profile=snap.val();if(name&&name!==profile.name){profile.name=name;await ref.update({name})}/* Founder on load */if(String(profile.name||'').trim().toLowerCase()==='koyvic'){profile.title='Founder';await ref.update({title:'Founder'}).catch(()=>{})}}else{profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],title:'Newcomer',bio:'',createdAt:Date.now()};await ref.set(profile)}return profile}
 async function saveProfile(u){if(!user)return;Object.assign(profile,u);profile.level=levelFromXp(profile.xp).level;await db.ref('users/'+user.uid).update({...u,level:profile.level});refreshStats()}
 function refreshStats(){
   if(!profile)return;
@@ -1830,16 +1830,23 @@ function refreshStats(){
 }
 
 const PROFILE_TITLES = ['Newcomer','Word Rookie','Letter Ace','Vocabulary Pro','Arena Champion','Puzzle Master','Speed Typist','Clue Captain','Sketch Star','Spy Hunter'];
+const FOUNDER_NAME = 'koyvic'; // exclusive Founder title
 let profDraft = { name:'', avatar:'🦊', title:'Newcomer', bio:'' };
+
+function isFounderName(name){
+  return String(name||'').trim().toLowerCase() === FOUNDER_NAME;
+}
 
 function openProfileEditor(){
   if(!profile || !user){ toast('Sign in to edit your profile'); return; }
+  const nm = profile.name || 'Player';
   profDraft = {
-    name: profile.name || 'Player',
+    name: nm,
     avatar: profile.avatar || '🦊',
-    title: profile.title || 'Newcomer',
+    title: isFounderName(nm) ? 'Founder' : (profile.title || 'Newcomer'),
     bio: profile.bio || ''
   };
+  if(isFounderName(nm)) profile.title = 'Founder';
   const nameIn = $('profNameInput');
   const bioIn = $('profBioInput');
   if(nameIn) nameIn.value = profDraft.name;
@@ -1859,79 +1866,158 @@ function closeProfileEditor(){
 function renderProfPreview(){
   const av = $('profPreviewAv'); if(av) av.textContent = profDraft.avatar || '🦊';
   const nm = $('profPreviewName'); if(nm) nm.textContent = (profDraft.name || 'Player').trim() || 'Player';
-  const tl = $('profPreviewTitle'); if(tl) tl.textContent = profDraft.title || 'Newcomer';
+  const tl = $('profPreviewTitle');
+  if(tl){
+    const t = isFounderName(profDraft.name) ? 'Founder' : (profDraft.title || 'Newcomer');
+    tl.textContent = t;
+    tl.style.color = t === 'Founder' ? '#B8860B' : '#636E72';
+  }
 }
 
 function renderProfAvatars(){
   const grid = $('profAvatarGrid');
   if(!grid) return;
-  grid.innerHTML = AVATARS.map(a =>
-    '<button type="button" class="avatar-opt'+(a===profDraft.avatar?' on':'')+'" data-av="'+a+'" aria-label="Avatar '+a+'">'+a+'</button>'
-  ).join('');
+  grid.innerHTML = '';
+  AVATARS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-opt' + (a === profDraft.avatar ? ' on' : '');
+    btn.textContent = a;
+    btn.setAttribute('data-av', a);
+    btn.setAttribute('aria-label', 'Avatar ' + a);
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      profDraft.avatar = a;
+      renderProfAvatars();
+      renderProfPreview();
+    });
+    grid.appendChild(btn);
+  });
 }
 
 function renderProfTitles(){
   const row = $('profTitleRow');
   if(!row) return;
-  row.innerHTML = PROFILE_TITLES.map(t =>
-    '<button type="button" class="title-chip'+(t===profDraft.title?' on':'')+'" data-title="'+esc(t)+'">'+esc(t)+'</button>'
-  ).join('');
+  row.innerHTML = '';
+  const founder = isFounderName(profDraft.name);
+  // Founder chip only for koyvic
+  const titles = founder ? ['Founder', ...PROFILE_TITLES] : PROFILE_TITLES.slice();
+  titles.forEach(t => {
+    if(t === 'Founder' && !founder) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'title-chip' + (t === profDraft.title || (founder && t === 'Founder' && profDraft.title === 'Founder') ? ' on' : '');
+    btn.textContent = t;
+    if(t === 'Founder'){
+      btn.style.borderColor = '#F0C14B';
+      btn.style.background = 'linear-gradient(180deg,#FFF6D5,#FFEAA7)';
+      btn.style.color = '#6D4C00';
+    }
+    if(founder && t === 'Founder'){
+      btn.classList.add('on');
+      btn.disabled = true;
+      btn.title = 'Exclusive founder title';
+    }
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(founder){
+        // Founder always keeps Founder title
+        profDraft.title = 'Founder';
+      } else if(t === 'Founder'){
+        return;
+      } else {
+        profDraft.title = t;
+      }
+      renderProfTitles();
+      renderProfPreview();
+    });
+    row.appendChild(btn);
+  });
+  if(founder) profDraft.title = 'Founder';
 }
 
 async function saveProfileEditor(){
   if(!user || !profile) return;
   const nameIn = $('profNameInput');
   const bioIn = $('profBioInput');
-  let name = (nameIn?.value || '').trim().replace(/\s+/g,' ');
+  let name = (nameIn && nameIn.value ? nameIn.value : '').trim().replace(/\s+/g,' ');
   if(name.length < 2){ toast('Name needs at least 2 characters'); return; }
   if(name.length > 16) name = name.slice(0,16);
-  const bio = (bioIn?.value || '').trim().slice(0,48);
-  const avatar = profDraft.avatar || '🦊';
-  const title = profDraft.title || 'Newcomer';
+  const bio = (bioIn && bioIn.value ? bioIn.value : '').trim().slice(0,48);
+  const avatar = profDraft.avatar || profile.avatar || '🦊';
+  // Exclusive title lock
+  let title = isFounderName(name) ? 'Founder' : (profDraft.title || 'Newcomer');
+  if(title === 'Founder' && !isFounderName(name)) title = 'Newcomer';
+  const btn = $('btnProfSave');
+  if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
   try{
-    await saveProfile({ name, avatar, title, bio });
-    // Sync into current room so others see the update
-    if(roomId && roomData){
-      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({ name, avatar }).catch(()=>{});
+    // Direct write so we always persist avatar/title/bio
+    profile.name = name;
+    profile.avatar = avatar;
+    profile.title = title;
+    profile.bio = bio;
+    profile.level = levelFromXp(profile.xp || 0).level;
+    await db.ref('users/'+user.uid).update({
+      name: profile.name,
+      avatar: profile.avatar,
+      title: profile.title,
+      bio: profile.bio,
+      level: profile.level
+    });
+    refreshStats();
+    if(roomId){
+      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({
+        name: profile.name,
+        avatar: profile.avatar
+      }).catch(function(){});
     }
     closeProfileEditor();
-    toast('Profile updated');
+    toast(isFounderName(name) ? 'Profile saved · Founder' : 'Profile updated');
     snd('ok');
   }catch(e){
+    console.warn('Profile save failed', e);
     toast('Could not save profile');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = 'Save'; }
   }
 }
 
-document.addEventListener('click', e => {
-  if(e.target?.closest?.('#btnOpenProfile')){
+document.addEventListener('click', function(e){
+  var t = e.target;
+  if(t && t.closest && t.closest('#btnOpenProfile')){
     e.preventDefault();
     openProfileEditor();
     return;
   }
-  if(e.target?.id === 'btnProfCancel' || e.target?.id === 'profileOverlay'){
-    if(e.target.id === 'profileOverlay' || e.target.id === 'btnProfCancel') closeProfileEditor();
-  }
-  if(e.target?.id === 'btnProfSave'){ saveProfileEditor(); return; }
-  const avBtn = e.target?.closest?.('.avatar-opt[data-av]');
-  if(avBtn && $('profileOverlay')?.classList.contains('on')){
-    profDraft.avatar = avBtn.dataset.av;
-    renderProfAvatars();
-    renderProfPreview();
+  if(t && t.id === 'btnProfCancel'){
+    closeProfileEditor();
     return;
   }
-  const titleBtn = e.target?.closest?.('.title-chip[data-title]');
-  if(titleBtn && $('profileOverlay')?.classList.contains('on')){
-    profDraft.title = titleBtn.dataset.title;
-    renderProfTitles();
-    renderProfPreview();
+  if(t && t.id === 'profileOverlay'){
+    closeProfileEditor();
+    return;
+  }
+  if(t && t.id === 'btnProfSave'){
+    e.preventDefault();
+    saveProfileEditor();
   }
 });
-document.addEventListener('input', e => {
-  if(e.target?.id === 'profNameInput'){
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id === 'profNameInput'){
     profDraft.name = e.target.value;
+    if(isFounderName(profDraft.name)){
+      profDraft.title = 'Founder';
+      renderProfTitles();
+    } else if(profDraft.title === 'Founder'){
+      profDraft.title = 'Newcomer';
+      renderProfTitles();
+    }
     renderProfPreview();
   }
 });
+
 
 
 /* ===== GAME DASHBOARD → MATCHMAKING ===== */
