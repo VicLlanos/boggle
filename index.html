@@ -12,6 +12,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="preconnect" href="https://www.wikidata.org" crossorigin>
+<link rel="preconnect" href="https://api.datamuse.com" crossorigin>
 <title>Word Arena · Word Games with Friends</title>
 <meta name="description" content="Word Arena: real-time word games for friends. Play Boggle, Scattergories, Hangman, Sketch Race, and Spy Word with friends.">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -3660,14 +3662,35 @@ const ScatVerify=(()=>{
   const dictHas=w=>{const t=w.split(/[\s\-']+/).filter(x=>x.length>=3);return dictReady&&DICT.size>50000&&t.length>0&&t.every(x=>DICT.has(x)||DICT.has(x.replace(/(es|s)$/,'')))};
   const cache={};
   const lbl=h=>h.label+(h.description?' ('+h.description+')':'');
-  async function jget(url,n=2){for(let k=0;k<n;k++){const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){if(k===n-1){console.warn('Fact-check request failed:',e);throw e}}finally{clearTimeout(t)}}}
-  const search=async term=>((await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbsearchentities',search:term,language:'en',uselang:'en',type:'item',limit:'7',format:'json',origin:'*'}))).search)||[];
-  // Walk "instance of / subclass of / parent taxon" upwards using the same API host as the search.
+  // Faster failure on a hung request (was 8s x2): 4.5s, one retry
+  async function jget(url,n=2){for(let k=0;k<n;k++){const c=new AbortController(),t=setTimeout(()=>c.abort(),4500);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){if(k===n-1){console.warn('Fact-check request failed:',e);throw e}}finally{clearTimeout(t)}}}
+  // ---- caches: in-memory + localStorage (14-day TTL) so repeat answers/ancestors cost zero requests ----
+  const TTL=14*864e5, LS_P='wa_wd_parents_v1', LS_S='wa_wd_search_v1';
+  const loadLS=k=>{try{const o=JSON.parse(localStorage.getItem(k)||'{}'),now=Date.now(),out={};for(const id in o){if(o[id]&&now-o[id][0]<TTL)out[id]=o[id]}return out}catch(e){return{}}};
+  const PC=loadLS(LS_P), SC=loadLS(LS_S);           // id -> [ts, parents[]] · term -> [ts, hits[]]
+  let saveT=null;
+  const trim=(o,max)=>{const ks=Object.keys(o);if(ks.length>max){ks.sort((x,y)=>o[x][0]-o[y][0]).slice(0,ks.length-max).forEach(k=>delete o[k])}};
+  const persist=()=>{clearTimeout(saveT);saveT=setTimeout(()=>{try{trim(PC,6000);trim(SC,400);localStorage.setItem(LS_P,JSON.stringify(PC));localStorage.setItem(LS_S,JSON.stringify(SC))}catch(e){}},1500)};
+  const inflightS={};
+  const search=term=>{
+    const k=term.toLowerCase().trim();
+    if(SC[k]) return Promise.resolve(SC[k][1]);
+    if(inflightS[k]) return inflightS[k];
+    return inflightS[k]=jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbsearchentities',search:term,language:'en',uselang:'en',type:'item',limit:'7',format:'json',origin:'*'}))
+      .then(d=>{const h=d.search||[];SC[k]=[Date.now(),h.map(x=>({id:x.id,label:x.label,description:x.description}))];persist();return SC[k][1]})
+      .finally(()=>{delete inflightS[k]});
+  };
+  // Walk "instance of / subclass of / parent taxon" upwards. Only uncached ids hit the network, in parallel batches of 50.
   async function parents(ids){
-    const d=await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbgetentities',ids:ids.join('|'),props:'claims',format:'json',origin:'*'}));
-    const out={};
-    Object.values(d.entities||{}).forEach(e=>{const par=[];['P31','P279','P171'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));out[e.id]=par});
-    return out;
+    const need=ids.filter(i=>!PC[i]);
+    const chunks=[];for(let k=0;k<need.length;k+=50)chunks.push(need.slice(k,k+50));
+    await Promise.all(chunks.map(async ch=>{
+      const d=await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbgetentities',ids:ch.join('|'),props:'claims',format:'json',origin:'*'}));
+      const now=Date.now();
+      ch.forEach(id=>{const e=(d.entities||{})[id];if(!e)return;const par=[];['P31','P279','P171'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));PC[id]=[now,par]});
+    }));
+    persist();
+    const out={};ids.forEach(i=>{out[i]=PC[i]?PC[i][1]:[]});return out;
   }
   // returns {id: matched hit id | null, complete: true when the whole ancestry was explored}
   async function match(ids,targets){
@@ -3676,18 +3699,22 @@ const ScatVerify=(()=>{
     for(let depth=0;depth<9;depth++){
       if(!level.length)return{id:null,complete:true};
       const next=[];
-      for(let k=0;k<level.length;k+=40){
-        const pm=await parents(level.slice(k,k+40));
-        for(const id in pm)for(const par of pm[id]){
-          if(T.has(par))return{id:from[id],complete:true};
-          if(!seen.has(par)){seen.add(par);from[par]=from[id];next.push(par)}
-        }
+      const pm=await parents(level);               // cached + parallel batches
+      for(const id in pm)for(const par of pm[id]){
+        if(T.has(par))return{id:from[id],complete:true};
+        if(!seen.has(par)){seen.add(par);from[par]=from[id];next.push(par)}
       }
       level=next.slice(0,80);
     }
     return{id:null,complete:false};
   }
-  async function check(cat,val){
+  const inflight={};
+  function check(cat,val){
+    const k=cat+'|'+val.toLowerCase().trim();
+    if(inflight[k]) return inflight[k];
+    return inflight[k]=checkImpl(cat,val).finally(()=>{delete inflight[k]});
+  }
+  async function checkImpl(cat,val){
     const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat],short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=cat.charAt(0).toLowerCase()+cat.slice(1);
     // Fast path: built-in lexicon match (common sense lists)
     if(rule&&rule.lex&&has(rule.lex,norm))return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'};
@@ -3701,6 +3728,11 @@ const ScatVerify=(()=>{
     try{
       // Categories with only a lexicon (no Wikidata types) — still try a light Datamuse relatedness check
       if(rule && rule.lex && !(rule.t&&rule.t.length)){
+        // Same verdicts as before, but a dictionary word is accepted instantly (it would have been 'ok' either way)
+        if(dictHas(norm) && ['travel','house','kitchen','clothing','soft','hard'].includes(rule.lex)){
+          res={v:'ok',note:'Looks good: “'+val+'” is a reasonable answer for “'+short+'”'};
+          return cache[ck]=res;
+        }
         try{
           const q = rule.lex === 'travel' ? 'travel item packing' :
                     rule.lex === 'house' ? 'household item furniture' :
@@ -3708,7 +3740,8 @@ const ScatVerify=(()=>{
                     rule.lex === 'clothing' ? 'clothing apparel' :
                     rule.lex === 'soft' ? 'soft object' :
                     rule.lex === 'hard' ? 'hard object' : rule.lex;
-          const r = await fetch('https://api.datamuse.com/words?ml='+encodeURIComponent(q)+'&sp='+encodeURIComponent(norm[0]+'*')+'&max=40').then(x=>x.ok?x.json():[]);
+          const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),3000);
+          const r = await fetch('https://api.datamuse.com/words?ml='+encodeURIComponent(q)+'&sp='+encodeURIComponent(norm[0]+'*')+'&max=40',{signal:ctl.signal}).then(x=>x.ok?x.json():[]).finally(()=>clearTimeout(tm));
           const hit = (r||[]).some(w => (w.word||'').toLowerCase().replace(/-/g,' ') === norm || (w.word||'').toLowerCase() === norm);
           if(hit){ res={v:'ok',note:'Confirmed: '+val+' is a common “'+short+'”'}; return cache[ck]=res; }
         }catch(e){}
@@ -3805,14 +3838,17 @@ function renderScatCategories(){
       if(validateScatAnswer(val, letter) !== 'valid') return;
       applyScatRowState(row, 'checking'); noteEl.textContent = 'Checking “' + val + '”…';
       const res = await ScatVerify.check(cat, val);
-      if(inp.value.trim() !== val || roundEnded) return;          // typed something else meanwhile
+      if(inp.value.trim() !== val) return;                        // typed something else meanwhile
       const before = scatVerdicts[i];
       scatVerdicts[i] = res.v;
       applyScatRowState(row, res.v === 'ok' ? 'valid' : res.v === 'no' ? 'invalid' : 'dubious');
       noteEl.textContent = res.note;
-      if(res.v === 'ok' && before !== 'ok'){ snd('ok'); scatSparkAt(inp); try{ navigator.vibrate && navigator.vibrate(12) }catch(e){} }
-      else if(res.v === 'no' && before !== 'no') snd('bad');
-      clearTimeout(scatSaveTimer); scatSaveTimer = setTimeout(saveScatAnswers, 200);
+      if(!roundEnded){
+        if(res.v === 'ok' && before !== 'ok'){ snd('ok'); scatSparkAt(inp); try{ navigator.vibrate && navigator.vibrate(12) }catch(e){} }
+        else if(res.v === 'no' && before !== 'no') snd('bad');
+      }
+      // A verdict that lands right after the buzzer is still saved so it counts in the results
+      clearTimeout(scatSaveTimer); scatSaveTimer = setTimeout(()=>saveScatAnswers(roundEnded), roundEnded?0:200);
     };
     inp.addEventListener('blur', () => { clearTimeout(vTimer); if(scatVerdicts[i] === undefined) runVerify(); });
 
@@ -3834,7 +3870,7 @@ function renderScatCategories(){
       clearTimeout(vTimer);
 
       const state = validateScatAnswer(val, letter);
-      if(state === 'valid'){ applyScatRowState(row, 'checking'); noteEl.textContent = ''; vTimer = setTimeout(runVerify, 320); }
+      if(state === 'valid'){ applyScatRowState(row, 'checking'); noteEl.textContent = ''; vTimer = setTimeout(runVerify, 150); }
       else { applyScatRowState(row, state); noteEl.textContent = state === 'invalid' && val ? 'Must start with ' + letter + ' and use letters only.' : ''; }
 
       updateScatProgress();
@@ -3858,8 +3894,8 @@ function renderScatCategories(){
   updateScatProgress();
 }
 
-async function saveScatAnswers(){
-  if(!roomId || !user || roundEnded) return;
+async function saveScatAnswers(force){
+  if(!roomId || !user || (roundEnded && !force)) return;
   const answers = {}, verdicts = {};
   Object.keys(scatAnswers).forEach(k => {
     if(scatAnswers[k] && scatAnswers[k].trim()){ answers[k] = scatAnswers[k].trim(); if(scatVerdicts[k]) verdicts[k] = scatVerdicts[k]; }
@@ -5035,7 +5071,7 @@ function finishLocalRound(){
   $('timerRing')?.classList.remove('low');
   $('scatTimerRing')?.classList.remove('low');
   // Final save of scatter answers
-  if((roomData?.gameType||'boggle')==='scatter') saveScatAnswers();
+  if((roomData?.gameType||'boggle')==='scatter') saveScatAnswers(true);
 }
 
 async function endRound(){
