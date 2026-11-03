@@ -698,11 +698,60 @@ input:focus-visible{outline:none}
 .scat-row.dubious .scat-note{color:#B7791F}
 .scat-row.invalid .scat-note{color:#C0392B}
 .scat-row input{padding-right:40px}
+
+/* ===== PROFILE EDITOR ===== */
+.profile-overlay{position:fixed;inset:0;background:rgba(15,8,40,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9500;display:none;align-items:flex-end;justify-content:center;padding:12px;padding-bottom:max(12px,var(--safe-b))}
+.profile-overlay.on{display:flex;animation:popIn .28s cubic-bezier(.34,1.4,.64,1)}
+.profile-sheet{width:100%;max-width:440px;max-height:min(88vh,640px);overflow-y:auto;background:linear-gradient(180deg,#fff,#F7F3FF);border-radius:24px 24px 20px 20px;box-shadow:0 -8px 40px rgba(20,10,50,.35);padding:18px 16px 20px;border:1px solid rgba(255,255,255,.7)}
+.profile-sheet h2{font-family:'Fredoka',sans-serif;font-size:1.2rem;color:var(--violet-d);margin-bottom:4px}
+.profile-sheet .sub{font-size:.85rem;color:#636E72;font-weight:700;margin-bottom:14px}
+.profile-preview{display:flex;align-items:center;gap:12px;padding:12px;background:#F3F0FF;border-radius:16px;margin-bottom:14px;border:2px solid rgba(124,92,255,.15)}
+.profile-preview .big-av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;background:linear-gradient(135deg,var(--pink),var(--violet));box-shadow:0 4px 12px rgba(75,47,219,.25)}
+.profile-preview .meta{flex:1;min-width:0}
+.profile-preview .meta .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.1rem;color:var(--violet-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-preview .meta .tl{font-size:.78rem;font-weight:800;color:#636E72}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 14px}
+.avatar-opt{aspect-ratio:1;border-radius:14px;border:2px solid #E8E0FF;background:#fff;font-size:1.35rem;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s,background .12s}
+.avatar-opt:active{transform:scale(.94)}
+.avatar-opt.on{border-color:var(--violet);background:#F3F0FF;box-shadow:0 0 0 3px rgba(124,92,255,.2)}
+.title-row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.title-chip{font-size:.72rem;font-weight:800;padding:6px 10px;border-radius:999px;border:2px solid #E8E0FF;background:#fff;cursor:pointer;color:var(--violet-d)}
+.title-chip.on{border-color:var(--violet);background:#F3F0FF}
+.user-chip{cursor:pointer}
+.user-chip:active{transform:scale(.97)}
+
 </style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="word-rain" id="wordRain" aria-hidden="true"></div>
+
+<div class="profile-overlay" id="profileOverlay" aria-hidden="true">
+  <div class="profile-sheet" role="dialog" aria-label="Edit profile" onclick="event.stopPropagation()">
+    <h2>Your profile</h2>
+    <p class="sub">Customize how you appear to other players.</p>
+    <div class="profile-preview">
+      <div class="big-av" id="profPreviewAv">🦊</div>
+      <div class="meta">
+        <div class="nm" id="profPreviewName">Player</div>
+        <div class="tl" id="profPreviewTitle">Newcomer</div>
+      </div>
+    </div>
+    <label for="profNameInput">Display name</label>
+    <input type="text" id="profNameInput" maxlength="16" placeholder="Your name" autocomplete="off">
+    <label>Avatar</label>
+    <div class="avatar-grid" id="profAvatarGrid"></div>
+    <label>Title</label>
+    <div class="title-row" id="profTitleRow"></div>
+    <label for="profBioInput">Bio <span style="font-weight:700;color:#B2BEC3;text-transform:none;letter-spacing:0">(optional)</span></label>
+    <input type="text" id="profBioInput" maxlength="48" placeholder="Short tagline…" autocomplete="off">
+    <div class="btn-row" style="margin-top:8px">
+      <button type="button" class="btn btn-ghost" id="btnProfCancel" style="color:var(--violet-d);border-color:#DFE6E9;background:#F8F9FA">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnProfSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <section id="screen-auth" class="screen active">
@@ -723,7 +772,7 @@ input:focus-visible{outline:none}
 <section id="screen-lobby" class="screen">
   <div class="top-bar">
     <div class="logo" style="text-align:left;font-size:1.3rem;padding:0">Word <em>Arena</em></div>
-    <div class="user-chip"><div class="av" id="lobbyAv">🦊</div><span id="lobbyName">—</span><span class="lvl" id="lobbyLvl">LV1</span></div>
+    <div class="user-chip" id="btnOpenProfile" title="Edit profile"><div class="av" id="lobbyAv">🦊</div><span id="lobbyName">—</span><span class="lvl" id="lobbyLvl">LV1</span></div>
   </div>
   <div class="stats">
     <div class="stat"><div class="v" id="stXp">0</div><div class="l">XP</div></div>
@@ -1576,7 +1625,7 @@ async function pickHangmanPuzzle(seedStr){
 }
 
 /* ===== STATE ===== */
-const AVATARS=['🦊','🐸','🐯','🐼','🦉','🐙','🦄','🐲','🐰','🐨'];
+const AVATARS=['🦊','🐸','🐯','🐼','🦉','🐙','🦄','🐲','🐰','🐨','🦁','🐶','🐱','🐭','🐹','🐻','🐷','🐔','🐧','🐦','🦋','🐝','🐢','🐬','🐳','🌸','🔥','⚡','🌟','💎','🎮','🎯','🚀','🎨','🕵️','🎲'];
 let user=null,profile=null,roomId=null,roomData=null,isHost=false,localWords=new Set(),path=[],selecting=false,timerInterval=null,roundEnded=false,authMode='login';
 let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd=null,shakeTimeout=null,settleTimers=[];
 let combo=0,comboTimer=null,soundOn=true,ac=null,seenWords={};
@@ -1764,9 +1813,126 @@ function neighbors(r,c){const o=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;
 function pathToWord(grid,p){return p.map(({r,c})=>{const ch=grid[r*4+c];return ch==='Qu'?'QU':ch}).join('').toLowerCase()}
 function userEmail(username){return username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'')+'@boggle.local'}
 
-async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=await ref.once('value');if(snap.exists()){profile=snap.val();if(name&&name!==profile.name){profile.name=name;await ref.update({name})}}else{profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],createdAt:Date.now()};await ref.set(profile)}return profile}
+async function loadProfile(uid,name){const ref=db.ref('users/'+uid);const snap=await ref.once('value');if(snap.exists()){profile=snap.val();if(name&&name!==profile.name){profile.name=name;await ref.update({name})}}else{profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],title:'Newcomer',bio:'',createdAt:Date.now()};await ref.set(profile)}return profile}
 async function saveProfile(u){if(!user)return;Object.assign(profile,u);profile.level=levelFromXp(profile.xp).level;await db.ref('users/'+user.uid).update({...u,level:profile.level});refreshStats()}
-function refreshStats(){if(!profile)return;$('lobbyName').textContent=profile.name;$('lobbyLvl').textContent='LV'+profile.level;$('lobbyAv').textContent=profile.avatar||'🦊';$('stXp').textContent=profile.xp||0;const a=profile.attempts||0,c=profile.correct||0;$('stAcc').textContent=a?Math.round(c/a*100)+'%':'—';$('stWords').textContent=profile.wordsFound||0;$('stStreak').textContent=profile.streak||0}
+function refreshStats(){
+  if(!profile)return;
+  const nameEl=$('lobbyName'); if(nameEl) nameEl.textContent=profile.name;
+  const lvlEl=$('lobbyLvl'); if(lvlEl) lvlEl.textContent='LV'+profile.level;
+  const avEl=$('lobbyAv'); if(avEl) avEl.textContent=profile.avatar||'🦊';
+  const mx=$('matchName'); if(mx) mx.textContent=profile.name;
+  const ma=$('matchAv'); if(ma) ma.textContent=profile.avatar||'🦊';
+  const stXp=$('stXp'); if(stXp) stXp.textContent=profile.xp||0;
+  const a=profile.attempts||0,c=profile.correct||0;
+  const stAcc=$('stAcc'); if(stAcc) stAcc.textContent=a?Math.round(c/a*100)+'%':'—';
+  const stW=$('stWords'); if(stW) stW.textContent=profile.wordsFound||0;
+  const stS=$('stStreak'); if(stS) stS.textContent=profile.streak||0;
+}
+
+const PROFILE_TITLES = ['Newcomer','Word Rookie','Letter Ace','Vocabulary Pro','Arena Champion','Puzzle Master','Speed Typist','Clue Captain','Sketch Star','Spy Hunter'];
+let profDraft = { name:'', avatar:'🦊', title:'Newcomer', bio:'' };
+
+function openProfileEditor(){
+  if(!profile || !user){ toast('Sign in to edit your profile'); return; }
+  profDraft = {
+    name: profile.name || 'Player',
+    avatar: profile.avatar || '🦊',
+    title: profile.title || 'Newcomer',
+    bio: profile.bio || ''
+  };
+  const nameIn = $('profNameInput');
+  const bioIn = $('profBioInput');
+  if(nameIn) nameIn.value = profDraft.name;
+  if(bioIn) bioIn.value = profDraft.bio;
+  renderProfPreview();
+  renderProfAvatars();
+  renderProfTitles();
+  const ov = $('profileOverlay');
+  if(ov){ ov.classList.add('on'); ov.setAttribute('aria-hidden','false'); }
+}
+
+function closeProfileEditor(){
+  const ov = $('profileOverlay');
+  if(ov){ ov.classList.remove('on'); ov.setAttribute('aria-hidden','true'); }
+}
+
+function renderProfPreview(){
+  const av = $('profPreviewAv'); if(av) av.textContent = profDraft.avatar || '🦊';
+  const nm = $('profPreviewName'); if(nm) nm.textContent = (profDraft.name || 'Player').trim() || 'Player';
+  const tl = $('profPreviewTitle'); if(tl) tl.textContent = profDraft.title || 'Newcomer';
+}
+
+function renderProfAvatars(){
+  const grid = $('profAvatarGrid');
+  if(!grid) return;
+  grid.innerHTML = AVATARS.map(a =>
+    '<button type="button" class="avatar-opt'+(a===profDraft.avatar?' on':'')+'" data-av="'+a+'" aria-label="Avatar '+a+'">'+a+'</button>'
+  ).join('');
+}
+
+function renderProfTitles(){
+  const row = $('profTitleRow');
+  if(!row) return;
+  row.innerHTML = PROFILE_TITLES.map(t =>
+    '<button type="button" class="title-chip'+(t===profDraft.title?' on':'')+'" data-title="'+esc(t)+'">'+esc(t)+'</button>'
+  ).join('');
+}
+
+async function saveProfileEditor(){
+  if(!user || !profile) return;
+  const nameIn = $('profNameInput');
+  const bioIn = $('profBioInput');
+  let name = (nameIn?.value || '').trim().replace(/\s+/g,' ');
+  if(name.length < 2){ toast('Name needs at least 2 characters'); return; }
+  if(name.length > 16) name = name.slice(0,16);
+  const bio = (bioIn?.value || '').trim().slice(0,48);
+  const avatar = profDraft.avatar || '🦊';
+  const title = profDraft.title || 'Newcomer';
+  try{
+    await saveProfile({ name, avatar, title, bio });
+    // Sync into current room so others see the update
+    if(roomId && roomData){
+      await db.ref('rooms/'+roomId+'/players/'+user.uid).update({ name, avatar }).catch(()=>{});
+    }
+    closeProfileEditor();
+    toast('Profile updated');
+    snd('ok');
+  }catch(e){
+    toast('Could not save profile');
+  }
+}
+
+document.addEventListener('click', e => {
+  if(e.target?.closest?.('#btnOpenProfile')){
+    e.preventDefault();
+    openProfileEditor();
+    return;
+  }
+  if(e.target?.id === 'btnProfCancel' || e.target?.id === 'profileOverlay'){
+    if(e.target.id === 'profileOverlay' || e.target.id === 'btnProfCancel') closeProfileEditor();
+  }
+  if(e.target?.id === 'btnProfSave'){ saveProfileEditor(); return; }
+  const avBtn = e.target?.closest?.('.avatar-opt[data-av]');
+  if(avBtn && $('profileOverlay')?.classList.contains('on')){
+    profDraft.avatar = avBtn.dataset.av;
+    renderProfAvatars();
+    renderProfPreview();
+    return;
+  }
+  const titleBtn = e.target?.closest?.('.title-chip[data-title]');
+  if(titleBtn && $('profileOverlay')?.classList.contains('on')){
+    profDraft.title = titleBtn.dataset.title;
+    renderProfTitles();
+    renderProfPreview();
+  }
+});
+document.addEventListener('input', e => {
+  if(e.target?.id === 'profNameInput'){
+    profDraft.name = e.target.value;
+    renderProfPreview();
+  }
+});
+
 
 /* ===== GAME DASHBOARD → MATCHMAKING ===== */
 const GAME_META = {
