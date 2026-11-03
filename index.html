@@ -31,6 +31,63 @@ body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;pad
 .blob.b3{width:140px;height:140px;background:var(--gold);top:40%;left:-30px;animation-delay:-7s}
 @keyframes blobFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-24px) scale(1.08)}}
 
+/* ===== Falling words ambient FX (login + lobby) ===== */
+.word-rain{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.word-rain span{
+  position:absolute;top:-10%;
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  color:rgba(255,255,255,.22);
+  white-space:nowrap;
+  user-select:none;
+  animation:wordFall linear forwards;
+  text-shadow:0 2px 12px rgba(0,0,0,.12);
+  will-change:transform,opacity;
+}
+@keyframes wordFall{
+  0%{transform:translateY(0) rotate(var(--rot,0deg));opacity:0}
+  8%{opacity:var(--op,.28)}
+  85%{opacity:var(--op,.28)}
+  100%{transform:translateY(110vh) rotate(calc(var(--rot,0deg) * 1.4));opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .word-rain span{animation:none!important;display:none}
+}
+
+/* Auth / lobby polish */
+#screen-auth .logo,#screen-lobby .logo{
+  position:relative;z-index:2;
+  font-size:clamp(1.9rem,6vw,2.35rem);
+  letter-spacing:.5px;
+}
+#screen-auth .logo::after{
+  content:'Play · Draw · Guess · Race';
+  display:block;
+  font-family:'Nunito',sans-serif;
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.75);
+  margin-top:6px;
+  text-shadow:none;
+}
+#screen-auth .card,#screen-lobby .card{
+  position:relative;z-index:2;
+  backdrop-filter:blur(12px);
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(255,255,255,.5);
+}
+#screen-lobby .stats,#screen-lobby .top-bar,#screen-lobby .btn{
+  position:relative;z-index:2;
+}
+#screen-auth .card h2{
+  background:linear-gradient(135deg,var(--violet-d),var(--pink));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+
 /* Combo badge */
 .combo-badge{position:absolute;top:-8px;right:10px;background:linear-gradient(135deg,var(--gold),#E17055);color:#6D4C00;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.75rem;padding:4px 10px;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.2);opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s cubic-bezier(.34,1.4,.64,1);z-index:5;pointer-events:none}
 .combo-badge.on{opacity:1;transform:scale(1)}
@@ -529,8 +586,16 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(108,92,231,.2)}
 .draw-word-secret{background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;border-radius:14px;padding:12px 16px;text-align:center;margin-bottom:10px;box-shadow:0 4px 0 #4834D4}
 .draw-word-secret .lbl{font-size:.72rem;font-weight:800;opacity:.85;letter-spacing:1px;text-transform:uppercase}
 .draw-word-secret .wrd{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.6rem;letter-spacing:2px;margin-top:2px}
-.draw-canvas-wrap{position:relative;background:#fff;border-radius:16px;border:3px solid #DFE6E9;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);touch-action:none;user-select:none}
-#drawCanvas{display:block;width:100%;height:auto;aspect-ratio:4/3;background:#fff;cursor:crosshair}
+.draw-canvas-wrap{position:relative;background:#fff;border-radius:16px;border:3px solid #DFE6E9;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.08);touch-action:none;user-select:none;width:100%;
+  /* Large drawing area on phones — use most of the vertical space under the header */
+  min-height:min(58vh,420px);height:min(58vh,420px)}
+#drawCanvas{display:block;width:100%;height:100%;background:#fff;cursor:crosshair;touch-action:none}
+@media(max-height:700px){
+  .draw-canvas-wrap{min-height:min(50vh,360px);height:min(50vh,360px)}
+}
+@media(min-width:400px) and (min-height:750px){
+  .draw-canvas-wrap{min-height:min(55vh,480px);height:min(55vh,480px)}
+}
 .draw-tools{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
 .draw-tools .tool-btn{width:40px;height:40px;border-radius:12px;border:2px solid #DFE6E9;background:#fff;font-size:1.1rem;cursor:pointer;display:grid;place-items:center}
 .draw-tools .tool-btn.on{border-color:var(--violet);background:#F3F0FF}
@@ -588,6 +653,7 @@ input:focus-visible{outline:none}
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="word-rain" id="wordRain" aria-hidden="true"></div>
 <div id="toast"></div>
 
 <section id="screen-auth" class="screen active">
@@ -841,7 +907,7 @@ input:focus-visible{outline:none}
       <div class="wrd" id="drawSecretWord">—</div>
     </div>
     <div class="draw-canvas-wrap">
-      <canvas id="drawCanvas" width="400" height="300"></canvas>
+      <canvas id="drawCanvas" width="600" height="450"></canvas>
     </div>
     <div class="draw-tools" id="drawTools" style="display:none">
       <button type="button" class="tool-btn on" id="btnDrawPen" title="Pen">✏️</button>
@@ -1373,7 +1439,77 @@ function liveToast(msg){
   clearTimeout(liveToast._t);
   liveToast._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  // Ambient falling words only on auth + lobby (immersive, not distracting in-game)
+  const rain = id === 'screen-auth' || id === 'screen-lobby';
+  setWordRain(rain);
+}
+
+/* ===== Ambient falling words (login + dashboard) ===== */
+const RAIN_WORDS = [
+  'APPLE','HOUSE','QUEST','WORD','RACE','DRAW','GUESS','BOGGLE','SKETCH','HANGMAN',
+  'LETTER','SCORE','COMBO','TIMER','BOARD','TILE','PLAY','WIN','STREAK','LEVEL',
+  'CAT','DOG','SUN','MOON','STAR','FISH','BOOK','CAKE','TREE','CLOUD',
+  'HELLO','ARENA','DUO','PARTY','FUN','FAST','SMART','LUCKY','EPIC','NICE'
+];
+let wordRainOn = false;
+let wordRainTimer = null;
+
+function setWordRain(on){
+  const host = $('wordRain');
+  if(!host) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    host.innerHTML = '';
+    wordRainOn = false;
+    clearInterval(wordRainTimer);
+    return;
+  }
+  if(on === wordRainOn) return;
+  wordRainOn = on;
+  clearInterval(wordRainTimer);
+  if(!on){
+    // fade existing then clear
+    host.querySelectorAll('span').forEach(s => { s.style.transition = 'opacity .4s'; s.style.opacity = '0'; });
+    setTimeout(() => { if(!wordRainOn) host.innerHTML = ''; }, 450);
+    return;
+  }
+  // seed a few immediately
+  for(let i=0;i<6;i++) spawnFallingWord(true);
+  wordRainTimer = setInterval(() => {
+    if(!wordRainOn) return;
+    spawnFallingWord(false);
+    // keep DOM light
+    while(host.children.length > 18) host.removeChild(host.firstChild);
+  }, 700);
+}
+
+function spawnFallingWord(instant){
+  const host = $('wordRain');
+  if(!host || !wordRainOn) return;
+  const span = document.createElement('span');
+  const w = RAIN_WORDS[Math.floor(Math.random()*RAIN_WORDS.length)];
+  span.textContent = w;
+  const left = 4 + Math.random()*92;
+  const size = 0.75 + Math.random()*1.15; // rem
+  const dur = 7 + Math.random()*8; // seconds
+  const delay = instant ? -(Math.random()*dur) : 0;
+  const rot = (Math.random()*24 - 12).toFixed(1);
+  const op = (0.14 + Math.random()*0.2).toFixed(2);
+  span.style.left = left + '%';
+  span.style.fontSize = size + 'rem';
+  span.style.setProperty('--rot', rot + 'deg');
+  span.style.setProperty('--op', op);
+  span.style.animationDuration = dur + 's';
+  span.style.animationDelay = delay + 's';
+  // subtle color variety
+  const hues = ['rgba(255,255,255,.22)','rgba(253,203,110,.28)','rgba(85,239,196,.22)','rgba(253,121,168,.22)','rgba(162,155,254,.28)'];
+  span.style.color = hues[Math.floor(Math.random()*hues.length)];
+  host.appendChild(span);
+  span.addEventListener('animationend', () => span.remove());
+}
+
 
 /* ===== SOUND SYSTEM (Web Audio) ===== */
 function ensureAudio(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==='suspended')ac.resume().catch(()=>{})}
@@ -2741,6 +2877,31 @@ let drawStrokeUnsub = null;
 function getDrawCanvas(){
   const c = $('drawCanvas');
   if(!c) return null;
+  const wrap = c.parentElement;
+  if(wrap){
+    const w = Math.max(280, Math.floor(wrap.clientWidth || 320));
+    const h = Math.max(220, Math.floor(wrap.clientHeight || 240));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const tw = Math.floor(w * dpr), th = Math.floor(h * dpr);
+    if(c.width !== tw || c.height !== th){
+      // preserve drawing when resizing if possible
+      let bak = null;
+      try{ if(drawCtx && c.width) bak = c.toDataURL(); }catch(e){}
+      c.width = tw; c.height = th;
+      drawCtx = c.getContext('2d');
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
+      drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if(bak){
+        const img = new Image();
+        img.onload = () => { try{ drawCtx.drawImage(img, 0, 0, w, h); }catch(e){} };
+        img.src = bak;
+      } else {
+        drawCtx.fillStyle = '#fff';
+        drawCtx.fillRect(0, 0, w, h);
+      }
+    }
+  }
   if(!drawCtx){
     drawCtx = c.getContext('2d');
     drawCtx.lineCap = 'round';
@@ -2752,17 +2913,20 @@ function getDrawCanvas(){
 function clearDrawCanvas(){
   const c = getDrawCanvas();
   if(!c || !drawCtx) return;
+  // Reset transform temporarily to clear full buffer, then restore DPR scale
+  drawCtx.setTransform(1,0,0,1,0,0);
   drawCtx.clearRect(0,0,c.width,c.height);
   drawCtx.fillStyle = '#fff';
   drawCtx.fillRect(0,0,c.width,c.height);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 function canvasPos(e){
   const c = getDrawCanvas();
   if(!c) return null;
   const r = c.getBoundingClientRect();
-  const scaleX = c.width / r.width;
-  const scaleY = c.height / r.height;
+  // Coordinates in CSS pixels (matches ctx after setTransform(dpr))
   let clientX, clientY;
   if(e.touches && e.touches[0]){
     clientX = e.touches[0].clientX;
@@ -2772,8 +2936,8 @@ function canvasPos(e){
     clientY = e.clientY;
   }
   return {
-    x: Math.round((clientX - r.left) * scaleX),
-    y: Math.round((clientY - r.top) * scaleY)
+    x: Math.round(clientX - r.left),
+    y: Math.round(clientY - r.top)
   };
 }
 
@@ -2841,22 +3005,31 @@ function enterDraw(force){
   const tools = $('drawTools');
   const guessArea = $('drawGuessArea');
 
+  // SECRET WORD: only the assigned drawer ever sees it in the UI
   if(amDrawer){
     wordBox.style.display = 'block';
     $('drawSecretWord').textContent = word;
     tools.style.display = 'flex';
     guessArea.style.display = 'none';
     $('drawStatus').textContent = 'Draw the word clearly — others are guessing!';
+    $('drawStatus').style.color = '#636E72';
     bindDrawCanvas();
   } else {
+    // Guessers must NEVER see the secret word until the round ends
     wordBox.style.display = 'none';
+    $('drawSecretWord').textContent = '';  // clear any leftover text from a previous level
     tools.style.display = 'none';
     guessArea.style.display = 'block';
-    $('drawGuessInput').value = '';
+    const gi = $('drawGuessInput');
+    if(gi){ gi.value = ''; gi.disabled = false; }
+    const bg = $('btnDrawGuess'); if(bg) bg.disabled = false;
     $('drawGuessList').innerHTML = '';
     $('drawStatus').textContent = 'Watch the canvas and type your guess';
+    $('drawStatus').style.color = '#636E72';
     unbindDrawCanvas();
   }
+  // Hide next button until level ends
+  const btnN = $('btnDrawNext'); if(btnN) btnN.style.display = 'none';
 
   // Replay existing strokes (for late joiners / sync)
   replayDrawStrokes(roomData.drawStrokes || []);
@@ -4147,6 +4320,13 @@ if (btnInstall) {
 
 if ((isIOS || isAndroid) && !isStandalone && btnInstall) {
   btnInstall.style.display = 'flex';
+}
+
+
+// Start ambient FX if we land on auth/lobby
+if(document.getElementById('screen-auth')?.classList.contains('active') ||
+   document.getElementById('screen-lobby')?.classList.contains('active')){
+  setTimeout(() => setWordRain(true), 200);
 }
 
 if ('serviceWorker' in navigator) {
