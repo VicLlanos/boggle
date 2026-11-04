@@ -847,28 +847,36 @@ input:focus-visible{outline:none}
 .pcard .pst.on{color:#0B7A4B}
 
 
-/* Island Builder */
+/* Island Mayor */
 #screen-town{position:fixed;inset:0;max-width:none;width:100%;gap:0;z-index:60;background:linear-gradient(#7fb6d6,#dce9ee 62%,#f3e6d3);overflow:hidden}
 #screen-town.active{display:block}
 #townCv{position:absolute;inset:0}
 #townCv canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
 .tn-top{position:absolute;top:max(10px,var(--safe-t));left:10px;right:10px;display:flex;align-items:center;gap:8px;pointer-events:none}
 .tn-top>*{pointer-events:auto}
-.tn-t{font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;font-size:1.05rem;background:rgba(255,255,255,.8);padding:7px 12px;border-radius:999px;backdrop-filter:blur(8px)}
-.tn-stats{flex:1;text-align:right;font-weight:800;color:#fff;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.45);pointer-events:none}
+.tn-t{font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;font-size:.95rem;background:rgba(255,255,255,.85);padding:7px 12px;border-radius:999px;backdrop-filter:blur(8px);white-space:nowrap}
+.tn-stats{flex:1;text-align:right;font-weight:800;color:#fff;font-size:.82rem;text-shadow:0 1px 3px rgba(0,0,0,.55);pointer-events:none;white-space:nowrap}
+.tn-goal{position:absolute;top:calc(max(10px,var(--safe-t)) + 52px);left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);background:rgba(30,45,55,.72);color:#fff;font-weight:800;font-size:.72rem;padding:6px 12px;border-radius:999px;text-align:center;pointer-events:none;backdrop-filter:blur(6px)}
 .tn-b{width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.88);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 0 rgba(30,50,60,.25);font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;transition:transform .12s;padding:0;flex:none}
 .tn-b:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(30,50,60,.25)}
 .tn-b.on{background:#fff;outline:3px solid #e8913a}
 .tn-bar{position:absolute;left:10px;right:10px;bottom:max(40px,calc(var(--safe-b) + 34px));display:flex;flex-direction:column;gap:8px}
 .tn-types{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.tp{flex:none;display:flex;align-items:center;gap:5px;border:none;border-radius:999px;background:rgba(255,255,255,.85);padding:8px 12px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.82rem;color:#2f4a5a;cursor:pointer;box-shadow:0 3px 0 rgba(30,50,60,.22)}
-.tp span{font-size:1.1rem}.tp.on{background:#fff;outline:3px solid #e8913a}
+.tp{flex:none;display:flex;align-items:center;gap:5px;border:none;border-radius:999px;background:rgba(255,255,255,.88);padding:7px 12px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;color:#2f4a5a;cursor:pointer;box-shadow:0 3px 0 rgba(30,50,60,.22)}
+.tp span{font-size:1.1rem}.tp small{font-size:.68rem;font-weight:700;color:#8a6a1f}.tp.on{background:#fff;outline:3px solid #e8913a}.tp.lk{opacity:.55}
 .tn-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .tn-sw{display:flex;gap:6px;background:rgba(255,255,255,.8);padding:7px 9px;border-radius:999px;backdrop-filter:blur(8px);max-width:100%;overflow-x:auto}
 .tn-btns{display:flex;gap:7px;margin-left:auto}
 .sw{width:24px;height:24px;border-radius:50%;border:3px solid #fff;flex:none;cursor:pointer;font-size:.75rem;line-height:1;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);padding:0}
 .sw.on{outline:3px solid #e8913a;transform:scale(1.15)}
 .tn-hint{position:absolute;left:8px;right:8px;bottom:max(8px,var(--safe-b));text-align:center;font-weight:800;font-size:.7rem;color:#fff;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.tn-dlg{position:absolute;inset:0;background:rgba(10,20,30,.35);display:none;align-items:flex-end;justify-content:center;padding:14px max(14px,env(safe-area-inset-left)) max(18px,var(--safe-b));z-index:5}
+.tn-dlg.on{display:flex}
+.tn-card{width:100%;max-width:440px;background:#fffaf0;border:3px solid #8a6a3a;border-radius:20px;padding:14px 16px 16px;box-shadow:0 12px 40px rgba(0,0,0,.4);animation:popIn .3s cubic-bezier(.34,1.4,.64,1)}
+.tn-who{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-family:'Fredoka',sans-serif;color:#6b4a1f;font-size:1.05rem}
+.tn-who .av{font-size:1.8rem;background:#f3e2b8;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center}
+.tn-card p{font-weight:700;font-size:.95rem;line-height:1.45;color:#3b2f1f;min-height:4.3em;margin-bottom:10px;cursor:pointer}
+.tn-ch{display:flex;flex-direction:column;gap:8px}
 </style>
 </head>
 <body>
@@ -999,8 +1007,8 @@ input:focus-visible{outline:none}
       </div>
       <div class="game-card" data-game="town" id="pickTown" style="cursor:pointer;grid-column:1/-1">
         <div class="icon">🏝️</div>
-        <div class="name">Island Builder</div>
-        <div class="desc">Solo · build a hex island town: homes, restaurants, laundromats &amp; condos</div>
+        <div class="name">Island Mayor</div>
+        <div class="desc">Solo · be the mayor: grow a fishing village into a modern city</div>
       </div>
     </div>
   </div>
@@ -1277,9 +1285,11 @@ input:focus-visible{outline:none}
 
 <section id="screen-town" class="screen">
   <div id="townCv"></div>
-  <div class="tn-top"><button class="tn-b" id="tnBack" aria-label="Back">←</button><div class="tn-t">🏝️ Island Builder</div><div class="tn-stats" id="tnStats"></div><button class="tn-b" id="tnSnd" aria-label="Sound">🔊</button></div>
-  <div class="tn-bar"><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type">🖌️</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase">🧹</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button><button class="tn-b" id="tnNight" aria-label="Day or night">🌙</button></div></div></div>
-  <div class="tn-hint">Pick a building type · tap to build · tap a building for another floor · put buildings side by side to connect them</div>
+  <div class="tn-top"><button class="tn-b" id="tnBack" aria-label="Back">←</button><div class="tn-t" id="tnEra">🎣 Fishing Village</div><div class="tn-stats" id="tnStats"></div><button class="tn-b" id="tnSnd" aria-label="Sound">🔊</button></div>
+  <div class="tn-goal" id="tnGoal"></div>
+  <div class="tn-bar"><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type">🖌️</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase (50% refund)">🧹</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button><button class="tn-b" id="tnNight" aria-label="Day or night">🌙</button></div></div></div>
+  <div class="tn-hint">Tap to build · tap a building to add a floor · fisheries go on the water</div>
+  <div class="tn-dlg" id="tnDlg"><div class="tn-card"><div class="tn-who"><span class="av">🧑‍💼</span><b>Advisor Marina</b></div><p id="tnTxt"></p><div class="tn-ch" id="tnCh"></div><button class="btn btn-gold" id="tnNext" style="display:none">Next ▶</button></div></div>
 </section>
 
 <section id="screen-results" class="screen">
@@ -6504,7 +6514,9 @@ const ROOFS=['#7a3a2a','#4a4f58','#8a4a32','#55705a','#5d4a57'];
 const CARS=['#9b2d2d','#d9a441','#2d5f7a','#e4e4e0','#3b3b3f'],SHIRTS=['#a8576b','#4f7f9c','#c9a24a','#5f8a6a','#7a6a99','#3d3d46'];
 let cells={},meshes={},ground={},movers=[],ripples=[],clouds=[],gulls=[],undo=[],ptrs=new Map();
 let scene,cam,ren,root,water,hov,cv,ready=false,running=false,raf=0,last=0,tool='build',color=-1,down=null,pd=0;
-let hemi,sun,night=false,kind='home',GL,WL,signMats=[];
+let hemi,sun,night=false,kind='home',GL,WL,signMats=[],SMOKE;
+let G={coins:200,era:0,seen:{}},cloudDone=false,stamp=0,dq=[],dlgOpen=false,dTimer=0,dFull='',dCur=null,acc=0,tk=0,cT=0;
+const ERAS=['Fishing Village','Harbor Town','Industrial Town','Modern City'];
 let az=.75,pol=.95,dist=17,taz=.75,tpol=.95,tdist=17;
 const mats={},rnd=a=>a[Math.floor(Math.random()*a.length)],cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const key=(q,r)=>q+','+r,pos=(q,r)=>[R*S3*(q+r/2),R*1.5*r],d2=(q,r)=>Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r));
@@ -6525,9 +6537,13 @@ const stone=(id,rx)=>tex(id,128,128,(g,w,h)=>{g.fillStyle='#6f6a60';g.fillRect(0
 const awnT=t=>tex('aw'+t,64,64,(g,w,h)=>{for(let i=0;i<8;i++){g.fillStyle=TY[t].aw[i%2];g.fillRect(i*8,0,8,h)}});
 function signMat(t){const id='sg'+t;if(mats[id])return mats[id];const tx=tex(id,256,64,(g,w,h)=>{g.fillStyle=TY[t].bg;g.fillRect(0,0,w,h);g.strokeStyle='#e8d9a8';g.lineWidth=5;g.strokeRect(4,4,w-8,h-8);g.fillStyle='#f4e7bd';g.font='bold 34px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(TY[t].sign,w/2,h/2+2)});
   const m=new THREE.MeshStandardMaterial({map:tx,emissive:0xffffff,emissiveMap:tx,emissiveIntensity:night?.7:0,roughness:.6});signMats.push(m);return mats[id]=m}
-const TY={home:{n:'Home',e:'🏠',max:4},rest:{n:'Restaurant',e:'🍽️',max:3,sign:'RESTAURANT',bg:'#6e1d25',aw:['#a3282f','#efe6d2']},
-  laundry:{n:'Laundromat',e:'🧺',max:3,sign:'LAUNDRY',bg:'#1d5878',aw:['#2f7fa6','#e8f1f5']},shop:{n:'Market',e:'🛍️',max:3,sign:'MARKET',bg:'#2a5238',aw:['#2f7a4a','#efe6d2']},
-  condo:{n:'Condominium',e:'🏢',max:8,sign:'CONDOS',bg:'#27343f'}};
+const TY={home:{n:'Home',e:'🏠',max:4,cost:30,inc:2,pop:3,u:0},fishery:{n:'Fishery',e:'🎣',max:2,cost:70,inc:6,u:0,sign:'FISHERY',bg:'#1d4a6b',aw:['#2f7fa6','#e8f1f5']},
+  shop:{n:'Market',e:'🛍️',max:3,cost:50,inc:4,u:0,sign:'MARKET',bg:'#2a5238',aw:['#2f7a4a','#efe6d2']},
+  rest:{n:'Restaurant',e:'🍽️',max:3,cost:70,inc:5,u:1,sign:'RESTAURANT',bg:'#6e1d25',aw:['#a3282f','#efe6d2']},
+  laundry:{n:'Laundromat',e:'🧺',max:3,cost:60,inc:3,u:1,sign:'LAUNDRY',bg:'#1d5878',aw:['#2f7fa6','#e8f1f5']},
+  factory:{n:'Factory',e:'🏭',max:3,cost:220,inc:14,u:2,sign:'FACTORY',bg:'#4a4d52'},
+  condo:{n:'Condominium',e:'🏢',max:8,cost:180,inc:3,pop:8,u:3,sign:'CONDOS',bg:'#27343f'}};
+const wood=()=>tex('wood',128,128,(g,w,h)=>{for(let r=0;r<6;r++){g.fillStyle=shade('#8a6a4a',(Math.random()-.5)*40);g.fillRect(0,r*21,w,20);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(0,r*21+20,w,1.5)}},6,1);
 
 function loadThree(cb){
   if(window.THREE)return cb();
@@ -6564,8 +6580,8 @@ function init(){
   cv.addEventListener('pointerup',onUp);cv.addEventListener('pointercancel',()=>{ptrs.clear();down=null});
   cv.addEventListener('wheel',e=>{e.preventDefault();tdist=cl(tdist*(1+e.deltaY*.001),9,30)},{passive:false});
   cv.addEventListener('contextmenu',e=>e.preventDefault());
-  try{const s=JSON.parse(localStorage.getItem('town_v2'));if(s&&Object.keys(s).length)cells=s;else throw 0}catch(e){
-    cells={'0,0':{h:3,t:'home',c:0,r:0,ch:1},'1,-1':{h:2,t:'rest',c:3,r:3},'-1,0':{h:2,t:'laundry',c:5,r:1},'2,-2':{h:2,t:'shop',c:4,r:2},'-1,2':{h:1,t:'home',c:2,r:2,ch:1},'1,1':{h:5,t:'condo',c:5,r:1}}}
+  try{const sv=JSON.parse(localStorage.getItem('town_v3'));if(!sv||!sv.cells)throw 0;applyState(sv)}catch(e){
+    cells={'0,0':{h:2,t:'home',c:2,r:0,ch:1},'1,-1':{h:1,t:'home',c:3,r:2},'-1,1':{h:1,t:'shop',c:4,r:3},'3,-1':{h:1,t:'fishery',c:0,r:0}};G={coins:200,era:0,seen:{}}}
   swatches();types();rebuildAll();syncMovers();
 }
 function resize(){const b=$('townCv').getBoundingClientRect();if(!ren)return;ren.setSize(b.width,b.height);cam.aspect=b.width/b.height;cam.updateProjectionMatrix();
@@ -6578,6 +6594,9 @@ function face(p,a,ap,fn){const o=new THREE.Object3D();o.position.set(Math.cos(a)
 function sign(o,y,t){mk(BOX,signMat(t),.78,.2,.05,0,y+.97,.03,o)}
 function entrance(o,y,t,tbl){
   if(t==='home'){mk(BOX,'#e8dfce',.46,.8,.05,0,y+.45,.02,o);mk(BOX,'#5b3a29',.36,.7,.07,0,y+.4,.03,o);mk(BOX,'#d4a73c',.05,.05,.08,.1,y+.4,.05,o,false);mk(BOX,'#9a948a',.6,.08,.3,0,y+.09,.12,o);return}
+  if(t==='factory'){mk(BOX,'#3a3d41',.74,.84,.05,0,y+.46,.02,o);mk(BOX,'#8a9096',.66,.76,.06,0,y+.44,.03,o,false);for(let n=0;n<4;n++)mk(BOX,'#6b7075',.66,.02,.07,0,y+.2+n*.17,.04,o,false);sign(o,y,t);return}
+  if(t==='fishery'){mk(BOX,'#e8dfce',.44,.78,.05,0,y+.44,.02,o);mk(BOX,'#4a3626',.34,.68,.07,0,y+.39,.03,o);const a=mk(BOX,MT(awnT(t)),.84,.05,.36,0,y+.8,.16,o);a.rotation.x=.4;sign(o,y,t);
+    mk(BOX,'#9a7a52',.22,.18,.22,.32,y+.1,.5,o);mk(BOX,'#8a6a42',.22,.18,.22,-.3,y+.1,.52,o);mk(BOX,'#c9d6dc',.14,.04,.07,.32,y+.21,.5,o,false);return}
   if(t==='condo'){mk(BOX,'#30353a',.86,.86,.05,0,y+.5,.02,o);mk(BOX,GL,.74,.74,.06,0,y+.45,.03,o,false);mk(BOX,WL,.04,.7,.07,0,y+.45,.04,o,false)}
   else{mk(BOX,'#2b2b2b',.5,.8,.05,0,y+.45,.02,o);mk(BOX,WL,.4,.7,.06,0,y+.4,.03,o,false);const a=mk(BOX,MT(awnT(t)),.84,.05,.36,0,y+.8,.16,o);a.rotation.x=.4}
   sign(o,y,t);
@@ -6598,10 +6617,11 @@ function buildCell(q,r,pop){
   if(meshes[k]){root.remove(meshes[k]);delete meshes[k]}
   if(ground[k])ground[k].visible=!c;
   if(!c)return;
-  const t=c.t||'home',condo=t==='condo',block=csz[k]>1||condo,wl=WALLS[c.c%WALLS.length];
-  const wm=condo?MT(conc()):wl[0]==='b'?MT(brick(wl[1])):MT(plaster(wl[1]));
+  const t=c.t||'home',condo=t==='condo',fac=t==='factory',fsh=t==='fishery',block=(csz[k]>1||condo||fac)&&!fsh,wl=WALLS[c.c%WALLS.length];
+  const wm=fsh?MT(wood()):fac?MT(brick('#6b3f33')):condo?MT(conc()):wl[0]==='b'?MT(brick(wl[1])):MT(plaster(wl[1]));
   const [x,z]=pos(q,r),g=new THREE.Group();g.position.set(x,0,z);g.userData.k=k;
-  mk(CYL,MT(stone('st6',6)),R*1.0,.7,R*1.0,0,-.22,0,g);
+  if(fsh){mk(CYL,MT(wood()),R*1.0,.5,R*1.0,0,-.12,0,g);for(let n=0;n<6;n++){const aa=n*Math.PI/3+Math.PI/6;mk(CYL12,'#4a3626',.07,1.1,.07,Math.cos(aa)*R*.9,-.6,Math.sin(aa)*R*.9,g)}}
+  else mk(CYL,MT(stone('st6',6)),R*1.0,.7,R*1.0,0,-.22,0,g);
   const lower=new THREE.Group(),top=new THREE.Group();top.position.y=.05+(c.h-1)*FH;g.add(lower,top);
   let door=false;
   for(let i=0;i<c.h;i++){
@@ -6613,18 +6633,25 @@ function buildCell(q,r,pop){
       const [nx,nz]=pos(q+dv[0],r+dv[1]),a=Math.atan2(nz-z,nx-x),lit=((q*31+r*17+i*13+di*7)&3)===0,odd=(i+di)%2===0;
       face(p,a,R*.866*.96,o=>{
         if(i===0&&!door){door=true;entrance(o,y,t,free(q+dv[0],r+dv[1]))}
-        else if(i===0&&t!=='home'&&t!=='condo')front(o,y,t);
+        else if(i===0&&t!=='home'&&t!=='condo'&&!fac&&!fsh)front(o,y,t);
         else windowF(o,y,t,lit,odd);
       });
     });
   }
-  const rc=ROOFS[c.r%ROOFS.length];
+  const rc=fsh?'#3a6f87':ROOFS[c.r%ROOFS.length];
   if(!block){mk(CONE,MT(roofT(rc)),R*1.12,1.0,R*1.12,0,FH+.5,0,top);mk(CYL,rc,R*1.12,.07,R*1.12,0,FH+.035,0,top);
     if(c.ch){mk(BOX,'#8f4a3b',.2,.62,.2,.38,FH+.66,.12,top);mk(BOX,'#4a2b25',.26,.06,.26,.38,FH+.98,.12,top)}}
   else{mk(CYL,'#a89b86',R*1.0,.16,R*1.0,0,FH+.08,0,top);mk(CYL,'#4a4d52',R*.86,.05,R*.86,0,FH+.15,0,top);
     mk(BOX,'#b9bec2',.3,.2,.22,.3,FH+.26,-.2,top);
     if(c.h>=3||condo){mk(CYL12,'#6b4a32',.16,.34,.16,-.3,FH+.34,.1,top);mk(CONE,'#4a3426',.18,.12,.18,-.3,FH+.57,.1,top)}
     if(condo){mk(CYL12,'#cfd3d6',.015,.8,.015,.1,FH+.55,.25,top,false)}}
+  if(fac){[[-.3,-.2,1.4],[.25,.2,1.05]].forEach((sk,n)=>{mk(CYL12,'#8a4a3a',.15,sk[2],.15,sk[0],FH+.2+sk[2]/2,sk[1],top);mk(CYL12,'#e8e4dc',.157,.1,.157,sk[0],FH+.2+sk[2]-.1,sk[1],top,false)});
+    SMOKE=SMOKE||new THREE.MeshStandardMaterial({color:'#d8d8d8',transparent:true,opacity:.78,roughness:1});g.userData.smoke=[];
+    for(let n=0;n<8;n++){const m=new THREE.Mesh(SPH,SMOKE),sk=n%2?[.25,.2,1.25]:[-.3,-.2,1.6];top.add(m);g.userData.smoke.push({m,x:sk[0],z:sk[1],y:FH+sk[2]+.2,ph:n/8})}}
+  if(fsh){const dn=DIRS.findIndex(dv=>!cells[key(q+dv[0],r+dv[1])]&&d2(q+dv[0],r+dv[1])>LAND);
+    if(dn>=0){const dv=DIRS[dn],[nx,nz]=pos(q+dv[0],r+dv[1]),a=Math.atan2(nz-z,nx-x),b=new THREE.Group();
+      mk(BOX,'#7a4a2a',.62,.14,.26,0,.06,0,b);mk(CONE,'#7a4a2a',.13,.26,.13,.4,.06,0,b).rotation.z=-Math.PI/2;mk(BOX,'#efe6d2',.2,.16,.2,-.08,.19,0,b);mk(CYL12,'#4a3626',.015,.5,.015,.1,.35,0,b,false);mk(BOX,'#c9d6dc',.02,.22,.16,.1,.4,.09,b,false);
+      b.position.set(Math.cos(a)*R*1.75,-.04,Math.sin(a)*R*1.75);b.rotation.y=-a+Math.PI/2*(n=>1)(0);g.add(b);g.userData.boat=b}}
   g.userData.top=top;g.userData.t0=pop?performance.now()/1000:-9;
   root.add(g);meshes[k]=g;
 }
@@ -6646,12 +6673,12 @@ function nextStep(m){
   m.b=o.length?rnd(o):m.a}
 function syncMovers(){
   movers=movers.filter(m=>{const ok=free(m.a[0],m.a[1])&&free(m.b[0],m.b[1]);if(!ok)scene.remove(m.mesh);return ok});
-  const fr=freeCells(),nc=Math.min(3,Math.floor(fr.length/4)),np=fr.length?Math.min(10,2+Object.keys(cells).length):0;
+  const fr=freeCells(),S0=stats(),nc=Math.min(1+G.era*2,Math.floor(fr.length/3)),np=fr.length?Math.min(14,2+Math.round(S0.pop/3)):0;
   ['car','person'].forEach(kind=>{const want=kind==='car'?nc:np;let have=movers.filter(m=>m.kind===kind);
     while(have.length>want){const m=have.pop();scene.remove(m.mesh);movers.splice(movers.indexOf(m),1)}
     while(have.length<want&&fr.length){const a=rnd(fr),m={kind,mesh:mkMover(kind),a,b:a,t:0,prev:null,sp:kind==='car'?1.15:.5+Math.random()*.15,lat:kind==='car'?.17:-.34+Math.random()*.08,ang:0,ph:Math.random()*9};
       nextStep(m);movers.push(m);have.push(m)}});
-  $('tnStats').textContent='🏠 '+Object.keys(cells).length+'  🧑 '+movers.filter(m=>m.kind==='person').length+'  🚗 '+movers.filter(m=>m.kind==='car').length;
+  hud();
 }
 function updMovers(dt,t){
   movers.forEach(m=>{
@@ -6668,21 +6695,63 @@ function updMovers(dt,t){
 /* ---- actions ---- */
 function ripple(q,r){const [x,z]=pos(q,r),m=new THREE.Mesh(new THREE.RingGeometry(.85,1,28),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}));
   m.rotation.x=-Math.PI/2;m.position.set(x,-.03,z);scene.add(m);ripples.push({m,t0:performance.now()/1000})}
+function can(k,q,r){const T=TY[k];if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return false}if(k==='fishery'&&d2(q,r)<=LAND){toast('🎣 Fisheries must be built on the water — try the outer ring');return false}return true}
+const need=n=>toast('Not enough coins 💰 — need '+n);
 function act(q,r,mode){
-  if(d2(q,r)>MAXR)return;const k=key(q,r),c=cells[k],prev=JSON.stringify(cells);
-  if(mode==='erase'){if(!c)return;if(c.h>1)c.h--;else delete cells[k];beep(300,.14,'sine',.1,110)}
-  else if(mode==='paint'){if(!c)return toast('Tap a building to change its type');c.t=kind;c.h=Math.min(c.h,TY[kind].max);if(color>=0)c.c=color;toast(TY[kind].e+' Now a '+TY[kind].n);beep(520,.1,'triangle',.1);setTimeout(()=>beep(700,.1,'triangle',.08),80)}
+  if(d2(q,r)>MAXR)return;const k=key(q,r),c=cells[k],prev=JSON.stringify({c:cells,$:G.coins});
+  if(mode==='erase'){if(!c)return;const T=TY[c.t||'home'];G.coins+=Math.floor((c.h>1?T.cost*.6:T.cost)/2);if(c.h>1)c.h--;else delete cells[k];beep(300,.14,'sine',.1,110)}
+  else if(mode==='paint'){if(!c)return toast('Tap a building to change its type');if(!can(kind,q,r))return;const cost=Math.round(TY[kind].cost*.5);if(G.coins<cost)return need(cost);G.coins-=cost;
+    c.t=kind;c.h=Math.min(c.h,TY[kind].max);if(color>=0)c.c=color;toast(TY[kind].e+' Now a '+TY[kind].n);beep(520,.1,'triangle',.1);setTimeout(()=>beep(700,.1,'triangle',.08),80)}
   else{
-    if(c){const mx=TY[c.t||'home'].max;if(c.h>=mx){toast('Max height for a '+TY[c.t||'home'].n+' ('+mx+' floors)');return}c.h++;if(color>=0)c.c=color;toast(TY[c.t||'home'].e+' Floor '+c.h)}
-    else{const nb=DIRS.map(d=>cells[key(q+d[0],r+d[1])]).filter(Boolean);
+    if(c){const T=TY[c.t||'home'],cost=Math.round(T.cost*.6);if(c.h>=T.max){toast('Max height for a '+T.n+' ('+T.max+' floors)');return}if(G.coins<cost)return need(cost);G.coins-=cost;c.h++;if(color>=0)c.c=color;toast(T.e+' Floor '+c.h+' (−'+cost+' 💰)')}
+    else{if(!can(kind,q,r))return;const cost=TY[kind].cost;if(G.coins<cost)return need(cost);G.coins-=cost;const nb=DIRS.map(d=>cells[key(q+d[0],r+d[1])]).filter(Boolean);
       cells[k]={h:1,t:kind,c:color>=0?color:nb.length?rnd(nb).c:Math.floor(Math.random()*WALLS.length),r:Math.floor(Math.random()*ROOFS.length),ch:Math.random()<.4?1:0};
-      toast(nb.length?'Connected! Buildings now share a roof 🏘️':TY[kind].e+' New '+TY[kind].n)}
+      toast(nb.length?'Connected! Buildings now share a roof 🏘️':TY[kind].e+' New '+TY[kind].n+' (−'+cost+' 💰)')}
     beep(240+Math.random()*120,.16,'sine',.13,560);setTimeout(()=>beep(820,.08,'triangle',.06),70)}
   undo.push(prev);if(undo.length>30)undo.shift();
-  rebuildAll(mode==='erase'?null:k);ripple(q,r);syncMovers();save();
+  rebuildAll(mode==='erase'?null:k);ripple(q,r);syncMovers();checkEra(stats());save();cloudSave()}
+function applyState(sv){cells=sv.cells||{};G=Object.assign({coins:200,era:0,seen:{}},sv.G||{});stamp=sv.t||0}
+function save(){stamp=Date.now();try{localStorage.setItem('town_v3',JSON.stringify({cells,G,t:stamp}))}catch(e){}}
+function cloudSave(now){clearTimeout(cT);const go=()=>{try{if(user&&cloudDone)db.ref('towns/'+user.uid).set({data:JSON.stringify({cells,G,t:stamp}),t:firebase.database.ServerValue.TIMESTAMP,mayor:(profile&&profile.name)||'',era:G.era,pop:stats().pop}).catch(()=>{})}catch(e){}};now?go():cT=setTimeout(go,2500)}
+function cloudInit(){
+  cloudDone=false;const fin=()=>{if(cloudDone)return;cloudDone=true;types();syncMovers();hud();once('intro',[{t:()=>'Welcome to the island, Mayor '+mayor()+'! 🎩 I am Marina, your advisor.'},{t:'Our little fishing village lives by the sea. Build 🏠 homes for people, a 🛍️ market, and a 🎣 fishery on the water ring around the island.'},{t:'Coins arrive every few seconds. Reach the goal at the top of the screen and we will grow into a harbor, an industrial town, and finally a modern city!'}])};
+  if(!user||!window.firebase){fin();return}
+  const to=setTimeout(fin,4000);
+  db.ref('towns/'+user.uid).once('value').then(sn=>{const v=sn.val();if(v&&v.data){const sv=JSON.parse(v.data);let lt=0;try{lt=(JSON.parse(localStorage.getItem('town_v3')||'{}').t)||0}catch(e){}
+    if((sv.t||0)>lt){applyState(sv);rebuildAll();toast('☁️ Island loaded from your account')}}}).catch(()=>{}).then(()=>{clearTimeout(to);fin()})}
+function restore(sv){const o=JSON.parse(sv);cells=o.c;G.coins=o.$;rebuildAll();syncMovers();save();cloudSave()}
+/* ---- mayor economy ---- */
+const mayor=()=>(profile&&profile.name)||'Mayor';
+function stats(){const S={pop:0,inc:0,am:0,fac:0,fish:0};Object.values(cells).forEach(c=>{const T=TY[c.t||'home'];S.pop+=(T.pop||0)*c.h;S.inc+=T.inc*c.h;if(c.t==='rest'||c.t==='shop'||c.t==='laundry')S.am+=c.h;if(c.t==='factory')S.fac+=c.h;if(c.t==='fishery')S.fish++});
+  S.hap=cl(72+Math.min(22,S.am*4)-S.fac*7-(G.ind?8:0)+(G.green?6:0),15,100);return S}
+const GOALS=[S=>S.pop>=12&&S.fish>=1,S=>S.pop>=30&&S.fish>=2&&S.am>=3,S=>S.pop>=70&&S.fac>=2],GT=['12 people + a 🎣 Fishery','30 people, 2 🎣 Fisheries, 3 shop/restaurant floors','70 people + 2 🏭 factory floors'];
+function hud(S){S=S||stats();$('tnEra').textContent=['🎣','⚓','🏭','🏙️'][G.era]+' '+ERAS[G.era];$('tnStats').textContent='💰 '+G.coins+'  👥 '+S.pop+'  '+(S.hap>=70?'😊':S.hap>=45?'😐':'😠')+S.hap;
+  $('tnGoal').textContent=G.era<3?'🎯 Next era: '+GT[G.era]:'🏙️ Modern City — keep building!'}
+function checkEra(S){if(G.era<3&&GOALS[G.era](S)){G.era++;G.coins+=150;types();snd('win');eraDlg(G.era)}hud(S)}
+function tick(dt){if(!cloudDone||dlgOpen)return;acc+=dt;if(acc<4)return;acc=0;const S=stats(),inc=Math.round((S.inc+S.pop*.3)*S.hap/100);
+  G.coins+=inc;if(inc>0)beep(1100,.05,'sine',.05);checkEra(S);
+  if(S.fish)once('fish',[{t:'The fishermen are bringing in the morning catch! 🐟 Each fishery adds steady income. Look for the little boats.'}]);
+  if(S.fac)once('fac',[{t:'Mayor, the factory smokestacks are working hard 🏭 — great income, but smoke makes residents unhappy. Balance it with shops and restaurants.'}]);
+  if(S.hap<45)once('hap',[{t:()=>'Mayor '+mayor()+', the people are unhappy 😠! Pollution is high. Add more markets, restaurants and laundromats to cheer them up.'}]);
+  if(G.coins<25)once('broke',[{t:'We are almost out of coins 💰. Be patient — taxes arrive every few seconds. You can also erase a building to get half its cost back.'}]);
+  if(Math.max(0,...Object.values(csz))>=2)once('block',[{t:'Connected buildings form a city block 🏘️ — shared walls, a flat parapet roof and rooftop gear. That is how real cities grow!'}]);
+  hud(S);save();if(++tk%5===0)cloudSave()}
+function eraDlg(e){
+  if(e===1)say([{t:()=>'Look at the harbor, Mayor '+mayor()+'! We are now a HARBOR TOWN ⚓🎉'},{t:'Folks want somewhere to eat and wash their clothes. 🍽️ Restaurants and 🧺 Laundromats are unlocked, and the province sent a 150 coin grant!'}]);
+  if(e===2)say([{t:'An INDUSTRIAL TOWN! Steam, steel and smokestacks 🏭 (+150 coins grant).'},{t:'Ironworks Co. wants to build in our town and offers 300 coins up front, but their smoke will upset residents. Your call, Mayor.',
+    ch:[{t:'Accept the deal (+300 💰, more pollution)',fn:()=>{G.coins+=300;G.ind=1;hud()}},{t:'Decline — keep our air clean (+happiness)',fn:()=>{G.green=1;hud()}}]},{t:'Factories are unlocked! They earn a fortune but cost happiness. Balance them with shops and restaurants.'}]);
+  if(e===3)say([{t:()=>'We did it, Mayor '+mayor()+'! 🏙️ A MODERN CITY rose from a fishing village!'},{t:'🏢 Condominiums are unlocked. Build up to 8 floors high and keep the citizens happy. The sea built this town — now make it shine ✨'}]);
 }
-function save(){try{localStorage.setItem('town_v2',JSON.stringify(cells))}catch(e){}}
-function restore(s){cells=JSON.parse(s);rebuildAll();syncMovers();save()}
+/* ---- dialogue box ---- */
+function once(id,lines){if(G.seen[id])return;G.seen[id]=1;say(lines)}
+function say(lines){dq.push(...lines);if(!dlgOpen)nextLine()}
+function nextLine(){const l=dq.shift();clearInterval(dTimer);
+  if(!l){dlgOpen=false;dCur=null;$('tnDlg').classList.remove('on');save();return}
+  dlgOpen=true;dCur=l;$('tnDlg').classList.add('on');$('tnCh').innerHTML='';$('tnNext').style.display='none';dFull=typeof l.t==='function'?l.t():l.t;
+  const el=$('tnTxt');el.textContent='';let i=0;dTimer=setInterval(()=>{i+=2;el.textContent=dFull.slice(0,i);if(i%8===0)beep(600+Math.random()*80,.02,'square',.012);if(i>=dFull.length)finishLine()},24)}
+function finishLine(){clearInterval(dTimer);$('tnTxt').textContent=dFull;const l=dCur;if(!l)return;
+  if(l.ch){$('tnCh').innerHTML=l.ch.map((c,j)=>'<button class="btn btn-mint" data-j="'+j+'">'+c.t+'</button>').join('');$('tnCh').querySelectorAll('button').forEach(b=>b.onclick=()=>{const f=l.ch[+b.dataset.j].fn;if(f)f();snd('ok');nextLine()})}
+  else $('tnNext').style.display=''}
 
 /* ---- input ---- */
 let RAY,MV,PLANE;
@@ -6714,8 +6783,8 @@ function hover(x,y){const c=pick(x,y);if(!c||d2(c[0],c[1])>MAXR){hov.visible=fal
 /* ---- UI ---- */
 function swatches(){const el=$('tnSw');el.innerHTML='<button class="sw'+(color<0?' on':'')+'" data-c="-1">🎲</button>'+WALLS.map((c,i)=>'<button class="sw'+(color===i?' on':'')+'" data-c="'+i+'" style="background:'+c[1]+'"></button>').join('');
   el.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{color=+b.dataset.c;swatches();snd('tap')})}
-function types(){const el=$('tnTypes');el.innerHTML=Object.keys(TY).map(k=>'<button class="tp'+(kind===k?' on':'')+'" data-k="'+k+'"><span>'+TY[k].e+'</span>'+TY[k].n+'</button>').join('');
-  el.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{kind=b.dataset.k;if(tool==='erase')setTool('build');types();snd('tap')})}
+function types(){const el=$('tnTypes');el.innerHTML=Object.keys(TY).map(k=>{const T=TY[k],lk=T.u>G.era;return '<button class="tp'+(kind===k?' on':'')+(lk?' lk':'')+'" data-k="'+k+'"><span>'+(lk?'🔒':T.e)+'</span>'+T.n+'<small>💰'+T.cost+'</small></button>'}).join('');
+  el.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const T=TY[b.dataset.k];if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return}kind=b.dataset.k;if(tool==='erase')setTool('build');types();snd('tap')})}
 function setTool(t){tool=t;['Build','Paint','Erase'].forEach(n=>$('tn'+n).classList.toggle('on',t===n.toLowerCase()));snd('tap')}
 function setNight(b){night=b;$('tnNight').textContent=b?'☀️':'🌙';sun.intensity=b?.18:1;sun.color.set(b?0x8fa6ff:0xffedd0);hemi.intensity=b?.32:.5;hemi.color.set(b?0x3a4a8a:0xffffff);
   scene.fog.color.set(b?0x16233a:0xcfe0e4);water.material.color.set(b?'#12384a':'#2b7c8e');WL.emissiveIntensity=b?1.6:.25;signMats.forEach(m=>m.emissiveIntensity=b?.7:0);
@@ -6728,21 +6797,22 @@ function frame(now){
   az+=(taz-az)*Math.min(1,dt*8);pol+=(tpol-pol)*Math.min(1,dt*8);dist+=(tdist-dist)*Math.min(1,dt*8);
   cam.position.set(dist*Math.sin(pol)*Math.cos(az),dist*Math.cos(pol),dist*Math.sin(pol)*Math.sin(az));cam.lookAt(0,1,0);
   const pa=water.geometry.attributes.position;for(let i=0;i<pa.count;i++){const x=pa.getX(i),y=pa.getY(i);pa.setZ(i,Math.sin(x*.6+t*1.2)*.07+Math.cos(y*.7+t*.9)*.06)}pa.needsUpdate=true;
-  Object.values(meshes).forEach(g=>{const a=tt-g.userData.t0;if(a<1.2){const e=Math.max(.001,1-Math.exp(-5*a)*Math.cos(18*a)),tp=g.userData.top;tp.scale.set(1+(1-e)*.22,e,1+(1-e)*.22);}else if(g.userData.top.scale.y!==1)g.userData.top.scale.set(1,1,1)});
+  Object.values(meshes).forEach(g=>{const u=g.userData;if(u.boat){u.boat.position.y=-.04+Math.sin(t*1.7+u.boat.position.x)*.045;u.boat.rotation.z=Math.sin(t*1.3+u.boat.position.z)*.06}if(u.smoke)u.smoke.forEach(p=>{const f=(tt*.3+p.ph)%1;p.m.position.set(p.x+f*.6,p.y+f*1.7,p.z+f*.15);p.m.scale.setScalar(.06+Math.sin(f*Math.PI)*.2)});const a=tt-g.userData.t0;if(a<1.2){const e=Math.max(.001,1-Math.exp(-5*a)*Math.cos(18*a)),tp=g.userData.top;tp.scale.set(1+(1-e)*.22,e,1+(1-e)*.22);}else if(g.userData.top.scale.y!==1)g.userData.top.scale.set(1,1,1)});
   for(let i=ripples.length-1;i>=0;i--){const rp=ripples[i],a=tt-rp.t0;if(a>1.2){scene.remove(rp.m);ripples.splice(i,1);continue}rp.m.scale.setScalar(1+a*2.4);rp.m.material.opacity=.7*(1-a/1.2)}
   clouds.forEach(c=>{c.position.x+=c.userData.sp*dt;if(c.position.x>30)c.position.x=-30});
   gulls.forEach(g=>{const u=g.userData,a=t*u.sp+u.ph;g.position.set(Math.cos(a)*u.rad,u.y+Math.sin(t+u.ph)*.3,Math.sin(a)*u.rad);g.rotation.y=-a;const f=Math.sin(t*7+u.ph)*.5;u.wr.rotation.z=f;u.wl.rotation.z=-f});
-  updMovers(dt,t);ren.render(scene,cam);
+  tick(dt);updMovers(dt,t);ren.render(scene,cam);
 }
 function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(frame)}
-function stop(){running=false;cancelAnimationFrame(raf);save()}
+function stop(){running=false;cancelAnimationFrame(raf);if(cloudDone){save();cloudSave(true)}}
 
-window.openTown=function(){show('screen-town');loadThree(()=>{if(!ready)init();resize();start()})};
+window.openTown=function(){show('screen-town');loadThree(()=>{if(!ready)init();resize();start();cloudInit()})};
 window.addEventListener('resize',()=>{if(ready&&running)resize()});
 $('tnBack').onclick=()=>{stop();snd('tap');show('screen-lobby')};
 $('tnBuild').onclick=()=>setTool('build');$('tnPaint').onclick=()=>setTool('paint');$('tnErase').onclick=()=>setTool('erase');$('tnNight').onclick=()=>{setNight(!night);snd('tap')};
 $('tnUndo').onclick=()=>{if(!undo.length)return toast('Nothing to undo');restore(undo.pop());snd('tap')};
-$('tnClear').onclick=()=>{if(!Object.keys(cells).length)return;undo.push(JSON.stringify(cells));cells={};rebuildAll();syncMovers();save();toast('Island cleared — tap ↩️ to bring it back')};
+$('tnClear').onclick=()=>{if(!Object.keys(cells).length)return;undo.push(JSON.stringify({c:cells,$:G.coins}));cells={};rebuildAll();syncMovers();save();cloudSave();toast('Island cleared — tap ↩️ to bring it back')};
+$('tnNext').onclick=()=>{snd('tap');nextLine()};$('tnTxt').onclick=()=>{if(dCur&&$('tnNext').style.display==='none'&&!dCur.ch||dCur&&dCur.ch&&dFull!==$('tnTxt').textContent)finishLine()};
 $('tnSnd').onclick=()=>{toggleSound();$('tnSnd').textContent=soundOn?'🔊':'🔇'};
 })();
 
