@@ -133,27 +133,35 @@ body.urgent::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .bg-top{padding:10px 12px;text-align:center}.bg-top #bgTurn{font-family:'Fredoka',sans-serif;font-size:1.15rem;color:var(--violet-d)}
 #bgChips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .bgchip{font-weight:800;font-size:.8rem;padding:3px 10px;border-radius:99px;background:#fff;border:2px solid var(--ring);opacity:.75}.bgchip.on{opacity:1;transform:scale(1.1);box-shadow:0 0 12px var(--ring)}
-.bg-wrap{position:relative;width:100%;aspect-ratio:800/780;border-radius:18px;overflow:hidden;background:#1d1450;box-shadow:var(--shadow)}
+.bg-wrap{position:relative;width:100%;aspect-ratio:800/780;border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#29465a 0%,#142b3a 62%,#0b172b 100%);box-shadow:0 16px 38px rgba(7,12,30,.5),inset 0 0 40px rgba(0,0,0,.32);border:2px solid rgba(255,255,255,.32)}
 .bg-grid{position:absolute;left:0;top:0;width:100%;height:89.74%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(7,1fr)}
 .bgc{position:relative;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6);display:flex;align-items:flex-start;padding:2px 4px;font-size:.62rem;color:rgba(0,0,0,.45)}
 .bgc span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.5rem}
-.bgc.z1{background:#c9f7e3}.bgc.z2{background:#fff3c4}.bgc.z3{background:#ffd9b8}.bgc.z4{background:#f6c6e8}
-.bg-start{position:absolute;left:0;right:0;bottom:0;height:10.26%;display:grid;place-items:center;color:#ffffff99;font:700 .8rem Fredoka,sans-serif;letter-spacing:3px}
+.bgc.z1{background:linear-gradient(145deg,#b8f5d9,#72cda6)}.bgc.z2{background:linear-gradient(145deg,#fff1ad,#eaca70)}.bgc.z3{background:linear-gradient(145deg,#ffcda4,#e69a72)}.bgc.z4{background:linear-gradient(145deg,#f9c0c6,#df8798)}
+.bg-start{position:absolute;left:0;right:0;bottom:0;height:10.26%;display:grid;place-items:center;color:#ffffff99;font:700 .8rem Fredoka,sans-serif;letter-spacing:3px}.bg-start span{transform:translateX(-68px)}
 .bg-svg,.bg-toks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .lad line{stroke:#a9692f;stroke-width:5;stroke-linecap:round}
-.sn-body{fill:none;stroke-width:20;stroke-linecap:round;opacity:.93;transition:stroke-width .3s}.sn-body.full{stroke-width:30}
-.sn-glint{fill:none;stroke:#fff;stroke-opacity:.4;stroke-width:5;stroke-dasharray:3 16;stroke-linecap:round;animation:bgSlither 1.1s linear infinite}
-.sn-head{transform-box:fill-box;transform-origin:center;animation:bgBob 1.6s ease-in-out infinite}.sn-head circle:nth-child(n+4){fill:#111}.sn-mouth{fill:#351018;transform-box:fill-box;transform-origin:center;transition:transform .16s ease}.sn-jaw{fill:none;stroke:#111;stroke-width:2.4;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 0;transition:transform .16s ease}.sn-teeth{fill:#fff;opacity:0;transition:opacity .1s}.sn-head.strike .sn-mouth{transform:scaleY(5)}.sn-head.strike .sn-jaw{transform:translateY(4px) scaleY(1.45)}.sn-head.strike .sn-teeth{opacity:1}.tongue{stroke:#ff3b5c;stroke-width:2.5;fill:none;stroke-linecap:round}
-.sn-head.strike{animation:bgStrike .6s ease-out forwards}
+.sn-body{fill:none;stroke-width:20;stroke-linecap:round;opacity:.96;filter:drop-shadow(0 3px 2px rgba(7,10,20,.48));transition:stroke-width .3s,filter .3s}.sn-body.full{stroke-width:32;filter:drop-shadow(0 0 8px rgba(255,75,60,.75))}
+.sn-glint{fill:none;stroke:#fff;stroke-opacity:.46;stroke-width:5;stroke-dasharray:3 16;stroke-linecap:round;animation:bgSlither 1.1s linear infinite}
+.sn-head{transform-box:fill-box;transform-origin:center;animation:bgBob 1.6s ease-in-out infinite;filter:drop-shadow(0 4px 3px rgba(0,0,0,.5))}.sn-hood{fill:currentColor;stroke:rgba(25,12,20,.58);stroke-width:2}.sn-eye{fill:#fff;stroke:#331820;stroke-width:1.6}.sn-pupil{fill:#1b0e13}.sn-nostril{fill:#30131a}.sn-mouth{fill:#290b16;stroke:#16070c;stroke-width:1.4;transform-box:fill-box;transform-origin:center;transition:transform .18s ease}.sn-jaw{fill:#ad3240;stroke:#2b1017;stroke-width:2.4;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 0;transition:transform .18s ease}.sn-teeth{fill:#fff5da;stroke:#61232b;stroke-width:.7;opacity:0;transition:opacity .1s}.sn-head.strike .sn-mouth{transform:scale(1.7,8)}.sn-head.strike .sn-jaw{transform:translateY(9px) scaleY(1.8)}.sn-head.strike .sn-teeth{opacity:1}.tongue{stroke:#ff274e;stroke-width:2.8;fill:none;stroke-linecap:round;filter:drop-shadow(0 0 2px #54101e)}
+.sn-head.strike{animation:bgStrike .72s cubic-bezier(.2,.8,.25,1) forwards}
 @keyframes bgSlither{to{stroke-dashoffset:-38}}@keyframes bgBob{50%{transform:translateY(-4px) rotate(6deg)}}
-@keyframes bgStrike{0%{transform:scale(1)}40%{transform:scale(2.1) rotate(-14deg)}70%{transform:scale(1.6) rotate(8deg)}100%{transform:scale(1.9)}}
+@keyframes bgStrike{0%{transform:scale(1)}38%{transform:scale(3) rotate(-16deg)}68%{transform:scale(2.5) rotate(8deg)}100%{transform:scale(2.85)}}
 .bgtok{position:absolute;transform:translate(-50%,-50%);transition:left .22s linear,top .22s linear,transform .4s,opacity .3s;z-index:5}.bgtok.nt{transition:none}
-.bgtok .av{display:grid;place-items:center;width:clamp(24px,7vw,32px);height:clamp(24px,7vw,32px);font-size:clamp(16px,5vw,22px);background:#fff;border:3px solid var(--ring);border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.35)}
-.bgtok .hop{animation:bgHop .24s}@keyframes bgHop{50%{transform:translateY(-12px) scale(1.15)}}
-.bgtok.eaten{transform:translate(-50%,-50%) scale(0)}.bgtok.inside{opacity:.75;filter:drop-shadow(0 0 8px #ffd166);z-index:6}.bgtok.pop .av{animation:bgPop .6s}@keyframes bgPop{40%{transform:scale(1.9) rotate(15deg)}}
+.bgtok::before{content:'';position:absolute;width:55%;height:13%;left:50%;bottom:-1%;transform:translateX(-50%);border-radius:50%;background:rgba(13,20,25,.45);filter:blur(2px);transition:opacity .2s}
+.bgtok .av{position:relative;display:grid;place-items:center;min-width:36px;min-height:38px;font-size:clamp(28px,9vw,40px);line-height:1;background:transparent;border:0;border-radius:0;filter:drop-shadow(0 3px 2px rgba(0,0,0,.48));transition:filter .2s}
+.bgtok .hop{animation:bgHop .24s}@keyframes bgHop{50%{transform:translateY(-14px) scale(1.2)}}
+.bgtok.eaten{transform:translate(-50%,-50%) scale(0)}.bgtok.inside{opacity:1;filter:drop-shadow(0 0 9px #ffd166);z-index:6}.bgtok.inside .av{animation:bgSwallow 1.8s ease-in forwards}.bgtok.inside::before{opacity:0}.bgtok.pop .av{animation:bgPop .6s}@keyframes bgPop{40%{transform:scale(1.9) rotate(15deg)}}@keyframes bgSwallow{0%{transform:scale(1)}65%{transform:scale(.7)}100%{transform:scale(.08)}}
 .bg-ctl{display:flex;align-items:center;gap:12px;justify-content:center}.bg-ctl .btn{width:auto;flex:1}
-.bg-dice{font-size:3.4rem;line-height:1;width:76px;height:76px;display:grid;place-items:center;background:#fff;border-radius:18px;box-shadow:0 5px 0 rgba(0,0,0,.15)}.bg-dice.roll{animation:bgRoll .3s infinite}
-@keyframes bgRoll{25%{transform:rotate(-18deg) translateY(-6px)}75%{transform:rotate(18deg) translateY(-6px)}}
+.bg-dice{width:72px;height:72px;display:grid;place-items:center;perspective:500px;flex-shrink:0}
+.die-face{width:64px;height:64px;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;background:linear-gradient(145deg,#fff,#e9e9f4);border:1px solid rgba(255,255,255,.95);border-radius:15px;box-shadow:0 7px 0 #b7b2c8,0 12px 20px rgba(8,7,30,.34),inset 0 2px 3px #fff;transform-style:preserve-3d}
+.die-pip{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff7b82,#dd2f49 72%);box-shadow:inset 0 -1px 1px rgba(70,0,10,.4);opacity:0;transform:scale(.4);transition:opacity .06s,transform .1s}
+.die-pip.on{opacity:1;transform:scale(1)}
+.bg-dice.roll .die-face{animation:bgDieRoll 1.02s cubic-bezier(.2,.72,.28,1) both}
+.bg-dice.land .die-face{animation:bgDieLand .32s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes bgDieRoll{0%{transform:translateY(0) rotateX(0) rotateY(0) rotateZ(0)}25%{transform:translateY(-40px) rotateX(210deg) rotateY(-120deg) rotateZ(45deg)}55%{transform:translateY(-18px) rotateX(430deg) rotateY(230deg) rotateZ(110deg)}78%{transform:translateY(-30px) rotateX(650deg) rotateY(410deg) rotateZ(165deg)}100%{transform:translateY(0) rotateX(900deg) rotateY(720deg) rotateZ(360deg)}}
+@keyframes bgDieLand{0%{transform:translateY(-10px) scale(1.08)}60%{transform:translateY(3px) scale(.93)}100%{transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.bg-dice.roll .die-face,.bg-dice.land .die-face{animation-duration:.01ms!important}.sn-head.strike{animation-duration:.01ms!important}}
 .bg-info{text-align:center;color:#fff;font-weight:800;font-size:.85rem;min-height:1.2em;text-shadow:0 1px 2px rgba(0,0,0,.3)}
 .bg-modal{position:fixed;inset:0;z-index:9100;display:none;place-items:center;background:rgba(20,10,50,.65);padding:16px}.bg-modal.on{display:grid}
 .bg-q{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);animation:popIn .3s}.bg-modal.snake .bg-q{background:#fff0f0;border:4px solid #ff5252}
@@ -1196,8 +1204,8 @@ input:focus-visible{outline:none}
 <div class="bg-modal" id="bgModal"><div class="bg-q"><div id="bgQHead"></div><div id="bgQMeta"></div><div class="bg-bar"><i id="bgQBar"></i></div><div id="bgQText"></div><div id="bgQOpts"></div><div id="bgQFb"></div></div></div>
 <section id="screen-board" class="screen">
   <div class="card bg-top"><div id="bgTurn"></div><div id="bgChips"></div></div>
-  <div class="bg-wrap"><div class="bg-grid" id="bgGrid"></div><div class="bg-start">🏁 START</div><svg class="bg-svg" id="bgSvg" viewBox="0 0 800 780"></svg><div class="bg-toks" id="bgToks"></div></div>
-  <div class="bg-ctl"><div class="bg-dice" id="bgDice">🎲</div><button class="btn btn-gold" id="bgRoll" style="display:none">🎲 Roll the dice!</button></div>
+  <div class="bg-wrap"><div class="bg-grid" id="bgGrid"></div><div class="bg-start"><span>🏁 START</span></div><svg class="bg-svg" id="bgSvg" viewBox="0 0 800 780"></svg><div class="bg-toks" id="bgToks"></div></div>
+  <div class="bg-ctl"><div class="bg-dice" id="bgDice" role="img" aria-label="Die showing 1"><div class="die-face" id="bgDieFace"></div></div><button class="btn btn-gold" id="bgRoll" style="display:none">🎲 Roll the dice!</button></div>
   <div class="bg-info" id="bgInfo"></div>
 </section>
 <section id="screen-spy" class="screen">
@@ -2254,7 +2262,7 @@ document.addEventListener('input', function(e){
 /* ===== SNAKES & TRIVIA (board game) ===== */
 const BG_N=56,BG_C=8,BG_R=7,BG_TIME=20;
 const BG_SNAKES={17:6,27:12,34:19,41:24,48:31,54:37},BG_LAD={3:15,8:23,20:32,28:43,36:49},BG_BACK=[0,2,3,4,5];
-const BG_COL=['#2ecc71','#e67e22','#a55eea','#ff5252','#1abc9c','#f1c40f'],BG_RING=['#FF6BB5','#00D2A0','#FFD166','#7C5CFF','#FF6B6B'];
+const BG_COL=['#9d253b','#71328b','#247267','#a24b2c','#445d82','#90732a'],BG_RING=['#FF6BB5','#00D2A0','#FFD166','#7C5CFF','#FF6B6B'];
 const BG_CATS={sci:['🔬','Science'],geo:['🌍','Geography'],his:['🏛️','History'],ani:['🐾','Animals'],food:['🍕','Food'],spt:['⚽','Sports'],pop:['🎬','Pop Culture'],wrd:['📖','Words'],gen:['🧠','General'],math:['🔢','Math']};
 const BG_DN=['','Easy','Medium','Hard','Expert'];
 const BG_RAW=`sci|1|Which planet is known as the Red Planet?|Mars|Venus|Jupiter|Mercury
@@ -2352,7 +2360,87 @@ gen|4|What is the process by which plants release water vapor called?|Transpirat
 gen|4|Which strait separates Asia and North America?|Bering Strait|Gibraltar Strait|Malacca Strait|Bosporus
 gen|4|Which scientist developed the general theory of relativity?|Albert Einstein|Niels Bohr|Isaac Newton|Michael Faraday
 gen|4|Which desert is the largest hot desert in the world?|Sahara|Gobi|Kalahari|Mojave
-gen|4|What is the only even prime number?|2|0|4|6`;
+gen|4|What is the only even prime number?|2|0|4|6
+gen|1|Which animal is famous for carrying its home on its back?|Turtle|Rabbit|Fox|Horse
+gen|1|Which planet rotates so slowly that its day is longer than its year?|Venus|Mercury|Mars|Neptune
+gen|1|Which tool shows directions using a magnetic needle?|Compass|Thermometer|Telescope|Ruler
+gen|1|Which of these is a primary color of light?|Blue|Green|Orange|Purple
+gen|1|What is a baby dog called?|Puppy|Kitten|Calf|Chick
+gen|1|Which farm animal is known for producing wool?|Sheep|Pig|Duck|Goat
+gen|1|What do you call water in its gaseous state?|Water vapor|Ice|Dew|Snow
+gen|1|Which shape has four equal sides and four right angles?|Square|Triangle|Oval|Pentagon
+gen|1|Which bird is often a symbol of peace?|Dove|Crow|Eagle|Ostrich
+gen|1|What is the closest star to Earth?|The Sun|Sirius|Proxima Centauri|Vega
+gen|1|Which part of a plant usually absorbs water from soil?|Roots|Petals|Fruit|Leaves
+gen|1|Which food is made by bees and stored in a honeycomb?|Honey|Jam|Yogurt|Maple syrup
+gen|1|Which animal is known for changing its color to blend in?|Chameleon|Penguin|Kangaroo|Dolphin
+gen|1|How many days are there in a leap year?|366|364|365|367
+gen|1|Which object is used to tell time on a wall?|Clock|Scale|Globe|Microscope
+gen|1|Which sense do you use with your ears?|Hearing|Taste|Touch|Smell
+gen|1|Which of these animals is a marsupial?|Koala|Panda|Wolf|Seal
+gen|1|What is the frozen form of rain called?|Hail|Fog|Steam|Dew
+gen|1|Which sport is played at Wimbledon?|Tennis|Cricket|Golf|Rugby
+gen|1|What do caterpillars turn into?|Butterflies|Frogs|Beetles|Spiders
+gen|2|Which country is home to the ancient city of Petra?|Jordan|Greece|India|Peru
+gen|2|What is the largest internal organ in the human body?|Liver|Heart|Lung|Kidney
+gen|2|Which gas makes up most of Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Hydrogen
+gen|2|What is the name of the line at zero degrees latitude?|Equator|Prime Meridian|Tropic of Cancer|Arctic Circle
+gen|2|Which instrument measures air pressure?|Barometer|Hygrometer|Seismograph|Altimeter
+gen|2|Which country is shaped like a boot on a map?|Italy|Greece|Portugal|Croatia
+gen|2|What is the largest species of big cat?|Tiger|Lion|Jaguar|Cheetah
+gen|2|Which vitamin can the body make when skin is exposed to sunlight?|Vitamin D|Vitamin A|Vitamin C|Vitamin K
+gen|2|What is the hardest substance in the human body?|Tooth enamel|Bone|Cartilage|Fingernail
+gen|2|Which hypersaline lake on the Jordan-Israel border is famous for its exceptionally high salinity?|Dead Sea|Baltic Sea|Black Sea|North Sea
+gen|2|Which country is home to the ancient city of Machu Picchu?|Peru|Chile|Mexico|Bolivia
+gen|2|What is the name of the galaxy that contains our solar system?|Milky Way|Andromeda|Whirlpool|Sombrero
+gen|2|Which natural material is formed from the hardened resin of ancient trees?|Amber|Granite|Pumice|Slate
+gen|2|What is the longest river in Europe?|Volga|Danube|Rhine|Seine
+gen|2|Which animal is the largest living reptile?|Saltwater crocodile|Komodo dragon|Green anaconda|Nile monitor
+gen|2|What is the name for molten rock beneath Earth's surface?|Magma|Lava|Ash|Basalt
+gen|2|Which organ pumps blood around the human body?|Heart|Liver|Stomach|Pancreas
+gen|2|Which country is famous for the historic Angkor Wat temple complex?|Cambodia|Thailand|Nepal|Myanmar
+gen|2|Which part of the eye controls how much light enters?|Iris|Retina|Cornea|Lens
+gen|2|What is the largest island in the world, excluding continents?|Greenland|Borneo|Madagascar|New Guinea
+gen|3|Which scale is commonly used to measure the magnitude of earthquakes?|Moment magnitude scale|Beaufort scale|Richter temperature scale|Fujita scale
+gen|3|What is the name of the boundary where Earth's tectonic plates meet?|Plate boundary|Tropopause|Littoral zone|Watershed
+gen|3|Which blood type is known as the universal red-cell donor?|O negative|AB positive|A positive|B negative
+gen|3|Which planet rotates on its side relative to most planets?|Uranus|Mars|Mercury|Jupiter
+gen|3|What is the scientific study of fungi called?|Mycology|Ornithology|Herpetology|Entomology
+gen|3|Which ancient writing system used wedge-shaped marks on clay tablets?|Cuneiform|Hieroglyphics|Linear B|Runes
+gen|3|What is the name for animals that are most active at dawn and dusk?|Crepuscular|Nocturnal|Diurnal|Aquatic
+gen|3|Which layer of Earth's atmosphere contains most of the ozone layer?|Stratosphere|Troposphere|Mesosphere|Thermosphere
+gen|3|Which sea is the saltiest large body of water on Earth?|Dead Sea|Baltic Sea|Black Sea|North Sea
+gen|3|What is the name of the first artificial satellite launched into space?|Sputnik 1|Explorer 1|Vostok 1|Luna 2
+gen|3|Which scientist is associated with the laws of planetary motion?|Johannes Kepler|Louis Pasteur|Gregor Mendel|Dmitri Mendeleev
+gen|3|Which is the smallest of the world's major oceans?|Arctic Ocean|Indian Ocean|Atlantic Ocean|Southern Ocean
+gen|3|What is the main function of red blood cells?|Carry oxygen|Fight infection|Form antibodies|Digest fats
+gen|3|Which ancient civilization developed democracy in Athens?|Ancient Greeks|Phoenicians|Sumerians|Etruscans
+gen|3|What is the name of the imaginary line connecting the North and South Poles?|Axis|Equator|Ecliptic|Meridian
+gen|3|Which type of rock forms when existing rock is changed by heat and pressure?|Metamorphic|Igneous|Sedimentary|Volcanic ash
+gen|3|Which scientist proposed the three laws of motion?|Isaac Newton|James Clerk Maxwell|Charles Darwin|Antoine Lavoisier
+gen|3|What is the process called when a solid changes directly into a gas?|Sublimation|Condensation|Deposition|Evaporation
+gen|3|Which moon is the largest in the solar system?|Ganymede|Titan|Europa|Earth's Moon
+gen|3|Which country contains the region of Transylvania?|Romania|Hungary|Bulgaria|Serbia
+gen|4|Which particle in an atom has a negative electric charge?|Electron|Proton|Neutron|Nucleus
+gen|4|What is the name of the point in an orbit closest to the Sun?|Perihelion|Aphelion|Perigee|Zenith
+gen|4|Which scientist first described the circulation of blood through the body?|William Harvey|Andreas Vesalius|Edward Jenner|Robert Hooke
+gen|4|What is the name of the supercontinent that existed before today's continents drifted apart?|Pangaea|Gondwana|Laurasia|Rodinia
+gen|4|Which element is named after the Swedish village where it was discovered?|Ytterbium|Germanium|Polonium|Americium
+gen|4|What is the branch of mathematics that studies rates of change?|Calculus|Topology|Number theory|Combinatorics
+gen|4|Which treaty formally established the European Union in 1993?|Maastricht Treaty|Treaty of Versailles|Treaty of Utrecht|Treaty of Lisbon
+gen|4|What is the name of the boundary around a black hole beyond which light cannot escape?|Event horizon|Accretion disk|Singularity|Photon sphere
+gen|4|Which enzyme in saliva begins the digestion of starch?|Amylase|Pepsin|Lipase|Lactase
+gen|4|Which ancient Greek mathematician is known for a theorem about right triangles?|Pythagoras|Euclid|Archimedes|Eratosthenes
+gen|4|What is the term for the number of cycles a wave completes per second?|Frequency|Amplitude|Wavelength|Phase
+gen|4|Which layer of the Sun is visible as its apparent surface?|Photosphere|Corona|Chromosphere|Core
+gen|4|What is the name for a word or phrase that reads the same backward and forward?|Palindrome|Anagram|Oxymoron|Homonym
+gen|4|Which scientist showed that plants release oxygen during photosynthesis?|Joseph Priestley|Robert Brown|Jan Ingenhousz|Theodor Schwann
+gen|4|Which branch of biology focuses on the classification of organisms?|Taxonomy|Cytology|Embryology|Ethology
+gen|4|What is the name of the ancient trade route linking China with the Mediterranean?|Silk Road|Amber Road|Royal Road|Incense Route
+gen|4|Which number is represented by the Roman numeral XL?|40|60|90|15
+gen|4|What is the term for the point in an orbit farthest from Earth?|Apogee|Perigee|Aphelion|Perihelion
+gen|4|Which fundamental force holds protons and neutrons together in an atomic nucleus?|Strong nuclear force|Electromagnetic force|Gravity|Weak nuclear force
+gen|4|What is the study of the origin and history of words called?|Etymology|Phonetics|Syntax|Lexicography`;
 const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
 /* ===== Endless question engine: live trivia API + generators + curated, with no-repeat tracking ===== */
 let bgCurQ=null;
@@ -2429,10 +2517,10 @@ function bgBuild(){
   let s='';
   Object.entries(BG_LAD).forEach(([a,b])=>{const[x1,y1]=bgXY(+a),[x2,y2]=bgXY(b),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),nx=-dy/L*9,ny=dx/L*9;s+='<g class="lad"><line x1="'+(x1+nx)+'" y1="'+(y1+ny)+'" x2="'+(x2+nx)+'" y2="'+(y2+ny)+'"/><line x1="'+(x1-nx)+'" y1="'+(y1-ny)+'" x2="'+(x2-nx)+'" y2="'+(y2-ny)+'"/>';for(let i=1;i<L/26;i++){const u=i*26/L;s+='<line x1="'+(x1+dx*u+nx)+'" y1="'+(y1+dy*u+ny)+'" x2="'+(x1+dx*u-nx)+'" y2="'+(y1+dy*u-ny)+'"/>'}s+='</g>'});
   Object.entries(BG_SNAKES).forEach(([h,t],i)=>{const col=BG_COL[i%6],d=bgSnakePath(+h,t),[hx,hy]=bgXY(+h),[tx,ty]=bgXY(t);
-    s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><circle r="18" fill="'+col+'"/><circle cx="-7" cy="-5" r="5" fill="#fff"/><circle cx="7" cy="-5" r="5" fill="#fff"/><circle cx="-7" cy="-5" r="2.4"/><circle cx="7" cy="-5" r="2.4"/><ellipse class="sn-mouth" cx="0" cy="10" rx="8" ry="1.5"/><path class="sn-teeth" d="M-7 5L-4 10L-1 5M1 5L4 10L7 5"/><path class="sn-jaw" d="M-8 10Q0 15 8 10"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
+    s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><path class="sn-hood" d="M-18 2Q-27-12-17-24L-7-17Q0-21 7-17L17-24Q27-11 18 2L13 13H-13Z" style="color:'+col+'"/><ellipse cx="0" cy="0" rx="18" ry="17" fill="'+col+'" stroke="#35151b" stroke-width="1.5"/><ellipse class="sn-mouth" cx="0" cy="11" rx="9" ry="2"/><path class="sn-teeth" d="M-8 6L-5 12L-2 6M2 6L5 12L8 6"/><path class="sn-jaw" d="M-9 11Q0 16 9 11"/><ellipse class="sn-eye" cx="-7" cy="-5" rx="5.2" ry="6"/><ellipse class="sn-eye" cx="7" cy="-5" rx="5.2" ry="6"/><ellipse class="sn-pupil" cx="-6" cy="-5" rx="1.4" ry="4"/><ellipse class="sn-pupil" cx="8" cy="-5" rx="1.4" ry="4"/><path d="M-12-12Q-7-16-2-12M2-12Q7-16 12-12" fill="none" stroke="#35151b" stroke-width="2.5" stroke-linecap="round"/><circle class="sn-nostril" cx="-3" cy="3" r="1.1"/><circle class="sn-nostril" cx="3" cy="3" r="1.1"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
   $('bgSvg').innerHTML=s;
   $('bgToks').innerHTML=bgOrder().map(u=>'<div class="bgtok" id="tok_'+u+'" style="--ring:'+BG_RING[bgIdx(u)%5]+'"><span class="av">'+esc(bgPl(u).avatar||'🎮')+'</span></div>').join('');
-  bgxFill();bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();
+  bgxFill();bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();bgDieSet(1);
 }
 function bgPut(u,n){const e=$('tok_'+u);if(!e)return;const[x,y]=bgXY(n),o=[[-18,-14],[18,-14],[-18,14],[18,14],[0,0]][bgIdx(u)%5];e.style.left=((x+o[0])/8)+'%';e.style.top=((y+o[1])/7.8)+'%';bgPos[u]=n}
 function bgSyncPos(){const p=(roomData.bg&&roomData.bg.pos)||{};bgOrder().forEach(u=>bgPut(u,p[u]||0))}
@@ -2444,11 +2532,12 @@ async function bgEat(u,h,t){
   const hd=$('snh'+h),el=$('tok_'+u),path=$('snp'+h);bgPut(u,h);
   hd.classList.add('strike');snd('bad');if(navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
   await bgSleep(600);el.classList.add('eaten');await bgSleep(420);
-  hd.classList.remove('strike');path.classList.add('full');el.classList.remove('eaten');el.classList.add('inside');
+  path.classList.add('full');el.classList.remove('eaten');el.classList.add('inside');
   const L=path.getTotalLength();await bgGlide(u,k=>{const p=path.getPointAtLength(k*L);return[p.x,p.y]},1800);
-  el.classList.remove('inside');path.classList.remove('full');bgPut(u,t);el.classList.add('pop');snd('ok');await bgSleep(650);el.classList.remove('pop');
+  hd.classList.remove('strike');el.classList.remove('inside');path.classList.remove('full');bgPut(u,t);el.classList.add('pop');snd('ok');await bgSleep(650);el.classList.remove('pop');
 }
-async function bgDice(r){const d=$('bgDice');d.classList.add('roll');snd('shake');for(let i=0;i<9;i++){d.textContent='⚀⚁⚂⚃⚄⚅'[Math.floor(Math.random()*6)];await bgSleep(90)}d.textContent='⚀⚁⚂⚃⚄⚅'[r-1];d.classList.remove('roll');snd('ok');await bgSleep(350)}
+function bgDieSet(v){const f=$('bgDieFace'),pips=[[4],[0,8],[0,4,8],[0,2,6,8],[0,2,4,6,8],[0,2,3,5,6,8]][v-1];if(!f)return;if(!f.childElementCount)f.innerHTML='<i class="die-pip"></i>'.repeat(9);[...f.children].forEach((p,i)=>p.classList.toggle('on',pips.includes(i)));$('bgDice').setAttribute('aria-label','Die showing '+v);$('bgDice').dataset.value=v}
+async function bgDice(r){const d=$('bgDice');d.classList.remove('land');d.classList.add('roll');snd('shake');for(let i=0;i<13;i++){bgDieSet(1+bgRnd(6));await bgSleep(80)}bgDieSet(r);d.classList.remove('roll');d.classList.add('land');snd('ok');await bgSleep(350);d.classList.remove('land')}
 function bgConfetti(){const E=['🎉','⭐','✨','🏆','🎊'];for(let i=0;i<36;i++){const s=document.createElement('span');s.textContent=E[i%5];s.className='bgconf';s.style.cssText='left:'+Math.random()*100+'vw;animation-delay:'+Math.random()*.8+'s;font-size:'+(18+Math.random()*20)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),3600)}}
 function bgShowQ(ev){
   const q=ev.Q,m=$('bgModal'),c=BG_CATS[q.c]||BG_CATS.gen,mine=ev.u===user.uid;bgCurQ=q;
