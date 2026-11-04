@@ -2256,7 +2256,7 @@ document.addEventListener('input', function(e){
 const BG_N=56,BG_C=8,BG_R=7,BG_TIME=20;
 const BG_SNAKES={17:6,27:12,34:19,41:24,48:31,54:37},BG_LAD={3:15,8:23,20:32,28:43,36:49},BG_BACK=[0,2,3,4,5];
 const BG_COL=['#2ecc71','#e67e22','#a55eea','#ff5252','#1abc9c','#f1c40f'],BG_RING=['#FF6BB5','#00D2A0','#FFD166','#7C5CFF','#FF6B6B'];
-const BG_CATS={sci:['🔬','Science'],geo:['🌍','Geography'],his:['🏛️','History'],ani:['🐾','Animals'],food:['🍕','Food'],spt:['⚽','Sports'],pop:['🎬','Pop Culture'],wrd:['📖','Words']};
+const BG_CATS={sci:['🔬','Science'],geo:['🌍','Geography'],his:['🏛️','History'],ani:['🐾','Animals'],food:['🍕','Food'],spt:['⚽','Sports'],pop:['🎬','Pop Culture'],wrd:['📖','Words'],gen:['🧠','General'],math:['🔢','Math']};
 const BG_DN=['','Easy','Medium','Hard','Expert'];
 const BG_RAW=`sci|1|Which planet is known as the Red Planet?|Mars|Venus|Jupiter|Mercury
 sci|1|Water that freezes becomes what?|Ice|Steam|Smoke|Sand
@@ -2323,6 +2323,66 @@ wrd|3|Which spelling is correct?|Necessary|Neccessary|Necesary|Neccesary
 wrd|4|What is the fear of heights called?|Acrophobia|Claustrophobia|Arachnophobia|Agoraphobia
 wrd|4|Which word means "to make less severe"?|Mitigate|Exacerbate|Aggravate|Escalate`;
 const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
+/* ===== Endless question engine: live trivia API + generators + curated, with no-repeat tracking ===== */
+let bgCurQ=null;
+const bgRnd=n=>Math.floor(Math.random()*n),bgShuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+function bgHash(s){s=String(s).toLowerCase().replace(/[^a-z0-9]/g,'');let h=5381;for(let i=0;i<s.length;i++)h=((h*33)^s.charCodeAt(i))>>>0;return h.toString(36)}
+let bgSeenS=null;
+function bgSeenSet(){if(!bgSeenS){try{bgSeenS=new Set(JSON.parse(localStorage.getItem('bgSeenV1')||'[]'))}catch(e){bgSeenS=new Set()}}return bgSeenS}
+function bgMarkSeen(h){const s=bgSeenSet();s.add(h);try{localStorage.setItem('bgSeenV1',JSON.stringify([...s].slice(-4000)))}catch(e){}}
+const BG_FW=FALLBACK_WORDS.split(' ').filter(w=>/^[a-z]+$/.test(w));
+const BG_CAP={1:'France:Paris,Japan:Tokyo,Italy:Rome,Spain:Madrid,Germany:Berlin,Egypt:Cairo,China:Beijing,India:New Delhi,Brazil:Brasília,Canada:Ottawa,Mexico:Mexico City,Russia:Moscow,Australia:Canberra,United Kingdom:London,Greece:Athens',
+2:'Argentina:Buenos Aires,Portugal:Lisbon,Turkey:Ankara,Thailand:Bangkok,Kenya:Nairobi,Peru:Lima,Norway:Oslo,Sweden:Stockholm,Poland:Warsaw,Ireland:Dublin,Austria:Vienna,Cuba:Havana,Chile:Santiago,Vietnam:Hanoi,South Korea:Seoul,Philippines:Manila,Indonesia:Jakarta,Saudi Arabia:Riyadh,Colombia:Bogotá',
+3:'Nigeria:Abuja,Morocco:Rabat,Ethiopia:Addis Ababa,Pakistan:Islamabad,Bangladesh:Dhaka,Kazakhstan:Astana,Ukraine:Kyiv,Switzerland:Bern,Finland:Helsinki,Denmark:Copenhagen,Hungary:Budapest,Czech Republic:Prague,New Zealand:Wellington,Ghana:Accra,Tanzania:Dodoma,Myanmar:Naypyidaw,Ecuador:Quito,Mongolia:Ulaanbaatar,Nepal:Kathmandu,Malaysia:Kuala Lumpur,Iceland:Reykjavik,Cambodia:Phnom Penh,Uganda:Kampala,Laos:Vientiane,Jordan:Amman'};
+const BG_PAIRS=Object.values(BG_CAP).join(',').split(',').map(x=>x.split(':'));
+function bgNumOpts(a){const c=bgShuf([a+1,a-1,a+2,a-2,a+10,a-10,a+3,a-3,a*2,Math.round(a/2)]).filter(x=>x!==a&&x>=0);return[...new Set(c)].slice(0,3).map(String)}
+function genMath(d){const r=bgRnd,t=r(d<3?2:3);let q,a;
+  if(d===1){const x=2+r(18),y=2+r(18);if(t){q=Math.max(x,y)+' − '+Math.min(x,y);a=Math.abs(x-y)}else{q=x+' + '+y;a=x+y}q='What is '+q+'?'}
+  else if(d===2){const x=2+r(11),y=2+r(11);if(t){q='What is '+x*y+' ÷ '+x+'?';a=y}else{q='What is '+x+' × '+y+'?';a=x*y}}
+  else if(d===3){if(t===0){const x=3+r(10),y=3+r(10),z=5+r(30);q='What is ('+x+' × '+y+') + '+z+'?';a=x*y+z}else if(t===1){const p=[10,20,25,50][r(4)],n=(2+r(18))*20;q='What is '+p+'% of '+n+'?';a=p*n/100}else{const s=2+r(6),k=2+r(3);q='What comes next? '+[0,1,2,3].map(i=>s*Math.pow(k,i)).join(', ')+', ?';a=s*Math.pow(k,4)}}
+  else{if(t===0){const x=11+r(15);q='What is '+x+'²?';a=x*x}else if(t===1){const x=6+r(20);q='What is the square root of '+x*x+'?';a=x}else{const x=3+r(10);q='What is '+x+' cubed?';a=x*x*x}}
+  return{c:'math',q,a:[String(a),...bgNumOpts(a)]}}
+function genCap(d){const tier=d===1?1:d===2?2:d===3?2+bgRnd(2):3,p=BG_CAP[tier].split(',').map(x=>x.split(':')),[c,cap]=p[bgRnd(p.length)];
+  if(d>1&&bgRnd(2)){return{c:'geo',q:cap+' is the capital of which country?',a:[c,...bgShuf(BG_PAIRS.filter(x=>x[0]!==c)).slice(0,3).map(x=>x[0])]}}
+  return{c:'geo',q:'What is the capital of '+c+'?',a:[cap,...bgShuf(BG_PAIRS.filter(x=>x[1]!==cap)).slice(0,3).map(x=>x[1])]}}
+function genUnsc(d){const [lo,hi]=[[3,4],[5,5],[6,7],[8,9]][d-1],ws=BG_FW.filter(w=>w.length>=lo&&w.length<=hi);if(!ws.length)return null;
+  const w=ws[bgRnd(ws.length)],srt=x=>x.split('').sort().join('');let sc=w;for(let i=0;i<12&&sc===w;i++)sc=bgShuf(w.split('')).join('');if(sc===w)return null;
+  let pool=ws.filter(x=>x.length===w.length&&srt(x)!==srt(w));if(pool.length<3)pool=ws.filter(x=>srt(x)!==srt(w));const o=bgShuf(pool).slice(0,3);if(o.length<3)return null;
+  return{c:'wrd',q:'Unscramble these letters: '+sc.toUpperCase(),a:[w,...o].map(x=>x.toUpperCase())}}
+function genSpell(d){const ws=BG_FW.filter(w=>w.length>=4+d);if(!ws.length)return null;const w=ws[bgRnd(ws.length)],bad=new Set();
+  for(let i=0;i<30&&bad.size<3;i++){const k=1+bgRnd(w.length-2),m=bgRnd(3);let v;
+    if(m===0)v=w.slice(0,k)+w[k+1]+w[k]+w.slice(k+2);else if(m===1)v=w.slice(0,k)+w[k]+w.slice(k);else v=w.slice(0,k)+w.slice(k+1);
+    if(v!==w&&!DICT.has(v))bad.add(v)}
+  return bad.size<3?null:{c:'wrd',q:'Which word is spelled correctly?',a:[w,...bad]}}
+function genGen(d){const SH={triangle:3,square:4,pentagon:5,hexagon:6,heptagon:7,octagon:8,nonagon:9,decagon:10},MO='January February March April May June July August September October November December'.split(' ');
+  if(bgRnd(2)){const k=Object.keys(SH).slice(0,d<3?4:8),s=k[bgRnd(k.length)],a=SH[s];return{c:'gen',q:'How many sides does a '+s+' have?',a:[String(a),...bgNumOpts(a).filter(x=>+x>=3)]}}
+  const i=bgRnd(12),k=d<3?1:2+bgRnd(4),ans=MO[(i+k)%12];return{c:'gen',q:k===1?'Which month comes right after '+MO[i]+'?':'Which month is '+k+' months after '+MO[i]+'?',a:[ans,...bgShuf(MO.filter(m=>m!==ans)).slice(0,3)]}}
+function bgGen(d){for(const f of bgShuf([genMath,genMath,genCap,genGen,genUnsc,genSpell])){const Q=f(d);if(Q&&Q.a.length===4&&new Set(Q.a).size===4)return Q}return genMath(d)}
+/* Live pool from Open Trivia DB (thousands of questions, family-filtered). Falls back silently when offline. */
+const BGX={tok:null,pool:{easy:[],medium:[],hard:[]},busy:false,last:0};
+const BGX_MAP={9:'gen',17:'sci',22:'geo',23:'his',27:'ani',21:'spt',11:'pop',12:'pop',10:'pop',25:'pop',20:'his',19:'math',18:'sci'},BGX_IDS=Object.keys(BGX_MAP).map(Number);
+const BGX_BAD=/\b(sex\w*|porn\w*|nude|naked|rape\w*|kill\w*|murder\w*|suicid\w*|drugs?|cocaine|heroin|marijuana|cannabis|alcohol\w*|beer|wine|vodka|whisk(?:e)?y|cigarette\w*|tobacco|nazi\w*|hitler|holocaust|genocide|terror\w*|massacre|slave\w*|prostitut\w*|gambl\w*|bomb\w*|guns?|shoot\w*|erotic|fetish|pictured|shown below)\b|(all|none) of the above/i;
+function bgxNorm(x,cid){try{const dc=decodeURIComponent,q=dc(x.question),all=[dc(x.correct_answer),...x.incorrect_answers.map(dc)];
+  if(q.length>170||all.some(s=>s.length>42)||BGX_BAD.test(q+' | '+all.join(' | '))||isRude(q+' '+all.join(' ')))return null;
+  if(new Set(all.map(s=>s.toLowerCase())).size<4)return null;return{c:BGX_MAP[cid]||'gen',q,a:all}}catch(e){return null}}
+async function bgxFill(){if(BGX.busy)return;BGX.busy=true;
+  try{for(let n=0;n<3;n++){const df=['easy','medium','hard'].sort((a,b)=>BGX.pool[a].length-BGX.pool[b].length)[0];if(BGX.pool[df].length>=14)break;
+    const w=5400-(Date.now()-BGX.last);if(w>0)await bgSleep(w);BGX.last=Date.now();
+    if(!BGX.tok){const t=await fetch('https://opentdb.com/api_token.php?command=request').then(r=>r.json());BGX.tok=t.token||null;await bgSleep(5400);BGX.last=Date.now()}
+    const cid=BGX_IDS[bgRnd(BGX_IDS.length)],j=await fetch('https://opentdb.com/api.php?amount=10&type=multiple&encode=url3986&difficulty='+df+'&category='+cid+(BGX.tok?'&token='+BGX.tok:'')).then(r=>r.json());
+    if(j.response_code===4)await fetch('https://opentdb.com/api_token.php?command=reset&token='+BGX.tok).catch(()=>{});
+    (j.results||[]).forEach(x=>{const Q=bgxNorm(x,cid);if(Q)BGX.pool[df].push(Q)})}}
+  catch(e){}finally{BGX.busy=false}}
+function bgNewQ(d){
+  const used=(roomData.bg&&roomData.bg.used)||{},seen=bgSeenSet(),ok=Q=>{const h=bgHash(Q.q);return !used[h]&&!seen.has(h)};
+  const df=d===1?'easy':d===2?(bgRnd(2)?'medium':'easy'):d===3?'medium':'hard';
+  const live=()=>{const p=BGX.pool[df];while(p.length){const Q=p.shift();if(ok(Q))return Q}return null};
+  const gen=()=>{for(let i=0;i<15;i++){const Q=bgGen(d);if(Q&&ok(Q))return Q}return null};
+  const cur=()=>{const p=BG_QS.filter(q=>q.d===d&&ok(q));return p.length?p[bgRnd(p.length)]:null};
+  const r=Math.random(),order=r<.55?[live,gen,cur]:r<.9?[gen,live,cur]:[cur,live,gen];
+  for(const f of order){const Q=f();if(Q)return{c:Q.c,q:Q.q,a:Q.a}}
+  const Q=bgGen(d);return{c:Q.c,q:Q.q,a:Q.a};
+}
 const bgZone=n=>n<=14?1:n<=28?2:n<=42?3:4;
 const bgSleep=ms=>new Promise(r=>setTimeout(r,ms));
 const bgXY=n=>{if(n<=0)return[400,745];const i=n-1,r=Math.floor(i/BG_C),c=r%2?BG_C-1-i%BG_C:i%BG_C;return[c*100+50,(BG_R-1-r)*100+50]};
@@ -2341,7 +2401,7 @@ function bgBuild(){
     s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><circle r="18" fill="'+col+'"/><circle cx="-7" cy="-5" r="5" fill="#fff"/><circle cx="7" cy="-5" r="5" fill="#fff"/><circle cx="-7" cy="-5" r="2.4"/><circle cx="7" cy="-5" r="2.4"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
   $('bgSvg').innerHTML=s;
   $('bgToks').innerHTML=bgOrder().map(u=>'<div class="bgtok" id="tok_'+u+'" style="--ring:'+BG_RING[bgIdx(u)%5]+'"><span class="av">'+esc(bgPl(u).avatar||'🎮')+'</span></div>').join('');
-  bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();
+  bgxFill();bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();
 }
 function bgPut(u,n){const e=$('tok_'+u);if(!e)return;const[x,y]=bgXY(n),o=[[-18,-14],[18,-14],[-18,14],[18,14],[0,0]][bgIdx(u)%5];e.style.left=((x+o[0])/8)+'%';e.style.top=((y+o[1])/7.8)+'%';bgPos[u]=n}
 function bgSyncPos(){const p=(roomData.bg&&roomData.bg.pos)||{};bgOrder().forEach(u=>bgPut(u,p[u]||0))}
@@ -2360,7 +2420,7 @@ async function bgEat(u,h,t){
 async function bgDice(r){const d=$('bgDice');d.classList.add('roll');snd('shake');for(let i=0;i<9;i++){d.textContent='⚀⚁⚂⚃⚄⚅'[Math.floor(Math.random()*6)];await bgSleep(90)}d.textContent='⚀⚁⚂⚃⚄⚅'[r-1];d.classList.remove('roll');snd('ok');await bgSleep(350)}
 function bgConfetti(){const E=['🎉','⭐','✨','🏆','🎊'];for(let i=0;i<36;i++){const s=document.createElement('span');s.textContent=E[i%5];s.className='bgconf';s.style.cssText='left:'+Math.random()*100+'vw;animation-delay:'+Math.random()*.8+'s;font-size:'+(18+Math.random()*20)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),3600)}}
 function bgShowQ(ev){
-  const q=BG_QS[ev.qi],m=$('bgModal'),c=BG_CATS[q.c],mine=ev.u===user.uid;
+  const q=ev.Q,m=$('bgModal'),c=BG_CATS[q.c]||BG_CATS.gen,mine=ev.u===user.uid;bgCurQ=q;
   m.className='bg-modal on'+(ev.snake?' snake':'')+(mine?'':' spec');
   $('bgQHead').innerHTML=(ev.snake?'🐍 <b>Escape the snake!</b> ':'')+esc(bgPl(ev.u).avatar||'')+' <b>'+esc(bgPl(ev.u).name)+'</b>'+(mine?'':' is answering…');
   $('bgQMeta').innerHTML=c[0]+' '+c[1]+' · '+'⭐'.repeat(ev.d)+' '+BG_DN[ev.d]+(ev.snake?'':' · wrong = back '+BG_BACK[ev.d]);
@@ -2370,9 +2430,9 @@ function bgShowQ(ev){
   snd('go');
 }
 async function bgReveal(ev){
-  const q=BG_QS[ev.qi];$('bgQBar').style.animationPlayState='paused';
+  $('bgQBar').style.animationPlayState='paused';
   document.querySelectorAll('#bgQOpts button').forEach(b=>{b.disabled=true;if(b.dataset.j==='0')b.classList.add('right');else if(+b.dataset.j===ev.pick)b.classList.add('wrong')});
-  $('bgQFb').textContent=ev.ok?'✅ Correct!':(ev.pick<0?'⏰ Time’s up! ':'❌ Not quite! ')+'Answer: '+q.a[0];
+  $('bgQFb').textContent=ev.ok?'✅ Correct!':(ev.pick<0?'⏰ Time’s up! ':'❌ Not quite! ')+'Answer: '+ev.ans;
   snd(ev.ok?'big':'bad');await bgSleep(2000);$('bgModal').classList.remove('on');
 }
 async function bgPlay(ev){
@@ -2404,11 +2464,11 @@ async function bgDoTurn(){
     if(to>=BG_N){await bgEmit({k:'win',u},{winner:u});await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow()});return}
     if(BG_LAD[to]){await bgEmit({k:'lad',u,from:to,to:BG_LAD[to]},{['pos/'+u]:BG_LAD[to]})}
     else{
-      const snake=BG_SNAKES[to]!=null,d=snake?Math.max(2,bgZone(to)):bgZone(to),qi=bgPick(d),sh=[0,1,2,3].sort(()=>Math.random()-.5);
+      const snake=BG_SNAKES[to]!=null,d=snake?Math.max(2,bgZone(to)):bgZone(to),Q=bgNewQ(d),h=bgHash(Q.q),sh=[0,1,2,3].sort(()=>Math.random()-.5);
       const wait=new Promise(res=>{bgAns=res;bgTO=setTimeout(()=>{if(bgAns){bgAns=null;res(-1)}},BG_TIME*1000+300)});
-      await bgEmit({k:'q',u,qi,d,snake,tile:to,sh,t0:srvNow()},{['used/'+qi]:true});
+      bgMarkSeen(h);bgxFill();await bgEmit({k:'q',u,Q,d,snake,tile:to,sh,t0:srvNow()},{['used/'+h]:true});
       const pick=await wait,ok=pick===0;
-      await bgEmit({k:'ans',u,qi,pick,ok},{});
+      await bgEmit({k:'ans',u,pick,ok,ans:Q.a[0]},{});
       if(!ok&&snake)await bgEmit({k:'eat',u,h:to,t:BG_SNAKES[to]},{['pos/'+u]:BG_SNAKES[to]});
       else if(!ok){const np=Math.max(0,to-BG_BACK[d]);await bgEmit({k:'back',u,from:to,to:np},{['pos/'+u]:np})}
     }
