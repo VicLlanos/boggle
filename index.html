@@ -6520,7 +6520,9 @@ const ERAS=['Fishing Village','Harbor Town','Industrial Town','Modern City'];
 let az=.75,pol=.95,dist=17,taz=.75,tpol=.95,tdist=17;
 const mats={},rnd=a=>a[Math.floor(Math.random()*a.length)],cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const key=(q,r)=>q+','+r,pos=(q,r)=>[R*S3*(q+r/2),R*1.5*r],d2=(q,r)=>Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r));
-const H=(q,r)=>(cells[key(q,r)]||{h:0}).h,free=(q,r)=>d2(q,r)<=LAND&&!cells[key(q,r)];
+const H=(q,r)=>{const c=cells[key(q,r)];return c?(c.t==='floor'||c.t==='bridge'?0:c.h):0};
+const isWalk=(q,r)=>{const c=cells[key(q,r)];if(!c)return d2(q,r)<=LAND;return c.t==='floor'||c.t==='bridge';};
+const free=(q,r)=>isWalk(q,r);
 let BOX,CYL,CYL12,CONE,SPH;
 function M(c,o){const k=c+(o?JSON.stringify(o):'');return mats[k]||(mats[k]=new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0},o||{})))}
 function MT(t,o){const k='t'+t.uuid+(o?JSON.stringify(o):'');return mats[k]||(mats[k]=new THREE.MeshStandardMaterial(Object.assign({map:t,roughness:.92,metalness:0},o||{})))}
@@ -6537,12 +6539,17 @@ const stone=(id,rx)=>tex(id,128,128,(g,w,h)=>{g.fillStyle='#6f6a60';g.fillRect(0
 const awnT=t=>tex('aw'+t,64,64,(g,w,h)=>{for(let i=0;i<8;i++){g.fillStyle=TY[t].aw[i%2];g.fillRect(i*8,0,8,h)}});
 function signMat(t){const id='sg'+t;if(mats[id])return mats[id];const tx=tex(id,256,64,(g,w,h)=>{g.fillStyle=TY[t].bg;g.fillRect(0,0,w,h);g.strokeStyle='#e8d9a8';g.lineWidth=5;g.strokeRect(4,4,w-8,h-8);g.fillStyle='#f4e7bd';g.font='bold 34px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(TY[t].sign,w/2,h/2+2)});
   const m=new THREE.MeshStandardMaterial({map:tx,emissive:0xffffff,emissiveMap:tx,emissiveIntensity:night?.7:0,roughness:.6});signMats.push(m);return mats[id]=m}
-const TY={home:{n:'Home',e:'🏠',max:4,cost:30,inc:2,pop:3,u:0},fishery:{n:'Fishery',e:'🎣',max:2,cost:70,inc:6,u:0,sign:'FISHERY',bg:'#1d4a6b',aw:['#2f7fa6','#e8f1f5']},
+const TY={
+  home:{n:'Home',e:'🏠',max:4,cost:30,inc:2,pop:3,u:0},
+  fishery:{n:'Fishery',e:'🎣',max:2,cost:70,inc:6,u:0,sign:'FISHERY',bg:'#1d4a6b',aw:['#2f7fa6','#e8f1f5']},
   shop:{n:'Market',e:'🛍️',max:3,cost:50,inc:4,u:0,sign:'MARKET',bg:'#2a5238',aw:['#2f7a4a','#efe6d2']},
   rest:{n:'Restaurant',e:'🍽️',max:3,cost:70,inc:5,u:1,sign:'RESTAURANT',bg:'#6e1d25',aw:['#a3282f','#efe6d2']},
   laundry:{n:'Laundromat',e:'🧺',max:3,cost:60,inc:3,u:1,sign:'LAUNDRY',bg:'#1d5878',aw:['#2f7fa6','#e8f1f5']},
   factory:{n:'Factory',e:'🏭',max:3,cost:220,inc:14,u:2,sign:'FACTORY',bg:'#4a4d52'},
-  condo:{n:'Condominium',e:'🏢',max:8,cost:180,inc:3,pop:8,u:3,sign:'CONDOS',bg:'#27343f'}};
+  condo:{n:'Condominium',e:'🏢',max:8,cost:180,inc:3,pop:8,u:3,sign:'CONDOS',bg:'#27343f'},
+  floor:{n:'Plaza',e:'🟫',max:1,cost:12,inc:0,pop:0,u:0},
+  bridge:{n:'Bridge',e:'🌉',max:1,cost:40,inc:0,pop:0,u:0}
+};
 const wood=()=>tex('wood',128,128,(g,w,h)=>{for(let r=0;r<6;r++){g.fillStyle=shade('#8a6a4a',(Math.random()-.5)*40);g.fillRect(0,r*21,w,20);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(0,r*21+20,w,1.5)}},6,1);
 
 function loadThree(cb){
@@ -6589,7 +6596,24 @@ function resize(){const b=$('townCv').getBoundingClientRect();if(!ren)return;ren
 
 /* ---- cell geometry: brick floors, storefronts, signs, roofs ---- */
 let csz={};
-function clusters(){csz={};const seen={};Object.keys(cells).forEach(k=>{if(seen[k])return;const st=[k],grp=[];seen[k]=1;while(st.length){const a=st.pop();grp.push(a);const [q,r]=a.split(',').map(Number);DIRS.forEach(d=>{const n=key(q+d[0],r+d[1]);if(cells[n]&&!seen[n]){seen[n]=1;st.push(n)}})}grp.forEach(a=>csz[a]=grp.length)})}
+function clusters(){
+  csz={}; const seen={};
+  Object.keys(cells).forEach(k=>{
+    if(seen[k]) return;
+    const c0=cells[k];
+    if(!c0 || c0.t==='floor' || c0.t==='bridge') { csz[k]=1; seen[k]=1; return; }
+    const st=[k], grp=[]; seen[k]=1;
+    while(st.length){
+      const a=st.pop(); grp.push(a);
+      const [q,r]=a.split(',').map(Number);
+      DIRS.forEach(d=>{
+        const n=key(q+d[0],r+d[1]), cn=cells[n];
+        if(cn && !seen[n] && cn.t!=='floor' && cn.t!=='bridge'){ seen[n]=1; st.push(n); }
+      });
+    }
+    grp.forEach(a=>csz[a]=grp.length);
+  });
+}
 function face(p,a,ap,fn){const o=new THREE.Object3D();o.position.set(Math.cos(a)*ap,0,Math.sin(a)*ap);o.rotation.y=Math.PI/2-a;p.add(o);fn(o)}
 function sign(o,y,t){mk(BOX,signMat(t),.78,.2,.05,0,y+.97,.03,o)}
 function entrance(o,y,t,tbl){
@@ -6617,20 +6641,89 @@ function buildCell(q,r,pop){
   if(meshes[k]){root.remove(meshes[k]);delete meshes[k]}
   if(ground[k])ground[k].visible=!c;
   if(!c)return;
-  const t=c.t||'home',condo=t==='condo',fac=t==='factory',fsh=t==='fishery',block=(csz[k]>1||condo||fac)&&!fsh,wl=WALLS[c.c%WALLS.length];
+
+  const t=c.t||'home';
+  const isFloor=t==='floor', isBridge=t==='bridge';
+  const condo=t==='condo', fac=t==='factory', fsh=t==='fishery';
+  const block=(csz[k]>1||condo||fac)&&!fsh&&!isFloor&&!isBridge;
+  const wl=WALLS[(c.c||0)%WALLS.length];
   const wm=fsh?MT(wood()):fac?MT(brick('#6b3f33')):condo?MT(conc()):wl[0]==='b'?MT(brick(wl[1])):MT(plaster(wl[1]));
-  const [x,z]=pos(q,r),g=new THREE.Group();g.position.set(x,0,z);g.userData.k=k;
+  const [x,z]=pos(q,r), g=new THREE.Group(); g.position.set(x,0,z); g.userData.k=k;
+
+  // ---- FLOOR / PLAZA (no building) ----
+  if(isFloor){
+    // Adaptive plaza: slightly different look when connected to other floors/buildings
+    const nbs=DIRS.filter(dv=>cells[key(q+dv[0],r+dv[1])]);
+    const connected=nbs.length>0;
+    mk(CYL, MT(stone('stf',6)), R*(connected?1.02:0.96), .12, R*(connected?1.02:0.96), 0, .06, 0, g);
+    // subtle edge ring
+    mk(CYL, connected?'#a89b86':'#c4b8a0', R*1.05, .04, R*1.05, 0, .01, 0, g, false);
+    // small props on open plazas
+    if(nbs.length<=2 && Math.random()<.5){
+      mk(CYL12, '#6b8f4a', .08, .18, .08, .25, .2, .15, g);
+      mk(SPH, '#4a7a32', .14, .1, .14, .25, .32, .15, g, false);
+    }
+    g.userData.top=g; g.userData.t0=pop?performance.now()/1000:-9;
+    root.add(g); meshes[k]=g;
+    return;
+  }
+
+  // ---- BRIDGE ----
+  if(isBridge){
+    // Find best direction toward another land/bridge/building
+    let best=-1, bestScore=-1;
+    DIRS.forEach((dv,di)=>{
+      const nq=q+dv[0], nr=r+dv[1];
+      const nc=cells[key(nq,nr)];
+      let score=0;
+      if(nc) score+=3;
+      if(d2(nq,nr)<=LAND) score+=1;
+      if(score>bestScore){bestScore=score; best=di;}
+    });
+    const dv=DIRS[best>=0?best:0];
+    const a=Math.atan2(pos(q+dv[0],r+dv[1])[1]-z, pos(q+dv[0],r+dv[1])[0]-x);
+
+    // Pillars
+    mk(CYL12, '#5a4638', .12, .7, .12, 0, -.25, 0, g);
+    // Deck
+    const deck=new THREE.Group();
+    mk(BOX, '#8a6a4a', 1.9, .1, .55, 0, .12, 0, deck);
+    mk(BOX, '#6b5340', 1.9, .06, .08, 0, .2, .28, deck);
+    mk(BOX, '#6b5340', 1.9, .06, .08, 0, .2, -.28, deck);
+    // Rail posts
+    for(let i=-1;i<=1;i+=1){
+      mk(CYL12, '#4a3626', .03, .28, .03, i*.55, .32, .28, deck, false);
+      mk(CYL12, '#4a3626', .03, .28, .03, i*.55, .32, -.28, deck, false);
+    }
+    deck.rotation.y=-a+Math.PI/2;
+    g.add(deck);
+    g.userData.top=g; g.userData.t0=pop?performance.now()/1000:-9;
+    root.add(g); meshes[k]=g;
+    return;
+  }
+
+  // ---- NORMAL BUILDINGS (improved adaptive walls) ----
   if(fsh){mk(CYL,MT(wood()),R*1.0,.5,R*1.0,0,-.12,0,g);for(let n=0;n<6;n++){const aa=n*Math.PI/3+Math.PI/6;mk(CYL12,'#4a3626',.07,1.1,.07,Math.cos(aa)*R*.9,-.6,Math.sin(aa)*R*.9,g)}}
   else mk(CYL,MT(stone('st6',6)),R*1.0,.7,R*1.0,0,-.22,0,g);
+
   const lower=new THREE.Group(),top=new THREE.Group();top.position.y=.05+(c.h-1)*FH;g.add(lower,top);
   let door=false;
-  for(let i=0;i<c.h;i++){
-    const p=i===c.h-1?top:lower,y=i===c.h-1?0:.05+i*FH;
-    mk(CYL,wm,R*.96,FH,R*.96,0,y+FH/2,0,p);
+  const height=c.h||1;
+
+  for(let i=0;i<height;i++){
+    const p=i===height-1?top:lower, y=i===height-1?0:.05+i*FH;
+    // Main volume — slightly shrink when heavily connected so blocks feel merged
+    const shrink = block ? 0.94 : 0.96;
+    mk(CYL,wm,R*shrink,FH,R*shrink,0,y+FH/2,0,p);
     mk(CYL,block?'#b3a590':'#d9cfc0',R*1.0,.09,R*1.0,0,y+.045,0,p);
+
     DIRS.forEach((dv,di)=>{
-      if(H(q+dv[0],r+dv[1])>i)return;
-      const [nx,nz]=pos(q+dv[0],r+dv[1]),a=Math.atan2(nz-z,nx-x),lit=((q*31+r*17+i*13+di*7)&3)===0,odd=(i+di)%2===0;
+      // Skip face completely if neighbor is same height or taller → seamless block
+      const nh=H(q+dv[0],r+dv[1]);
+      if(nh>i) return;
+      // If neighbor is a floor/bridge, still show a wall but lower detail
+      const [nx,nz]=pos(q+dv[0],r+dv[1]), a=Math.atan2(nz-z,nx-x);
+      const lit=((q*31+r*17+i*13+di*7)&3)===0, odd=(i+di)%2===0;
       face(p,a,R*.866*.96,o=>{
         if(i===0&&!door){door=true;entrance(o,y,t,free(q+dv[0],r+dv[1]))}
         else if(i===0&&t!=='home'&&t!=='condo'&&!fac&&!fsh)front(o,y,t);
@@ -6638,22 +6731,41 @@ function buildCell(q,r,pop){
       });
     });
   }
-  const rc=fsh?'#3a6f87':ROOFS[c.r%ROOFS.length];
-  if(!block){mk(CONE,MT(roofT(rc)),R*1.12,1.0,R*1.12,0,FH+.5,0,top);mk(CYL,rc,R*1.12,.07,R*1.12,0,FH+.035,0,top);
-    if(c.ch){mk(BOX,'#8f4a3b',.2,.62,.2,.38,FH+.66,.12,top);mk(BOX,'#4a2b25',.26,.06,.26,.38,FH+.98,.12,top)}}
-  else{mk(CYL,'#a89b86',R*1.0,.16,R*1.0,0,FH+.08,0,top);mk(CYL,'#4a4d52',R*.86,.05,R*.86,0,FH+.15,0,top);
+
+  const rc=fsh?'#3a6f87':ROOFS[(c.r||0)%ROOFS.length];
+  if(!block){
+    // Peaked roof for standalone / small clusters
+    mk(CONE,MT(roofT(rc)),R*1.12,1.0,R*1.12,0,FH+.5,0,top);
+    mk(CYL,rc,R*1.12,.07,R*1.12,0,FH+.035,0,top);
+    if(c.ch){mk(BOX,'#8f4a3b',.2,.62,.2,.38,FH+.66,.12,top);mk(BOX,'#4a2b25',.26,.06,.26,.38,FH+.98,.12,top)}
+  } else {
+    // Flat connected roof for city blocks
+    mk(CYL,'#a89b86',R*1.0,.16,R*1.0,0,FH+.08,0,top);
+    mk(CYL,'#4a4d52',R*.86,.05,R*.86,0,FH+.15,0,top);
     mk(BOX,'#b9bec2',.3,.2,.22,.3,FH+.26,-.2,top);
-    if(c.h>=3||condo){mk(CYL12,'#6b4a32',.16,.34,.16,-.3,FH+.34,.1,top);mk(CONE,'#4a3426',.18,.12,.18,-.3,FH+.57,.1,top)}
-    if(condo){mk(CYL12,'#cfd3d6',.015,.8,.015,.1,FH+.55,.25,top,false)}}
-  if(fac){[[-.3,-.2,1.4],[.25,.2,1.05]].forEach((sk,n)=>{mk(CYL12,'#8a4a3a',.15,sk[2],.15,sk[0],FH+.2+sk[2]/2,sk[1],top);mk(CYL12,'#e8e4dc',.157,.1,.157,sk[0],FH+.2+sk[2]-.1,sk[1],top,false)});
-    SMOKE=SMOKE||new THREE.MeshStandardMaterial({color:'#d8d8d8',transparent:true,opacity:.78,roughness:1});g.userData.smoke=[];
-    for(let n=0;n<8;n++){const m=new THREE.Mesh(SPH,SMOKE),sk=n%2?[.25,.2,1.25]:[-.3,-.2,1.6];top.add(m);g.userData.smoke.push({m,x:sk[0],z:sk[1],y:FH+sk[2]+.2,ph:n/8})}}
-  if(fsh){const dn=DIRS.findIndex(dv=>!cells[key(q+dv[0],r+dv[1])]&&d2(q+dv[0],r+dv[1])>LAND);
-    if(dn>=0){const dv=DIRS[dn],[nx,nz]=pos(q+dv[0],r+dv[1]),a=Math.atan2(nz-z,nx-x),b=new THREE.Group();
-      mk(BOX,'#7a4a2a',.62,.14,.26,0,.06,0,b);mk(CONE,'#7a4a2a',.13,.26,.13,.4,.06,0,b).rotation.z=-Math.PI/2;mk(BOX,'#efe6d2',.2,.16,.2,-.08,.19,0,b);mk(CYL12,'#4a3626',.015,.5,.015,.1,.35,0,b,false);mk(BOX,'#c9d6dc',.02,.22,.16,.1,.4,.09,b,false);
-      b.position.set(Math.cos(a)*R*1.75,-.04,Math.sin(a)*R*1.75);b.rotation.y=-a+Math.PI/2*(n=>1)(0);g.add(b);g.userData.boat=b}}
-  g.userData.top=top;g.userData.t0=pop?performance.now()/1000:-9;
-  root.add(g);meshes[k]=g;
+    if(height>=3||condo){mk(CYL12,'#6b4a32',.16,.34,.16,-.3,FH+.34,.1,top);mk(CONE,'#4a3426',.18,.12,.18,-.3,FH+.57,.1,top)}
+    if(condo){mk(CYL12,'#cfd3d6',.015,.8,.015,.1,FH+.55,.25,top,false)}
+  }
+
+  if(fac){
+    [[-.3,-.2,1.4],[.25,.2,1.05]].forEach((sk,n)=>{mk(CYL12,'#8a4a3a',.15,sk[2],.15,sk[0],FH+.2+sk[2]/2,sk[1],top);mk(CYL12,'#e8e4dc',.157,.1,.157,sk[0],FH+.2+sk[2]-.1,sk[1],top,false)});
+    SMOKE=SMOKE||new THREE.MeshStandardMaterial({color:'#d8d8d8',transparent:true,opacity:.78,roughness:1});
+    g.userData.smoke=[];
+    for(let n=0;n<8;n++){const m=new THREE.Mesh(SPH,SMOKE),sk=n%2?[.25,.2,1.25]:[-.3,-.2,1.6];top.add(m);g.userData.smoke.push({m,x:sk[0],z:sk[1],y:FH+sk[2]+.2,ph:n/8})}
+  }
+
+  if(fsh){
+    const dn=DIRS.findIndex(dv=>!cells[key(q+dv[0],r+dv[1])]&&d2(q+dv[0],r+dv[1])>LAND);
+    if(dn>=0){
+      const dv=DIRS[dn],[nx,nz]=pos(q+dv[0],r+dv[1]),a=Math.atan2(nz-z,nx-x),b=new THREE.Group();
+      mk(BOX,'#7a4a2a',.62,.14,.26,0,.06,0,b);mk(CONE,'#7a4a2a',.13,.26,.13,.4,.06,0,b).rotation.z=-Math.PI/2;
+      mk(BOX,'#efe6d2',.2,.16,.2,-.08,.19,0,b);mk(CYL12,'#4a3626',.015,.5,.015,.1,.35,0,b,false);mk(BOX,'#c9d6dc',.02,.22,.16,.1,.4,.09,b,false);
+      b.position.set(Math.cos(a)*R*1.75,-.04,Math.sin(a)*R*1.75);b.rotation.y=-a+Math.PI/2;g.add(b);g.userData.boat=b;
+    }
+  }
+
+  g.userData.top=top; g.userData.t0=pop?performance.now()/1000:-9;
+  root.add(g); meshes[k]=g;
 }
 function rebuildAll(pk){clusters();for(let q=-MAXR;q<=MAXR;q++)for(let r=-MAXR;r<=MAXR;r++)if(d2(q,r)<=MAXR)buildCell(q,r,pk===key(q,r))}
 
@@ -6695,21 +6807,97 @@ function updMovers(dt,t){
 /* ---- actions ---- */
 function ripple(q,r){const [x,z]=pos(q,r),m=new THREE.Mesh(new THREE.RingGeometry(.85,1,28),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}));
   m.rotation.x=-Math.PI/2;m.position.set(x,-.03,z);scene.add(m);ripples.push({m,t0:performance.now()/1000})}
-function can(k,q,r){const T=TY[k];if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return false}if(k==='fishery'&&d2(q,r)<=LAND){toast('🎣 Fisheries must be built on the water — try the outer ring');return false}return true}
+function can(k,q,r){
+  const T=TY[k];
+  if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return false}
+  if(k==='fishery'&&d2(q,r)<=LAND){toast('🎣 Fisheries must be built on the water — try the outer ring');return false}
+  if(k==='bridge'){
+    // Bridges allowed on land edge or water ring
+    if(d2(q,r)>MAXR){toast('Too far for a bridge');return false}
+    return true;
+  }
+  if(k==='floor'){
+    if(d2(q,r)>LAND){toast('Plazas go on the island');return false}
+    return true;
+  }
+  // Normal buildings stay on land (except fishery)
+  if(k!=='fishery'&&d2(q,r)>LAND){toast('Build on the island land');return false}
+  return true;
+}
 const need=n=>toast('Not enough coins 💰 — need '+n);
 function act(q,r,mode){
-  if(d2(q,r)>MAXR)return;const k=key(q,r),c=cells[k],prev=JSON.stringify({c:cells,$:G.coins});
-  if(mode==='erase'){if(!c)return;const T=TY[c.t||'home'];G.coins+=Math.floor((c.h>1?T.cost*.6:T.cost)/2);if(c.h>1)c.h--;else delete cells[k];beep(300,.14,'sine',.1,110)}
-  else if(mode==='paint'){if(!c)return toast('Tap a building to change its type');if(!can(kind,q,r))return;const cost=Math.round(TY[kind].cost*.5);if(G.coins<cost)return need(cost);G.coins-=cost;
-    c.t=kind;c.h=Math.min(c.h,TY[kind].max);if(color>=0)c.c=color;toast(TY[kind].e+' Now a '+TY[kind].n);beep(520,.1,'triangle',.1);setTimeout(()=>beep(700,.1,'triangle',.08),80)}
-  else{
-    if(c){const T=TY[c.t||'home'],cost=Math.round(T.cost*.6);if(c.h>=T.max){toast('Max height for a '+T.n+' ('+T.max+' floors)');return}if(G.coins<cost)return need(cost);G.coins-=cost;c.h++;if(color>=0)c.c=color;toast(T.e+' Floor '+c.h+' (−'+cost+' 💰)')}
-    else{if(!can(kind,q,r))return;const cost=TY[kind].cost;if(G.coins<cost)return need(cost);G.coins-=cost;const nb=DIRS.map(d=>cells[key(q+d[0],r+d[1])]).filter(Boolean);
-      cells[k]={h:1,t:kind,c:color>=0?color:nb.length?rnd(nb).c:Math.floor(Math.random()*WALLS.length),r:Math.floor(Math.random()*ROOFS.length),ch:Math.random()<.4?1:0};
-      toast(nb.length?'Connected! Buildings now share a roof 🏘️':TY[kind].e+' New '+TY[kind].n+' (−'+cost+' 💰)')}
-    beep(240+Math.random()*120,.16,'sine',.13,560);setTimeout(()=>beep(820,.08,'triangle',.06),70)}
-  undo.push(prev);if(undo.length>30)undo.shift();
-  rebuildAll(mode==='erase'?null:k);ripple(q,r);syncMovers();checkEra(stats());save();cloudSave()}
+  if(d2(q,r)>MAXR)return;
+  const k=key(q,r), c=cells[k], prev=JSON.stringify({c:cells,$:G.coins});
+  const isFlat = (knd)=>knd==='floor'||knd==='bridge';
+
+  if(mode==='erase'){
+    if(!c)return;
+    const T=TY[c.t||'home'];
+    G.coins+=Math.floor((c.h>1?T.cost*.6:T.cost)/2);
+    if(c.h>1 && !isFlat(c.t)) c.h--;
+    else delete cells[k];
+    beep(300,.14,'sine',.1,110);
+  }
+  else if(mode==='paint'){
+    if(!c) return toast('Tap a tile to change its type');
+    if(!can(kind,q,r)) return;
+    const cost=Math.round(TY[kind].cost*.5);
+    if(G.coins<cost) return need(cost);
+    G.coins-=cost;
+    c.t=kind;
+    c.h=isFlat(kind)?1:Math.min(c.h||1, TY[kind].max);
+    if(color>=0) c.c=color;
+    toast(TY[kind].e+' Now a '+TY[kind].n);
+    beep(520,.1,'triangle',.1); setTimeout(()=>beep(700,.1,'triangle',.08),80);
+  }
+  else {
+    // Build mode
+    if(c){
+      // Already something here
+      if(isFlat(c.t) || isFlat(kind)){
+        // Replacing a floor/bridge or trying to stack a flat type → just swap type
+        if(!can(kind,q,r)) return;
+        const cost=Math.round(TY[kind].cost*.5);
+        if(G.coins<cost) return need(cost);
+        G.coins-=cost;
+        c.t=kind; c.h=1;
+        if(color>=0) c.c=color;
+        toast(TY[kind].e+' '+TY[kind].n+' (−'+cost+' 💰)');
+      } else {
+        // Stack height on normal building
+        const T=TY[c.t||'home'], cost=Math.round(T.cost*.6);
+        if(c.h>=T.max){toast('Max height for a '+T.n+' ('+T.max+' floors)');return}
+        if(G.coins<cost) return need(cost);
+        G.coins-=cost; c.h++; if(color>=0) c.c=color;
+        toast(T.e+' Floor '+c.h+' (−'+cost+' 💰)');
+      }
+    } else {
+      // Empty cell — place new
+      if(!can(kind,q,r)) return;
+      const cost=TY[kind].cost;
+      if(G.coins<cost) return need(cost);
+      G.coins-=cost;
+      const nb=DIRS.map(d=>cells[key(q+d[0],r+d[1])]).filter(Boolean);
+      cells[k]={
+        h:1,
+        t:kind,
+        c:color>=0?color:(nb.length?rnd(nb).c:Math.floor(Math.random()*WALLS.length)),
+        r:Math.floor(Math.random()*ROOFS.length),
+        ch:Math.random()<.4?1:0
+      };
+      if(isFlat(kind)){
+        toast(TY[kind].e+' '+TY[kind].n+' placed (−'+cost+' 💰)');
+      } else {
+        toast(nb.length?'Connected! Buildings now share a roof 🏘️':TY[kind].e+' New '+TY[kind].n+' (−'+cost+' 💰)');
+      }
+    }
+    beep(240+Math.random()*120,.16,'sine',.13,560);
+    setTimeout(()=>beep(820,.08,'triangle',.06),70);
+  }
+  undo.push(prev); if(undo.length>30) undo.shift();
+  rebuildAll(mode==='erase'?null:k);
+  ripple(q,r); syncMovers(); checkEra(stats()); save(); cloudSave();
+}
 function applyState(sv){cells=sv.cells||{};G=Object.assign({coins:200,era:0,seen:{}},sv.G||{});stamp=sv.t||0}
 function save(){stamp=Date.now();try{localStorage.setItem('town_v3',JSON.stringify({cells,G,t:stamp}))}catch(e){}}
 function cloudSave(now){clearTimeout(cT);const go=()=>{try{if(user&&cloudDone)db.ref('towns/'+user.uid).set({data:JSON.stringify({cells,G,t:stamp}),t:firebase.database.ServerValue.TIMESTAMP,mayor:(profile&&profile.name)||'',era:G.era,pop:stats().pop}).catch(()=>{})}catch(e){}};now?go():cT=setTimeout(go,2500)}
@@ -6722,7 +6910,7 @@ function cloudInit(){
 function restore(sv){const o=JSON.parse(sv);cells=o.c;G.coins=o.$;rebuildAll();syncMovers();save();cloudSave()}
 /* ---- mayor economy ---- */
 const mayor=()=>(profile&&profile.name)||'Mayor';
-function stats(){const S={pop:0,inc:0,am:0,fac:0,fish:0};Object.values(cells).forEach(c=>{const T=TY[c.t||'home'];S.pop+=(T.pop||0)*c.h;S.inc+=T.inc*c.h;if(c.t==='rest'||c.t==='shop'||c.t==='laundry')S.am+=c.h;if(c.t==='factory')S.fac+=c.h;if(c.t==='fishery')S.fish++});
+function stats(){const S={pop:0,inc:0,am:0,fac:0,fish:0};Object.values(cells).forEach(c=>{if(c.t==='floor'||c.t==='bridge')return;const T=TY[c.t||'home'];S.pop+=(T.pop||0)*c.h;S.inc+=(T.inc||0)*c.h;if(c.t==='rest'||c.t==='shop'||c.t==='laundry')S.am+=c.h;if(c.t==='factory')S.fac+=c.h;if(c.t==='fishery')S.fish++});
   S.hap=cl(72+Math.min(22,S.am*4)-S.fac*7-(G.ind?8:0)+(G.green?6:0),15,100);return S}
 const GOALS=[S=>S.pop>=12&&S.fish>=1,S=>S.pop>=30&&S.fish>=2&&S.am>=3,S=>S.pop>=70&&S.fac>=2],GT=['12 people + a 🎣 Fishery','30 people, 2 🎣 Fisheries, 3 shop/restaurant floors','70 people + 2 🏭 factory floors'];
 function hud(S){S=S||stats();$('tnEra').textContent=['🎣','⚓','🏭','🏙️'][G.era]+' '+ERAS[G.era];$('tnStats').textContent='💰 '+G.coins+'  👥 '+S.pop+'  '+(S.hap>=70?'😊':S.hap>=45?'😐':'😠')+S.hap;
