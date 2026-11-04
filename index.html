@@ -857,13 +857,15 @@ input:focus-visible{outline:none}
 .tn-t{font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;font-size:.95rem;background:rgba(255,255,255,.85);padding:7px 12px;border-radius:999px;backdrop-filter:blur(8px);white-space:nowrap}
 .tn-stats{flex:1;text-align:right;font-weight:800;color:#fff;font-size:.82rem;text-shadow:0 1px 3px rgba(0,0,0,.55);pointer-events:none;white-space:nowrap}
 .tn-goal{position:absolute;top:calc(max(10px,var(--safe-t)) + 52px);left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);background:rgba(30,45,55,.72);color:#fff;font-weight:800;font-size:.72rem;padding:6px 12px;border-radius:999px;text-align:center;pointer-events:none;backdrop-filter:blur(6px)}
-.tn-b{width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.88);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 0 rgba(30,50,60,.25);font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;transition:transform .12s;padding:0;flex:none}
+.tn-b{width:46px;height:46px;min-width:46px;min-height:46px;border:none;border-radius:50%;background:rgba(255,255,255,.92);font-size:1.2rem;cursor:pointer;box-shadow:0 4px 0 rgba(30,50,60,.25);font-family:'Fredoka',sans-serif;font-weight:700;color:#2f4a5a;transition:transform .12s;padding:0;flex:none;-webkit-tap-highlight-color:transparent}
 .tn-b:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(30,50,60,.25)}
 .tn-b.on{background:#fff;outline:3px solid #e8913a}
-.tn-bar{position:absolute;left:10px;right:10px;bottom:max(40px,calc(var(--safe-b) + 34px));display:flex;flex-direction:column;gap:8px}
-.tn-types{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-.tp{flex:none;display:flex;align-items:center;gap:5px;border:none;border-radius:999px;background:rgba(255,255,255,.88);padding:7px 12px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;color:#2f4a5a;cursor:pointer;box-shadow:0 3px 0 rgba(30,50,60,.22)}
-.tp span{font-size:1.1rem}.tp small{font-size:.68rem;font-weight:700;color:#8a6a1f}.tp.on{background:#fff;outline:3px solid #e8913a}.tp.lk{opacity:.55}
+.tn-bar{position:absolute;left:8px;right:8px;bottom:max(36px,calc(var(--safe-b) + 28px));display:flex;flex-direction:column;gap:8px}
+.tn-types{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tn-types::-webkit-scrollbar{display:none}
+.tp{flex:none;display:flex;align-items:center;gap:6px;border:none;border-radius:16px;background:rgba(255,255,255,.92);padding:10px 14px;min-height:48px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.82rem;color:#2f4a5a;cursor:pointer;box-shadow:0 3px 0 rgba(30,50,60,.22);-webkit-tap-highlight-color:transparent}
+.tp span{font-size:1.25rem;line-height:1}.tp small{font-size:.7rem;font-weight:700;color:#8a6a1f}.tp.on{background:#fff;outline:3px solid #e8913a}.tp.lk{opacity:.5}
+@media(max-width:400px){.tp{padding:9px 11px;font-size:.75rem}.tn-b{width:44px;height:44px;min-width:44px;min-height:44px}}
 .tn-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .tn-sw{display:flex;gap:6px;background:rgba(255,255,255,.8);padding:7px 9px;border-radius:999px;backdrop-filter:blur(8px);max-width:100%;overflow-x:auto}
 .tn-btns{display:flex;gap:7px;margin-left:auto}
@@ -6507,7 +6509,7 @@ if ('serviceWorker' in navigator) {
 }
 /* ===== ISLAND BUILDER (solo, Townscaper-style, hex grid) ===== */
 (function(){
-const R=1,S3=Math.sqrt(3),LAND=2,MAXR=3,FH=1.1;
+const R=1,S3=Math.sqrt(3),LAND=4,MAXR=6,FH=1.1;
 const DIRS=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
 const WALLS=[['b','#a8472f'],['b','#97402e'],['b','#b9714a'],['p','#d8c7a2'],['p','#c7b08e'],['p','#8f9ea8'],['p','#a7ae93'],['b','#7d4a3a']];
 const ROOFS=['#7a3a2a','#4a4f58','#8a4a32','#55705a','#5d4a57'];
@@ -6520,7 +6522,8 @@ const ERAS=['Fishing Village','Harbor Town','Industrial Town','Modern City'];
 let az=.75,pol=.95,dist=17,taz=.75,tpol=.95,tdist=17;
 const mats={},rnd=a=>a[Math.floor(Math.random()*a.length)],cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const key=(q,r)=>q+','+r,pos=(q,r)=>[R*S3*(q+r/2),R*1.5*r],d2=(q,r)=>Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r));
-const H=(q,r)=>{const c=cells[key(q,r)];return c?(c.t==='floor'||c.t==='bridge'?0:c.h):0};
+const H=(q,r)=>{const c=cells[key(q,r)];return c?(c.t==='floor'||c.t==='bridge'?0:(c.h||0)):0};
+const isLand=(q,r)=>d2(q,r)<=LAND || !!(cells[key(q,r)]&&(cells[key(q,r)].t==='floor'||(cells[key(q,r)].t!=='bridge'&&cells[key(q,r)].t!=='fishery')));
 const isWalk=(q,r)=>{const c=cells[key(q,r)];if(!c)return d2(q,r)<=LAND;return c.t==='floor'||c.t==='bridge';};
 const free=(q,r)=>isWalk(q,r);
 let BOX,CYL,CYL12,CONE,SPH;
@@ -6573,10 +6576,21 @@ function init(){
   water=new THREE.Mesh(new THREE.PlaneGeometry(90,90,64,64),M('#2b7c8e',{flatShading:true,transparent:true,opacity:.95,roughness:.3,metalness:.1}));
   water.rotation.x=-Math.PI/2;water.position.y=-.1;water.receiveShadow=true;scene.add(water);
   // island ground: sand skirt + grass top + cobble plaza (hidden under buildings)
-  for(let q=-LAND;q<=LAND;q++)for(let r=-LAND;r<=LAND;r++){if(d2(q,r)>LAND)continue;
+  for(let q=-MAXR;q<=MAXR;q++)for(let r=-MAXR;r<=MAXR;r++){
+    if(d2(q,r)>MAXR)continue;
     const [x,z]=pos(q,r),g=new THREE.Group();g.position.set(x,0,z);root.add(g);
-    mk(CYL,'#c9b585',R*.99,.5,R*.99,0,-.28,0,g,false);mk(CYL,MT(plaster('#5f8d46',1,1)),R*.99,.07,R*.99,0,-.012,0,g,false);
-    ground[key(q,r)]=mk(CYL,MT(stone('stc',1)),R*.88,.05,R*.88,0,.03,0,g,false);}
+    const onCore=d2(q,r)<=LAND;
+    if(onCore){
+      mk(CYL,'#c9b585',R*.99,.5,R*.99,0,-.28,0,g,false);
+      mk(CYL,MT(plaster('#5f8d46',1,1)),R*.99,.07,R*.99,0,-.012,0,g,false);
+      ground[key(q,r)]=mk(CYL,MT(stone('stc',1)),R*.88,.05,R*.88,0,.03,0,g,false);
+    } else {
+      // shallow water shelf — floors can claim these later
+      mk(CYL,'#3a8fa0',R*.95,.2,R*.95,0,-.35,0,g,false);
+      ground[key(q,r)]=mk(CYL,'#2b7c8e',R*.9,.04,R*.9,0,-.18,0,g,false);
+      ground[key(q,r)].visible=true;
+    }
+  }
   hov=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35,depthWrite:false}));hov.scale.set(R*.98,.05,R*.98);hov.visible=false;scene.add(hov);
   for(let i=0;i<5;i++){const c=new THREE.Group(),n=3+(i%2);for(let j=0;j<n;j++){const s=mk(SPH,'#ffffff',1.1+Math.random()*.6,.6,.8,j*1.1-n*.5,Math.random()*.3,Math.random()*.4,c,false);s.material=M('#ffffff',{transparent:true,opacity:.85})}
     c.position.set(-25+i*13,9+Math.random()*3,-14+Math.random()*28);c.userData.sp=.25+Math.random()*.3;scene.add(c);clouds.push(c)}
@@ -6639,7 +6653,7 @@ function windowF(o,y,t,lit,odd){
 function buildCell(q,r,pop){
   const k=key(q,r),c=cells[k];
   if(meshes[k]){root.remove(meshes[k]);delete meshes[k]}
-  if(ground[k])ground[k].visible=!c;
+  if(ground[k]) ground[k].visible = !c;
   if(!c)return;
 
   const t=c.t||'home';
@@ -6650,52 +6664,77 @@ function buildCell(q,r,pop){
   const wm=fsh?MT(wood()):fac?MT(brick('#6b3f33')):condo?MT(conc()):wl[0]==='b'?MT(brick(wl[1])):MT(plaster(wl[1]));
   const [x,z]=pos(q,r), g=new THREE.Group(); g.position.set(x,0,z); g.userData.k=k;
 
-  // ---- FLOOR / PLAZA (no building) ----
+  // ---- FLOOR / PLAZA (adaptive platform, expands land onto water) ----
   if(isFloor){
-    // Adaptive plaza: slightly different look when connected to other floors/buildings
-    const nbs=DIRS.filter(dv=>cells[key(q+dv[0],r+dv[1])]);
-    const connected=nbs.length>0;
-    mk(CYL, MT(stone('stf',6)), R*(connected?1.02:0.96), .12, R*(connected?1.02:0.96), 0, .06, 0, g);
-    // subtle edge ring
-    mk(CYL, connected?'#a89b86':'#c4b8a0', R*1.05, .04, R*1.05, 0, .01, 0, g, false);
-    // small props on open plazas
-    if(nbs.length<=2 && Math.random()<.5){
-      mk(CYL12, '#6b8f4a', .08, .18, .08, .25, .2, .15, g);
-      mk(SPH, '#4a7a32', .14, .1, .14, .25, .32, .15, g, false);
+    // Neighbor mask for adaptive shape (which sides connect)
+    const mask = DIRS.map(dv => {
+      const n = cells[key(q+dv[0], r+dv[1])];
+      return !!(n && (n.t==='floor' || n.t==='bridge' || (n.t && n.t!=='fishery')));
+    });
+    const nCount = mask.filter(Boolean).length;
+    // Base platform — larger and flatter when highly connected
+    const scale = nCount >= 4 ? 1.08 : nCount >= 2 ? 1.04 : 0.98;
+    mk(CYL, MT(stone('stf',6)), R*scale, .14, R*scale, 0, .07, 0, g);
+    // Soft grass/sand edge only on open sides
+    DIRS.forEach((dv, di) => {
+      if(mask[di]) return; // connected — no edge lip
+      const [nx,nz] = pos(q+dv[0], r+dv[1]);
+      const a = Math.atan2(nz-z, nx-x);
+      const lip = new THREE.Group();
+      mk(BOX, '#c9b585', R*0.55, .05, .12, 0, .02, R*0.52, lip, false);
+      lip.rotation.y = -a + Math.PI/2;
+      g.add(lip);
+    });
+    // Fill gaps toward neighbors with connecting slabs (makes continuous land)
+    DIRS.forEach((dv, di) => {
+      if(!mask[di]) return;
+      const [nx,nz] = pos(q+dv[0], r+dv[1]);
+      const a = Math.atan2(nz-z, nx-x);
+      const slab = new THREE.Group();
+      mk(BOX, MT(stone('stc',1)), R*0.7, .12, R*0.55, 0, .06, R*0.55, slab, false);
+      slab.rotation.y = -a + Math.PI/2;
+      g.add(slab);
+    });
+    // Tiny props only on mostly-open plazas
+    if(nCount <= 1){
+      mk(CYL12, '#6b8f4a', .07, .16, .07, .22, .18, .12, g);
+      mk(SPH, '#4a7a32', .12, .09, .12, .22, .28, .12, g, false);
     }
     g.userData.top=g; g.userData.t0=pop?performance.now()/1000:-9;
     root.add(g); meshes[k]=g;
     return;
   }
 
-  // ---- BRIDGE ----
+  // ---- BRIDGE (rotatable via cell.dir 0..5) ----
   if(isBridge){
-    // Find best direction toward another land/bridge/building
-    let best=-1, bestScore=-1;
-    DIRS.forEach((dv,di)=>{
-      const nq=q+dv[0], nr=r+dv[1];
-      const nc=cells[key(nq,nr)];
-      let score=0;
-      if(nc) score+=3;
-      if(d2(nq,nr)<=LAND) score+=1;
-      if(score>bestScore){bestScore=score; best=di;}
-    });
-    const dv=DIRS[best>=0?best:0];
-    const a=Math.atan2(pos(q+dv[0],r+dv[1])[1]-z, pos(q+dv[0],r+dv[1])[0]-x);
-
-    // Pillars
-    mk(CYL12, '#5a4638', .12, .7, .12, 0, -.25, 0, g);
-    // Deck
-    const deck=new THREE.Group();
-    mk(BOX, '#8a6a4a', 1.9, .1, .55, 0, .12, 0, deck);
-    mk(BOX, '#6b5340', 1.9, .06, .08, 0, .2, .28, deck);
-    mk(BOX, '#6b5340', 1.9, .06, .08, 0, .2, -.28, deck);
-    // Rail posts
-    for(let i=-1;i<=1;i+=1){
-      mk(CYL12, '#4a3626', .03, .28, .03, i*.55, .32, .28, deck, false);
-      mk(CYL12, '#4a3626', .03, .28, .03, i*.55, .32, -.28, deck, false);
+    let di = (typeof c.dir === 'number') ? c.dir : 0;
+    // Auto-pick best direction if never set
+    if(c.dir === undefined){
+      let best=0, bestScore=-1;
+      DIRS.forEach((dv,i)=>{
+        const nc=cells[key(q+dv[0],r+dv[1])];
+        let score = nc ? 3 : 0;
+        if(d2(q+dv[0],r+dv[1])<=LAND) score += 1;
+        if(score>bestScore){bestScore=score; best=i;}
+      });
+      di = best;
+      c.dir = di;
     }
-    deck.rotation.y=-a+Math.PI/2;
+    const dv = DIRS[di % 6];
+    const a = Math.atan2(pos(q+dv[0],r+dv[1])[1]-z, pos(q+dv[0],r+dv[1])[0]-x);
+
+    mk(CYL12, '#5a4638', .12, .7, .12, 0, -.25, 0, g);
+    const deck = new THREE.Group();
+    mk(BOX, '#8a6a4a', 2.05, .1, .52, 0, .12, 0, deck);
+    mk(BOX, '#6b5340', 2.05, .06, .08, 0, .2, .26, deck);
+    mk(BOX, '#6b5340', 2.05, .06, .08, 0, .2, -.26, deck);
+    for(let i=-1;i<=1;i++){
+      mk(CYL12, '#4a3626', .03, .28, .03, i*.6, .32, .26, deck, false);
+      mk(CYL12, '#4a3626', .03, .28, .03, i*.6, .32, -.26, deck, false);
+    }
+    // direction arrow hint on deck
+    mk(BOX, '#d4c4a0', .2, .04, .12, .7, .18, 0, deck, false);
+    deck.rotation.y = -a + Math.PI/2;
     g.add(deck);
     g.userData.top=g; g.userData.t0=pop?performance.now()/1000:-9;
     root.add(g); meshes[k]=g;
@@ -6778,7 +6817,7 @@ function mkMover(kind){
   else{mk(CYL12,rnd(SHIRTS),.065,.2,.065,0,.15,0,g);mk(SPH,rnd(['#f5cba7','#e0ac80','#8d5a3b','#ffe0bd']),.062,.062,.062,0,.3,0,g);
     if(Math.random()<.5)mk(CYL12,rnd(['#ff6b6b','#2d3436','#ffd166']),.07,.025,.07,0,.355,0,g)}
   scene.add(g);return g}
-function freeCells(){const a=[];for(let q=-LAND;q<=LAND;q++)for(let r=-LAND;r<=LAND;r++)if(free(q,r))a.push([q,r]);return a}
+function freeCells(){const a=[];for(let q=-MAXR;q<=MAXR;q++)for(let r=-MAXR;r<=MAXR;r++)if(free(q,r))a.push([q,r]);return a}
 function nextStep(m){
   let o=DIRS.map(d=>[m.a[0]+d[0],m.a[1]+d[1]]).filter(p=>free(p[0],p[1]));
   const n=o.filter(p=>!(m.prev&&p[0]===m.prev[0]&&p[1]===m.prev[1]));if(n.length)o=n;
@@ -6810,18 +6849,18 @@ function ripple(q,r){const [x,z]=pos(q,r),m=new THREE.Mesh(new THREE.RingGeometr
 function can(k,q,r){
   const T=TY[k];
   if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return false}
+  if(d2(q,r)>MAXR){toast('Too far out');return false}
   if(k==='fishery'&&d2(q,r)<=LAND){toast('🎣 Fisheries must be built on the water — try the outer ring');return false}
-  if(k==='bridge'){
-    // Bridges allowed on land edge or water ring
-    if(d2(q,r)>MAXR){toast('Too far for a bridge');return false}
-    return true;
+  // Floors expand land onto water — allowed anywhere in MAXR
+  if(k==='floor' || k==='bridge') return true;
+  // Normal buildings: on original land OR on a floor tile (expanded land)
+  if(k!=='fishery'){
+    const onLand = d2(q,r)<=LAND;
+    const onFloor = !!(cells[key(q,r)] && cells[key(q,r)].t==='floor');
+    // Allow building if adjacent to existing floor/building (expansion) or on land
+    const near = DIRS.some(d=>{const n=cells[key(q+d[0],r+d[1])]; return n && n.t!=='bridge';});
+    if(!onLand && !onFloor && !near){toast('Expand with 🟫 Plaza first, or build next to existing land');return false}
   }
-  if(k==='floor'){
-    if(d2(q,r)>LAND){toast('Plazas go on the island');return false}
-    return true;
-  }
-  // Normal buildings stay on land (except fishery)
-  if(k!=='fishery'&&d2(q,r)>LAND){toast('Build on the island land');return false}
   return true;
 }
 const need=n=>toast('Not enough coins 💰 — need '+n);
@@ -6853,14 +6892,24 @@ function act(q,r,mode){
   else {
     // Build mode
     if(c){
+      // Tap existing bridge with bridge tool → rotate
+      if(c.t==='bridge' && kind==='bridge'){
+        c.dir = ((c.dir||0) + 1) % 6;
+        toast('🌉 Bridge rotated');
+        beep(400,.08,'sine',.08);
+        undo.push(prev); if(undo.length>30) undo.shift();
+        rebuildAll(k); ripple(q,r); save(); cloudSave();
+        return;
+      }
       // Already something here
       if(isFlat(c.t) || isFlat(kind)){
-        // Replacing a floor/bridge or trying to stack a flat type → just swap type
+        // Replacing a floor/bridge or placing floor under/over
         if(!can(kind,q,r)) return;
         const cost=Math.round(TY[kind].cost*.5);
         if(G.coins<cost) return need(cost);
         G.coins-=cost;
         c.t=kind; c.h=1;
+        if(kind==='bridge') c.dir = (c.dir||0);
         if(color>=0) c.c=color;
         toast(TY[kind].e+' '+TY[kind].n+' (−'+cost+' 💰)');
       } else {
@@ -6883,7 +6932,8 @@ function act(q,r,mode){
         t:kind,
         c:color>=0?color:(nb.length?rnd(nb).c:Math.floor(Math.random()*WALLS.length)),
         r:Math.floor(Math.random()*ROOFS.length),
-        ch:Math.random()<.4?1:0
+        ch:Math.random()<.4?1:0,
+        dir: kind==='bridge' ? 0 : undefined
       };
       if(isFlat(kind)){
         toast(TY[kind].e+' '+TY[kind].n+' placed (−'+cost+' 💰)');
