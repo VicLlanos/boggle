@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#4B2FDB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Word Arena">
+<meta name="apple-mobile-web-app-title" content="Play Arena">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -14,8 +14,8 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="preconnect" href="https://www.wikidata.org" crossorigin>
 <link rel="preconnect" href="https://api.datamuse.com" crossorigin>
-<title>Word Arena · Word Games with Friends</title>
-<meta name="description" content="Word Arena: real-time word games for friends. Play Boggle, Scattergories, Hangman, Sketch Race, and Spy Word with friends.">
+<title>Play Arena · Games with Friends</title>
+<meta name="description" content="Play Arena: real-time multiplayer games with friends. Boggle, Scattergories, Hangman Race, Sketch Race, Spy Word, Snakes & Trivia, and Island Mayor.">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -77,7 +77,7 @@ body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;pad
   letter-spacing:.5px;
 }
 #screen-auth .logo::after{
-  content:'Play · Draw · Guess · Race';
+  content:'Play · Draw · Guess · Build';
   display:block;
   font-family:'Nunito',sans-serif;
   font-size:.72rem;
@@ -847,75 +847,6 @@ input:focus-visible{outline:none}
 .pcard .pst.on{color:#0B7A4B}
 
 
-
-/* ===== HIGHWAY RUSH ===== */
-#screen-race,#screen-race-garage{position:fixed;inset:0;max-width:none;width:100%;gap:0;z-index:60;overflow:hidden}
-#screen-race{background:#0a0e14}
-#screen-race.active,#screen-race-garage.active{display:block}
-#raceCv{position:absolute;inset:0}
-#raceCv canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
-.race-hud{position:absolute;inset:0;pointer-events:none;z-index:5;font-family:'Fredoka',sans-serif}
-.race-hud *{pointer-events:none}
-.race-top{position:absolute;top:max(10px,var(--safe-t));left:10px;right:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.race-btn{pointer-events:auto;width:46px;height:46px;border:none;border-radius:50%;background:rgba(255,255,255,.92);font-size:1.15rem;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25);color:#1a2030;font-weight:700}
-.race-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
-.race-speed{background:rgba(10,14,22,.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:10px 16px;color:#fff;text-align:right;min-width:110px}
-.race-speed .sp{font-size:1.85rem;font-weight:700;line-height:1;letter-spacing:1px}
-.race-speed .unit{font-size:.72rem;font-weight:800;opacity:.7;letter-spacing:1px}
-.race-lap{background:rgba(10,14,22,.72);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:8px 14px;color:#fff;font-weight:700;font-size:.9rem}
-.race-pos{font-size:1.4rem;color:var(--gold)}
-.race-minimap{position:absolute;top:max(70px,calc(var(--safe-t)+60px));right:12px;width:96px;height:96px;border-radius:14px;background:rgba(10,14,22,.75);border:2px solid rgba(255,255,255,.15);overflow:hidden;backdrop-filter:blur(8px)}
-.race-minimap canvas{width:100%;height:100%}
-.race-steer{position:absolute;left:0;right:0;bottom:max(12px,var(--safe-b));display:flex;align-items:flex-end;justify-content:space-between;padding:0 14px 8px;gap:12px;pointer-events:none}
-.race-pad{pointer-events:auto;display:flex;gap:10px;align-items:center}
-.race-key{width:64px;height:64px;border-radius:18px;border:none;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);color:#fff;font-size:1.6rem;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.25);cursor:pointer;-webkit-user-select:none;user-select:none}
-.race-key:active,.race-key.on{background:rgba(124,92,255,.55);transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
-.race-key.gas{background:rgba(0,210,160,.35)}.race-key.gas.on{background:rgba(0,210,160,.7)}
-.race-key.brake{background:rgba(255,107,107,.35)}.race-key.brake.on{background:rgba(255,107,107,.7)}
-.race-nitro{position:absolute;bottom:max(92px,calc(var(--safe-b)+80px));right:18px;width:52px;height:52px;border-radius:50%;border:3px solid #FFD166;background:rgba(255,209,102,.25);color:#FFD166;font-weight:900;font-size:.75rem;pointer-events:auto;cursor:pointer}
-.race-nitro.on{background:rgba(255,209,102,.7);color:#5C3D00;animation:nitroPulse .4s infinite}
-@keyframes nitroPulse{50%{transform:scale(1.08)}}
-.race-msg{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(1.6rem,7vw,2.6rem);color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.6);text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.race-msg.show{opacity:1}
-.race-standings{position:absolute;top:max(70px,calc(var(--safe-t)+60px));left:12px;display:flex;flex-direction:column;gap:4px}
-.race-standings .rs{background:rgba(10,14,22,.7);color:#fff;font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);white-space:nowrap}
-.race-standings .rs.me{border-color:var(--violet);background:rgba(75,47,219,.45)}
-#screen-race-garage{background:linear-gradient(165deg,#1a1230 0%,#2A1B6E 40%,#0f0a1e 100%);display:none;overflow-y:auto;padding:max(12px,var(--safe-t)) 12px max(20px,var(--safe-b))}
-#screen-race-garage.active{display:flex;flex-direction:column;align-items:center}
-.rg-wrap{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px}
-.rg-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.rg-coins{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 14px;color:#FFD166;font-weight:900;font-family:'Fredoka',sans-serif;font-size:1rem}
-.rg-hero{background:linear-gradient(160deg,#1e1638,#2d2258);border-radius:22px;padding:16px;border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 40px rgba(0,0,0,.35);text-align:center}
-.rg-car-preview{height:140px;display:grid;place-items:center;font-size:5rem;filter:drop-shadow(0 12px 20px rgba(0,0,0,.45));margin:4px 0 8px}
-.rg-car-name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.35rem;color:#fff}
-.rg-car-brand{font-size:.8rem;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
-.rg-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.rg-stat{background:rgba(255,255,255,.08);border-radius:12px;padding:8px 6px}
-.rg-stat .l{font-size:.65rem;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase}
-.rg-stat .v{font-family:'Fredoka',sans-serif;font-weight:700;color:#fff;font-size:1rem;margin-top:2px}
-.rg-stat .bar{height:6px;background:rgba(255,255,255,.12);border-radius:4px;margin-top:6px;overflow:hidden}
-.rg-stat .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--gold));border-radius:4px}
-.rg-modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.rg-mode{background:rgba(255,255,255,.94);border-radius:18px;padding:14px 12px;text-align:center;border:2px solid transparent;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.2)}
-.rg-mode:active{transform:scale(.97)}
-.rg-mode .ic{font-size:1.8rem}
-.rg-mode .nm{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--violet-d);margin-top:4px}
-.rg-mode .ds{font-size:.72rem;font-weight:700;color:#636E72;margin-top:2px}
-.rg-maps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rg-map{border-radius:14px;overflow:hidden;border:3px solid transparent;cursor:pointer;position:relative;min-height:78px;background:#222}
-.rg-map.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,209,102,.35)}
-.rg-map .bg{position:absolute;inset:0;opacity:.85}
-.rg-map .lb{position:relative;z-index:1;padding:10px;color:#fff;font-weight:800;font-size:.85rem;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-.rg-map .lb small{display:block;font-size:.68rem;font-weight:700;opacity:.85}
-.rg-cars{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:280px;overflow-y:auto}
-.rg-car{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.12);border-radius:14px;padding:10px;cursor:pointer;color:#fff;text-align:left}
-.rg-car.on{border-color:var(--violet);background:rgba(124,92,255,.2)}
-.rg-car.locked{opacity:.55}
-.rg-car .em{font-size:1.6rem}
-.rg-car .nm{font-weight:800;font-size:.88rem;margin-top:2px}
-.rg-car .pr{font-size:.72rem;font-weight:800;color:#FFD166;margin-top:2px}
-.rg-car .pr.owned{color:var(--mint)}
-
 /* Island Mayor */
 #screen-town{position:fixed;inset:0;max-width:none;width:100%;gap:0;z-index:60;background:linear-gradient(#7fb6d6,#dce9ee 62%,#f3e6d3);overflow:hidden}
 #screen-town.active{display:block}
@@ -1011,7 +942,7 @@ input:focus-visible{outline:none}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <section id="screen-auth" class="screen active">
-  <div class="logo">Word <em>Arena</em></div>
+  <div class="logo">Play <em>Arena</em></div>
   <div class="card">
     <h2 id="authTitle">Welcome back!</h2>
     <p class="sub" id="authSub">Enter your username &amp; password to play.</p>
@@ -1027,7 +958,7 @@ input:focus-visible{outline:none}
 
 <section id="screen-lobby" class="screen">
   <div class="top-bar">
-    <div class="logo" style="text-align:left;font-size:1.3rem;padding:0">Word <em>Arena</em></div>
+    <div class="logo" style="text-align:left;font-size:1.3rem;padding:0">Play <em>Arena</em></div>
     <div class="user-chip" id="btnOpenProfile" title="Edit profile"><div class="av" id="lobbyAv">🦊</div><span id="lobbyName">—</span><span class="lvl" id="lobbyLvl">LV1</span></div>
   </div>
   <div class="stats">
@@ -1044,7 +975,7 @@ input:focus-visible{outline:none}
 
   <div class="card" style="padding:16px 14px">
     <h2>Choose a game</h2>
-    <p class="sub" style="margin-bottom:10px">Tap a game to create or join a room.</p>
+    <p class="sub" style="margin-bottom:10px">Party games, races, and a solo city builder — tap to play.</p>
     <div class="game-picker">
       <div class="game-card" data-game="boggle" id="pickBoggle" style="cursor:pointer">
         <div class="icon">🎲</div>
@@ -1076,12 +1007,7 @@ input:focus-visible{outline:none}
         <div class="name">Snakes &amp; Trivia</div>
         <div class="desc">Dice board race · solo or 5 players</div>
       </div>
-      <div class="game-card" data-game="race" id="pickRace" style="cursor:pointer">
-        <div class="icon">🏎️</div>
-        <div class="name">Highway Rush</div>
-        <div class="desc">Free roam · 4 maps · up to 4 racers</div>
-      </div>
-      <div class="game-card" data-game="town" id="pickTown" style="cursor:pointer">
+      <div class="game-card" data-game="town" id="pickTown" style="cursor:pointer;grid-column:1/-1">
         <div class="icon">🏝️</div>
         <div class="name">Island Mayor</div>
         <div class="desc">Solo · be the mayor: grow a fishing village into a modern city</div>
@@ -1368,78 +1294,6 @@ input:focus-visible{outline:none}
   <div class="tn-dlg" id="tnDlg"><div class="tn-card"><div class="tn-who"><span class="av">🧑‍💼</span><b>Advisor Marina</b></div><p id="tnTxt"></p><div class="tn-ch" id="tnCh"></div><button class="btn btn-gold" id="tnNext" style="display:none">Next ▶</button></div></div>
 </section>
 
-
-<section id="screen-race-garage" class="screen">
-  <div class="rg-wrap">
-    <div class="rg-top">
-      <button class="race-btn" id="rgBack" aria-label="Back">←</button>
-      <div class="logo" style="font-size:1.25rem;padding:0">Highway <em>Rush</em></div>
-      <div class="rg-coins" id="rgCoins">💰 0</div>
-    </div>
-    <div class="rg-hero">
-      <div class="rg-car-preview" id="rgPreview">🏎️</div>
-      <div class="rg-car-name" id="rgCarName">Civic Type R</div>
-      <div class="rg-car-brand" id="rgCarBrand">Honda · Starter</div>
-      <div class="rg-stats">
-        <div class="rg-stat"><div class="l">Speed</div><div class="v" id="rgSpd">72</div><div class="bar"><i id="rgSpdBar" style="width:72%"></i></div></div>
-        <div class="rg-stat"><div class="l">Accel</div><div class="v" id="rgAcc">68</div><div class="bar"><i id="rgAccBar" style="width:68%"></i></div></div>
-        <div class="rg-stat"><div class="l">Handling</div><div class="v" id="rgHan">75</div><div class="bar"><i id="rgHanBar" style="width:75%"></i></div></div>
-      </div>
-    </div>
-    <div class="card" style="padding:14px">
-      <h2 style="margin-bottom:8px">Mode</h2>
-      <div class="rg-modes">
-        <div class="rg-mode" id="rgFreeRoam" data-mode="freeroam">
-          <div class="ic">🛣️</div>
-          <div class="nm">Free Roam</div>
-          <div class="ds">Open highway · solo traffic</div>
-        </div>
-        <div class="rg-mode" id="rgRaceMode" data-mode="race">
-          <div class="ic">🏁</div>
-          <div class="nm">Race</div>
-          <div class="ds">Pick a map · up to 4 players</div>
-        </div>
-      </div>
-    </div>
-    <div class="card" style="padding:14px" id="rgMapCard">
-      <h2 style="margin-bottom:8px">Choose map</h2>
-      <div class="rg-maps" id="rgMaps"></div>
-    </div>
-    <div class="card" style="padding:14px">
-      <h2 style="margin-bottom:8px">Garage & Shop</h2>
-      <p class="sub" style="margin-bottom:8px">Win races to earn coins and unlock cars.</p>
-      <div class="rg-cars" id="rgCars"></div>
-    </div>
-    <button class="btn btn-primary" id="rgStart">START FREE ROAM</button>
-    <button class="btn btn-gold" id="rgMulti" style="display:none">CREATE / JOIN RACE ROOM</button>
-  </div>
-</section>
-
-<section id="screen-race" class="screen">
-  <div id="raceCv"></div>
-  <div class="race-hud">
-    <div class="race-top">
-      <button class="race-btn" id="raceBack" style="pointer-events:auto">←</button>
-      <div class="race-lap" id="raceLapInfo"><span class="race-pos" id="racePos">P1</span> · Lap <span id="raceLap">1</span>/<span id="raceMaxLap">3</span></div>
-      <div class="race-speed"><div class="sp" id="raceSpeed">0</div><div class="unit">KM/H</div></div>
-    </div>
-    <div class="race-standings" id="raceStandings"></div>
-    <div class="race-minimap"><canvas id="raceMini" width="192" height="192"></canvas></div>
-    <div class="race-msg" id="raceMsg"></div>
-    <button class="race-nitro" id="raceNitro" style="pointer-events:auto">N2O</button>
-    <div class="race-steer">
-      <div class="race-pad">
-        <button class="race-key" id="rkLeft" aria-label="Left">◀</button>
-        <button class="race-key" id="rkRight" aria-label="Right">▶</button>
-      </div>
-      <div class="race-pad">
-        <button class="race-key brake" id="rkBrake" aria-label="Brake">⏹</button>
-        <button class="race-key gas" id="rkGas" aria-label="Accelerate">▲</button>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section id="screen-results" class="screen">
   <div class="logo">Round over!</div>
   <div class="card">
@@ -1466,7 +1320,7 @@ const auth=firebase.auth(),db=firebase.database();
 let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
 db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
 const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;if(g==='race')return 4;return MAX_PLAYERS;}
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -2035,7 +1889,8 @@ function show(id){
 /* ===== Ambient falling words (login + dashboard) ===== */
 const RAIN_WORDS = [
   'PLAY!','DRAW','GUESS','RACE','WIN','COMBO','SCORE','LEVEL UP','STREAK',
-  'BOGGLE','SKETCH','HANGMAN','SCATTER','ARENA','PARTY','EPIC','LUCKY',
+  'BOGGLE','SKETCH','HANGMAN','SCATTER','SPY','SNAKES','ISLAND','MAYOR',
+  'ARENA','PARTY','EPIC','LUCKY','BUILD','CITY','TRIVIA','VOTE',
   'APPLE','HOUSE','ROBOT','DRAGON','CASTLE','PIZZA','ROCKET','NINJA',
   'CAT','DOG','SUN','MOON','STAR','FISH','BOOK','CAKE','TREE','CLOUD',
   'GO!','NICE','FAST','SMART','WOW','YES!','BOOM','FIRE','COOL','FUN'
@@ -2828,8 +2683,7 @@ const GAME_META = {
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Play solo or with up to 5 friends. Roll the dice, answer trivia, dodge the snakes!' },
-  spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' },
-  race:    { title:'🏎️ Highway Rush', sub:'Free roam the highway or race 4 maps — up to 4 players.' }
+  spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' }
 };
 
 function openMatchmaking(game){
@@ -2883,7 +2737,6 @@ document.querySelectorAll('.game-card').forEach(card=>{
   card.onclick = () => {
     snd('tap');
     if(card.dataset.game==='town'){openTown();return}
-    if(card.dataset.game==='race'){openRaceGarage();return}
     openMatchmaking(card.dataset.game);
   };
 });
@@ -2924,7 +2777,6 @@ $('btnHost').onclick=async()=>{
     const room={
       code,hostUid:user.uid,status:'lobby',gameType,
       createdAt:srvNow(),maxPlayers:maxPlayersFor(gameType),
-      raceMap: (gameType==='race' && window.getRaceMapId ? window.getRaceMapId() : null) || 'coast',
       board:null,endsAt:null,letter:null,categories:null,
       hangCategory:null,hangWord:null,hangRevealed:null,hangTiles:null,
       players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),bio:profile.bio||'',score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
@@ -3395,7 +3247,6 @@ function joinFriendRoom(fid){
 })();
 
 function leaveRoom(){
-  try{ if(window.stopRaceSession) window.stopRaceSession(); }catch(e){}
   socialDetach();
   if(roomId&&user){try{const _g=(roomData&&roomData.gameType)||selectedGame,_p='rooms/'+roomId+'/players/'+user.uid;db.ref(_p).onDisconnect().cancel();db.ref(_p+'/online').onDisconnect().cancel();db.ref('lobbyIndex/'+_g+'/'+roomId).onDisconnect().cancel()}catch(e){}}
   discKey='';discN=-1;
@@ -3575,24 +3426,6 @@ async function beginRound(){
   }
 
 
-  if(gameType === 'race'){
-    const ids=Object.keys(roomData.players||{});
-    if(ids.length<1){return}
-    const mapId = roomData.raceMap || (window.getRaceMapId && window.getRaceMapId()) || 'coast';
-    const up={
-      status:'playing',
-      raceMap: mapId,
-      raceStartedAt: srvNow(),
-      race:null,
-      board:null,letter:null,categories:null,hangWord:null,drawWord:null,
-      endsAt: srvNow()+15*60*1000,
-      startedAt: srvNow(),
-      endedAt:null
-    };
-    ids.forEach(i=>{up['players/'+i+'/score']=0;up['players/'+i+'/racePlace']=null;up['players/'+i+'/raceCoinsEarned']=0;});
-    try{await db.ref('rooms/'+roomId).update(up)}catch(e){toast('Could not start: '+e.message)}
-    return;
-  }
   if(gameType === 'board'){
     const ids=Object.keys(roomData.players||{});
     if(ids.length<1){return}   // solo play is allowed: 1–5 players
@@ -5620,13 +5453,6 @@ function onRoom(snap){
       }
     } else if(gt==='board'){
       bgEnter();
-    } else if(gt==='race'){
-      if(prevStatus==='results' || prevStatus==='lobby' || prevStatus===null){
-        roundEnded = false;
-        if(typeof window.startRaceSession==='function'){
-          window.startRaceSession({mode:'race', mapId: roomData.raceMap||'coast', solo:false});
-        }
-      }
     } else if(gt==='spy'){
       const spySig = ((roomData.spyRound||0)+'|'+(roomData.spyWord||'')+'|'+(roomData.startedAt||''));
       const spyChanged = spySig && spySig !== window._lastSpySig;
@@ -6682,768 +6508,6 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.warn('SW register failed', err));
   });
 }
-/* ===== HIGHWAY RUSH — realistic arcade racer ===== */
-(function(){
-'use strict';
-
-const RACE_MAPS = [
-  {id:'coast', name:'Pacific Coastline', emoji:'🌊', desc:'Cliffside highway · ocean mist',
-   sky:0x6eb6d9, fog:0xa8cfe0, ground:0x3a5c38, road:0x2c3038, accent:0xc4b48a,
-   props:'palm', ambient:0xffffff, sun:0xfff2d6, sunI:1.1, hemiI:0.5, fogNear:50, fogFar:220, undulation:0.35},
-  {id:'desert', name:'Mojave Interstate', emoji:'🏜️', desc:'Open flats · heat shimmer',
-   sky:0xe0b86a, fog:0xe8d4a0, ground:0xc2a36b, road:0x3a342c, accent:0xa89060,
-   props:'cactus', ambient:0xffe8c0, sun:0xffd090, sunI:1.25, hemiI:0.45, fogNear:60, fogFar:250, undulation:0.12},
-  {id:'mountain', name:'Cascade Pass', emoji:'⛰️', desc:'Alpine switchbacks · thin air',
-   sky:0x7aa0c4, fog:0x9bb4cc, ground:0x3d5a3a, road:0x282c34, accent:0x5a4a32,
-   props:'pine', ambient:0xe8f0ff, sun:0xffe8c8, sunI:0.95, hemiI:0.55, fogNear:40, fogFar:180, undulation:1.1},
-  {id:'city', name:'Neo Metro Loop', emoji:'🌃', desc:'Night expressway · neon',
-   sky:0x0a0e1a, fog:0x12182a, ground:0x1a1e28, road:0x181c24, accent:0x2a3140,
-   props:'neon', ambient:0x334466, sun:0x8899cc, sunI:0.3, hemiI:0.28, fogNear:35, fogFar:160, undulation:0.2, night:true}
-];
-
-const RACE_CARS = [
-  {id:'civic', name:'Civic Type R', brand:'Honda', emoji:'🚗', class:'Hot Hatch', price:0,
-   speed:74, accel:72, handling:80, brake:78, mass:0.92, color:0xe74c3c, owned:true},
-  {id:'corolla', name:'GR Corolla', brand:'Toyota', emoji:'🚙', class:'Hot Hatch', price:1400,
-   speed:76, accel:74, handling:82, brake:80, mass:0.94, color:0x2ecc71},
-  {id:'mustang', name:'Mustang GT', brand:'Ford', emoji:'🏎️', class:'Muscle', price:3200,
-   speed:88, accel:86, handling:66, brake:72, mass:1.15, color:0xf1c40f},
-  {id:'wrangler', name:'Wrangler Rubicon', brand:'Jeep', emoji:'🛻', class:'4×4', price:2600,
-   speed:68, accel:64, handling:70, brake:70, mass:1.35, color:0x27ae60, height:1.25},
-  {id:'f150', name:'F-150 Raptor', brand:'Ford', emoji:'🚛', class:'Truck', price:3600,
-   speed:72, accel:62, handling:58, brake:68, mass:1.55, color:0x34495e, height:1.35},
-  {id:'supra', name:'GR Supra', brand:'Toyota', emoji:'🏁', class:'Sports', price:5200,
-   speed:92, accel:90, handling:84, brake:86, mass:0.98, color:0xecf0f1},
-  {id:'nsx', name:'NSX Type S', brand:'Acura', emoji:'✨', class:'Sports', price:7800,
-   speed:94, accel:93, handling:88, brake:90, mass:0.95, color:0x9b59b6},
-  {id:'silvia', name:'Silvia S15 Spec-R', brand:'Nissan', emoji:'💨', class:'Drift', price:4400,
-   speed:84, accel:80, handling:94, brake:82, mass:0.88, color:0xe67e22, drift:1.45},
-  {id:'aventador', name:'Aventador SVJ', brand:'Lamborghini', emoji:'🐆', class:'Hypercar', price:14000,
-   speed:99, accel:98, handling:86, brake:94, mass:0.9, color:0xf39c12, low:true},
-  {id:'huracan', name:'Huracán STO', brand:'Lamborghini', emoji:'🔥', class:'Track', price:18000,
-   speed:100, accel:99, handling:92, brake:96, mass:0.88, color:0xc0392b, low:true}
-];
-
-let raceState = {
-  mode: 'freeroam',
-  carId: 'civic',
-  coins: 0,
-  owned: ['civic'],
-  selectedMap: 'coast'
-};
-
-function loadRaceSave(){
-  try{
-    const raw = localStorage.getItem('wa_race_'+(user&&user.uid||'guest'));
-    if(raw){
-      const s = JSON.parse(raw);
-      raceState.coins = s.coins||0;
-      raceState.owned = Array.isArray(s.owned)&&s.owned.length ? s.owned : ['civic'];
-      raceState.carId = s.carId||'civic';
-      if(!raceState.owned.includes(raceState.carId)) raceState.carId = raceState.owned[0]||'civic';
-    }
-  }catch(e){}
-  if(profile){
-    if(typeof profile.raceCoins==='number') raceState.coins = Math.max(raceState.coins, profile.raceCoins);
-    if(Array.isArray(profile.raceOwned)&&profile.raceOwned.length)
-      raceState.owned = Array.from(new Set(['civic',...profile.raceOwned,...raceState.owned]));
-  }
-}
-function saveRaceSave(){
-  try{ localStorage.setItem('wa_race_'+(user&&user.uid||'guest'), JSON.stringify({coins:raceState.coins, owned:raceState.owned, carId:raceState.carId})); }catch(e){}
-  if(user&&profile){
-    profile.raceCoins = raceState.coins;
-    profile.raceOwned = raceState.owned.slice();
-    db.ref('users/'+user.uid).update({raceCoins:raceState.coins, raceOwned:raceState.owned}).catch(()=>{});
-  }
-}
-const carById = id => RACE_CARS.find(c=>c.id===id)||RACE_CARS[0];
-const mapById = id => RACE_MAPS.find(m=>m.id===id)||RACE_MAPS[0];
-
-function openRaceGarage(){
-  loadRaceSave();
-  show('screen-race-garage');
-  renderGarage();
-}
-window.openRaceGarage = openRaceGarage;
-window.getRaceMapId = () => raceState.selectedMap;
-window.raceState = raceState;
-
-function renderGarage(){
-  const $c = id => document.getElementById(id);
-  $c('rgCoins').textContent = '💰 '+raceState.coins;
-  const car = carById(raceState.carId);
-  $c('rgPreview').textContent = car.emoji;
-  $c('rgCarName').textContent = car.name;
-  $c('rgCarBrand').textContent = car.brand+' · '+car.class;
-  $c('rgSpd').textContent = car.speed;
-  $c('rgAcc').textContent = car.accel;
-  $c('rgHan').textContent = car.handling;
-  $c('rgSpdBar').style.width = car.speed+'%';
-  $c('rgAccBar').style.width = car.accel+'%';
-  $c('rgHanBar').style.width = car.handling+'%';
-
-  $c('rgMaps').innerHTML = RACE_MAPS.map(m=>{
-    const on = raceState.selectedMap===m.id?' on':'';
-    const bg = {coast:'linear-gradient(135deg,#1a6b8a,#3d9bbb)', desert:'linear-gradient(135deg,#c9a227,#e8c98a)',
-      mountain:'linear-gradient(135deg,#2d4a3e,#6b8f71)', city:'linear-gradient(135deg,#0b1020,#4a2f8a)'}[m.id];
-    return '<div class="rg-map'+on+'" data-map="'+m.id+'"><div class="bg" style="background:'+bg+'"></div><div class="lb">'+m.emoji+' '+m.name+'<small>'+m.desc+'</small></div></div>';
-  }).join('');
-  $c('rgMaps').querySelectorAll('.rg-map').forEach(el=>{
-    el.onclick=()=>{ raceState.selectedMap=el.dataset.map; renderGarage(); if(typeof snd==='function')snd('tap'); };
-  });
-
-  $c('rgCars').innerHTML = RACE_CARS.map(c=>{
-    const owned = raceState.owned.includes(c.id);
-    const on = raceState.carId===c.id?' on':'';
-    const locked = owned?'':' locked';
-    const pr = owned?'<span class="pr owned">OWNED</span>':'<span class="pr">💰 '+c.price+'</span>';
-    return '<div class="rg-car'+on+locked+'" data-car="'+c.id+'"><div class="em">'+c.emoji+'</div><div class="nm">'+c.name+'</div><div style="font-size:.68rem;opacity:.7">'+c.brand+' · '+c.class+'</div>'+pr+'</div>';
-  }).join('');
-  $c('rgCars').querySelectorAll('.rg-car').forEach(el=>{
-    el.onclick=()=>{
-      const c = carById(el.dataset.car);
-      if(raceState.owned.includes(c.id)){
-        raceState.carId=c.id; saveRaceSave(); renderGarage(); if(typeof snd==='function')snd('tap');
-      } else if(raceState.coins>=c.price){
-        if(!confirm('Unlock '+c.name+' for 💰'+c.price+'?')) return;
-        raceState.coins-=c.price; raceState.owned.push(c.id); raceState.carId=c.id;
-        saveRaceSave(); renderGarage(); toast('Unlocked '+c.name+'!'); if(typeof snd==='function')snd('win');
-      } else toast('Need 💰'+(c.price-raceState.coins)+' more');
-    };
-  });
-
-  const isRace = raceState.mode==='race';
-  $c('rgMapCard').style.display = isRace?'':'none';
-  $c('rgStart').textContent = isRace ? 'SOLO RACE · '+mapById(raceState.selectedMap).name : 'START FREE ROAM';
-  $c('rgMulti').style.display = isRace?'':'none';
-  document.querySelectorAll('.rg-mode').forEach(m=>{
-    const on = m.dataset.mode===raceState.mode;
-    m.style.borderColor = on?'var(--violet)':'transparent';
-    m.style.boxShadow = on?'0 0 0 3px rgba(124,92,255,.25)':'';
-  });
-}
-
-document.getElementById('rgBack').onclick=()=>{ if(typeof snd==='function')snd('tap'); show('screen-lobby'); };
-document.getElementById('rgFreeRoam').onclick=()=>{ raceState.mode='freeroam'; renderGarage(); if(typeof snd==='function')snd('tap'); };
-document.getElementById('rgRaceMode').onclick=()=>{ raceState.mode='race'; renderGarage(); if(typeof snd==='function')snd('tap'); };
-document.getElementById('rgStart').onclick=()=>{
-  if(raceState.mode==='race') startRaceSession({mode:'race', mapId:raceState.selectedMap, solo:true});
-  else startRaceSession({mode:'freeroam', mapId:raceState.selectedMap||'coast', solo:true});
-};
-document.getElementById('rgMulti').onclick=()=>{
-  selectedGame='race'; openMatchmaking('race');
-};
-
-/* ---------- 3D ENGINE ---------- */
-const R = {
-  ready:false, running:false, raf:0, last:0,
-  scene:null, cam:null, ren:null, root:null,
-  player:null, traffic:[], remote:{},
-  input:{left:0,right:0,gas:0,brake:0,nitro:0},
-  trackLen:3200, laneW:3.8, lanes:3,
-  lap:1, maxLaps:3, finished:false, countdown:0,
-  mode:'freeroam', map:null, car:null,
-  syncT:0, path:[], // centerline samples
-  hemi:null, sun:null, smoke:[], skid:[]
-};
-
-function loadThreeRace(cb){
-  if(window.THREE) return cb();
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-  s.onload=cb; s.onerror=()=>toast("Couldn't load 3D engine");
-  document.head.appendChild(s);
-}
-
-function makeCarMesh(car, isPlayer){
-  const g = new THREE.Group();
-  const col = car.color||0xe74c3c;
-  const bodyMat = new THREE.MeshStandardMaterial({color:col, roughness:0.38, metalness:0.42});
-  const dark = new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.55, metalness:0.25});
-  const glass = new THREE.MeshStandardMaterial({color:0x88b8d0, roughness:0.12, metalness:0.7, transparent:true, opacity:0.72});
-  const chrome = new THREE.MeshStandardMaterial({color:0xc8c8c8, roughness:0.2, metalness:0.95});
-  const lightMat = new THREE.MeshStandardMaterial({color:0xfff5e0, emissive:0xffe8b0, emissiveIntensity:isPlayer?0.9:0.45});
-
-  let L=4.35, W=1.82, H=1.18, ride=0.32;
-  if(car.class==='Truck'||car.class==='4×4'){ L=4.9; W=2.05; H=car.height?1.5:1.45; ride=0.48; }
-  if(car.class==='Hypercar'||car.class==='Track'){ L=4.55; W=2.05; H=1.02; ride=0.24; }
-  if(car.class==='Muscle'){ L=4.7; W=1.98; H=1.22; }
-  if(car.class==='Drift'){ L=4.3; W=1.88; H=1.12; }
-  if(car.low){ H*=0.92; ride*=0.85; }
-
-  // lower body
-  const chassis = new THREE.Mesh(new THREE.BoxGeometry(W*0.98, H*0.42, L), bodyMat);
-  chassis.position.y = ride + H*0.22; chassis.castShadow=true; chassis.receiveShadow=true; g.add(chassis);
-  // sculpted hood
-  const hood = new THREE.Mesh(new THREE.BoxGeometry(W*0.9, H*0.12, L*0.32), bodyMat);
-  hood.position.set(0, ride+H*0.48, L*0.22); hood.castShadow=true; g.add(hood);
-  // cabin
-  const cabin = new THREE.Mesh(new THREE.BoxGeometry(W*0.82, H*0.42, L*0.42), bodyMat);
-  cabin.position.set(0, ride+H*0.58, -L*0.02); cabin.castShadow=true; g.add(cabin);
-  // windshield
-  const wind = new THREE.Mesh(new THREE.BoxGeometry(W*0.76, H*0.34, L*0.1), glass);
-  wind.position.set(0, ride+H*0.62, L*0.16); wind.rotation.x = -0.25; g.add(wind);
-  // rear glass
-  const rear = new THREE.Mesh(new THREE.BoxGeometry(W*0.7, H*0.28, L*0.08), glass);
-  rear.position.set(0, ride+H*0.58, -L*0.22); rear.rotation.x = 0.2; g.add(rear);
-  // side windows
-  [-1,1].forEach(s=>{
-    const sw = new THREE.Mesh(new THREE.BoxGeometry(0.06, H*0.28, L*0.28), glass);
-    sw.position.set(s*W*0.42, ride+H*0.58, -L*0.02); g.add(sw);
-  });
-  // wheels with rims
-  const tireGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.26, 14);
-  tireGeo.rotateZ(Math.PI/2);
-  const rimGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.28, 10);
-  rimGeo.rotateZ(Math.PI/2);
-  const wpos = [[W*0.52,0.34,L*0.3],[-W*0.52,0.34,L*0.3],[W*0.52,0.34,-L*0.3],[-W*0.52,0.34,-L*0.3]];
-  wpos.forEach(p=>{
-    const tire = new THREE.Mesh(tireGeo, dark); tire.position.set(p[0],p[1],p[2]); tire.castShadow=true; g.add(tire);
-    const rim = new THREE.Mesh(rimGeo, chrome); rim.position.set(p[0],p[1],p[2]); g.add(rim);
-  });
-  // headlights
-  [[W*0.38,L*0.5],[-W*0.38,L*0.5]].forEach(([x,z])=>{
-    const hl = new THREE.Mesh(new THREE.BoxGeometry(0.28,0.12,0.08), lightMat);
-    hl.position.set(x, ride+H*0.32, z); g.add(hl);
-  });
-  // taillights
-  const tailMat = new THREE.MeshStandardMaterial({color:0xff2222, emissive:0xff1111, emissiveIntensity:0.6});
-  [[W*0.4,-L*0.5],[-W*0.4,-L*0.5]].forEach(([x,z])=>{
-    const tl = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.1,0.06), tailMat);
-    tl.position.set(x, ride+H*0.35, z); g.add(tl);
-  });
-  // rear wing for sports/hyper
-  if(['Hypercar','Track','Sports','Drift'].includes(car.class)){
-    const wing = new THREE.Mesh(new THREE.BoxGeometry(W*1.08, 0.05, 0.32), dark);
-    wing.position.set(0, ride+H*0.95, -L*0.4); g.add(wing);
-    [-W*0.35,W*0.35].forEach(x=>{
-      const st = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.25,0.05), dark);
-      st.position.set(x, ride+H*0.82, -L*0.4); g.add(st);
-    });
-  }
-  // truck bed
-  if(car.class==='Truck'){
-    const bed = new THREE.Mesh(new THREE.BoxGeometry(W*0.9, H*0.35, L*0.35), dark);
-    bed.position.set(0, ride+H*0.4, -L*0.28); g.add(bed);
-  }
-
-  g.userData = {L,W,H,ride,car};
-  return g;
-}
-
-/** Centerline of the highway: gentle curves + elevation */
-function buildPath(map){
-  const pts = [];
-  const N = 180;
-  const amp = 28 * (map.undulation||0.3);
-  for(let i=0;i<=N;i++){
-    const t = i/N;
-    const z = -R.trackLen/2 + t*R.trackLen;
-    const x = Math.sin(t*Math.PI*2.5)*amp + Math.sin(t*Math.PI*5.1)*amp*0.35;
-    const y = Math.sin(t*Math.PI*3)* (map.undulation||0.3)*4.5;
-    pts.push(new THREE.Vector3(x,y,z));
-  }
-  R.path = pts;
-  return pts;
-}
-
-function pathAt(z){
-  // nearest sample
-  const half = R.trackLen/2;
-  let t = (z+half)/R.trackLen;
-  t = ((t%1)+1)%1;
-  const idx = Math.min(R.path.length-2, Math.floor(t*(R.path.length-1)));
-  const a = R.path[idx], b = R.path[idx+1];
-  const local = (t*(R.path.length-1)) - idx;
-  const pos = a.clone().lerp(b, local);
-  const dir = b.clone().sub(a).normalize();
-  const yaw = Math.atan2(dir.x, dir.z);
-  return {pos, dir, yaw, y:pos.y};
-}
-
-function buildEnvironment(map){
-  while(R.root.children.length) R.root.remove(R.root.children[0]);
-  const path = buildPath(map);
-  const roadMat = new THREE.MeshStandardMaterial({color:map.road, roughness:0.88, metalness:0.04});
-  const lineMat = new THREE.MeshBasicMaterial({color:0xf0e6c0});
-  const edgeMat = new THREE.MeshBasicMaterial({color:0xffffff});
-  const shoulderMat = new THREE.MeshStandardMaterial({color:map.accent, roughness:0.95});
-  const groundMat = new THREE.MeshStandardMaterial({color:map.ground, roughness:1});
-  const roadW = R.laneW*R.lanes + 1.4;
-
-  // road as segmented strips following path
-  for(let i=0;i<path.length-1;i++){
-    const a=path[i], b=path[i+1];
-    const mid = a.clone().lerp(b,0.5);
-    const len = a.distanceTo(b);
-    const yaw = Math.atan2(b.x-a.x, b.z-a.z);
-    const pitch = Math.atan2(b.y-a.y, Math.hypot(b.x-a.x,b.z-a.z));
-    // asphalt
-    const strip = new THREE.Mesh(new THREE.PlaneGeometry(roadW, len+0.15), roadMat);
-    strip.rotation.x = -Math.PI/2; strip.rotation.z = -yaw;
-    // approximate pitch
-    strip.position.copy(mid); strip.position.y += 0.02;
-    strip.receiveShadow=true; R.root.add(strip);
-    // ground sides
-    [-1,1].forEach(side=>{
-      const gnd = new THREE.Mesh(new THREE.PlaneGeometry(22, len+0.2), groundMat);
-      gnd.rotation.x=-Math.PI/2;
-      const nx = Math.cos(yaw), nz = -Math.sin(yaw); // left normal-ish
-      gnd.position.set(mid.x + side*(roadW/2+11)*Math.cos(yaw+Math.PI/2), mid.y-0.01, mid.z + side*(roadW/2+11)*Math.sin(yaw+Math.PI/2));
-      gnd.rotation.z = -yaw; gnd.receiveShadow=true; R.root.add(gnd);
-    });
-  }
-
-  // dashed lane lines + barriers along path
-  for(let i=0;i<path.length-1;i+=2){
-    const a=path[i], b=path[Math.min(i+1,path.length-1)];
-    const mid=a.clone().lerp(b,0.5);
-    const yaw=Math.atan2(b.x-a.x,b.z-a.z);
-    const lx=Math.cos(yaw+Math.PI/2), lz=Math.sin(yaw+Math.PI/2);
-    for(let lane=1;lane<R.lanes;lane++){
-      const off = -roadW/2 + lane*R.laneW + 0.7;
-      const dash = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 3.2), lineMat);
-      dash.rotation.x=-Math.PI/2; dash.rotation.z=-yaw;
-      dash.position.set(mid.x+lx*off, mid.y+0.04, mid.z+lz*off);
-      R.root.add(dash);
-    }
-    // barriers
-    [-1,1].forEach(side=>{
-      const off = side*(roadW/2+0.9);
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.65,0.18),
-        new THREE.MeshStandardMaterial({color:0x8a9098, metalness:0.4, roughness:0.5}));
-      post.position.set(mid.x+lx*off, mid.y+0.32, mid.z+lz*off); post.castShadow=true; R.root.add(post);
-    });
-  }
-
-  // scenery
-  const propN = 90;
-  for(let i=0;i<propN;i++){
-    const t = i/propN;
-    const idx = Math.min(path.length-1, Math.floor(t*(path.length-1)));
-    const p = path[idx];
-    const side = (i%2)?1:-1;
-    const yaw = idx<path.length-1 ? Math.atan2(path[idx+1].x-p.x, path[idx+1].z-p.z) : 0;
-    const lx=Math.cos(yaw+Math.PI/2), lz=Math.sin(yaw+Math.PI/2);
-    const dist = roadW/2 + 5 + Math.random()*20;
-    const x = p.x + side*lx*dist;
-    const z = p.z + side*lz*dist;
-    const y = p.y;
-    if(map.props==='palm'){
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.26,4.2,6), new THREE.MeshStandardMaterial({color:0x6b4a2a}));
-      trunk.position.set(x,y+2.1,z); trunk.castShadow=true; R.root.add(trunk);
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(1.7,6,4), new THREE.MeshStandardMaterial({color:0x2d6b3a}));
-      leaf.position.set(x,y+4.4,z); leaf.scale.y=0.45; R.root.add(leaf);
-    } else if(map.props==='cactus'){
-      const c = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.28,2.0+Math.random(),6), new THREE.MeshStandardMaterial({color:0x3d7a45}));
-      c.position.set(x,y+1.1,z); c.castShadow=true; R.root.add(c);
-    } else if(map.props==='pine'){
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.28,2.6,6), new THREE.MeshStandardMaterial({color:0x4a3420}));
-      trunk.position.set(x,y+1.3,z); R.root.add(trunk);
-      for(let t=0;t<3;t++){
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.5-t*0.28, 2.3, 6), new THREE.MeshStandardMaterial({color:0x1e4a28}));
-        cone.position.set(x, y+2.5+t*1.15, z); R.root.add(cone);
-      }
-    } else {
-      const h = 5+Math.random()*16;
-      const b = new THREE.Mesh(new THREE.BoxGeometry(2+Math.random()*3, h, 2+Math.random()*3),
-        new THREE.MeshStandardMaterial({color:0x1a2030, emissive: Math.random()<0.45?0x4a2f8a:0x1a3050, emissiveIntensity:0.4}));
-      b.position.set(x, y+h/2, z); R.root.add(b);
-    }
-  }
-
-  // lighting
-  if(R.hemi){ R.scene.remove(R.hemi); R.scene.remove(R.sun); }
-  R.scene.background = new THREE.Color(map.sky);
-  R.scene.fog = new THREE.Fog(map.fog, map.fogNear, map.fogFar);
-  R.hemi = new THREE.HemisphereLight(map.ambient, map.ground, map.hemiI);
-  R.scene.add(R.hemi);
-  R.sun = new THREE.DirectionalLight(map.sun, map.sunI);
-  R.sun.position.set(40, 55, 25); R.sun.castShadow=true;
-  R.sun.shadow.mapSize.set(1024,1024);
-  const sc=R.sun.shadow.camera; sc.left=sc.bottom=-40; sc.right=sc.top=40; sc.far=120;
-  R.scene.add(R.sun);
-}
-
-function spawnTraffic(){
-  R.traffic.forEach(t=>R.scene.remove(t.mesh));
-  R.traffic=[];
-  const n = R.mode==='freeroam'?16:8;
-  for(let i=0;i<n;i++){
-    const c = RACE_CARS[Math.floor(Math.random()*Math.min(7,RACE_CARS.length))];
-    const mesh = makeCarMesh(c,false);
-    const lane = Math.floor(Math.random()*R.lanes);
-    const z = -R.trackLen/2 + Math.random()*R.trackLen;
-    const info = pathAt(z);
-    const roadW = R.laneW*R.lanes;
-    const laneX = (lane-(R.lanes-1)/2)*R.laneW;
-    const lx=Math.cos(info.yaw+Math.PI/2), lz=Math.sin(info.yaw+Math.PI/2);
-    mesh.position.set(info.pos.x+lx*laneX, info.y, info.pos.z+lz*laneX);
-    mesh.rotation.y = info.yaw;
-    R.scene.add(mesh);
-    R.traffic.push({mesh, lane, speed:16+Math.random()*24, z, laneX, dir:1});
-  }
-}
-
-function initRaceEngine(){
-  if(R.ready) return;
-  const box = document.getElementById('raceCv');
-  R.ren = new THREE.WebGLRenderer({antialias:true});
-  R.ren.setPixelRatio(Math.min(devicePixelRatio||1, 2));
-  R.ren.shadowMap.enabled = true;
-  R.ren.outputEncoding = THREE.sRGBEncoding;
-  R.ren.toneMapping = THREE.ACESFilmicToneMapping;
-  R.ren.toneMappingExposure = 1.05;
-  box.appendChild(R.ren.domElement);
-  R.scene = new THREE.Scene();
-  R.cam = new THREE.PerspectiveCamera(58, 1, 0.4, 320);
-  R.root = new THREE.Group(); R.scene.add(R.root);
-  R.ready = true;
-  window.addEventListener('resize', resizeRace);
-}
-
-function resizeRace(){
-  if(!R.ren) return;
-  const b = document.getElementById('raceCv').getBoundingClientRect();
-  R.ren.setSize(b.width, b.height);
-  R.cam.aspect = b.width/Math.max(1,b.height);
-  R.cam.updateProjectionMatrix();
-}
-
-function startRaceSession(opts){
-  loadRaceSave();
-  R.mode = opts.mode||'freeroam';
-  R.map = mapById(opts.mapId||raceState.selectedMap);
-  R.car = carById(raceState.carId);
-  R.lap=1; R.maxLaps = R.mode==='race'?3:1;
-  R.finished=false; R.countdown = R.mode==='race'?3.2:0;
-  R.remote={}; R.syncT=0;
-  show('screen-race');
-  loadThreeRace(()=>{
-    if(!R.ready) initRaceEngine();
-    resizeRace();
-    buildEnvironment(R.map);
-    if(R.player) R.scene.remove(R.player.mesh);
-    const mesh = makeCarMesh(R.car, true);
-    const startZ = -R.trackLen/2 + 30;
-    const info = pathAt(startZ);
-    mesh.position.set(info.pos.x, info.y, info.pos.z);
-    mesh.rotation.y = info.yaw;
-    R.scene.add(mesh);
-    R.player = {
-      mesh, s:0, // distance along track
-      xOff:0, // lateral offset from centerline
-      speed:0, yaw:info.yaw, yawRate:0,
-      nitro:1, slip:0, z:startZ, x:info.pos.x, y:info.y,
-      rpm:0
-    };
-    spawnTraffic();
-    bindRaceInput();
-    R.running=true; R.last=performance.now();
-    cancelAnimationFrame(R.raf);
-    R.raf=requestAnimationFrame(raceFrame);
-    if(R.mode==='race') showRaceMsg('GET READY', 1000);
-    if(roomData && roomData.gameType==='race' && roomId) listenRacePeers();
-  });
-}
-window.startRaceSession = startRaceSession;
-
-function bindRaceInput(){
-  const set=(k,v)=>{ R.input[k]=v; };
-  const down=(id,k)=>{
-    const el=document.getElementById(id); if(!el)return;
-    const on=e=>{e.preventDefault();set(k,1);el.classList.add('on')};
-    const off=e=>{e.preventDefault();set(k,0);el.classList.remove('on')};
-    el.ontouchstart=on; el.ontouchend=off; el.ontouchcancel=off;
-    el.onmousedown=on; el.onmouseup=off; el.onmouseleave=off;
-  };
-  down('rkLeft','left'); down('rkRight','right'); down('rkGas','gas'); down('rkBrake','brake');
-  const nitro=document.getElementById('raceNitro');
-  if(nitro){
-    nitro.ontouchstart=nitro.onmousedown=e=>{e.preventDefault();R.input.nitro=1;nitro.classList.add('on')};
-    nitro.ontouchend=nitro.onmouseup=e=>{e.preventDefault();R.input.nitro=0;nitro.classList.remove('on')};
-  }
-  window.onkeydown=e=>{
-    if(['ArrowLeft','a','A'].includes(e.key)) R.input.left=1;
-    if(['ArrowRight','d','D'].includes(e.key)) R.input.right=1;
-    if(['ArrowUp','w','W'].includes(e.key)) R.input.gas=1;
-    if(['ArrowDown','s','S',' '].includes(e.key)) R.input.brake=1;
-    if(e.key==='Shift') R.input.nitro=1;
-  };
-  window.onkeyup=e=>{
-    if(['ArrowLeft','a','A'].includes(e.key)) R.input.left=0;
-    if(['ArrowRight','d','D'].includes(e.key)) R.input.right=0;
-    if(['ArrowUp','w','W'].includes(e.key)) R.input.gas=0;
-    if(['ArrowDown','s','S',' '].includes(e.key)) R.input.brake=0;
-    if(e.key==='Shift') R.input.nitro=0;
-  };
-}
-
-function showRaceMsg(t,ms){
-  const el=document.getElementById('raceMsg'); if(!el)return;
-  el.textContent=t; el.classList.add('show');
-  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'), ms||1400);
-}
-
-function racePhysics(dt){
-  const p=R.player; if(!p||R.finished) return;
-  if(R.countdown>0){
-    R.countdown-=dt;
-    if(R.countdown<=0){ R.countdown=0; showRaceMsg('GO!',700); if(typeof snd==='function')snd('ok'); }
-    else showRaceMsg(String(Math.ceil(R.countdown)),180);
-    // still update camera
-  }
-
-  const car=R.car;
-  const maxSpd = 26 + car.speed*0.48;
-  const accel = (10 + car.accel*0.26) / (car.mass||1);
-  const brakeF = 18 + car.brake*0.22;
-  const hand = 1.4 + car.handling*0.04;
-  const driftMul = car.drift||1;
-
-  if(R.countdown<=0){
-    if(R.input.gas) p.speed += accel*dt;
-    if(R.input.brake) p.speed -= brakeF*dt;
-    if(R.input.nitro && p.nitro>0.04){
-      p.speed += 20*dt; p.nitro=Math.max(0,p.nitro-0.4*dt);
-    } else p.nitro=Math.min(1,p.nitro+0.07*dt);
-
-    // aerodynamic + rolling drag
-    p.speed -= p.speed*p.speed*0.012*dt;
-    p.speed -= 3.5*dt;
-    if(!R.input.gas && !R.input.brake) p.speed -= 2*dt;
-    p.speed = Math.max(0, Math.min(maxSpd*(R.input.nitro&&p.nitro>0?1.15:1), p.speed));
-
-    // steering with speed-sensitive grip & slip angle
-    const steer = (R.input.right-R.input.left);
-    const grip = Math.max(0.28, 1 - (p.speed/maxSpd)*0.5*driftMul);
-    p.yawRate += steer * hand * grip * dt * (0.65 + p.speed/maxSpd);
-    p.yawRate *= Math.pow(0.05, dt);
-    // slip builds when steering hard at speed
-    p.slip += (Math.abs(steer)* (p.speed/maxSpd) - p.slip)*Math.min(1,dt*4);
-    p.yaw += p.yawRate * dt * (1 + p.slip*0.35*driftMul);
-
-    // advance along approximate world Z then snap to path
-    p.z += Math.cos(p.yaw)*p.speed*dt;
-    p.xOff += Math.sin(p.yaw - (pathAt(p.z).yaw))*p.speed*dt * 0.85;
-    // blend free yaw motion with path following for stability on curves
-    const info = pathAt(p.z);
-    const roadHalf = (R.laneW*R.lanes)/2 + 0.8;
-    p.xOff = Math.max(-roadHalf, Math.min(roadHalf, p.xOff));
-    // soft wall
-    if(Math.abs(p.xOff)>roadHalf-0.3) p.speed*=0.94;
-
-    const lx=Math.cos(info.yaw+Math.PI/2), lz=Math.sin(info.yaw+Math.PI/2);
-    p.x = info.pos.x + lx*p.xOff;
-    p.y = info.y;
-    p.z = info.pos.z; // keep on path length param — actually pathAt uses z
-    // re-read with updated z from integration
-  }
-
-  // wrap
-  const half=R.trackLen/2;
-  if(p.z>half){
-    p.z-=R.trackLen;
-    if(R.mode==='race' && R.countdown<=0){
-      R.lap++;
-      if(R.lap>R.maxLaps) finishRace(estimatePlace());
-      else showRaceMsg('LAP '+R.lap, 900);
-    }
-  }
-  if(p.z<-half) p.z+=R.trackLen;
-
-  const info2 = pathAt(p.z);
-  const lx2=Math.cos(info2.yaw+Math.PI/2), lz2=Math.sin(info2.yaw+Math.PI/2);
-  const px = info2.pos.x + lx2*p.xOff;
-  const pz = info2.pos.z;
-  const py = info2.y;
-  p.mesh.position.set(px, py, pz);
-  p.mesh.rotation.y = p.yaw;
-  p.mesh.rotation.z = -(R.input.right-R.input.left)*0.09*(p.speed/40);
-  p.mesh.rotation.x = Math.sin(performance.now()/1000*p.speed*0.3)*0.01; // micro suspension
-  p.x=px; p.y=py;
-
-  // RPM for feel
-  p.rpm = Math.min(1, p.speed/(26+car.speed*0.48));
-
-  // camera: cinematic chase with look-ahead
-  const back = 9.2 + p.speed*0.05;
-  const height = 3.4 + p.speed*0.01;
-  const camYaw = p.yaw;
-  const cx = px - Math.sin(camYaw)*back;
-  const cz = pz - Math.cos(camYaw)*back;
-  const cy = py + height;
-  R.cam.position.x += (cx - R.cam.position.x)*(1-Math.pow(0.02,dt));
-  R.cam.position.y += (cy - R.cam.position.y)*(1-Math.pow(0.04,dt));
-  R.cam.position.z += (cz - R.cam.position.z)*(1-Math.pow(0.02,dt));
-  const look = new THREE.Vector3(px+Math.sin(camYaw)*8, py+1.3, pz+Math.cos(camYaw)*8);
-  R.cam.lookAt(look);
-  // speed FOV
-  const targetFov = 56 + Math.min(14, p.speed*0.25);
-  R.cam.fov += (targetFov-R.cam.fov)*0.08;
-  R.cam.updateProjectionMatrix();
-
-  // traffic AI
-  R.traffic.forEach(t=>{
-    t.z += t.dir * t.speed * dt;
-    if(t.z>half) t.z-=R.trackLen;
-    if(t.z<-half) t.z+=R.trackLen;
-    const ti = pathAt(t.z);
-    const tlx=Math.cos(ti.yaw+Math.PI/2), tlz=Math.sin(ti.yaw+Math.PI/2);
-    t.mesh.position.set(ti.pos.x+tlx*t.laneX, ti.y, ti.pos.z+tlz*t.laneX);
-    t.mesh.rotation.y = ti.yaw;
-    // collision
-    const dz=t.z-p.z, dx=(ti.pos.x+tlx*t.laneX)-px;
-    if(Math.abs(dz)<3.4 && Math.abs(dx)<2.1){
-      p.speed*=0.5;
-      p.z -= Math.sign(dz||1)*0.5;
-    }
-  });
-
-  // HUD
-  const kmh = Math.round(p.speed * 3.6 * 2.35);
-  document.getElementById('raceSpeed').textContent = kmh;
-  document.getElementById('raceLap').textContent = Math.min(R.lap, R.maxLaps);
-  document.getElementById('raceMaxLap').textContent = R.maxLaps;
-  if(R.mode==='freeroam'){
-    document.getElementById('raceLapInfo').innerHTML = '🛣️ FREE ROAM · '+R.map.name;
-  }
-  // nitro gauge visual
-  const nb=document.getElementById('raceNitro');
-  if(nb) nb.style.opacity = 0.35 + p.nitro*0.65;
-}
-
-function estimatePlace(){
-  const rows=[{me:true,z:R.player.z,lap:R.lap}];
-  Object.keys(R.remote).forEach(uid=>{
-    const r=R.remote[uid]; rows.push({me:false,z:r.z,lap:r.lap||1});
-  });
-  rows.sort((a,b)=>(b.lap-a.lap)||(b.z-a.z));
-  return rows.findIndex(r=>r.me)+1;
-}
-
-function drawMinimap(){
-  const c=document.getElementById('raceMini'); if(!c||!R.player) return;
-  const ctx=c.getContext('2d');
-  const W=c.width,H=c.height;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='rgba(12,16,28,.92)'; ctx.fillRect(0,0,W,H);
-  // path ribbon
-  if(R.path.length>2){
-    ctx.strokeStyle='#4a5060'; ctx.lineWidth=10; ctx.beginPath();
-    R.path.forEach((p,i)=>{
-      const u=(p.z+R.trackLen/2)/R.trackLen;
-      const x=W/2 + (p.x/40)*(W*0.35);
-      const y=H-10 - u*(H-20);
-      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-  }
-  const half=R.trackLen/2;
-  const py=H-10-((R.player.z+half)/R.trackLen)*(H-20);
-  const px=W/2+(R.player.xOff/10)*W*0.2;
-  ctx.fillStyle='#7C5CFF'; ctx.beginPath(); ctx.arc(px,py,6,0,7); ctx.fill();
-  ctx.fillStyle='#ff6b6b';
-  R.traffic.forEach(t=>{
-    const ty=H-10-((t.z+half)/R.trackLen)*(H-20);
-    ctx.fillRect(W/2-2, ty-2, 4, 4);
-  });
-}
-
-function raceFrame(now){
-  if(!R.running) return;
-  R.raf=requestAnimationFrame(raceFrame);
-  const dt=Math.min(0.05,(now-R.last)/1000||0.016);
-  R.last=now;
-  racePhysics(dt);
-  drawMinimap();
-  R.syncT+=dt;
-  if(R.syncT>0.12 && roomId && user && roomData && roomData.gameType==='race'){
-    R.syncT=0;
-    const p=R.player;
-    db.ref('rooms/'+roomId+'/race/'+user.uid).update({
-      x:+p.x.toFixed(2), z:+p.z.toFixed(2), yaw:+p.yaw.toFixed(3),
-      xOff:+p.xOff.toFixed(2),
-      spd:+p.speed.toFixed(2), lap:R.lap, car:R.car.id,
-      name:(profile&&profile.name)||'Racer',
-      t: firebase.database.ServerValue.TIMESTAMP
-    }).catch(()=>{});
-  }
-  Object.keys(R.remote).forEach(uid=>{
-    const r=R.remote[uid]; if(!r.mesh) return;
-    r.mesh.position.x += (r.x-r.mesh.position.x)*0.25;
-    r.mesh.position.z += (r.z-r.mesh.position.z)*0.25;
-    r.mesh.position.y += ((r.y||0)-r.mesh.position.y)*0.25;
-    r.mesh.rotation.y = r.yaw;
-  });
-  updateStandings();
-  R.ren.render(R.scene, R.cam);
-}
-
-function listenRacePeers(){
-  if(!roomId) return;
-  db.ref('rooms/'+roomId+'/race').on('value', snap=>{
-    const data=snap.val()||{};
-    Object.keys(data).forEach(uid=>{
-      if(uid===user.uid) return;
-      const d=data[uid];
-      if(!R.remote[uid]){
-        const car=carById(d.car||'civic');
-        const mesh=makeCarMesh(car,false);
-        R.scene.add(mesh);
-        R.remote[uid]={mesh, x:d.x||0, z:d.z||0, y:d.y||0, yaw:d.yaw||0, lap:d.lap||1, name:d.name||'Racer'};
-      } else Object.assign(R.remote[uid], {x:d.x, z:d.z, y:d.y||0, yaw:d.yaw, lap:d.lap||1, name:d.name||'Racer'});
-    });
-  });
-}
-
-function updateStandings(){
-  const el=document.getElementById('raceStandings');
-  if(R.mode!=='race'){ el.innerHTML=''; return; }
-  const rows=[{uid:user&&user.uid, name:'You', z:R.player?R.player.z:0, lap:R.lap, me:true}];
-  Object.keys(R.remote).forEach(uid=>{
-    const r=R.remote[uid];
-    rows.push({uid, name:r.name, z:r.z, lap:r.lap||1, me:false});
-  });
-  rows.sort((a,b)=>(b.lap-a.lap)||(b.z-a.z));
-  const myRank=rows.findIndex(r=>r.me)+1;
-  document.getElementById('racePos').textContent='P'+myRank;
-  el.innerHTML=rows.map((r,i)=>'<div class="rs'+(r.me?' me':'')+'">'+(i+1)+'. '+(typeof esc==='function'?esc(r.name):r.name)+' · L'+r.lap+'</div>').join('');
-}
-
-function finishRace(place){
-  if(R.finished) return;
-  R.finished=true;
-  const reward = place===1?900:place===2?550:place===3?320:160;
-  raceState.coins+=reward; saveRaceSave();
-  showRaceMsg('FINISH! +💰'+reward, 2600);
-  if(typeof snd==='function')snd('win');
-  if(roomId&&user){
-    db.ref('rooms/'+roomId+'/players/'+user.uid).update({racePlace:place, raceCoinsEarned:reward, score:reward}).catch(()=>{});
-  }
-  setTimeout(()=>{
-    stopRace();
-    toast('Race complete · +💰'+reward+' · total 💰'+raceState.coins);
-    openRaceGarage();
-  }, 2800);
-}
-
-function stopRace(){
-  R.running=false;
-  cancelAnimationFrame(R.raf);
-  if(roomId) try{ db.ref('rooms/'+roomId+'/race').off(); }catch(e){}
-}
-window.stopRaceSession = stopRace;
-
-document.getElementById('raceBack').onclick=()=>{
-  stopRace(); if(typeof snd==='function')snd('tap');
-  if(roomId && roomData && roomData.gameType==='race') leaveRoom();
-  else openRaceGarage();
-};
-
-})();
-
 /* ===== ISLAND BUILDER (solo, Townscaper-style, hex grid) ===== */
 (function(){
 const R=1,S3=Math.sqrt(3),LAND=4,MAXR=6,FH=1.1;
