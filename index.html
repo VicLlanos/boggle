@@ -965,7 +965,7 @@ input:focus-visible{outline:none}
       <div class="game-card" data-game="board" id="pickBoard" style="cursor:pointer">
         <div class="icon">🐍</div>
         <div class="name">Snakes &amp; Trivia</div>
-        <div class="desc">Dice board race · 5 players</div>
+        <div class="desc">Dice board race · solo or 5 players</div>
       </div>
     </div>
   </div>
@@ -2492,7 +2492,7 @@ function bgEnter(){
   if((bg.n||0)>bgSeen&&bg.ev){bgSeen=bg.n;bgQueue(bg.ev)}
   if(!bgWatch)bgWatch=setInterval(()=>{ // host skips an inactive player
     if(!roomData||roomData.gameType!=='board'||roomData.status!=='playing'||!isHost||bgPending||bgBusy)return;
-    if(srvNow()-(roomData.bg.t||0)>45000&&roomData.bg.turn){const n=bgNext(roomData.bg.turn);toast('Skipping an inactive player…');bgEmit({k:'turn',u:n},{turn:n})}
+    if(Object.keys(roomData.players||{}).length>1&&srvNow()-(roomData.bg.t||0)>45000&&roomData.bg.turn){const n=bgNext(roomData.bg.turn);toast('Skipping an inactive player…');bgEmit({k:'turn',u:n},{turn:n})}
   },5000);
 }
 function computeBoardResults(){
@@ -2512,7 +2512,7 @@ const GAME_META = {
   scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' },
-  board:   { title:'🐍 Snakes & Trivia', sub:'Roll the dice, race up the board and answer trivia. Wrong answers send you back, and snakes bite!' },
+  board:   { title:'🐍 Snakes & Trivia', sub:'Play solo or with up to 5 friends. Roll the dice, answer trivia, dodge the snakes!' },
   spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' }
 };
 
@@ -2691,7 +2691,7 @@ function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=co
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=(gt==='board'?'Max 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
@@ -3257,7 +3257,7 @@ async function beginRound(){
 
   if(gameType === 'board'){
     const ids=Object.keys(roomData.players||{});
-    if(ids.length<2){toast('Snakes & Trivia needs at least 2 players');return}
+    if(ids.length<1){return}   // solo play is allowed: 1–5 players
     const order=ids.slice().sort(()=>Math.random()-.5),pos={};ids.forEach(i=>pos[i]=0);
     const up={status:'playing',bg:{order,turn:order[0],pos,n:0,t:srvNow(),ev:null,used:null,winner:null},board:null,letter:null,categories:null,hangWord:null,drawWord:null,endsAt:srvNow()+36e5,startedAt:srvNow(),endedAt:null};
     ids.forEach(i=>{up['players/'+i+'/score']=0;up['players/'+i+'/words']={};up['players/'+i+'/answers']={}});
