@@ -144,7 +144,7 @@ body.urgent::after{content:'';position:fixed;inset:0;pointer-events:none;z-index
 .lad line{stroke:#a9692f;stroke-width:5;stroke-linecap:round}
 .sn-body{fill:none;stroke-width:20;stroke-linecap:round;opacity:.93;transition:stroke-width .3s}.sn-body.full{stroke-width:30}
 .sn-glint{fill:none;stroke:#fff;stroke-opacity:.4;stroke-width:5;stroke-dasharray:3 16;stroke-linecap:round;animation:bgSlither 1.1s linear infinite}
-.sn-head{transform-box:fill-box;transform-origin:center;animation:bgBob 1.6s ease-in-out infinite}.sn-head circle:nth-child(n+4){fill:#111}.tongue{stroke:#ff3b5c;stroke-width:2.5;fill:none;stroke-linecap:round}
+.sn-head{transform-box:fill-box;transform-origin:center;animation:bgBob 1.6s ease-in-out infinite}.sn-head circle:nth-child(n+4){fill:#111}.sn-mouth{fill:#351018;transform-box:fill-box;transform-origin:center;transition:transform .16s ease}.sn-jaw{fill:none;stroke:#111;stroke-width:2.4;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 0;transition:transform .16s ease}.sn-teeth{fill:#fff;opacity:0;transition:opacity .1s}.sn-head.strike .sn-mouth{transform:scaleY(5)}.sn-head.strike .sn-jaw{transform:translateY(4px) scaleY(1.45)}.sn-head.strike .sn-teeth{opacity:1}.tongue{stroke:#ff3b5c;stroke-width:2.5;fill:none;stroke-linecap:round}
 .sn-head.strike{animation:bgStrike .6s ease-out forwards}
 @keyframes bgSlither{to{stroke-dashoffset:-38}}@keyframes bgBob{50%{transform:translateY(-4px) rotate(6deg)}}
 @keyframes bgStrike{0%{transform:scale(1)}40%{transform:scale(2.1) rotate(-14deg)}70%{transform:scale(1.6) rotate(8deg)}100%{transform:scale(1.9)}}
@@ -2321,7 +2321,39 @@ wrd|2|How many letters are in the English alphabet?|26|24|25|28
 wrd|3|Words that sound the same but are spelled differently are called...|Homophones|Synonyms|Antonyms|Acronyms
 wrd|3|Which spelling is correct?|Necessary|Neccessary|Necesary|Neccesary
 wrd|4|What is the fear of heights called?|Acrophobia|Claustrophobia|Arachnophobia|Agoraphobia
-wrd|4|Which word means "to make less severe"?|Mitigate|Exacerbate|Aggravate|Escalate`;
+wrd|4|Which word means "to make less severe"?|Mitigate|Exacerbate|Aggravate|Escalate
+gen|1|Which animal is known for its black-and-white stripes?|Zebra|Giraffe|Leopard|Hippo
+gen|1|What do bees make from nectar?|Honey|Butter|Cheese|Syrup
+gen|1|Which musical instrument has black and white keys?|Piano|Violin|Trumpet|Drum
+gen|1|Which planet do we live on?|Earth|Mars|Venus|Jupiter
+gen|1|What is the largest land animal?|African elephant|Giraffe|Hippopotamus|Rhinoceros
+gen|1|Which season comes after spring?|Summer|Autumn|Winter|Monsoon
+gen|1|How many colors are traditionally named in a rainbow?|7|5|6|8
+gen|1|What is the name for a shape with three sides?|Triangle|Square|Circle|Pentagon
+gen|2|Which language is primarily spoken in Brazil?|Portuguese|Spanish|French|Italian
+gen|2|What is the currency of Japan?|Yen|Won|Rupee|Peso
+gen|2|Which country gifted the Statue of Liberty to the United States?|France|Canada|Spain|Italy
+gen|2|What is the tallest mountain above sea level?|Mount Everest|K2|Kilimanjaro|Denali
+gen|2|Which metal is liquid at ordinary room temperature?|Mercury|Iron|Copper|Aluminium
+gen|2|What is the main ingredient in guacamole?|Avocado|Cucumber|Peas|Spinach
+gen|2|What is a young goat called?|Kid|Foal|Calf|Lamb
+gen|2|Which ocean lies between Africa and Australia?|Indian Ocean|Atlantic Ocean|Arctic Ocean|Southern Ocean
+gen|3|Which element has the chemical symbol Fe?|Iron|Fluorine|Francium|Fermium
+gen|3|What is the study of earthquakes called?|Seismology|Meteorology|Ecology|Astronomy
+gen|3|What is the longest bone in the human body?|Femur|Tibia|Humerus|Fibula
+gen|3|Which planet has the most prominent ring system?|Saturn|Mars|Mercury|Venus
+gen|3|In which direction does the Sun rise?|East|West|North|South
+gen|3|What do botanists study?|Plants|Rocks|Weather|Stars
+gen|3|Which continent has the largest population?|Asia|Africa|Europe|South America
+gen|3|What is the capital of Iceland?|Reykjavik|Oslo|Helsinki|Nuuk
+gen|4|What is the SI unit of electric current?|Ampere|Volt|Watt|Ohm
+gen|4|Which language family does Finnish belong to?|Uralic|Germanic|Romance|Slavic
+gen|4|What is the smallest bone in the human body?|Stapes|Femur|Patella|Ulna
+gen|4|What is the process by which plants release water vapor called?|Transpiration|Photosynthesis|Germination|Fermentation
+gen|4|Which strait separates Asia and North America?|Bering Strait|Gibraltar Strait|Malacca Strait|Bosporus
+gen|4|Which scientist developed the general theory of relativity?|Albert Einstein|Niels Bohr|Isaac Newton|Michael Faraday
+gen|4|Which desert is the largest hot desert in the world?|Sahara|Gobi|Kalahari|Mojave
+gen|4|What is the only even prime number?|2|0|4|6`;
 const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
 /* ===== Endless question engine: live trivia API + generators + curated, with no-repeat tracking ===== */
 let bgCurQ=null;
@@ -2377,11 +2409,11 @@ function bgNewQ(d){
   const used=(roomData.bg&&roomData.bg.used)||{},seen=bgSeenSet(),ok=Q=>{const h=bgHash(Q.q);return !used[h]&&!seen.has(h)};
   const df=d===1?'easy':d===2?(bgRnd(2)?'medium':'easy'):d===3?'medium':'hard';
   const live=()=>{const p=BGX.pool[df];while(p.length){const Q=p.shift();if(ok(Q))return Q}return null};
-  const gen=()=>{for(let i=0;i<15;i++){const Q=bgGen(d);if(Q&&ok(Q))return Q}return null};
+  const gen=()=>{for(let i=0;i<200;i++){const Q=bgGen(d);if(Q&&ok(Q))return Q}return null};
   const cur=()=>{const p=BG_QS.filter(q=>q.d===d&&ok(q));return p.length?p[bgRnd(p.length)]:null};
   const r=Math.random(),order=r<.55?[live,gen,cur]:r<.9?[gen,live,cur]:[cur,live,gen];
   for(const f of order){const Q=f();if(Q)return{c:Q.c,q:Q.q,a:Q.a}}
-  const Q=bgGen(d);return{c:Q.c,q:Q.q,a:Q.a};
+  return null;
 }
 const bgZone=n=>n<=14?1:n<=28?2:n<=42?3:4;
 const bgSleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -2398,7 +2430,7 @@ function bgBuild(){
   let s='';
   Object.entries(BG_LAD).forEach(([a,b])=>{const[x1,y1]=bgXY(+a),[x2,y2]=bgXY(b),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),nx=-dy/L*9,ny=dx/L*9;s+='<g class="lad"><line x1="'+(x1+nx)+'" y1="'+(y1+ny)+'" x2="'+(x2+nx)+'" y2="'+(y2+ny)+'"/><line x1="'+(x1-nx)+'" y1="'+(y1-ny)+'" x2="'+(x2-nx)+'" y2="'+(y2-ny)+'"/>';for(let i=1;i<L/26;i++){const u=i*26/L;s+='<line x1="'+(x1+dx*u+nx)+'" y1="'+(y1+dy*u+ny)+'" x2="'+(x1+dx*u-nx)+'" y2="'+(y1+dy*u-ny)+'"/>'}s+='</g>'});
   Object.entries(BG_SNAKES).forEach(([h,t],i)=>{const col=BG_COL[i%6],d=bgSnakePath(+h,t),[hx,hy]=bgXY(+h),[tx,ty]=bgXY(t);
-    s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><circle r="18" fill="'+col+'"/><circle cx="-7" cy="-5" r="5" fill="#fff"/><circle cx="7" cy="-5" r="5" fill="#fff"/><circle cx="-7" cy="-5" r="2.4"/><circle cx="7" cy="-5" r="2.4"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
+    s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><circle r="18" fill="'+col+'"/><circle cx="-7" cy="-5" r="5" fill="#fff"/><circle cx="7" cy="-5" r="5" fill="#fff"/><circle cx="-7" cy="-5" r="2.4"/><circle cx="7" cy="-5" r="2.4"/><ellipse class="sn-mouth" cx="0" cy="10" rx="8" ry="1.5"/><path class="sn-teeth" d="M-7 5L-4 10L-1 5M1 5L4 10L7 5"/><path class="sn-jaw" d="M-8 10Q0 15 8 10"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
   $('bgSvg').innerHTML=s;
   $('bgToks').innerHTML=bgOrder().map(u=>'<div class="bgtok" id="tok_'+u+'" style="--ring:'+BG_RING[bgIdx(u)%5]+'"><span class="av">'+esc(bgPl(u).avatar||'🎮')+'</span></div>').join('');
   bgxFill();bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();
@@ -2450,7 +2482,7 @@ function bgQueue(ev){bgPending++;bgChain=bgChain.then(()=>bgPlay(ev)).catch(()=>
 async function bgEmit(ev,patch){
   const bg=roomData.bg;ev.n=(bg.n||0)+1;ev.t=srvNow();bgSeen=ev.n;bg.n=ev.n;
   const up={'bg/ev':ev,'bg/n':ev.n,'bg/t':ev.t};Object.keys(patch||{}).forEach(k=>{up['bg/'+k]=patch[k]});
-  db.ref('rooms/'+roomId).update(up).catch(()=>{});
+  await db.ref('rooms/'+roomId).update(up);
   return bgQueue(ev);
 }
 function bgNext(u){const o=bgOrder().filter(x=>(roomData.players||{})[x]),i=o.indexOf(u);return o[(i+1)%o.length]}
@@ -2464,7 +2496,9 @@ async function bgDoTurn(){
     if(to>=BG_N){await bgEmit({k:'win',u},{winner:u});await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow()});return}
     if(BG_LAD[to]){await bgEmit({k:'lad',u,from:to,to:BG_LAD[to]},{['pos/'+u]:BG_LAD[to]})}
     else{
-      const snake=BG_SNAKES[to]!=null,d=snake?Math.max(2,bgZone(to)):bgZone(to),Q=bgNewQ(d),h=bgHash(Q.q),sh=[0,1,2,3].sort(()=>Math.random()-.5);
+      const snake=BG_SNAKES[to]!=null,d=snake?Math.max(2,bgZone(to)):bgZone(to),Q=bgNewQ(d);
+      if(!Q){toast('No fresh trivia questions are available. Skipping this tile.');await bgEmit({k:'turn',u:bgNext(u)},{turn:bgNext(u)});return}
+      const h=bgHash(Q.q),sh=[0,1,2,3].sort(()=>Math.random()-.5);
       const wait=new Promise(res=>{bgAns=res;bgTO=setTimeout(()=>{if(bgAns){bgAns=null;res(-1)}},BG_TIME*1000+300)});
       bgMarkSeen(h);bgxFill();await bgEmit({k:'q',u,Q,d,snake,tile:to,sh,t0:srvNow()},{['used/'+h]:true});
       const pick=await wait,ok=pick===0;
@@ -2473,7 +2507,7 @@ async function bgDoTurn(){
       else if(!ok){const np=Math.max(0,to-BG_BACK[d]);await bgEmit({k:'back',u,from:to,to:np},{['pos/'+u]:np})}
     }
     await bgEmit({k:'turn',u:bgNext(u)},{turn:bgNext(u)});
-  }catch(e){console.warn(e)}finally{bgBusy=false;bgUI()}
+  }catch(e){console.warn(e);toast('Could not sync your turn. Check your connection and try again.')}finally{bgBusy=false;bgUI()}
 }
 function bgUI(){
   if(!roomData||!roomData.bg)return;
@@ -2492,7 +2526,7 @@ function bgEnter(){
   if((bg.n||0)>bgSeen&&bg.ev){bgSeen=bg.n;bgQueue(bg.ev)}
   if(!bgWatch)bgWatch=setInterval(()=>{ // host skips an inactive player
     if(!roomData||roomData.gameType!=='board'||roomData.status!=='playing'||!isHost||bgPending||bgBusy)return;
-    if(Object.keys(roomData.players||{}).length>1&&srvNow()-(roomData.bg.t||0)>45000&&roomData.bg.turn){const n=bgNext(roomData.bg.turn);toast('Skipping an inactive player…');bgEmit({k:'turn',u:n},{turn:n})}
+    if(Object.keys(roomData.players||{}).length>1&&srvNow()-(roomData.bg.t||0)>45000&&roomData.bg.turn){const n=bgNext(roomData.bg.turn);toast('Skipping an inactive player…');bgEmit({k:'turn',u:n},{turn:n}).catch(e=>{console.warn(e);toast('Could not sync the game. Check your connection and try again.')})}
   },5000);
 }
 function computeBoardResults(){
