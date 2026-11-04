@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#4B2FDB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -128,6 +128,43 @@ body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;pad
 /* Particle layer */
 .fx-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:22px;z-index:4}
 
+body.urgent::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:8000;box-shadow:inset 0 0 90px rgba(255,70,70,.55);animation:urgPulse 1s ease-in-out infinite}
+@keyframes urgPulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){body.urgent::after{animation:none}}
+.bg-top{padding:10px 12px;text-align:center}.bg-top #bgTurn{font-family:'Fredoka',sans-serif;font-size:1.15rem;color:var(--violet-d)}
+#bgChips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.bgchip{font-weight:800;font-size:.8rem;padding:3px 10px;border-radius:99px;background:#fff;border:2px solid var(--ring);opacity:.75}.bgchip.on{opacity:1;transform:scale(1.1);box-shadow:0 0 12px var(--ring)}
+.bg-wrap{position:relative;width:100%;aspect-ratio:800/780;border-radius:18px;overflow:hidden;background:#1d1450;box-shadow:var(--shadow)}
+.bg-grid{position:absolute;left:0;top:0;width:100%;height:89.74%;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(7,1fr)}
+.bgc{position:relative;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6);display:flex;align-items:flex-start;padding:2px 4px;font-size:.62rem;color:rgba(0,0,0,.45)}
+.bgc span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.5rem}
+.bgc.z1{background:#c9f7e3}.bgc.z2{background:#fff3c4}.bgc.z3{background:#ffd9b8}.bgc.z4{background:#f6c6e8}
+.bg-start{position:absolute;left:0;right:0;bottom:0;height:10.26%;display:grid;place-items:center;color:#ffffff99;font:700 .8rem Fredoka,sans-serif;letter-spacing:3px}
+.bg-svg,.bg-toks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lad line{stroke:#a9692f;stroke-width:5;stroke-linecap:round}
+.sn-body{fill:none;stroke-width:20;stroke-linecap:round;opacity:.93;transition:stroke-width .3s}.sn-body.full{stroke-width:30}
+.sn-glint{fill:none;stroke:#fff;stroke-opacity:.4;stroke-width:5;stroke-dasharray:3 16;stroke-linecap:round;animation:bgSlither 1.1s linear infinite}
+.sn-head{transform-box:fill-box;transform-origin:center;animation:bgBob 1.6s ease-in-out infinite}.sn-head circle:nth-child(n+4){fill:#111}.tongue{stroke:#ff3b5c;stroke-width:2.5;fill:none;stroke-linecap:round}
+.sn-head.strike{animation:bgStrike .6s ease-out forwards}
+@keyframes bgSlither{to{stroke-dashoffset:-38}}@keyframes bgBob{50%{transform:translateY(-4px) rotate(6deg)}}
+@keyframes bgStrike{0%{transform:scale(1)}40%{transform:scale(2.1) rotate(-14deg)}70%{transform:scale(1.6) rotate(8deg)}100%{transform:scale(1.9)}}
+.bgtok{position:absolute;transform:translate(-50%,-50%);transition:left .22s linear,top .22s linear,transform .4s,opacity .3s;z-index:5}.bgtok.nt{transition:none}
+.bgtok .av{display:grid;place-items:center;width:clamp(24px,7vw,32px);height:clamp(24px,7vw,32px);font-size:clamp(16px,5vw,22px);background:#fff;border:3px solid var(--ring);border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.35)}
+.bgtok .hop{animation:bgHop .24s}@keyframes bgHop{50%{transform:translateY(-12px) scale(1.15)}}
+.bgtok.eaten{transform:translate(-50%,-50%) scale(0)}.bgtok.inside{opacity:.75;filter:drop-shadow(0 0 8px #ffd166);z-index:6}.bgtok.pop .av{animation:bgPop .6s}@keyframes bgPop{40%{transform:scale(1.9) rotate(15deg)}}
+.bg-ctl{display:flex;align-items:center;gap:12px;justify-content:center}.bg-ctl .btn{width:auto;flex:1}
+.bg-dice{font-size:3.4rem;line-height:1;width:76px;height:76px;display:grid;place-items:center;background:#fff;border-radius:18px;box-shadow:0 5px 0 rgba(0,0,0,.15)}.bg-dice.roll{animation:bgRoll .3s infinite}
+@keyframes bgRoll{25%{transform:rotate(-18deg) translateY(-6px)}75%{transform:rotate(18deg) translateY(-6px)}}
+.bg-info{text-align:center;color:#fff;font-weight:800;font-size:.85rem;min-height:1.2em;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.bg-modal{position:fixed;inset:0;z-index:9100;display:none;place-items:center;background:rgba(20,10,50,.65);padding:16px}.bg-modal.on{display:grid}
+.bg-q{width:100%;max-width:420px;background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);animation:popIn .3s}.bg-modal.snake .bg-q{background:#fff0f0;border:4px solid #ff5252}
+#bgQHead{font-size:.95rem}#bgQMeta{font-size:.78rem;font-weight:800;color:#636E72;margin:4px 0 8px}#bgQText{font-family:'Fredoka',sans-serif;font-size:1.25rem;font-weight:600;margin-bottom:10px}
+.bg-bar{height:8px;border-radius:9px;background:#eee;overflow:hidden;margin-bottom:12px}.bg-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--mint),var(--gold),var(--coral));transform-origin:left}
+@keyframes bgBar{to{transform:scaleX(0)}}
+#bgQOpts button{display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px 14px;border-radius:14px;border:3px solid #DFE6E9;background:#fff;font:800 1rem Nunito,sans-serif;color:var(--ink);cursor:pointer}
+#bgQOpts button:active{transform:scale(.98)}#bgQOpts button.pick{border-color:var(--violet)}#bgQOpts button.right{background:#d4f8e8;border-color:var(--mint)}#bgQOpts button.wrong{background:#ffe0e0;border-color:var(--coral)}
+.bg-modal.spec #bgQOpts button{pointer-events:none;opacity:.8}#bgQFb{font-weight:800;text-align:center;min-height:1.3em}
+.bgconf{position:fixed;top:-8vh;z-index:9500;pointer-events:none;animation:bgFall 3s linear forwards}@keyframes bgFall{to{transform:translateY(115vh) rotate(540deg)}}
 .screen{display:none;width:100%;max-width:440px;position:relative;z-index:1;flex-direction:column;gap:12px}
 .screen.active{display:flex;animation:popIn .4s cubic-bezier(.34,1.4,.64,1)}
 @keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -862,7 +899,7 @@ input:focus-visible{outline:none}
     <button type="button" class="btn btn-ghost" id="pcClose" style="margin-top:14px;color:var(--violet-d);border-color:#DFE6E9;background:#F8F9FA">Close</button>
   </div>
 </div>
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <section id="screen-auth" class="screen active">
   <div class="logo">Word <em>Arena</em></div>
@@ -924,6 +961,11 @@ input:focus-visible{outline:none}
         <div class="icon">🕵️</div>
         <div class="name">Spy Word</div>
         <div class="desc">Bluff, clue, vote out the spy</div>
+      </div>
+      <div class="game-card" data-game="board" id="pickBoard" style="cursor:pointer">
+        <div class="icon">🐍</div>
+        <div class="name">Snakes &amp; Trivia</div>
+        <div class="desc">Dice board race · 5 players</div>
       </div>
     </div>
   </div>
@@ -1152,6 +1194,13 @@ input:focus-visible{outline:none}
 </section>
 
 
+<div class="bg-modal" id="bgModal"><div class="bg-q"><div id="bgQHead"></div><div id="bgQMeta"></div><div class="bg-bar"><i id="bgQBar"></i></div><div id="bgQText"></div><div id="bgQOpts"></div><div id="bgQFb"></div></div></div>
+<section id="screen-board" class="screen">
+  <div class="card bg-top"><div id="bgTurn"></div><div id="bgChips"></div></div>
+  <div class="bg-wrap"><div class="bg-grid" id="bgGrid"></div><div class="bg-start">🏁 START</div><svg class="bg-svg" id="bgSvg" viewBox="0 0 800 780"></svg><div class="bg-toks" id="bgToks"></div></div>
+  <div class="bg-ctl"><div class="bg-dice" id="bgDice">🎲</div><button class="btn btn-gold" id="bgRoll" style="display:none">🎲 Roll the dice!</button></div>
+  <div class="bg-info" id="bgInfo"></div>
+</section>
 <section id="screen-spy" class="screen">
   <div class="game-top">
     <div class="timer" id="spyTimerRing"><span id="spyTimerText">90</span></div>
@@ -1214,8 +1263,10 @@ input:focus-visible{outline:none}
 const firebaseConfig={apiKey:"AIzaSyDQ297TWTIRzV_IUq_8buocCf9Xsi3iCGU",authDomain:"boggle-eb8a9.firebaseapp.com",databaseURL:"https://boggle-eb8a9-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"boggle-eb8a9",storageBucket:"boggle-eb8a9.firebasestorage.app",messagingSenderId:"1077661800224",appId:"1:1077661800224:web:aae382ce2afddaee3da945",measurementId:"G-B9970XTCQX"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.database();
+let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
+db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
 const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -1228,28 +1279,32 @@ const FALLBACK_WORDS = "ace act add age ago aid aim air ale all and ant any ape 
 FALLBACK_WORDS.split(' ').forEach(w=>{if(w.length>=3)DICT.add(w)});
 
 async function loadDictionary(){
-  const cached = localStorage.getItem('boggle_dict_v1');
-  if(cached){
-    cached.split(',').forEach(w=>DICT.add(w));
-    dictReady = true;
-    return;
+  try{localStorage.removeItem('boggle_dict_v1')}catch(e){}
+  try{const c=localStorage.getItem('boggle_dict_v2');if(c&&c.length>200000){c.split(',').forEach(w=>DICT.add(w));dictReady=true;return}}catch(e){}
+  const SRC=['https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt','https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt'];
+  for(const url of SRC){
+    try{
+      const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),15000);
+      const res=await fetch(url,{signal:ctl.signal});clearTimeout(tm);
+      if(!res.ok)continue;
+      const words=(await res.text()).split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>w.length>=3&&w.length<=17&&/^[a-z]+$/.test(w));
+      if(words.length<50000)continue;
+      words.forEach(w=>DICT.add(w));
+      try{localStorage.setItem('boggle_dict_v2',words.join(','))}catch(e){}
+      dictReady=true;return;
+    }catch(e){}
   }
-  try {
-    const res = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt');
-    const text = await res.text();
-    const words = text.split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>w.length>=3 && /^[a-z]+$/.test(w));
-    words.forEach(w=>DICT.add(w));
-    localStorage.setItem('boggle_dict_v1', words.join(','));
-    dictReady = true;
-  } catch(e) {
-    console.warn('Could not download full dictionary. Using fallback.', e);
-    dictReady = true; 
-  }
+  console.warn('Using fallback dictionary');dictReady=true;
 }
+// ---- Family-friendly + common-sense helpers ----
+const RUDE_RE=/^(?:fuck|shit|bitch|bastard|cunt|pussy|whore|slut|nigg\w*|fagg?\w*|retard\w*|porn\w*|dildo|rapist)(?:s|es|ed|ing|er|ers|y)?$/;
+function isRude(s){const t=String(s||'').toLowerCase();return t.split(/[^a-z]+/).some(x=>RUDE_RE.test(x))||/fuck|nigg|cunt/.test(t.replace(/[^a-z]/g,''))}
+function scatCore(s){return String(s||'').trim().toLowerCase().replace(/^(?:the|a|an)\s+(?=\S)/,'')}
+function scatNorm(s){let t=scatCore(s).replace(/[^a-z]/g,'');if(t.length>3){if(/ies$/.test(t))t=t.slice(0,-3)+'y';else if(/s$/.test(t)&&!/(ss|us|is)$/.test(t))t=t.slice(0,-1)}return t}
 loadDictionary();
 
 function isValidWord(w){
-  return DICT.has(w.toLowerCase());
+  w=w.toLowerCase();return DICT.has(w)&&!isRude(w);
 }
 // ----------------------------------
 
@@ -1329,7 +1384,7 @@ function generateCategories(seedStr, count=12){
   // Pick 12 unique categories from the broad list only (no sparse procedural combos)
   let seed = 0;
   for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
-  const rand = seededRandom(seed || Date.now());
+  const rand = seededRandom(seed || srvNow());
 
   const pool = [...BASE_CATEGORIES];
   // Fisher-Yates shuffle with seeded random
@@ -1490,7 +1545,7 @@ function pickDrawWord(seed, level){
   if(!pool.length) pool = DRAW_WORDS.slice();
 
   let s = 0;
-  const src = String(seed || '') + '|' + Date.now() + '|' + Math.random() + '|' + pool.length + '|' + lvl;
+  const src = String(seed || '') + '|' + srvNow() + '|' + Math.random() + '|' + pool.length + '|' + lvl;
   for(let i=0;i<src.length;i++) s = (Math.imul(s, 16777619) ^ src.charCodeAt(i)) >>> 0;
   try{
     const buf = new Uint32Array(1);
@@ -1627,7 +1682,7 @@ async function hangTryCategory(cat){
 
 async function hangDynamicPuzzle(deadline){
   let netFails = 0;
-  for(let attempt = 0; attempt < 5 && Date.now() < deadline && netFails < 2; attempt++){
+  for(let attempt = 0; attempt < 5 && srvNow() < deadline && netFails < 2; attempt++){
     try{
       let cat = hangPick(HANG_ROOTS);
       const depth = 1 + Math.floor(Math.random() * 2);
@@ -1662,7 +1717,7 @@ async function hangWorker(){
   hangWorkers++;
   try{
     for(let i = 0; i < 4 && HANG_QUEUE.length < HANG_TARGET; i++){
-      const r = await hangDynamicPuzzle(Date.now() + 6000);
+      const r = await hangDynamicPuzzle(srvNow() + 6000);
       if(!r) break;
       if(HANG_QUEUE.some(q => q.word === r.word) || HANG_RECENT.includes(r.word)) continue;
       HANG_QUEUE.push(r);
@@ -1705,7 +1760,7 @@ function buildHangPuzzle(category, word, hint, rand){
 function pickLocalHangmanPuzzle(seedStr){
   let seed = 0;
   for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
-  const rand = seededRandom(seed || Date.now());
+  const rand = seededRandom(seed || srvNow());
   const cats = Object.keys(HANG_BANKS);
   let category = cats[Math.floor(rand()*cats.length)];
   let entries = HANG_BANKS[category].filter(([w]) => !HANG_USED[category+'|'+w] && !HANG_RECENT.includes(w));
@@ -1769,6 +1824,7 @@ function liveToast(msg){
   liveToast._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
 function show(id){
+  document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
   // Ambient falling words only on auth + lobby (immersive, not distracting in-game)
@@ -1863,7 +1919,7 @@ function beep(freq,dur,type,vol,slide){
 function snd(kind){
   if(!soundOn)return;
   if(kind==='tap')beep(520+Math.random()*80,.05,'sine',.06);
-  else if(kind==='ok'){beep(660,.08,'triangle',.12);setTimeout(()=>beep(880,.12,'triangle',.1),60)}
+  else if(kind==='ok'){const st=[0,2,4,7,9,12,14,16],k=st[Math.min(Math.max((typeof combo==='number'?combo:1)-1,0),7)],f=660*Math.pow(2,k/12);beep(f,.08,'triangle',.12);setTimeout(()=>beep(f*1.33,.12,'triangle',.1),60)}
   else if(kind==='big'){beep(523,.1,'triangle',.14);setTimeout(()=>beep(659,.1,'triangle',.12),70);setTimeout(()=>beep(784,.18,'triangle',.1),140)}
   else if(kind==='bad')beep(180,.18,'sawtooth',.08,90);
   else if(kind==='shake'){for(let i=0;i<6;i++)setTimeout(()=>beep(120+Math.random()*40,.06,'square',.05),i*70)}
@@ -1951,7 +2007,7 @@ async function loadProfile(uid,name){
       needsResync=true;
     }
   }else{
-    profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:(local&&local.avatar)||AVATARS[Math.floor(Math.random()*AVATARS.length)],title:(local&&local.title)||'Newcomer',bio:(local&&local.bio)||'',createdAt:Date.now(),updatedAt:(local&&local.updatedAt)||0};
+    profile={name:name||'Player',xp:0,level:1,wordsFound:0,attempts:0,correct:0,streak:0,bestScore:0,avatar:(local&&local.avatar)||AVATARS[Math.floor(Math.random()*AVATARS.length)],title:(local&&local.title)||'Newcomer',bio:(local&&local.bio)||'',createdAt:srvNow(),updatedAt:(local&&local.updatedAt)||0};
     if(snap){ try{ await ref.set(profile); }catch(e){ console.warn('profile create failed', e); } }
   }
   if(profile.bio==null) profile.bio='';
@@ -1968,7 +2024,7 @@ function cacheProfileLocal(uid){
 // database rules reject it, writes each field on its own so one rejected field
 // (e.g. bio not whitelisted in rules) can't block the others. Returns {ok, failed[]}.
 async function pushCosmeticsToCloud(uid){
-  const data={name:profile.name,avatar:profile.avatar,title:profile.title,bio:profile.bio||'',updatedAt:profile.updatedAt||Date.now()};
+  const data={name:profile.name,avatar:profile.avatar,title:profile.title,bio:profile.bio||'',updatedAt:profile.updatedAt||srvNow()};
   const ref=db.ref('users/'+uid);
   try{ await ref.update(data); return {ok:true,failed:[]}; }
   catch(e){ console.warn('users/ atomic update failed', e && e.code, e); }
@@ -2141,7 +2197,7 @@ async function saveProfileEditor(){
   profile.avatar = avatar;
   profile.title = title;
   profile.bio = bio;
-  profile.updatedAt = Date.now();
+  profile.updatedAt = srvNow();
   refreshStats();
   cacheProfileLocal(user.uid);
   try{
@@ -2196,12 +2252,207 @@ document.addEventListener('input', function(e){
 
 
 
+/* ===== SNAKES & TRIVIA (board game) ===== */
+const BG_N=56,BG_C=8,BG_R=7,BG_TIME=20;
+const BG_SNAKES={17:6,27:12,34:19,41:24,48:31,54:37},BG_LAD={3:15,8:23,20:32,28:43,36:49},BG_BACK=[0,2,3,4,5];
+const BG_COL=['#2ecc71','#e67e22','#a55eea','#ff5252','#1abc9c','#f1c40f'],BG_RING=['#FF6BB5','#00D2A0','#FFD166','#7C5CFF','#FF6B6B'];
+const BG_CATS={sci:['🔬','Science'],geo:['🌍','Geography'],his:['🏛️','History'],ani:['🐾','Animals'],food:['🍕','Food'],spt:['⚽','Sports'],pop:['🎬','Pop Culture'],wrd:['📖','Words']};
+const BG_DN=['','Easy','Medium','Hard','Expert'];
+const BG_RAW=`sci|1|Which planet is known as the Red Planet?|Mars|Venus|Jupiter|Mercury
+sci|1|Water that freezes becomes what?|Ice|Steam|Smoke|Sand
+sci|2|How many planets are in our solar system?|8|7|9|10
+sci|2|What is the chemical symbol for water?|H2O|CO2|O2|HO
+sci|3|Which gas do plants absorb from the air?|Carbon dioxide|Oxygen|Helium|Hydrogen
+sci|3|What is the hardest natural substance?|Diamond|Gold|Iron|Quartz
+sci|4|What is the powerhouse of the cell?|Mitochondria|Nucleus|Ribosome|Membrane
+sci|4|About how fast does light travel?|300,000 km/s|30,000 km/s|3,000 km/s|3 million km/s
+geo|1|Which continent is Egypt in?|Africa|Asia|Europe|Australia
+geo|1|What is the largest ocean?|Pacific|Atlantic|Indian|Arctic
+geo|2|What is the capital of France?|Paris|Rome|Madrid|Berlin
+geo|2|In which country is the city of Tokyo?|Japan|China|Korea|Thailand
+geo|3|Which river is the longest in South America?|Amazon|Nile|Orinoco|Danube
+geo|3|What is the capital of Australia?|Canberra|Sydney|Melbourne|Perth
+geo|4|Which country has the most time zones?|France|Russia|USA|China
+geo|4|What is the smallest country in the world?|Vatican City|Monaco|Malta|San Marino
+his|1|Which ancient people built the pyramids of Giza?|Egyptians|Romans|Vikings|Aztecs
+his|1|Who sailed to the Americas in 1492?|Christopher Columbus|Marco Polo|Magellan|Captain Cook
+his|2|In which year did World War II end?|1945|1918|1939|1950
+his|2|Which city was the center of the Roman Empire?|Rome|Athens|Paris|Cairo
+his|3|Which empire was ruled by Genghis Khan?|Mongol Empire|Ottoman Empire|Persian Empire|Byzantine Empire
+his|3|In which year did the Berlin Wall fall?|1989|1979|1991|1969
+his|4|Which treaty ended World War I with Germany?|Treaty of Versailles|Treaty of Paris|Treaty of Rome|Treaty of Tordesillas
+his|4|Who was the first woman to win a Nobel Prize?|Marie Curie|Rosalind Franklin|Mother Teresa|Florence Nightingale
+ani|1|What sound does a cow make?|Moo|Meow|Woof|Quack
+ani|1|Which animal is called the King of the Jungle?|Lion|Tiger|Bear|Wolf
+ani|2|What is a baby kangaroo called?|Joey|Cub|Kit|Pup
+ani|2|Which of these birds cannot fly?|Penguin|Eagle|Parrot|Owl
+ani|3|What is the fastest land animal?|Cheetah|Lion|Horse|Leopard
+ani|3|How many hearts does an octopus have?|3|1|2|8
+ani|4|What is a group of crows called?|A murder|A flock|A pack|A herd
+ani|4|Which mammal lays eggs?|Platypus|Dolphin|Bat|Kangaroo
+food|1|Which fruit is long and yellow?|Banana|Apple|Grape|Cherry
+food|1|Which treat is frozen, sweet and creamy?|Ice cream|Soup|Bread|Rice
+food|2|Which country did pizza come from?|Italy|France|Mexico|Greece
+food|2|What is sushi traditionally wrapped in?|Seaweed|Lettuce|Paper|Cheese
+food|3|Which spice is usually the most expensive by weight?|Saffron|Cinnamon|Pepper|Paprika
+food|3|What is tofu made from?|Soybeans|Rice|Wheat|Corn
+food|4|Which pastry is used to make baklava?|Phyllo|Puff|Choux|Shortcrust
+food|4|Which rice is traditionally used for risotto?|Arborio|Basmati|Jasmine|Brown rice
+spt|1|How many players does one soccer team have on the field?|11|9|10|12
+spt|1|In which sport do you slam dunk?|Basketball|Tennis|Golf|Rugby
+spt|2|How many rings are on the Olympic flag?|5|4|6|7
+spt|2|Which sport uses a shuttlecock?|Badminton|Squash|Tennis|Cricket
+spt|3|Which country has won the most FIFA World Cups?|Brazil|Germany|Italy|France
+spt|3|In tennis, what is a score of zero called?|Love|Nil|Duck|Zero
+spt|4|How long is a marathon?|42.2 km|40 km|35 km|45 km
+spt|4|Which city hosted the 2016 Summer Olympics?|Rio de Janeiro|London|Beijing|Tokyo
+pop|1|Which animated film has a snowman named Olaf?|Frozen|Moana|Cars|Shrek
+pop|1|What animal is Simba in The Lion King?|Lion|Tiger|Bear|Cheetah
+pop|2|Who wrote the Harry Potter books?|J.K. Rowling|Roald Dahl|C.S. Lewis|Stan Lee
+pop|2|How many strings does a standard guitar have?|6|4|5|8
+pop|3|Which band sang "Hey Jude"?|The Beatles|Queen|ABBA|The Rolling Stones
+pop|3|Who painted "The Starry Night"?|Van Gogh|Picasso|Monet|Da Vinci
+pop|4|Who composed the "Moonlight Sonata"?|Beethoven|Mozart|Bach|Chopin
+pop|4|Who directed the movie Jurassic Park?|Steven Spielberg|James Cameron|George Lucas|Tim Burton
+wrd|1|What is the opposite of "hot"?|Cold|Warm|Big|Fast
+wrd|1|Which letter comes right after C?|D|B|E|F
+wrd|2|Which word means the same as "big"?|Large|Tiny|Quick|Soft
+wrd|2|How many letters are in the English alphabet?|26|24|25|28
+wrd|3|Words that sound the same but are spelled differently are called...|Homophones|Synonyms|Antonyms|Acronyms
+wrd|3|Which spelling is correct?|Necessary|Neccessary|Necesary|Neccesary
+wrd|4|What is the fear of heights called?|Acrophobia|Claustrophobia|Arachnophobia|Agoraphobia
+wrd|4|Which word means "to make less severe"?|Mitigate|Exacerbate|Aggravate|Escalate`;
+const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
+const bgZone=n=>n<=14?1:n<=28?2:n<=42?3:4;
+const bgSleep=ms=>new Promise(r=>setTimeout(r,ms));
+const bgXY=n=>{if(n<=0)return[400,745];const i=n-1,r=Math.floor(i/BG_C),c=r%2?BG_C-1-i%BG_C:i%BG_C;return[c*100+50,(BG_R-1-r)*100+50]};
+let bgRun=null,bgSeen=0,bgChain=Promise.resolve(),bgPending=0,bgBusy=false,bgAns=null,bgTO=null,bgPos={},bgTurnUid=null,bgWatch=null;
+const bgOrder=()=>(roomData&&roomData.bg&&roomData.bg.order)||[];
+const bgIdx=u=>Math.max(0,bgOrder().indexOf(u));
+const bgPl=u=>(roomData.players||{})[u]||{name:'Player',avatar:'🎮'};
+function bgSnakePath(h,t){const[x1,y1]=bgXY(h),[x2,y2]=bgXY(t),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;let d='';for(let i=0;i<=40;i++){const u=i/40,w=Math.sin(u*Math.PI*3.2)*26*Math.sqrt(Math.sin(Math.PI*u));d+=(i?'L':'M')+(x1+dx*u+nx*w).toFixed(1)+' '+(y1+dy*u+ny*w).toFixed(1)}return d}
+function bgBuild(){
+  let g='';
+  for(let r=BG_R-1;r>=0;r--)for(let c=0;c<BG_C;c++){const n=r*BG_C+(r%2?BG_C-1-c:c)+1;g+='<div class="bgc z'+bgZone(n)+'"><b>'+n+'</b>'+(n===BG_N?'<span>🏆</span>':'')+'</div>'}
+  $('bgGrid').innerHTML=g;
+  let s='';
+  Object.entries(BG_LAD).forEach(([a,b])=>{const[x1,y1]=bgXY(+a),[x2,y2]=bgXY(b),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),nx=-dy/L*9,ny=dx/L*9;s+='<g class="lad"><line x1="'+(x1+nx)+'" y1="'+(y1+ny)+'" x2="'+(x2+nx)+'" y2="'+(y2+ny)+'"/><line x1="'+(x1-nx)+'" y1="'+(y1-ny)+'" x2="'+(x2-nx)+'" y2="'+(y2-ny)+'"/>';for(let i=1;i<L/26;i++){const u=i*26/L;s+='<line x1="'+(x1+dx*u+nx)+'" y1="'+(y1+dy*u+ny)+'" x2="'+(x1+dx*u-nx)+'" y2="'+(y1+dy*u-ny)+'"/>'}s+='</g>'});
+  Object.entries(BG_SNAKES).forEach(([h,t],i)=>{const col=BG_COL[i%6],d=bgSnakePath(+h,t),[hx,hy]=bgXY(+h),[tx,ty]=bgXY(t);
+    s+='<g><path id="snp'+h+'" class="sn-body" d="'+d+'" stroke="'+col+'"/><path class="sn-glint" d="'+d+'"/><circle cx="'+tx+'" cy="'+ty+'" r="7" fill="'+col+'"/><g transform="translate('+hx+' '+hy+')"><g class="sn-head" id="snh'+h+'"><circle r="18" fill="'+col+'"/><circle cx="-7" cy="-5" r="5" fill="#fff"/><circle cx="7" cy="-5" r="5" fill="#fff"/><circle cx="-7" cy="-5" r="2.4"/><circle cx="7" cy="-5" r="2.4"/><path class="tongue" d="M0 15V25M0 25L-5 30M0 25L5 30"/></g></g></g>'});
+  $('bgSvg').innerHTML=s;
+  $('bgToks').innerHTML=bgOrder().map(u=>'<div class="bgtok" id="tok_'+u+'" style="--ring:'+BG_RING[bgIdx(u)%5]+'"><span class="av">'+esc(bgPl(u).avatar||'🎮')+'</span></div>').join('');
+  bgPos=Object.assign({},roomData.bg.pos||{});bgTurnUid=roomData.bg.turn;bgSyncPos();bgUI();
+}
+function bgPut(u,n){const e=$('tok_'+u);if(!e)return;const[x,y]=bgXY(n),o=[[-18,-14],[18,-14],[-18,14],[18,14],[0,0]][bgIdx(u)%5];e.style.left=((x+o[0])/8)+'%';e.style.top=((y+o[1])/7.8)+'%';bgPos[u]=n}
+function bgSyncPos(){const p=(roomData.bg&&roomData.bg.pos)||{};bgOrder().forEach(u=>bgPut(u,p[u]||0))}
+function bgHop(u){const e=$('tok_'+u);if(!e)return;const s=e.firstChild;s.classList.remove('hop');void s.offsetWidth;s.classList.add('hop')}
+async function bgWalk(u,from,to){bgPut(u,from);await bgSleep(80);const dir=to>=from?1:-1;let n=from;while(n!==to){n+=dir;bgPut(u,n);bgHop(u);snd('tap');await bgSleep(240)}}
+function bgGlide(u,pt,ms){return new Promise(res=>{const e=$('tok_'+u);e.classList.add('nt');const t0=performance.now();(function f(now){const k=Math.min(1,(now-t0)/ms),z=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,p=pt(z);e.style.left=(p[0]/8)+'%';e.style.top=(p[1]/7.8)+'%';if(k<1)requestAnimationFrame(f);else{e.classList.remove('nt');res()}})(t0)})}
+async function bgLadder(u,a,b){const[x1,y1]=bgXY(a),[x2,y2]=bgXY(b);snd('go');bgPut(u,a);await bgSleep(200);for(let i=0;i<4;i++)setTimeout(()=>snd('tap'),i*250);await bgGlide(u,k=>[x1+(x2-x1)*k,y1+(y2-y1)*k],1100);bgPut(u,b);snd('big');bgHop(u)}
+async function bgEat(u,h,t){
+  const hd=$('snh'+h),el=$('tok_'+u),path=$('snp'+h);bgPut(u,h);
+  hd.classList.add('strike');snd('bad');if(navigator.vibrate)try{navigator.vibrate([40,40,80])}catch(e){}
+  await bgSleep(600);el.classList.add('eaten');await bgSleep(420);
+  hd.classList.remove('strike');path.classList.add('full');el.classList.remove('eaten');el.classList.add('inside');
+  const L=path.getTotalLength();await bgGlide(u,k=>{const p=path.getPointAtLength(k*L);return[p.x,p.y]},1800);
+  el.classList.remove('inside');path.classList.remove('full');bgPut(u,t);el.classList.add('pop');snd('ok');await bgSleep(650);el.classList.remove('pop');
+}
+async function bgDice(r){const d=$('bgDice');d.classList.add('roll');snd('shake');for(let i=0;i<9;i++){d.textContent='⚀⚁⚂⚃⚄⚅'[Math.floor(Math.random()*6)];await bgSleep(90)}d.textContent='⚀⚁⚂⚃⚄⚅'[r-1];d.classList.remove('roll');snd('ok');await bgSleep(350)}
+function bgConfetti(){const E=['🎉','⭐','✨','🏆','🎊'];for(let i=0;i<36;i++){const s=document.createElement('span');s.textContent=E[i%5];s.className='bgconf';s.style.cssText='left:'+Math.random()*100+'vw;animation-delay:'+Math.random()*.8+'s;font-size:'+(18+Math.random()*20)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),3600)}}
+function bgShowQ(ev){
+  const q=BG_QS[ev.qi],m=$('bgModal'),c=BG_CATS[q.c],mine=ev.u===user.uid;
+  m.className='bg-modal on'+(ev.snake?' snake':'')+(mine?'':' spec');
+  $('bgQHead').innerHTML=(ev.snake?'🐍 <b>Escape the snake!</b> ':'')+esc(bgPl(ev.u).avatar||'')+' <b>'+esc(bgPl(ev.u).name)+'</b>'+(mine?'':' is answering…');
+  $('bgQMeta').innerHTML=c[0]+' '+c[1]+' · '+'⭐'.repeat(ev.d)+' '+BG_DN[ev.d]+(ev.snake?'':' · wrong = back '+BG_BACK[ev.d]);
+  $('bgQText').textContent=q.q;$('bgQFb').textContent='';
+  $('bgQOpts').innerHTML=ev.sh.map((j,i)=>'<button type="button" data-j="'+j+'">'+'ABCD'[i]+'. '+esc(q.a[j])+'</button>').join('');
+  const tb=$('bgQBar');tb.style.animation='none';void tb.offsetWidth;tb.style.animation='bgBar '+BG_TIME+'s linear forwards';tb.style.animationDelay='-'+Math.max(0,(srvNow()-ev.t0)/1000)+'s';
+  snd('go');
+}
+async function bgReveal(ev){
+  const q=BG_QS[ev.qi];$('bgQBar').style.animationPlayState='paused';
+  document.querySelectorAll('#bgQOpts button').forEach(b=>{b.disabled=true;if(b.dataset.j==='0')b.classList.add('right');else if(+b.dataset.j===ev.pick)b.classList.add('wrong')});
+  $('bgQFb').textContent=ev.ok?'✅ Correct!':(ev.pick<0?'⏰ Time’s up! ':'❌ Not quite! ')+'Answer: '+q.a[0];
+  snd(ev.ok?'big':'bad');await bgSleep(2000);$('bgModal').classList.remove('on');
+}
+async function bgPlay(ev){
+  const u=ev.u,k=ev.k;
+  if(k==='roll'){bgTurnUid=u;bgUI();await bgDice(ev.r);await bgWalk(u,ev.from,ev.to);if(ev.to>=BG_N)bgPut(u,BG_N)}
+  else if(k==='lad')await bgLadder(u,ev.from,ev.to);
+  else if(k==='q')bgShowQ(ev);
+  else if(k==='ans')await bgReveal(ev);
+  else if(k==='eat')await bgEat(u,ev.h,ev.t);
+  else if(k==='back'){snd('bad');await bgWalk(u,ev.from,ev.to)}
+  else if(k==='turn'){bgTurnUid=u;bgSyncPos()}
+  else if(k==='win'){bgConfetti();snd('win');await bgSleep(3200)}
+}
+function bgQueue(ev){bgPending++;bgChain=bgChain.then(()=>bgPlay(ev)).catch(()=>{}).then(()=>{bgPending--;bgUI()});return bgChain}
+async function bgEmit(ev,patch){
+  const bg=roomData.bg;ev.n=(bg.n||0)+1;ev.t=srvNow();bgSeen=ev.n;bg.n=ev.n;
+  const up={'bg/ev':ev,'bg/n':ev.n,'bg/t':ev.t};Object.keys(patch||{}).forEach(k=>{up['bg/'+k]=patch[k]});
+  db.ref('rooms/'+roomId).update(up).catch(()=>{});
+  return bgQueue(ev);
+}
+function bgNext(u){const o=bgOrder().filter(x=>(roomData.players||{})[x]),i=o.indexOf(u);return o[(i+1)%o.length]}
+function bgPick(d){const used=roomData.bg.used||{};let p=BG_QS.map((q,i)=>i).filter(i=>BG_QS[i].d===d&&!used[i]);if(!p.length)p=BG_QS.map((q,i)=>i).filter(i=>BG_QS[i].d===d);return p[Math.floor(Math.random()*p.length)]}
+async function bgDoTurn(){
+  if(bgBusy||bgPending||bgTurnUid!==user.uid||!roomData||roomData.status!=='playing')return;
+  bgBusy=true;bgUI();ensureAudio();
+  try{
+    const u=user.uid,from=bgPos[u]||0,r=1+Math.floor(Math.random()*6),to=Math.min(BG_N,from+r);
+    await bgEmit({k:'roll',u,r,from,to},{['pos/'+u]:to});
+    if(to>=BG_N){await bgEmit({k:'win',u},{winner:u});await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow()});return}
+    if(BG_LAD[to]){await bgEmit({k:'lad',u,from:to,to:BG_LAD[to]},{['pos/'+u]:BG_LAD[to]})}
+    else{
+      const snake=BG_SNAKES[to]!=null,d=snake?Math.max(2,bgZone(to)):bgZone(to),qi=bgPick(d),sh=[0,1,2,3].sort(()=>Math.random()-.5);
+      const wait=new Promise(res=>{bgAns=res;bgTO=setTimeout(()=>{if(bgAns){bgAns=null;res(-1)}},BG_TIME*1000+300)});
+      await bgEmit({k:'q',u,qi,d,snake,tile:to,sh,t0:srvNow()},{['used/'+qi]:true});
+      const pick=await wait,ok=pick===0;
+      await bgEmit({k:'ans',u,qi,pick,ok},{});
+      if(!ok&&snake)await bgEmit({k:'eat',u,h:to,t:BG_SNAKES[to]},{['pos/'+u]:BG_SNAKES[to]});
+      else if(!ok){const np=Math.max(0,to-BG_BACK[d]);await bgEmit({k:'back',u,from:to,to:np},{['pos/'+u]:np})}
+    }
+    await bgEmit({k:'turn',u:bgNext(u)},{turn:bgNext(u)});
+  }catch(e){console.warn(e)}finally{bgBusy=false;bgUI()}
+}
+function bgUI(){
+  if(!roomData||!roomData.bg)return;
+  const u=bgTurnUid,me=u===user.uid,idle=!bgPending&&!bgBusy;
+  $('bgTurn').innerHTML=esc(bgPl(u).avatar||'🎮')+' <b>'+(me?'Your turn!':esc(bgPl(u).name)+'’s turn')+'</b>';
+  const b=$('bgRoll');b.style.display=(me&&idle)?'flex':'none';
+  $('bgInfo').textContent=me?(idle?'Roll the dice! Wrong answers send you back — snakes bite 🐍':''):'Watching '+bgPl(u).name+'…';
+  $('bgChips').innerHTML=bgOrder().filter(x=>(roomData.players||{})[x]).map(x=>'<span class="bgchip'+(x===u?' on':'')+'" style="--ring:'+BG_RING[bgIdx(x)%5]+'">'+esc(bgPl(x).avatar||'')+' '+(bgPos[x]||0)+'</span>').join('');
+}
+function bgEnter(){
+  const bg=roomData.bg;if(!bg)return;
+  if(bgRun!==roomData.startedAt||!$('screen-board').classList.contains('active')){
+    if(bgRun!==roomData.startedAt){bgRun=roomData.startedAt;bgChain=Promise.resolve();bgPending=0;bgBusy=false}
+    show('screen-board');bgBuild();bgSeen=bg.n||0;
+  }
+  if((bg.n||0)>bgSeen&&bg.ev){bgSeen=bg.n;bgQueue(bg.ev)}
+  if(!bgWatch)bgWatch=setInterval(()=>{ // host skips an inactive player
+    if(!roomData||roomData.gameType!=='board'||roomData.status!=='playing'||!isHost||bgPending||bgBusy)return;
+    if(srvNow()-(roomData.bg.t||0)>45000&&roomData.bg.turn){const n=bgNext(roomData.bg.turn);toast('Skipping an inactive player…');bgEmit({k:'turn',u:n},{turn:n})}
+  },5000);
+}
+function computeBoardResults(){
+  const bg=roomData.bg||{},pos=bg.pos||{},w=bg.winner;
+  const rows=Object.values(roomData.players||{}).map(p=>{const n=p.uid===w?BG_N:Math.min(BG_N-1,pos[p.uid]||0);return{p,items:[{w:p.uid===w?'🏆 Reached the finish!':'Reached tile '+n,pts:0,dupe:false}],raw:1,final:n,lost:0,uniqueN:n,sharedN:0}});
+  rows.sort((a,b)=>b.final-a.final);return rows;
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#bgRoll')){bgDoTurn();return}
+  const b=e.target.closest('#bgQOpts button');
+  if(b&&bgAns&&!b.disabled){b.classList.add('pick');const f=bgAns;bgAns=null;clearTimeout(bgTO);f(+b.dataset.j)}
+});
+
 /* ===== GAME DASHBOARD → MATCHMAKING ===== */
 const GAME_META = {
   boggle:  { title:'🎲 Boggle', sub:'Shake the tray and find words on a 4×4 grid with friends.' },
   scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' },
+  board:   { title:'🐍 Snakes & Trivia', sub:'Roll the dice, race up the board and answer trivia. Wrong answers send you back, and snakes bite!' },
   spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' }
 };
 
@@ -2274,7 +2525,7 @@ async function updateLobbyIndex(code, room){
     code,
     hostName: room.players?.[room.hostUid]?.name || 'Host',
     players: n,
-    createdAt: room.createdAt || Date.now(),
+    createdAt: room.createdAt || srvNow(),
     gameType: room.gameType
   }).catch(()=>{});
 }
@@ -2288,7 +2539,7 @@ $('btnHost').onclick=async()=>{
     if(gameType==='hangman') hangPrefetch();   // start fetching fresh puzzles while players join
     const room={
       code,hostUid:user.uid,status:'lobby',gameType,
-      createdAt:Date.now(),maxPlayers:maxPlayersFor(gameType),
+      createdAt:srvNow(),maxPlayers:maxPlayersFor(gameType),
       board:null,endsAt:null,letter:null,categories:null,
       hangCategory:null,hangWord:null,hangRevealed:null,hangTiles:null,
       players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),bio:profile.bio||'',score:0,words:{},answers:{},hangSolved:false,hangWrong:0,isHost:true}}
@@ -2338,7 +2589,7 @@ function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=co
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER')}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent='Max 3 players · '+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=(gt==='board'?'Max 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
@@ -2382,7 +2633,7 @@ function showReaction(uid,emoji){
 }
 function sendReaction(emoji){
   if(!roomId||!user) return;
-  const now=Date.now();
+  const now=srvNow();
   if(now-rxLast<500) return; // anti-spam
   rxLast=now;
   const ref=db.ref('rooms/'+roomId+'/reactions').push();
@@ -2556,7 +2807,7 @@ async function friendsGoOffline(){
 }
 function ago(ts){
   if(!ts) return '';
-  const m=Math.max(0,Math.round((Date.now()-ts)/60000));
+  const m=Math.max(0,Math.round((srvNow()-ts)/60000));
   if(m<1) return 'just now'; if(m<60) return m+'m ago';
   const h=Math.round(m/60); if(h<24) return h+'h ago';
   return Math.round(h/24)+'d ago';
@@ -2633,7 +2884,7 @@ async function sendFriendRequest(toUid,toName){
   if(reqOut[toUid]){ setFrMsg('Request already sent.','err'); return false; }
   if(reqIn[toUid]){ return acceptFriend(toUid); }
   const up={};
-  up['friendRequests/'+toUid+'/'+user.uid]={name:profile.name||'Player',avatar:profile.avatar||'🦊',at:Date.now()};
+  up['friendRequests/'+toUid+'/'+user.uid]={name:profile.name||'Player',avatar:profile.avatar||'🦊',at:srvNow()};
   up['friendSent/'+user.uid+'/'+toUid]=true;
   try{ await db.ref().update(up); toast('Friend request sent'+(toName?' to '+toName:'')); snd('ok'); return true; }
   catch(e){ console.warn('send request failed',e); toast('Could not send request — check Firebase rules for friendRequests'); setFrMsg('Could not send (database rules?)','err'); return false; }
@@ -2779,11 +3030,11 @@ function startLetterScramble(){
 // Gold countdown ring during the shake (3…2…1)
 function startShakeCountdown(){
   stopShakeCountdown();
-  const ring=$('timerRing'),end=Date.now()+SHAKE_SECONDS*1000;
+  const ring=$('timerRing'),end=srvNow()+SHAKE_SECONDS*1000;
   ring.classList.remove('low');
   ring.classList.add('prep');
   const tick=()=>{
-    const ms=Math.max(0,end-Date.now());
+    const ms=Math.max(0,end-srvNow());
     $('timerText').textContent=Math.max(1,Math.ceil(ms/1000));
     ring.style.setProperty('--pct',(ms/(SHAKE_SECONDS*1000)*100)+'%');
   };
@@ -2842,9 +3093,9 @@ async function beginRound(){
 
   if(gameType === 'scatter'){
     const letter = randomLetter(false);
-    const seed = roomId + '_' + Date.now();
+    const seed = roomId + '_' + srvNow();
     const categories = generateCategories(seed, 12);
-    const updates={status:'playing',letter,categories,board:null,endsAt:Date.now()+ROUND_SECONDS*1000,startedAt:Date.now(),endedAt:null,rejected:null,challenges:null,forgiven:null};
+    const updates={status:'playing',letter,categories,board:null,endsAt:srvNow()+ROUND_SECONDS*1000,startedAt:srvNow(),endedAt:null,rejected:null,challenges:null,forgiven:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
       updates['players/'+uid+'/verdicts']=null;
       updates['players/'+uid+'/score']=0;
@@ -2865,7 +3116,7 @@ async function beginRound(){
     // If previous series already finished (level >= 5), start a fresh series at 1
     if(prevLevel >= HANG_MAX_LEVELS) prevLevel = 0;
     const level = prevLevel + 1;
-    const puzzle = await pickHangmanPuzzle(roomId + '_' + Date.now() + '_' + level);
+    const puzzle = await pickHangmanPuzzle(roomId + '_' + srvNow() + '_' + level);
     const updates={
       status:'playing',
       hangLevel: level,
@@ -2876,8 +3127,8 @@ async function beginRound(){
       hangRevealed: puzzle.revealed,
       hangTiles: puzzle.tiles,
       board:null,letter:null,categories:null,
-      endsAt: Date.now() + 45000,
-      startedAt: Date.now(),
+      endsAt: srvNow() + 45000,
+      startedAt: srvNow(),
       endedAt:null
     };
     Object.keys(roomData.players||{}).forEach(uid=>{
@@ -2900,6 +3151,15 @@ async function beginRound(){
   }
 
 
+  if(gameType === 'board'){
+    const ids=Object.keys(roomData.players||{});
+    if(ids.length<2){toast('Snakes & Trivia needs at least 2 players');return}
+    const order=ids.slice().sort(()=>Math.random()-.5),pos={};ids.forEach(i=>pos[i]=0);
+    const up={status:'playing',bg:{order,turn:order[0],pos,n:0,t:srvNow(),ev:null,used:null,winner:null},board:null,letter:null,categories:null,hangWord:null,drawWord:null,endsAt:srvNow()+36e5,startedAt:srvNow(),endedAt:null};
+    ids.forEach(i=>{up['players/'+i+'/score']=0;up['players/'+i+'/words']={};up['players/'+i+'/answers']={}});
+    try{await db.ref('rooms/'+roomId).update(up)}catch(e){toast('Could not start: '+e.message)}
+    return;
+  }
   if(gameType === 'spy'){
     const playerIds = Object.keys(roomData.players || {});
     if(playerIds.length < 3){ toast('Spy Word needs at least 3 players'); return; }
@@ -2910,7 +3170,7 @@ async function beginRound(){
     const spyIdx = (round - 1) % playerIds.length;
     const spyUid = playerIds[spyIdx];
     // Secret word from drawable bank (familiar words)
-    const word = pickDrawWord(roomId + '_spy_' + Date.now() + '_' + round, Math.min(round, 6));
+    const word = pickDrawWord(roomId + '_spy_' + srvNow() + '_' + round, Math.min(round, 6));
     const order = playerIds.slice();
     // shuffle clue order lightly
     for(let i=order.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
@@ -2928,8 +3188,8 @@ async function beginRound(){
       spyTurnIdx: 0,
       board: null, letter: null, categories: null,
       hangWord: null, drawWord: null,
-      endsAt: Date.now() + SPY_CLUE_SECONDS * 1000,
-      startedAt: Date.now(),
+      endsAt: srvNow() + SPY_CLUE_SECONDS * 1000,
+      startedAt: srvNow(),
       endedAt: null
     };
     Object.keys(roomData.players||{}).forEach(uid => {
@@ -2955,7 +3215,7 @@ async function beginRound(){
     if(!playerIds.length){ toast('Need at least one player'); return; }
     const drawerIdx = (level - 1) % playerIds.length;
     const drawerUid = playerIds[drawerIdx];
-    const word = pickDrawWord(roomId + '_' + Date.now() + '_' + level, level);
+    const word = pickDrawWord(roomId + '_' + srvNow() + '_' + level, level);
     const prevUsed = Array.isArray(roomData.drawUsedWords) ? roomData.drawUsedWords.slice() : [];
     if(word && !prevUsed.includes(word)) prevUsed.push(word);
     const updates = {
@@ -2969,8 +3229,8 @@ async function beginRound(){
       drawGuesses: null,
       board: null, letter: null, categories: null,
       hangCategory: null, hangWord: null,
-      endsAt: Date.now() + DRAW_SECONDS * 1000,
-      startedAt: Date.now(),
+      endsAt: srvNow() + DRAW_SECONDS * 1000,
+      startedAt: srvNow(),
       endedAt: null
     };
     Object.keys(roomData.players||{}).forEach(uid => {
@@ -3004,7 +3264,7 @@ async function beginRound(){
   clearTimeout(shakeTimeout);
   shakeTimeout=setTimeout(async()=>{
     if(roomData&&roomData.status==='shaking'){
-      const now=Date.now();
+      const now=srvNow();
       try{
         await db.ref('rooms/'+roomId).update({status:'playing',endsAt:now+ROUND_SECONDS*1000+SETTLE_TOTAL,startedAt:now});
       }catch(e){toast('Could not begin the round')}
@@ -3416,7 +3676,7 @@ function startHangTimer(){
   clearInterval(timerInterval);
   const tick=()=>{
     if(!roomData||!roomData.endsAt)return;
-    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    const left=Math.max(0,Math.ceil((roomData.endsAt-srvNow())/1000));
     const el=$('hangTimerText'); if(el) el.textContent=left;
     const ring=$('hangTimerRing');
     if(ring){
@@ -3541,7 +3801,7 @@ document.addEventListener('click', async e => {
   e.target.disabled = true;
   if(mode === 'results'){
     if(isHost){
-      try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:Date.now()}); }catch(err){}
+      try{ await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow()}); }catch(err){}
     }
     showResults();
     e.target.disabled = false;
@@ -3686,12 +3946,12 @@ const ScatVerify=(()=>{
   const AS_TTL=30*864e5, ASC={};
   function assocSet(seed){
     if(ASC[seed])return ASC[seed];
-    try{const o=JSON.parse(localStorage.getItem('wa_as1_'+seed)||'null');if(o&&Date.now()-o.t<AS_TTL){return ASC[seed]=Promise.resolve(new Set(o.w))}}catch(e){}
+    try{const o=JSON.parse(localStorage.getItem('wa_as1_'+seed)||'null');if(o&&srvNow()-o.t<AS_TTL){return ASC[seed]=Promise.resolve(new Set(o.w))}}catch(e){}
     const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),4000);
     return ASC[seed]=fetch('https://api.datamuse.com/words?rel_trg='+encodeURIComponent(seed)+'&max=800',{signal:ctl.signal})
       .then(r=>r.ok?r.json():[]).then(a=>{
         const w=(a||[]).map(x=>String(x.word||'').toLowerCase());
-        if(w.length){try{localStorage.setItem('wa_as1_'+seed,JSON.stringify({t:Date.now(),w}))}catch(e){}}
+        if(w.length){try{localStorage.setItem('wa_as1_'+seed,JSON.stringify({t:srvNow(),w}))}catch(e){}}
         else delete ASC[seed];
         return new Set(w);
       }).catch(()=>{delete ASC[seed];return new Set()}).finally(()=>clearTimeout(tm));
@@ -3712,7 +3972,7 @@ const ScatVerify=(()=>{
   async function jget(url,n=2){for(let k=0;k<n;k++){const c=new AbortController(),t=setTimeout(()=>c.abort(),4500);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){if(k===n-1){console.warn('Fact-check request failed:',e);throw e}}finally{clearTimeout(t)}}}
   // ---- caches: in-memory + localStorage (14-day TTL) so repeat answers/ancestors cost zero requests ----
   const TTL=14*864e5, LS_P='wa_wd_parents_v1', LS_S='wa_wd_search_v1';
-  const loadLS=k=>{try{const o=JSON.parse(localStorage.getItem(k)||'{}'),now=Date.now(),out={};for(const id in o){if(o[id]&&now-o[id][0]<TTL)out[id]=o[id]}return out}catch(e){return{}}};
+  const loadLS=k=>{try{const o=JSON.parse(localStorage.getItem(k)||'{}'),now=srvNow(),out={};for(const id in o){if(o[id]&&now-o[id][0]<TTL)out[id]=o[id]}return out}catch(e){return{}}};
   const PC=loadLS(LS_P), SC=loadLS(LS_S);           // id -> [ts, parents[]] · term -> [ts, hits[]]
   let saveT=null;
   const trim=(o,max)=>{const ks=Object.keys(o);if(ks.length>max){ks.sort((x,y)=>o[x][0]-o[y][0]).slice(0,ks.length-max).forEach(k=>delete o[k])}};
@@ -3723,7 +3983,7 @@ const ScatVerify=(()=>{
     if(SC[k]) return Promise.resolve(SC[k][1]);
     if(inflightS[k]) return inflightS[k];
     return inflightS[k]=jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbsearchentities',search:term,language:'en',uselang:'en',type:'item',limit:'7',format:'json',origin:'*'}))
-      .then(d=>{const h=d.search||[];SC[k]=[Date.now(),h.map(x=>({id:x.id,label:x.label,description:x.description}))];persist();return SC[k][1]})
+      .then(d=>{const h=d.search||[];SC[k]=[srvNow(),h.map(x=>({id:x.id,label:x.label,description:x.description}))];persist();return SC[k][1]})
       .finally(()=>{delete inflightS[k]});
   };
   // Walk "instance of / subclass of / parent taxon" upwards. Only uncached ids hit the network, in parallel batches of 50.
@@ -3732,7 +3992,7 @@ const ScatVerify=(()=>{
     const chunks=[];for(let k=0;k<need.length;k+=50)chunks.push(need.slice(k,k+50));
     await Promise.all(chunks.map(async ch=>{
       const d=await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbgetentities',ids:ch.join('|'),props:'claims',format:'json',origin:'*'}));
-      const now=Date.now();
+      const now=srvNow();
       ch.forEach(id=>{const e=(d.entities||{})[id];if(!e)return;const par=[];['P31','P279','P171'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));PC[id]=[now,par]});
     }));
     persist();
@@ -3842,7 +4102,12 @@ function validateScatAnswer(val, letter){
   const cleaned = val.trim();
   if(cleaned.length < 2) return 'invalid';
   // Must start with the round letter (case-insensitive)
-  if(letter && !cleaned.toLowerCase().startsWith(letter.toLowerCase())) return 'invalid';
+  if(letter && !scatCore(cleaned).startsWith(letter.toLowerCase())) return 'invalid';
+  const flat=scatCore(cleaned).replace(/[^a-z]/g,'');
+  if(isRude(cleaned)) return 'invalid';
+  if(/(.)\1{3,}/.test(flat)) return 'invalid';
+  if(/^(asdf|qwer|zxcv|sdfg|dfgh|hjkl|qaz|wsx)/.test(flat)) return 'invalid';
+  if(scatCore(cleaned).split(/[\s\-]+/).some(t=>t.replace(/[^a-z]/g,'').length>=3&&!/[aeiouy]/.test(t))) return 'invalid';
   // Allow letters, spaces, hyphens, apostrophes (names & 2-word answers OK)
   // Reject pure numbers / symbols / gibberish
   if(!/^[a-zA-Z][a-zA-Z\s\-'.]*$/.test(cleaned)) return 'invalid';
@@ -3980,7 +4245,7 @@ function startScatTimer(){
   let lastShown=-1;
   const tick=()=>{
     if(!roomData||!roomData.endsAt)return;
-    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    const left=Math.max(0,Math.ceil((roomData.endsAt-srvNow())/1000));
     const shown=Math.min(left,ROUND_SECONDS);
     $('scatTimerText').textContent=shown;
     $('scatTimerRing').style.setProperty('--pct',(shown/ROUND_SECONDS*100)+'%');
@@ -4268,7 +4533,7 @@ function bindDrawCanvas(){
     drawIsDrawing = true;
     const p = canvasPos(e);
     if(!p) return;
-    const pt = {type:'start', x:p.x, y:p.y, tool: drawTool, t: Date.now()};
+    const pt = {type:'start', x:p.x, y:p.y, tool: drawTool, t: srvNow()};
     applyStrokePoint(pt, drawTool);
     drawStrokeBuf.push(pt);
   };
@@ -4277,12 +4542,12 @@ function bindDrawCanvas(){
     e.preventDefault();
     const p = canvasPos(e);
     if(!p) return;
-    const pt = {type:'move', x:p.x, y:p.y, tool: drawTool, t: Date.now()};
+    const pt = {type:'move', x:p.x, y:p.y, tool: drawTool, t: srvNow()};
     applyStrokePoint(pt, drawTool);
     drawStrokeBuf.push(pt);
     // throttle pushes
-    if(Date.now() - drawLastPush > 80){
-      drawLastPush = Date.now();
+    if(srvNow() - drawLastPush > 80){
+      drawLastPush = srvNow();
       pushStrokeBatch();
     }
   };
@@ -4316,7 +4581,7 @@ function startDrawTimer(){
   clearInterval(timerInterval);
   const tick = () => {
     if(!roomData || !roomData.endsAt) return;
-    const left = Math.max(0, Math.ceil((roomData.endsAt - Date.now())/1000));
+    const left = Math.max(0, Math.ceil((roomData.endsAt - srvNow())/1000));
     const el = $('drawTimerText'); if(el) el.textContent = left;
     const ring = $('drawTimerRing');
     if(ring){
@@ -4378,7 +4643,7 @@ async function submitDrawGuess(){
     uid: user.uid,
     name: (profile && profile.name) || 'Player',
     avatar: (profile && profile.avatar) || '🎮',
-    at: Date.now()
+    at: srvNow()
   };
   try{
     // Shared log — every client listens and renders
@@ -4514,7 +4779,7 @@ document.addEventListener('click', e => {
     e.target.disabled = true;
     if(mode === 'results'){
       if(isHost){
-        db.ref('rooms/'+roomId).update({status:'results', endedAt: Date.now()}).catch(()=>{});
+        db.ref('rooms/'+roomId).update({status:'results', endedAt: srvNow()}).catch(()=>{});
       }
       showResults();
       e.target.disabled = false;
@@ -4643,7 +4908,7 @@ function renderSpyUI(){
       // auto-advance to vote
       db.ref('rooms/'+roomId).update({
         spyPhase: 'vote',
-        endsAt: Date.now() + 60 * 1000
+        endsAt: srvNow() + 60 * 1000
       }).catch(()=>{});
     }
   } else if(phase === 'vote'){
@@ -4693,7 +4958,7 @@ function startSpyTimer(){
   clearInterval(timerInterval);
   const tick = () => {
     if(!roomData || !roomData.endsAt) return;
-    const left = Math.max(0, Math.ceil((roomData.endsAt - Date.now())/1000));
+    const left = Math.max(0, Math.ceil((roomData.endsAt - srvNow())/1000));
     const el = $('spyTimerText'); if(el) el.textContent = left;
     const ring = $('spyTimerRing');
     if(ring){
@@ -4703,7 +4968,7 @@ function startSpyTimer(){
     }
     if(left <= 0 && !roundEnded && isHost){
       if(roomData.spyPhase === 'clues'){
-        db.ref('rooms/'+roomId).update({ spyPhase: 'vote', endsAt: Date.now()+60000 }).catch(()=>{});
+        db.ref('rooms/'+roomId).update({ spyPhase: 'vote', endsAt: srvNow()+60000 }).catch(()=>{});
       } else if(roomData.spyPhase === 'vote'){
         resolveSpyRound();
       }
@@ -4722,7 +4987,7 @@ async function submitSpyClue(){
   const secret = (roomData.spyWord||'').toUpperCase().replace(/[^A-Z]/g,'');
   if(clue === secret){ toast('You cannot say the secret word!'); return; }
   try{
-    await db.ref('rooms/'+roomId+'/spyClues/'+user.uid).set({ word: clue, at: Date.now() });
+    await db.ref('rooms/'+roomId+'/spyClues/'+user.uid).set({ word: clue, at: srvNow() });
     if(input) input.value = '';
     $('spyClueForm').style.display = 'none';
     snd('ok');
@@ -4747,7 +5012,7 @@ async function submitSpyGuess(){
   const secret = (roomData.spyWord||'').toUpperCase().replace(/[^A-Z ]/g,'');
   const correct = guess === secret || guess.replace(/\s+/g,'') === secret.replace(/\s+/g,'');
   try{
-    await db.ref('rooms/'+roomId+'/spyGuess').set({ guess, correct, at: Date.now() });
+    await db.ref('rooms/'+roomId+'/spyGuess').set({ guess, correct, at: srvNow() });
     if(correct){
       snd('win');
       toast('You got the word!');
@@ -4808,7 +5073,7 @@ async function resolveSpyRound(){
       ...scoreUpdates,
       spyHistory: hist,
       spyPhase: 'reveal',
-      endsAt: Date.now() + 999999
+      endsAt: srvNow() + 999999
     });
   }catch(e){ console.warn(e); }
 }
@@ -4841,7 +5106,7 @@ document.addEventListener('click', e => {
     const mode = e.target.dataset.mode || 'next';
     e.target.disabled = true;
     if(mode === 'results'){
-      if(isHost) db.ref('rooms/'+roomId).update({ status:'results', endedAt: Date.now() }).catch(()=>{});
+      if(isHost) db.ref('rooms/'+roomId).update({ status:'results', endedAt: srvNow() }).catch(()=>{});
       showResults();
       e.target.disabled = false;
       return;
@@ -4910,6 +5175,8 @@ function onRoom(snap){
         renderDrawScores();
         updateDrawLevelBar();
       }
+    } else if(gt==='board'){
+      bgEnter();
     } else if(gt==='spy'){
       const spySig = ((roomData.spyRound||0)+'|'+(roomData.spyWord||'')+'|'+(roomData.startedAt||''));
       const spyChanged = spySig && spySig !== window._lastSpySig;
@@ -5006,11 +5273,11 @@ function startTimer(){
   let lastShown=-1;
   const tick=()=>{
     if(!roomData||!roomData.endsAt)return;
-    const left=Math.max(0,Math.ceil((roomData.endsAt-Date.now())/1000));
+    const left=Math.max(0,Math.ceil((roomData.endsAt-srvNow())/1000));
     const shown=Math.min(left,ROUND_SECONDS);
     $('timerText').textContent=shown;
     $('timerRing').style.setProperty('--pct',(shown/ROUND_SECONDS*100)+'%');
-    $('timerRing').classList.toggle('low',left<=30&&left>0);
+    $('timerRing').classList.toggle('low',left<=30&&left>0);document.body.classList.toggle('urgent',left<=10&&left>0);
     if(left<=10&&left>0&&shown!==lastShown)snd('tick');
     lastShown=shown;
     if(left<=0&&!roundEnded)endRound()
@@ -5018,7 +5285,7 @@ function startTimer(){
   tick();
   timerInterval=setInterval(tick,250);
 }
-function bindTiles(){const board=$('board');const tiles=[...board.querySelectorAll('.tile')];const at=(x,y)=>{for(const t of tiles){const r=t.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return t}return null};const start=(x,y)=>{if(!canPlay())return;const t=at(x,y);if(!t)return;selecting=true;path=[{r:+t.dataset.r,c:+t.dataset.c}];updatePath()};const move=(x,y)=>{if(!selecting||roundEnded)return;const t=at(x,y);if(!t)return;const r=+t.dataset.r,c=+t.dataset.c;const last=path[path.length-1];if(last.r===r&&last.c===c)return;if(path.length>=2){const prev=path[path.length-2];if(prev.r===r&&prev.c===c){path.pop();updatePath();return}}if(!neighbors(last.r,last.c).some(([nr,nc])=>nr===r&&nc===c))return;if(path.some(p=>p.r===r&&p.c===c))return;path.push({r,c});updatePath()};const end=()=>{if(!selecting)return;selecting=false;if(path.length>=MIN_LEN)submitPath();else{clearPath();path=[];$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint')}};board.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];start(t.clientX,t.clientY)};board.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY)};board.ontouchend=e=>{e.preventDefault();end()};board.onmousedown=e=>{e.preventDefault();start(e.clientX,e.clientY)};window.onmousemove=e=>{if(selecting)move(e.clientX,e.clientY)};window.onmouseup=()=>end()}
+function bindTiles(){const board=$('board');const tiles=[...board.querySelectorAll('.tile')];const at=(x,y,k=.4)=>{let best=null,bd=1e9;for(const t of tiles){const r=t.getBoundingClientRect();const d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2));if(d<r.width*k&&d<bd){best=t;bd=d}}return best};const start=(x,y)=>{if(!canPlay())return;const t=at(x,y,.55);if(!t)return;selecting=true;path=[{r:+t.dataset.r,c:+t.dataset.c}];updatePath()};const move=(x,y)=>{if(!selecting||roundEnded)return;const t=at(x,y);if(!t)return;const r=+t.dataset.r,c=+t.dataset.c;const last=path[path.length-1];if(last.r===r&&last.c===c)return;if(path.length>=2){const prev=path[path.length-2];if(prev.r===r&&prev.c===c){path.pop();updatePath();return}}if(!neighbors(last.r,last.c).some(([nr,nc])=>nr===r&&nc===c))return;if(path.some(p=>p.r===r&&p.c===c))return;path.push({r,c});updatePath()};const end=()=>{if(!selecting)return;selecting=false;if(path.length>=MIN_LEN)submitPath();else{clearPath();path=[];$('currentWord').textContent='Drag letters to spell';$('currentWord').classList.add('hint')}};board.ontouchstart=e=>{e.preventDefault();const t=e.touches[0];start(t.clientX,t.clientY)};board.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];move(t.clientX,t.clientY)};board.ontouchend=e=>{e.preventDefault();end()};board.onmousedown=e=>{e.preventDefault();start(e.clientX,e.clientY)};window.onmousemove=e=>{if(selecting)move(e.clientX,e.clientY)};window.onmouseup=()=>end()}
 function updatePath(){
   document.querySelectorAll('.tile').forEach(t=>t.classList.remove('on','path'));
   path.forEach((p,i)=>{const t=document.querySelector(`.tile[data-r="${p.r}"][data-c="${p.c}"]`);if(t)t.classList.add(i===path.length-1?'on':'path')});
@@ -5064,7 +5331,7 @@ async function submitPath(){
   }
   
   if(!isValidWord(w)){
-    toast('Not a word');
+    toast(isRude(w)?'Let’s keep it friendly 🙂':'Not a word');
     snd('bad');
     resetCombo();
     tiles.forEach(t=>t&&t.classList.add('bad'));
@@ -5115,7 +5382,7 @@ async function submitPath(){
   fs.textContent=(mult>1?'×'+mult+' ':'')+'+'+pts;
   $('boardWrap').appendChild(fs);
   setTimeout(()=>fs.remove(),1000);
-  toast(w.toUpperCase()+' · +'+pts+(mult>1?' (combo ×'+mult+')':''));
+  toast((w.length>=8?'🤩 INCREDIBLE! ':w.length>=6?'🔥 Awesome! ':w.length>=5?'👏 Nice! ':'')+w.toUpperCase()+' · +'+pts+(mult>1?' (combo ×'+mult+')':''));
 }
 
 function finishLocalRound(){
@@ -5137,7 +5404,7 @@ async function endRound(){
   if(isHost&&roomData){
     const rid=roomId;
     // For scatter, also compute final scores server-side style (client does it)
-    setTimeout(()=>{db.ref('rooms/'+rid).update({status:'results',endedAt:Date.now()}).catch(()=>{})},900);
+    setTimeout(()=>{db.ref('rooms/'+rid).update({status:'results',endedAt:srvNow()}).catch(()=>{})},900);
   }
   setTimeout(showResults,350);
   setTimeout(()=>{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)},6000);
@@ -5150,6 +5417,7 @@ function computeResults(){
   if(gt === 'hangman') return computeHangmanResults();
   if(gt === 'draw') return computeDrawResults();
   if(gt === 'spy') return computeSpyResults();
+  if(gt === 'board') return computeBoardResults();
 
   const players=Object.values((roomData&&roomData.players)||{});
   const found={};
@@ -5264,9 +5532,10 @@ function computeScatterResults(){
     Object.keys(ans).forEach(idx=>{
       const raw = (ans[idx]||'').trim();
       if(!raw)return;
-      const norm = raw.toLowerCase();
-      // Must start with the letter
-      if(letter && !norm.startsWith(letter)) return;
+      const norm = scatNorm(raw);
+      // Must start with the letter (a leading 'the/a/an' is ignored)
+      if(letter && !scatCore(raw).startsWith(String(letter).toLowerCase())) return;
+      if(isRude(raw)) return;
       if(norm.length < 2) return;
       byCat[idx][p.uid] = {raw, norm, p};
     });
@@ -5516,10 +5785,10 @@ function renderResults(rows){
         const auto = (p.verdicts||{})[ci]==='no' && !(roomData.forgiven||{})[key] && !rejected[key];
         const isRejected = !!rejected[key] || auto;
         const ch = challenges[key] || null;
-        const norm = ans.trim().toLowerCase();
+        const norm = scatNorm(ans);
         const sameCount = players.filter(op => {
           const oa = (op.answers||{})[ci];
-          return oa && oa.trim().toLowerCase() === norm && !rejected[op.uid+'_'+ci] && !((op.verdicts||{})[ci]==='no' && !(roomData.forgiven||{})[op.uid+'_'+ci]);
+          return oa && scatNorm(oa) === norm && !rejected[op.uid+'_'+ci] && !((op.verdicts||{})[ci]==='no' && !(roomData.forgiven||{})[op.uid+'_'+ci]);
         }).length;
         const isDupe = sameCount > 1;
 
@@ -5582,7 +5851,7 @@ function renderResults(rows){
             word: btn.dataset.word,
             catIndex: +cat,
             votes: { [user.uid]: true }, // challenger already votes to reject
-            createdAt: Date.now()
+            createdAt: srvNow()
           });
           toast('Challenge started – everyone must agree to reject');
           snd('tap');
@@ -5701,7 +5970,7 @@ function updateXpBar(){
 }
 
 /* ---------- Possible words (Boggle only) ---------- */
-function waitForDict(ms){return new Promise(res=>{const t0=Date.now();(function chk(){if(dictReady||Date.now()-t0>ms)res();else setTimeout(chk,150)})()})}
+function waitForDict(ms){return new Promise(res=>{const t0=srvNow();(function chk(){if(dictReady||srvNow()-t0>ms)res();else setTimeout(chk,150)})()})}
 
 async function findAllWords(grid){
   await waitForDict(8000);
@@ -5731,6 +6000,7 @@ async function findAllWords(grid){
     let ok=true;
     for(let k=1;k<L;k++){if(!avail.has(word[k])){ok=false;break}}
     if(!ok)continue;
+    if(isRude(word))continue;
     w=word;
     for(let s=0;s<16;s++){
       if(letters[s][0]!==word[0])continue;
