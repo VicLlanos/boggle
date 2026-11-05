@@ -1297,8 +1297,8 @@ input:focus-visible{outline:none}
   <div class="tn-top"><button class="tn-b" id="tnBack" aria-label="Back">←</button><div class="tn-t" id="tnEra">🎣 Fishing Village</div><div class="tn-stats" id="tnStats"></div><button class="tn-b" id="tnSnd" aria-label="Sound">🔊</button></div>
   <div class="tn-goal" id="tnGoal"></div>
   <div class="tn-cam" id="tnCam"><button class="tn-b" id="tnZi" aria-label="Zoom in" title="Zoom in">➕</button><button class="tn-b" id="tnZo" aria-label="Zoom out" title="Zoom out">➖</button><button class="tn-b" id="tnRl" aria-label="Rotate left" title="Rotate left">⟲</button><button class="tn-b" id="tnRr" aria-label="Rotate right" title="Rotate right">⟳</button><button class="tn-b" id="tnTilt" aria-label="Tilt camera" title="Tilt camera">📐</button><button class="tn-b" id="tnFit" aria-label="See the whole map" title="See the whole map">🗺️</button></div>
-  <div class="tn-bar"><div class="tn-cats" id="tnCats"></div><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b" id="tnDraw" aria-label="Draw mode" title="Move mode: drag to pan the map">🖐️</button><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type or colour">🖌️</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase (50% refund)">🧹</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button><button class="tn-b" id="tnNight" aria-label="Day or night">🌙</button></div></div></div>
-  <div class="tn-hint">Drag to move · pinch to zoom · twist to rotate · ✏️ draw mode paints roads by dragging · roads &amp; pavement work on water too</div>
+  <div class="tn-bar"><div class="tn-cats" id="tnCats"></div><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b" id="tnDraw" aria-label="Draw mode" title="Move mode: drag to pan the map">🖐️</button><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type or colour">🖌️</button><button class="tn-b" id="tnRotate" aria-label="Rotate" title="Rotate object 90° so it faces the way you want">🔄</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase (50% refund)">🧹</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button><button class="tn-b" id="tnNight" aria-label="Toggle day / night" title="Toggle night mode — lights turn on">🌙</button></div></div></div>
+  <div class="tn-hint">Drag to move · pinch to zoom · twist to rotate · ✏️ draw · 🔄 rotate objects · roads &amp; pavement work on water too</div>
   <div class="tn-dlg" id="tnDlg"><div class="tn-card"><div class="tn-who"><span class="av">🧑‍💼</span><b>Advisor Marina</b></div><p id="tnTxt"></p><div class="tn-ch" id="tnCh"></div><button class="btn btn-gold" id="tnNext" style="display:none">Next ▶</button></div></div>
 </section>
 
@@ -6627,20 +6627,22 @@ function init(){
   ready=true;const box=$('townCv');
   BOX=new THREE.BoxGeometry(1,1,1);CYL=new THREE.CylinderGeometry(1,1,1,6);CYL12=new THREE.CylinderGeometry(1,1,1,12);CONE=new THREE.ConeGeometry(1,1,6);CONE4=new THREE.ConeGeometry(1,1,4);SPH=new THREE.SphereGeometry(1,12,9);
   ren=new THREE.WebGLRenderer({antialias:true,alpha:true});ren.setPixelRatio(Math.min(devicePixelRatio||1,2));
-  ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;
-  GL=new THREE.MeshStandardMaterial({color:'#2f4856',roughness:.15,metalness:.35});WL=new THREE.MeshStandardMaterial({color:'#f2c36b',emissive:0xffa940,emissiveIntensity:.25,roughness:.4});
-  LAMPM=new THREE.MeshStandardMaterial({color:'#fff3b0',emissive:0xffd070,emissiveIntensity:.2,roughness:.4});
+  ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.12;
+  GL=new THREE.MeshStandardMaterial({color:'#2f4856',roughness:.12,metalness:.45});WL=new THREE.MeshStandardMaterial({color:'#f2c36b',emissive:0xffa940,emissiveIntensity:.35,roughness:.35});
+  LAMPM=new THREE.MeshStandardMaterial({color:'#fff3b0',emissive:0xffd070,emissiveIntensity:.35,roughness:.35});
   ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;
   cv=ren.domElement;box.appendChild(cv);
-  scene=new THREE.Scene();scene.fog=new THREE.Fog(0xcfe0e4,60,300);
+  scene=new THREE.Scene();scene.fog=new THREE.Fog(0xb8d0d8,45,220);
   cam=new THREE.PerspectiveCamera(38,1,.5,800);
-  hemi=new THREE.HemisphereLight(0xffffff,0xa9bfc4,.55);scene.add(hemi);
-  sun=new THREE.DirectionalLight(0xffedd0,1.0);sun.position.set(9,15,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-  const sc=sun.shadow.camera;sc.left=sc.bottom=-20;sc.right=sc.top=20;sc.near=1;sc.far=90;sun.shadow.bias=-.0006;scene.add(sun);scene.add(sun.target);
+  hemi=new THREE.HemisphereLight(0xffffff,0x8aa8b0,.62);scene.add(hemi);
+  sun=new THREE.DirectionalLight(0xfff0d8,1.15);sun.position.set(11,18,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+  const sc=sun.shadow.camera;sc.left=sc.bottom=-22;sc.right=sc.top=22;sc.near=1;sc.far=100;sun.shadow.bias=-.0005;sun.shadow.normalBias=.02;scene.add(sun);scene.add(sun.target);
+  /* soft fill light for more realistic depth & less harsh shadows */
+  const fill=new THREE.DirectionalLight(0xa8c8e0,.28);fill.position.set(-8,10,-6);scene.add(fill);
   root=new THREE.Group();scene.add(root);
   /* sea: GPU-animated waves so the huge map stays smooth on phones */
   const wm=new THREE.MeshStandardMaterial({color:'#2b7c8e',flatShading:true,transparent:true,opacity:.84,roughness:.3,metalness:.1});
-  wm.onBeforeCompile=sh=>{sh.uniforms.uT=WT;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uT;').replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.z+=sin(position.x*.6+uT*1.2)*.07+cos(position.y*.7+uT*.9)*.06;')};
+  wm.onBeforeCompile=sh=>{sh.uniforms.uT=WT;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uT;').replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.z+=sin(position.x*.55+uT*1.15)*.11+cos(position.y*.65+uT*.95)*.09+sin((position.x+position.y)*.35+uT*.7)*.04;')};
   water=new THREE.Mesh(new THREE.PlaneGeometry(400,400,160,160),wm);water.rotation.x=-Math.PI/2;water.position.y=-.1;water.receiveShadow=true;scene.add(water);
   const bed=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshStandardMaterial({color:'#277a8d',roughness:1}));bed.rotation.x=-Math.PI/2;bed.position.y=-1.4;scene.add(bed);
   buildTerrain();
@@ -6665,12 +6667,13 @@ function buildTerrain(){
     if(LAND(i,j))lands.push([i,j]);
     else{let near=false;for(let a=-2;a<=2&&!near;a++)for(let b=-2;b<=2;b++)if(LAND(i+a,j+b)){near=true;break}if(near)shal.push([i,j])}}
   const m4=new THREE.Matrix4(),col=new THREE.Color(),q=new THREE.Quaternion();
-  const gm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95}),lands.length);
+  const gm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:.02}),lands.length);
   lands.forEach(([i,j],n)=>{
     let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++)if(!LAND(i+a,j+b)){beach=true;break}
     const h=((i*73856093)^(j*19349663))%100/100;
-    m4.compose(new THREE.Vector3(wx(i),-.25,wx(j)),q,new THREE.Vector3(1,.5,1));gm.setMatrixAt(n,m4);
-    if(beach)col.setHSL(.12,.45,.7+h*.05);else col.setHSL(.27,.42,.4+h*.06);gm.setColorAt(n,col)});
+    const elev=-.25 + (h-.5)*.08; /* slight height variation for depth */
+    m4.compose(new THREE.Vector3(wx(i),elev,wx(j)),q,new THREE.Vector3(1,.5+h*.06,1));gm.setMatrixAt(n,m4);
+    if(beach)col.setHSL(.12,.48,.68+h*.07);else col.setHSL(.27,.45,.38+h*.08);gm.setColorAt(n,col)});
   gm.instanceMatrix.needsUpdate=true;if(gm.instanceColor)gm.instanceColor.needsUpdate=true;gm.receiveShadow=true;root.add(gm);
   const sm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),shal.length);
   shal.forEach(([i,j],n)=>{const h=((i*83492791)^(j*2654435761))%100/100;m4.compose(new THREE.Vector3(wx(i),-.85,wx(j)),q,new THREE.Vector3(1,.1,1));sm.setMatrixAt(n,m4);col.setHSL(.5,.5,.6+h*.06);sm.setColorAt(n,col)});
@@ -6769,13 +6772,16 @@ function buildCell(i,j,pop){
   if(!c)return;
   const t=c.t,g=new THREE.Group();g.position.set(wx(i),0,wx(j));g.userData.k=k;g.userData.t0=pop?performance.now()/1000:-9;
   const plaza=c.pl||t==='plaza';
-  if(t==='road'){const m=roadMask(i,j);slab(g,i,j,MT(roadTex(m,isCW(i,j)),{roughness:.95}),.04);if(c.d)deco(g,c.d,c.r,.04);if(c.d)g.userData.pk=true}
+  if(t==='road'){const m=roadMask(i,j);slab(g,i,j,MT(roadTex(m,isCW(i,j)),{roughness:.95}),.04);if(c.d){const dg=new THREE.Group();deco(dg,c.d,c.r,.04);if(c.rot)dg.rotation.y=c.rot*Math.PI/2;g.add(dg);g.userData.pk=true}}
   else if(t==='pavement'){let m=0;DIRS.forEach((d,n)=>{if(isRoad(i+d[0],j+d[1]))m|=1<<n});slab(g,i,j,MT(pavTex(m)),.07)}
   else if(t==='plaza'){slab(g,i,j,MT(plazaTex()),.06)}
   if(t==='pavement'||t==='plaza'){if(c.d){deco(g,c.d,c.r,t==='plaza'?.06:.07);g.userData.pk=true}}
   if(t==='grass'){if(c.d)deco(g,c.d,c.r,0);g.userData.pk=true}
-  if(t==='road'||t==='pavement'||t==='plaza'||t==='grass'){root.add(g);meshes[k]=g;return}
-  if(t==='fishery'){buildFishery(g,i,j,c);root.add(g);meshes[k]=g;return}
+  if(t==='road'||t==='pavement'||t==='plaza'||t==='grass'){
+    /* rotate only non-road tiles (pavement/plaza/grass + decor look good rotated; roads have directional lines) */
+    if(t!=='road' && c.rot!=null && c.rot>0) g.rotation.y = c.rot * Math.PI/2;
+    root.add(g);meshes[k]=g;return}
+  if(t==='fishery'){buildFishery(g,i,j,c);if(c.rot!=null&&c.rot>0) g.rotation.y = c.rot * Math.PI/2;root.add(g);meshes[k]=g;return}
 
   /* ---- buildings (square footprint, merge into blocks with neighbours) ---- */
   g.userData.pk=true;
@@ -6789,6 +6795,7 @@ function buildCell(i,j,pop){
   mk(BOX,'#8f8a80',wX+.04,.07,wZ+.04,cx,.035,cz,g);
   const lower=new THREE.Group(),top=new THREE.Group();top.position.y=.05+(height-1)*FH;g.add(lower,top);
   let doorDi=DIRS.findIndex((d,n)=>!nb[n]&&isWalk(i+d[0],j+d[1]));if(doorDi<0)doorDi=DIRS.findIndex((d,n)=>!nb[n]&&isRoad(i+d[0],j+d[1]));if(doorDi<0)doorDi=nb.findIndex(b=>!b);if(doorDi<0)doorDi=0;
+  if(c.rot!=null&&c.rot>=0&&c.rot<=3) doorDi=c.rot; else c.rot=doorDi;
   for(let f=0;f<height;f++){
     const p=f===height-1?top:lower,y=f===height-1?0:.05+f*FH;
     mk(BOX,wm,wX,FH,wZ,cx,y+FH/2,cz,p);
@@ -6962,6 +6969,22 @@ function applyAt(i,j,mode,drag){
   sfx(240+Math.random()*120,.16,'sine',.13,560);setTimeout(()=>beep(820,.08,'triangle',.06),70);return k;
 }
 const snapshot=()=>JSON.stringify({c:cells,$:G.coins,f:G.fish||0});
+function rotateAt(i,j){
+  if(!inB(i,j))return;
+  const k=key(i,j),c=cells[k];
+  if(!c){toast('Nothing to rotate');return}
+  const T=TY[c.t];
+  // rotatable: buildings, decor on grass/pavement/plaza, fishery, and standalone decor
+  const can = (T && (T.cat==='b' || T.cat==='d')) || c.d || c.t==='fishery' || c.t==='grass';
+  if(!can){toast('This tile cannot be rotated');return}
+  undo.push(snapshot());
+  if(undo.length>40)undo.shift();
+  c.rot = ((c.rot||0)+1)%4;
+  refresh(new Set([k]));
+  sfx(480,.08,'triangle',.09);
+  toast('Rotated 90° · facing ' + ['East','South','West','North'][c.rot]);
+  hud();save();cloudSave();
+}
 function beginStroke(mode,drag){stroke={prev:snapshot(),seen:new Set(),changed:new Set(),mode,drag,li:-1,lj:-1}}
 function strokeTile(i,j){
   const k=key(i,j);if(stroke.seen.has(k))return;stroke.seen.add(k);
@@ -7070,7 +7093,7 @@ function onMove(e){
     if(Math.hypot(e.clientX-down.x,e.clientY-down.y)<=(e.pointerType==='mouse'?4:9))return;
     down.moved=true;
     const rot=down.btn===2||(down.shift&&down.btn===0);
-    down.mode=rot?'rotate':down.btn===1?'pan':(drawMode&&down.btn===0)?'draw':'pan';
+    down.mode=rot?'rotate':down.btn===1?'pan':(drawMode&&down.btn===0&&tool!=='rotate')?'draw':'pan';
     if(down.mode==='draw'){beginStroke(down.btn===2?'erase':tool,true);const c=pickTile(down.x,down.y,false);if(c)strokeTo(c[0],c[1])}
     hov.visible=false;
     if(down.mode==='pan'){down.lx=down.x;down.ly=down.y}}
@@ -7083,7 +7106,7 @@ function onUp(e){
   if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);
   if(ptrs.size===0&&down){
     const d=down;down=null;
-    if(!d.moved&&performance.now()-d.t<900){const c=pickTile(d.x,d.y,true);if(c){beginStroke(d.btn===2?'erase':tool,false);strokeTile(c[0],c[1]);endStroke()}}
+    if(!d.moved&&performance.now()-d.t<900){const c=pickTile(d.x,d.y,true);if(c){if(tool==='rotate'){rotateAt(c[0],c[1])}else{beginStroke(d.btn===2?'erase':tool,false);strokeTile(c[0],c[1]);endStroke()}}}
     else if(d.mode==='draw')endStroke();
     else if(d.mode==='pan'&&performance.now()-d.lt<90){const sp=Math.hypot(vx,vz),cap=dist*1.2+10;if(sp>cap){const f=cap/sp;vx*=f;vz*=f}}else{vx=vz=0}
   }else if(ptrs.size===1&&down){down.moved=true;down.mode='pan';const r=[...ptrs.values()][0];down.lx=r.x;down.ly=r.y;down.lt=performance.now();vx=vz=0}
@@ -7093,7 +7116,7 @@ function hoverUpdate(){
   if(!hovP||!cv)return;const c=pickTile(hovP.x,hovP.y,true);hovP=null;
   if(!c){hov.visible=false;return}
   const cc=cellAt(c[0],c[1]),h=cc&&TY[cc.t]&&TY[cc.t].cat==='b'?(cc.h||1)*FH+.1:.1;
-  hov.position.set(wx(c[0]),h,wx(c[1]));hov.visible=true;hov.material.color.set(tool==='erase'?0xff6b6b:tool==='paint'?0xffd166:drawMode?0x5ef0c4:0xffffff)}
+  hov.position.set(wx(c[0]),h,wx(c[1]));hov.visible=true;hov.material.color.set(tool==='erase'?0xff6b6b:tool==='paint'?0xffd166:tool==='rotate'?0x74b9ff:drawMode?0x5ef0c4:0xffffff)}
 
 /* ---- UI ---- */
 function swatches(){const el=$('tnSw');el.innerHTML='<button class="sw'+(color<0?' on':'')+'" data-c="-1">🎲</button>'+WALLS.map((c,i)=>'<button class="sw'+(color===i?' on':'')+'" data-c="'+i+'" style="background:'+c[1]+'"></button>').join('');
@@ -7102,12 +7125,37 @@ function cats(){const el=$('tnCats');el.innerHTML=CATS.map(c=>'<button class="tc
   el.querySelectorAll('.tc').forEach(b=>b.onclick=()=>{cat=b.dataset.c;if(TY[kind].cat!==cat)kind=Object.keys(TY).find(k=>TY[k].cat===cat&&TY[k].u<=G.era);if(tool==='erase')setTool('build');cats();types();snd('tap')})}
 function types(){const el=$('tnTypes');el.innerHTML=Object.keys(TY).filter(k=>TY[k].cat===cat).map(k=>{const T=TY[k],lk=T.u>G.era;return '<button class="tp'+(kind===k?' on':'')+(lk?' lk':'')+'" data-k="'+k+'"><span>'+(lk?'🔒':T.e)+'</span>'+T.n+'<small>💰'+T.cost+'</small></button>'}).join('');
   el.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const T=TY[b.dataset.k];if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return}kind=b.dataset.k;if(tool==='erase')setTool('build');types();snd('tap')})}
-function setTool(t){tool=t;['Build','Paint','Erase'].forEach(n=>$('tn'+n).classList.toggle('on',t===n.toLowerCase()));snd('tap')}
+function setTool(t){tool=t;['Build','Paint','Erase','Rotate'].forEach(n=>$('tn'+n).classList.toggle('on',t===n.toLowerCase()));snd('tap')}
 function setDraw(b){drawMode=b;$('tnDraw').classList.toggle('on',b);$('tnDraw').textContent=b?'✏️':'🖐️';$('tnDraw').title=b?'Draw mode: drag to paint tiles':'Move mode: drag to pan the map';
   toast(b?'✏️ Draw mode — drag to paint roads, pavement, anything (two fingers still move the camera)':'🖐️ Move mode — drag to pan the map')}
-function setNight(b){night=b;$('tnNight').textContent=b?'☀️':'🌙';sun.intensity=b?.18:1;sun.color.set(b?0x8fa6ff:0xffedd0);hemi.intensity=b?.32:.55;hemi.color.set(b?0x3a4a8a:0xffffff);
-  scene.fog.color.set(b?0x16233a:0xcfe0e4);water.material.color.set(b?'#12384a':'#2b7c8e');WL.emissiveIntensity=b?1.6:.25;LAMPM.emissiveIntensity=b?3:.2;signMats.forEach(m=>m.emissiveIntensity=b?.7:0);
-  $('screen-town').style.background=b?'linear-gradient(#0e1a33,#1c2d4a 62%,#2c3a52)':'linear-gradient(#7fb6d6,#dce9ee 62%,#f3e6d3)'}
+function setNight(b){
+  night=b;
+  $('tnNight').textContent=b?'☀️':'🌙';
+  $('tnNight').title=b?'Switch to day':'Switch to night — windows, lamps & signs light up';
+  sun.intensity=b?.12:1.15;
+  sun.color.set(b?0x6a7ab8:0xfff0d8);
+  hemi.intensity=b?.22:.62;
+  hemi.color.set(b?0x1a2540:0xffffff);
+  scene.fog.color.set(b?0x0c1528:0xb8d0d8);
+  scene.fog.near=b?30:45;
+  scene.fog.far=b?160:220;
+  water.material.color.set(b?'#0a1e2e':'#2b7c8e');
+  /* Windows & lamps glow strongly at night */
+  WL.emissiveIntensity=b?2.4:.25;
+  WL.emissive.setHex(b?0xffc878:0xffa940);
+  LAMPM.emissiveIntensity=b?4.5:.2;
+  LAMPM.emissive.setHex(b?0xffe8a0:0xffd070);
+  /* Even “dark” glass gets a soft city glow so the skyline feels alive */
+  GL.emissiveIntensity=b?.55:0;
+  GL.emissive.setHex(b?0xffb060:0x000000);
+  GL.color.setHex(b?0x3a4a5a:0x2f4856);
+  signMats.forEach(m=>{m.emissiveIntensity=b?1.1:0});
+  $('screen-town').style.background=b
+    ?'linear-gradient(#070e1c,#121f38 55%,#1a2740)'
+    :'linear-gradient(#7fb6d6,#dce9ee 62%,#f3e6d3)';
+  if(b) toast('🌙 Night mode — windows, street lamps & signs are lit');
+  else toast('☀️ Day mode');
+}
 
 /* ---- loop ---- */
 function frame(now){
@@ -7144,7 +7192,7 @@ function fit(){ttx=ttz=0;tdist=maxD;tpol=Math.min(tpol,.75)}
 window.openTown=function(){show('screen-town');loadThree(()=>{if(!ready)init();resize();start();cloudInit()})};
 window.addEventListener('resize',()=>{if(ready&&running)resize()});window.addEventListener('orientationchange',()=>setTimeout(()=>{if(ready&&running)resize()},250));
 $('tnBack').onclick=()=>{stop();snd('tap');show('screen-lobby')};
-$('tnBuild').onclick=()=>setTool('build');$('tnPaint').onclick=()=>setTool('paint');$('tnErase').onclick=()=>setTool('erase');$('tnNight').onclick=()=>{setNight(!night);snd('tap')};
+$('tnBuild').onclick=()=>setTool('build');$('tnPaint').onclick=()=>setTool('paint');$('tnErase').onclick=()=>setTool('erase');$('tnRotate').onclick=()=>setTool('rotate');$('tnNight').onclick=()=>{setNight(!night);snd('tap')};
 $('tnDraw').onclick=()=>setDraw(!drawMode);
 $('tnZi').onclick=()=>{tdist=cl(tdist*.75,minD,maxD);snd('tap')};$('tnZo').onclick=()=>{tdist=cl(tdist*1.35,minD,maxD);snd('tap')};
 $('tnRl').onclick=()=>{taz+=Math.PI/4;snd('tap')};$('tnRr').onclick=()=>{taz-=Math.PI/4;snd('tap')};
