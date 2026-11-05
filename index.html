@@ -848,6 +848,15 @@ input:focus-visible{outline:none}
 .pcard .pst.on{color:#0B7A4B}
 
 
+/* Sketch Race colour palette */
+.draw-tools{flex-wrap:wrap}
+.draw-pal{flex:0 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:6px}
+.draw-pal .dc{width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);padding:0;cursor:pointer}
+.draw-pal .dc.on{outline:3px solid var(--violet);transform:scale(1.15)}
+.draw-pal .dsep{width:1px;height:22px;background:#DFE6E9;margin:0 2px}
+.draw-pal .ds{width:30px;height:30px;border-radius:50%;border:none;background:#F3F0FF;display:grid;place-items:center;padding:0;cursor:pointer}
+.draw-pal .ds i{display:block;border-radius:50%;background:#2D3436}
+.draw-pal .ds.on{outline:3px solid var(--violet)}
 /* Island Mayor */
 #screen-town{position:fixed;inset:0;max-width:none;width:100%;gap:0;z-index:60;background:linear-gradient(#86b6c8,#e3ddc9 62%,#f1ddbf);overflow:hidden}
 #screen-town.active{display:block;animation:none}
@@ -1246,6 +1255,7 @@ input:focus-visible{outline:none}
       <button type="button" class="tool-btn" id="btnDrawClear" title="Clear">🗑️</button>
       <span style="flex:1"></span>
       <span style="font-size:.75rem;font-weight:800;color:#636E72" id="drawHint">Draw clearly!</span>
+      <div class="draw-pal" id="drawPal"></div>
     </div>
     <div class="draw-guess-area" id="drawGuessArea" style="display:none">
       <input type="text" id="drawGuessInput" placeholder="Type your guess…" maxlength="32" autocomplete="off" autocapitalize="off">
@@ -1451,7 +1461,125 @@ const BASE_CATEGORIES = [
   "An excuse for being late",
   "Something that makes you happy",
   "Something scary",
-  "Something funny"
+  "Something funny",
+
+  // More variety (added)
+  "A city or town",
+  "A river or lake",
+  "A mountain or landmark",
+  "A type of transport",
+  "A tool",
+  "A kitchen utensil",
+  "Something in a bathroom",
+  "Something in a bedroom",
+  "Something in a garden",
+  "Something at the zoo",
+  "Something on a farm",
+  "Something in the sky",
+  "Something in the ocean",
+  "Something in a forest",
+  "A bird",
+  "A sea creature",
+  "An insect or bug",
+  "A pet",
+  "A wild animal",
+  "A dog or cat breed",
+  "A type of tree",
+  "A fruit",
+  "A vegetable",
+  "A snack",
+  "A candy or chocolate",
+  "A fast food",
+  "A pizza topping",
+  "A soup or stew",
+  "A pasta or rice dish",
+  "A spice or herb",
+  "Something you drink hot",
+  "Something sweet",
+  "Something sour",
+  "Something salty",
+  "Something crunchy",
+  "Something sticky",
+  "Something sharp",
+  "Something heavy",
+  "Something tiny",
+  "Something huge",
+  "Something shiny",
+  "Something that flies",
+  "Something that floats",
+  "Something with a screen",
+  "Something with buttons",
+  "Something with strings",
+  "Something with a handle",
+  "Something with legs",
+  "Something yellow",
+  "Something red",
+  "Something green",
+  "Something blue",
+  "Something white",
+  "Something you plug in",
+  "Something you wear on your head",
+  "Something you wear on your feet",
+  "A piece of jewelry",
+  "A type of bag",
+  "A cartoon character",
+  "A video game or game character",
+  "A fictional character",
+  "A singer or band",
+  "An actor or actress",
+  "An athlete",
+  "A scientist or inventor",
+  "A historical figure",
+  "A fairy tale character",
+  "A monster or mythical creature",
+  "A superhero or villain",
+  "A kind of dance",
+  "A music genre",
+  "Something you make with your hands",
+  "A type of book",
+  "A sport played with a ball",
+  "A winter activity",
+  "A water activity",
+  "A board or card game",
+  "Something at a playground",
+  "A toy",
+  "Something at a birthday party",
+  "Something at a wedding",
+  "Something at a festival",
+  "Something at the circus",
+  "Something at a supermarket",
+  "Something at a hospital",
+  "Something at the airport",
+  "Something in a library",
+  "Something in a toolbox",
+  "Something in a backpack",
+  "Something in a wallet or purse",
+  "Something in a classroom",
+  "Something in a museum",
+  "Something at the gym",
+  "Something in space",
+  "A natural wonder",
+  "A type of building",
+  "A room or place in a building",
+  "A type of store",
+  "A place to visit on vacation",
+  "A language",
+  "A currency",
+  "A capital city",
+  "An island",
+  "A feeling or emotion",
+  "A personality trait",
+  "A reason to celebrate",
+  "Something you do on weekends",
+  "Something you do outdoors",
+  "Something you do on a rainy day",
+  "Something you do before bed",
+  "A chore",
+  "A superpower",
+  "Something you see on a road trip",
+  "Something found in a castle",
+  "Something found underground",
+  "Something in a desert"
 ];
 
 function seededRandom(seed){
@@ -2515,7 +2643,108 @@ gen|4|What is the name of the ancient trade route linking China with the Mediter
 gen|4|Which number is represented by the Roman numeral XL?|40|60|90|15
 gen|4|What is the term for the point in an orbit farthest from Earth?|Apogee|Perigee|Aphelion|Perihelion
 gen|4|Which fundamental force holds protons and neutrons together in an atomic nucleus?|Strong nuclear force|Electromagnetic force|Gravity|Weak nuclear force
-gen|4|What is the study of the origin and history of words called?|Etymology|Phonetics|Syntax|Lexicography`;
+gen|4|What is the study of the origin and history of words called?|Etymology|Phonetics|Syntax|Lexicography
+gen|1|How many days are in a week?|7|5|6|8
+gen|1|What color do you get by mixing blue and yellow?|Green|Purple|Orange|Brown
+gen|1|Which animal says "moo"?|Cow|Sheep|Horse|Duck
+gen|1|How many legs does a spider have?|8|6|4|10
+gen|1|Which fruit is famous for keeping the doctor away?|Apple|Banana|Orange|Grape
+gen|1|Which shape has four equal sides?|Square|Triangle|Circle|Oval
+gen|1|How many months are in a year?|12|10|11|13
+gen|1|Which bird cannot fly and lives in Antarctica?|Penguin|Eagle|Parrot|Owl
+gen|1|What do we call a baby dog?|Puppy|Kitten|Cub|Calf
+sci|1|What do plants need to grow besides water and soil?|Sunlight|Moonlight|Sugar|Wind
+sci|1|Which body part do you use to see?|Eyes|Ears|Nose|Hands
+sci|1|What is the star at the center of our solar system?|The Sun|The Moon|Mars|Polaris
+sci|1|What do bees collect from flowers?|Nectar|Sand|Water|Seeds
+sci|1|Which of these is a mammal?|Dolphin|Shark|Trout|Octopus
+geo|1|On which continent is Brazil?|South America|Africa|Europe|Asia
+geo|1|What is the capital city of the Philippines?|Manila|Cebu|Davao|Quezon City
+geo|1|Which is the largest continent?|Asia|Africa|Europe|Antarctica
+geo|1|What is the frozen continent at the South Pole called?|Antarctica|Greenland|Iceland|Siberia
+his|1|Who was the first person to walk on the Moon?|Neil Armstrong|Buzz Aldrin|Yuri Gagarin|John Glenn
+his|1|What did the ancient Egyptians write on?|Papyrus|Plastic|Newspaper|Rubber
+gen|2|How many sides does a hexagon have?|6|5|7|8
+gen|2|Which instrument has 88 keys?|Piano|Guitar|Harp|Flute
+gen|2|What is the main language spoken in Mexico?|Spanish|Portuguese|Mexican|English
+gen|2|Which grain is the base of sushi?|Rice|Wheat|Oats|Barley
+gen|2|Which company created the iPhone?|Apple|Samsung|Nokia|Google
+gen|2|Which board game has a king, queen and pawns?|Chess|Checkers|Monopoly|Scrabble
+gen|2|What is the Japanese art of paper folding called?|Origami|Ikebana|Kabuki|Bonsai
+gen|2|Which fairy-tale character left behind a glass slipper?|Cinderella|Snow White|Rapunzel|Belle
+gen|2|Which vitamin do we get from sunlight?|Vitamin D|Vitamin C|Vitamin A|Vitamin B12
+gen|2|Which animal is the tallest in the world?|Giraffe|Elephant|Ostrich|Camel
+sci|2|What force pulls objects toward the Earth?|Gravity|Magnetism|Friction|Inertia
+sci|2|Which organ pumps blood around the body?|Heart|Lungs|Liver|Kidney
+sci|2|Which gas do humans need to breathe in to live?|Oxygen|Nitrogen|Helium|Argon
+sci|2|Which planet is closest to the Sun?|Mercury|Venus|Earth|Mars
+sci|2|At what temperature does water boil at sea level?|100°C|90°C|120°C|80°C
+sci|2|What are baby frogs called?|Tadpoles|Pups|Calves|Chicks
+sci|2|How many bones does an adult human have?|206|106|306|412
+geo|2|Which country is shaped like a boot?|Italy|Greece|Spain|Portugal
+geo|2|What is the capital of Canada?|Ottawa|Toronto|Vancouver|Montreal
+geo|2|Which is the largest hot desert in the world?|Sahara|Gobi|Kalahari|Mojave
+geo|2|Which river flows through Egypt?|Nile|Amazon|Congo|Tigris
+geo|2|What is the capital of Thailand?|Bangkok|Hanoi|Jakarta|Manila
+geo|2|Which is the largest island in the Philippines?|Luzon|Mindanao|Cebu|Palawan
+his|2|Who painted the Mona Lisa?|Leonardo da Vinci|Michelangelo|Raphael|Van Gogh
+his|2|Which ship sank in 1912 after hitting an iceberg?|Titanic|Lusitania|Britannic|Bismarck
+his|2|Who was the first President of the United States?|George Washington|Abraham Lincoln|Thomas Jefferson|John Adams
+his|2|Who is widely regarded as the national hero of the Philippines?|José Rizal|Andrés Bonifacio|Emilio Aguinaldo|Apolinario Mabini
+gen|3|Which painter famously cut off part of his own ear?|Vincent van Gogh|Pablo Picasso|Claude Monet|Salvador Dalí
+gen|3|Which composer wrote "The Four Seasons"?|Vivaldi|Mozart|Bach|Beethoven
+gen|3|In chess, which piece moves only diagonally?|Bishop|Rook|Knight|Pawn
+gen|3|What is the Spanish word for "thank you"?|Gracias|Merci|Danke|Grazie
+gen|3|Which tennis tournament is played on grass in London?|Wimbledon|US Open|Roland Garros|Australian Open
+gen|3|How many strings does a standard violin have?|4|5|6|3
+gen|3|What does CPU stand for?|Central Processing Unit|Computer Personal Unit|Central Program Utility|Core Power Unit
+gen|3|Which language has the most native speakers?|Mandarin Chinese|English|Spanish|Hindi
+sci|3|What is the chemical symbol for gold?|Au|Ag|Gd|Go
+sci|3|Which planet has the Great Red Spot?|Jupiter|Mars|Saturn|Neptune
+sci|3|What is the largest organ of the human body?|Skin|Liver|Brain|Lungs
+sci|3|What type of animal is a Komodo dragon?|Lizard|Snake|Crocodile|Turtle
+sci|3|What process do plants use to make their food?|Photosynthesis|Respiration|Digestion|Fermentation
+sci|3|Which blood cells carry oxygen?|Red blood cells|White blood cells|Platelets|Plasma
+sci|3|Which star is closest to Earth after the Sun?|Proxima Centauri|Sirius|Betelgeuse|Vega
+geo|3|Which is the longest river in Asia?|Yangtze|Mekong|Ganges|Indus
+geo|3|What is the capital of Turkey?|Ankara|Istanbul|Izmir|Bursa
+geo|3|Which strait separates Spain from Morocco?|Strait of Gibraltar|Bosphorus|Strait of Hormuz|Strait of Malacca
+geo|3|In which country is Mount Kilimanjaro?|Tanzania|Kenya|Uganda|Ethiopia
+geo|3|Which is the deepest ocean trench?|Mariana Trench|Tonga Trench|Java Trench|Puerto Rico Trench
+geo|3|What is the capital of Brazil?|Brasília|Rio de Janeiro|São Paulo|Salvador
+geo|3|Lake Titicaca lies on the border of Peru and which country?|Bolivia|Chile|Ecuador|Colombia
+his|3|Which civilization built Machu Picchu?|Inca|Aztec|Maya|Olmec
+his|3|Who discovered penicillin?|Alexander Fleming|Louis Pasteur|Marie Curie|Joseph Lister
+his|3|Which explorer led the Spanish expedition that reached the Philippines in 1521?|Ferdinand Magellan|Christopher Columbus|Vasco da Gama|Miguel López de Legazpi
+his|3|Who led India's nonviolent independence movement?|Mahatma Gandhi|Jawaharlal Nehru|Subhas Chandra Bose|Bhagat Singh
+his|3|Which queen ruled Britain for 63 years until 1901?|Queen Victoria|Elizabeth I|Queen Anne|Mary I
+his|3|The Renaissance began in which country?|Italy|France|England|Spain
+gen|4|Which Russian author wrote "War and Peace"?|Leo Tolstoy|Fyodor Dostoevsky|Anton Chekhov|Nikolai Gogol
+gen|4|Which Greek mathematician is linked to the a²+b²=c² theorem?|Pythagoras|Euclid|Archimedes|Fibonacci
+gen|4|Which artist painted "The Persistence of Memory"?|Salvador Dalí|Pablo Picasso|René Magritte|Joan Miró
+gen|4|Which Japanese poem form has three lines of 5-7-5 syllables?|Haiku|Tanka|Sonnet|Limerick
+gen|4|Which programming language is named after a snake?|Python|Java|Swift|Rust
+gen|4|Which city hosted the first modern Olympic Games in 1896?|Athens|Paris|London|Rome
+gen|4|Who composed the Ninth Symphony with "Ode to Joy"?|Beethoven|Mozart|Brahms|Schubert
+sci|4|Which subatomic particle carries a negative charge?|Electron|Proton|Neutron|Quark
+sci|4|What is the pH of pure water at 25°C?|7|0|14|5
+sci|4|What is the SI unit of force?|Newton|Joule|Watt|Pascal
+sci|4|Who proposed the theory of general relativity?|Albert Einstein|Isaac Newton|Niels Bohr|Max Planck
+sci|4|What is the most abundant gas in Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Argon
+sci|4|Which element has atomic number 1?|Hydrogen|Helium|Lithium|Carbon
+sci|4|What is the name of the galaxy we live in?|Milky Way|Andromeda|Triangulum|Whirlpool
+sci|4|In human cells, where is most DNA found?|Nucleus|Cytoplasm|Vacuole|Lysosome
+geo|4|Which country has the longest coastline in the world?|Canada|Russia|Australia|Indonesia
+geo|4|What is the capital of Kazakhstan?|Astana|Almaty|Tashkent|Bishkek
+geo|4|Which African country was formerly known as Abyssinia?|Ethiopia|Eritrea|Somalia|Sudan
+geo|4|What is the tallest waterfall in the world?|Angel Falls|Niagara Falls|Victoria Falls|Iguazu Falls
+geo|4|Which lake is the deepest in the world?|Lake Baikal|Lake Superior|Lake Tanganyika|Lake Victoria
+his|4|Which battle ended Napoleon's rule in 1815?|Waterloo|Austerlitz|Trafalgar|Borodino
+his|4|Who was the first woman to fly solo across the Atlantic?|Amelia Earhart|Bessie Coleman|Harriet Quimby|Jacqueline Cochran
+his|4|Which dynasty built most of the surviving Great Wall?|Ming|Qin|Han|Tang
+his|4|In what year did the Philippines declare independence from Spain?|1898|1946|1872|1521
+his|4|Which charter signed in 1215 limited King John's power?|Magna Carta|Bill of Rights|Domesday Book|Declaration of Arbroath
+his|4|Who co-wrote The Communist Manifesto with Karl Marx?|Friedrich Engels|Vladimir Lenin|Leon Trotsky|Mikhail Bakunin`;
 const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
 /* ===== Endless question engine: live trivia API + generators + curated, with no-repeat tracking ===== */
 let bgCurQ=null;
@@ -4567,6 +4796,15 @@ function startScatTimer(){
 let drawCtx = null;
 let drawIsDrawing = false;
 let drawTool = 'pen'; // pen | eraser
+let drawColor='#2D3436',drawSize=4;
+(function(){const p=$('drawPal');if(!p)return;
+  const C=['#2D3436','#95A5A6','#E74C3C','#F39C12','#F1C40F','#2ECC71','#1E8449','#1ABC9C','#3498DB','#1F3A93','#9B59B6','#FD79A8','#8D5A2B','#F5CBA7'],S=[2,4,9];
+  p.innerHTML=C.map(c=>'<button type="button" class="dc'+(c===drawColor?' on':'')+'" data-col="'+c+'" style="background:'+c+'" aria-label="Color '+c+'"></button>').join('')+'<span class="dsep"></span>'+S.map(n=>'<button type="button" class="ds'+(n===drawSize?' on':'')+'" data-sz="'+n+'" aria-label="Brush size '+n+'"><i style="width:'+(n+4)+'px;height:'+(n+4)+'px"></i></button>').join('');
+  p.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.col){drawColor=b.dataset.col;p.querySelectorAll('.dc').forEach(x=>x.classList.toggle('on',x===b))}
+    else if(b.dataset.sz){drawSize=+b.dataset.sz;p.querySelectorAll('.ds').forEach(x=>x.classList.toggle('on',x===b))}
+    drawTool='pen';const a=$('btnDrawPen'),r=$('btnDrawEraser');if(a)a.classList.add('on');if(r)r.classList.remove('on')});
+})();
 let drawStrokeBuf = [];
 let drawLastPush = 0;
 let drawLocalSolved = false;
@@ -4651,8 +4889,8 @@ function applyStrokePoint(pt, tool){
   if(pt.type === 'start'){
     drawCtx.beginPath();
     drawCtx.moveTo(pt.x, pt.y);
-    drawCtx.strokeStyle = tool === 'eraser' ? '#ffffff' : '#2D3436';
-    drawCtx.lineWidth = tool === 'eraser' ? 18 : 4;
+    drawCtx.strokeStyle = tool === 'eraser' ? '#ffffff' : (pt.col || '#2D3436');
+    drawCtx.lineWidth = tool === 'eraser' ? 18 : (pt.w || 4);
   } else if(pt.type === 'move'){
     drawCtx.lineTo(pt.x, pt.y);
     drawCtx.stroke();
@@ -4837,7 +5075,7 @@ function bindDrawCanvas(){
     drawIsDrawing = true;
     const p = canvasPos(e);
     if(!p) return;
-    const pt = {type:'start', x:p.x, y:p.y, tool: drawTool, t: srvNow()};
+    const pt = {type:'start', x:p.x, y:p.y, tool: drawTool, col: drawColor, w: drawSize, t: srvNow()};
     applyStrokePoint(pt, drawTool);
     drawStrokeBuf.push(pt);
   };
