@@ -6640,10 +6640,13 @@ function init(){
   /* soft fill light for more realistic depth & less harsh shadows */
   const fill=new THREE.DirectionalLight(0xa8c8e0,.28);fill.position.set(-8,10,-6);scene.add(fill);
   root=new THREE.Group();scene.add(root);
-  /* sea: GPU-animated waves so the huge map stays smooth on phones */
-  const wm=new THREE.MeshStandardMaterial({color:'#2b7c8e',flatShading:true,transparent:true,opacity:.84,roughness:.3,metalness:.1});
-  wm.onBeforeCompile=sh=>{sh.uniforms.uT=WT;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uT;').replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.z+=sin(position.x*.55+uT*1.15)*.11+cos(position.y*.65+uT*.95)*.09+sin((position.x+position.y)*.35+uT*.7)*.04;')};
-  water=new THREE.Mesh(new THREE.PlaneGeometry(400,400,160,160),wm);water.rotation.x=-Math.PI/2;water.position.y=-.1;water.receiveShadow=true;scene.add(water);
+  /* sea: flat, stable water — no vertex animation so roads / pavement / plazas built over water never get overflowed or clipped (critical on mobile) */
+  const wm=new THREE.MeshStandardMaterial({color:'#2b7c8e',flatShading:true,transparent:true,opacity:.88,roughness:.35,metalness:.08});
+  water=new THREE.Mesh(new THREE.PlaneGeometry(400,400,32,32),wm); // fewer segments = better mobile performance + no wave mesh fighting tiles
+  water.rotation.x=-Math.PI/2;
+  water.position.y=-.18; // sit clearly below all slabs / decks
+  water.receiveShadow=true;
+  scene.add(water);
   const bed=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshStandardMaterial({color:'#277a8d',roughness:1}));bed.rotation.x=-Math.PI/2;bed.position.y=-1.4;scene.add(bed);
   buildTerrain();
   hov=new THREE.Mesh(BOX,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.38,depthWrite:false}));hov.scale.set(.98,.06,.98);hov.visible=false;scene.add(hov);
@@ -6715,11 +6718,27 @@ function windowF(o,y,t,lit,odd){
 }
 /* flat tile slab: sits on the ground, or becomes a pier/bridge deck with piles when the tile is on the sea */
 function slab(g,i,j,topMat,top){
-  const water=!LAND(i,j),bot=water?-.5:-.02,side=M(water?'#7a6a55':'#8e8b84'),hgt=top-bot;
-  const m=new THREE.Mesh(BOX,[side,side,topMat,side,side,side]);m.scale.set(1,hgt,1);m.position.y=bot+hgt/2;m.receiveShadow=true;g.add(m);
-  if(water){[-1,1].forEach(a=>[-1,1].forEach(b=>mk(CYL12,'#4a3626',.05,1.4,.05,a*.44,-.8,b*.44,g,false)));
-    DIRS.forEach((d,di)=>{const ni=i+d[0],nj=j+d[1];if(LAND(ni,nj)||cellAt(ni,nj))return;
-      if(d[0])mk(BOX,'#6b5340',.05,.11,.98,d[0]*.475,top+.055,0,g,false);else mk(BOX,'#6b5340',.98,.11,.05,0,top+.055,d[1]*.475,g,false)})}
+  const water=!LAND(i,j);
+  // On water: raise the deck a bit more so it always sits clearly above the flat water plane (avoids any mobile depth fighting)
+  const useTop = water ? Math.max(top, 0.09) : top;
+  const bot = water ? -.55 : -.02;
+  const side = M(water ? '#7a6a55' : '#8e8b84');
+  const hgt = useTop - bot;
+  const m = new THREE.Mesh(BOX, [side, side, topMat, side, side, side]);
+  m.scale.set(1, hgt, 1);
+  m.position.y = bot + hgt / 2;
+  m.receiveShadow = true;
+  g.add(m);
+  if(water){
+    // longer piles that reach below the water surface
+    [-1,1].forEach(a => [-1,1].forEach(b => mk(CYL12, '#4a3626', .055, 1.55, .055, a*.44, -.85, b*.44, g, false)));
+    DIRS.forEach((d, di) => {
+      const ni = i + d[0], nj = j + d[1];
+      if(LAND(ni, nj) || cellAt(ni, nj)) return;
+      if(d[0]) mk(BOX, '#6b5340', .05, .12, .98, d[0]*.475, useTop + .06, 0, g, false);
+      else mk(BOX, '#6b5340', .98, .12, .05, 0, useTop + .06, d[1]*.475, g, false);
+    });
+  }
   return m}
 function personMesh(p){const g=new THREE.Group();mk(CYL12,rnd(SHIRTS),.065,.2,.065,0,.15,0,g);mk(SPH,rnd(['#f5cba7','#e0ac80','#8d5a3b','#ffe0bd']),.062,.062,.062,0,.3,0,g);
   if(Math.random()<.5)mk(CYL12,rnd(['#ff6b6b','#2d3436','#ffd166']),.07,.025,.07,0,.355,0,g);p.add(g);return g}
