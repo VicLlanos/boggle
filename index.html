@@ -38,6 +38,7 @@ html,body{
 }
 body{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:max(12px,var(--safe-t)) 12px max(16px,var(--safe-b))}
 .blob{position:fixed;border-radius:50%;filter:blur(48px);opacity:.55;pointer-events:none;z-index:0;animation:blobFloat 14s ease-in-out infinite}
+.in-town .blob{display:none}
 .blob.b1{width:220px;height:220px;background:#FF6BB5;top:-50px;left:-50px}
 .blob.b2{width:260px;height:260px;background:#00D2A0;bottom:5%;right:-70px;animation-delay:-5s}
 .blob.b3{width:180px;height:180px;background:#FFD166;top:38%;left:-40px;animation-delay:-8s}
@@ -849,7 +850,7 @@ input:focus-visible{outline:none}
 
 /* Island Mayor */
 #screen-town{position:fixed;inset:0;max-width:none;width:100%;gap:0;z-index:60;background:linear-gradient(#86b6c8,#e3ddc9 62%,#f1ddbf);overflow:hidden}
-#screen-town.active{display:block}
+#screen-town.active{display:block;animation:none}
 #townCv{position:absolute;inset:0}
 #townCv canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
 .tn-top{position:absolute;top:max(10px,var(--safe-t));left:10px;right:10px;display:flex;align-items:center;gap:8px;pointer-events:none}
@@ -882,6 +883,18 @@ input:focus-visible{outline:none}
 .tn-visit .vo{font-size:.72rem;opacity:.7}.tn-visit button{border:none;border-radius:999px;padding:9px 16px;background:#ffd166;color:#4a3410;font:inherit;font-weight:700;cursor:pointer}
 #screen-town.visiting .tn-visit{display:flex}
 #screen-town.visiting .tn-bar,#screen-town.visiting .tn-hint,#screen-town.visiting .tn-goal{display:none}
+.tn-cam .tn-b{width:40px;height:40px;min-width:40px;min-height:40px;font-size:1.05rem}
+.tn-more{display:none;position:absolute;right:46px;bottom:0;flex-direction:row;gap:6px;background:rgba(255,255,255,.88);padding:5px;border-radius:999px;backdrop-filter:blur(8px);box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.tn-more.on{display:flex}
+.tn-more .tn-b{width:34px;height:34px;min-width:34px;min-height:34px;font-size:.95rem;box-shadow:none;background:#fff}
+.tn-bar[data-tool="erase"] .tn-types,.tn-bar[data-tool="rotate"] .tn-types{display:none}
+.tn-bar:not([data-cat="b"]) .tn-sw,.tn-bar[data-tool="erase"] .tn-sw,.tn-bar[data-tool="rotate"] .tn-sw{display:none}
+.tn-row{flex-direction:column;align-items:stretch;gap:6px}
+.tn-sw{align-self:center}
+.tn-btns{margin:0;width:100%;justify-content:space-around;flex-wrap:nowrap;background:rgba(255,255,255,.55);padding:5px;border-radius:999px;backdrop-filter:blur(8px)}
+.tn-btns .tn-b{width:44px;height:44px;min-width:44px;min-height:44px}
+#screen-town.visiting #tnUndo,#screen-town.visiting #tnClear{display:none}
+@media(max-width:700px){.tn-hint{display:none}.tn-bar{bottom:max(10px,calc(var(--safe-b) + 6px));gap:6px}.tc{min-height:36px;padding:6px 8px}.tp{min-height:44px;padding:8px 12px}.tn-t{font-size:.8rem;padding:6px 10px;max-width:42vw;overflow:hidden;text-overflow:ellipsis}.tn-stats{font-size:.74rem;min-width:0;overflow:hidden;text-overflow:ellipsis}.tn-top .tn-b{width:40px;height:40px;min-width:40px;min-height:40px}.tn-goal{font-size:.64rem;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 .tn-hint{position:absolute;left:8px;right:8px;bottom:max(8px,var(--safe-b));text-align:center;font-weight:800;font-size:.7rem;color:#fff;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .tn-dlg{position:absolute;inset:0;background:rgba(10,20,30,.35);display:none;align-items:flex-end;justify-content:center;padding:14px max(14px,env(safe-area-inset-left)) max(18px,var(--safe-b));z-index:5}
 .tn-dlg.on{display:flex}
@@ -1300,8 +1313,8 @@ input:focus-visible{outline:none}
   <div id="townCv"></div>
   <div class="tn-top"><button class="tn-b" id="tnBack" aria-label="Back">←</button><div class="tn-t" id="tnEra">🎣 Fishing Village</div><div class="tn-stats" id="tnStats"></div><button class="tn-b" id="tnSnd" aria-label="Sound">🔊</button></div>
   <div class="tn-goal" id="tnGoal"></div>
-  <div class="tn-cam" id="tnCam"><button class="tn-b" id="tnZi" aria-label="Zoom in" title="Zoom in">➕</button><button class="tn-b" id="tnZo" aria-label="Zoom out" title="Zoom out">➖</button><button class="tn-b" id="tnRl" aria-label="Rotate left" title="Rotate left">⟲</button><button class="tn-b" id="tnRr" aria-label="Rotate right" title="Rotate right">⟳</button><button class="tn-b" id="tnTilt" aria-label="Tilt camera" title="Tilt camera">📐</button><button class="tn-b" id="tnFit" aria-label="See the whole map" title="See the whole map">🗺️</button></div>
-  <div class="tn-bar"><div class="tn-cats" id="tnCats"></div><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b" id="tnDraw" aria-label="Draw mode" title="Move mode: drag to pan the map">🖐️</button><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type or colour">🖌️</button><button class="tn-b" id="tnRotate" aria-label="Rotate" title="Rotate object 90° so it faces the way you want">🔄</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase (50% refund)">🧹</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button><button class="tn-b" id="tnNight" aria-label="Toggle day / night" title="Toggle night mode — lights turn on">🌙</button></div></div></div>
+  <div class="tn-cam" id="tnCam"><button class="tn-b" id="tnZi" aria-label="Zoom in" title="Zoom in">➕</button><button class="tn-b" id="tnZo" aria-label="Zoom out" title="Zoom out">➖</button><button class="tn-b" id="tnNight" aria-label="Toggle day / night" title="Toggle night mode — lights turn on">🌙</button><button class="tn-b" id="tnUndo" aria-label="Undo">↩️</button><button class="tn-b" id="tnMoreBtn" aria-label="More camera options" title="More">⋯</button><div class="tn-more" id="tnMore"><button class="tn-b" id="tnRl" aria-label="Rotate left" title="Rotate left">⟲</button><button class="tn-b" id="tnRr" aria-label="Rotate right" title="Rotate right">⟳</button><button class="tn-b" id="tnTilt" aria-label="Tilt camera" title="Tilt camera">📐</button><button class="tn-b" id="tnFit" aria-label="See the whole map" title="See the whole map">🗺️</button><button class="tn-b" id="tnClear" aria-label="Clear island">🗑️</button></div></div>
+  <div class="tn-bar"><div class="tn-cats" id="tnCats"></div><div class="tn-types" id="tnTypes"></div><div class="tn-row"><div class="tn-sw" id="tnSw"></div><div class="tn-btns"><button class="tn-b" id="tnDraw" aria-label="Draw mode" title="Move mode: drag to pan the map">🖐️</button><button class="tn-b on" id="tnBuild" aria-label="Build" title="Build">🏠</button><button class="tn-b" id="tnPaint" aria-label="Change type" title="Change building type or colour">🖌️</button><button class="tn-b" id="tnRotate" aria-label="Rotate" title="Rotate object 90° so it faces the way you want">🔄</button><button class="tn-b" id="tnErase" aria-label="Erase" title="Erase (50% refund)">🧹</button></div></div></div>
   <div class="tn-visit" id="tnVisit"><span id="visName"></span><span class="vo">view only</span><button type="button" id="visLeave">Leave</button></div>
   <div class="tn-hint">Drag to move · pinch to zoom · twist to rotate · ✏️ draw · 🔄 rotate objects · roads &amp; pavement work on water too</div>
   <div class="tn-dlg" id="tnDlg"><div class="tn-card"><div class="tn-who"><span class="av">🧑‍💼</span><b>Advisor Marina</b></div><p id="tnTxt"></p><div class="tn-ch" id="tnCh"></div><button class="btn btn-gold" id="tnNext" style="display:none">Next ▶</button></div></div>
@@ -1891,6 +1904,7 @@ function liveToast(msg){
   liveToast._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
 function show(id){
+  document.body.classList.toggle('in-town',id==='screen-town');
   document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -6645,7 +6659,7 @@ function loadThree(cb){
 function init(){
   ready=true;const box=$('townCv');
   BOX=new THREE.BoxGeometry(1,1,1);CYL=new THREE.CylinderGeometry(1,1,1,6);CYL12=new THREE.CylinderGeometry(1,1,1,12);CONE=new THREE.ConeGeometry(1,1,6);CONE4=new THREE.ConeGeometry(1,1,4);SPH=new THREE.SphereGeometry(1,12,9);
-  ren=new THREE.WebGLRenderer({antialias:true,alpha:true});prM=Math.min(devicePixelRatio||1,1.75);prC=prM;ren.setPixelRatio(prC);
+  ren=new THREE.WebGLRenderer({antialias:true,alpha:true});prM=Math.min(devicePixelRatio||1,2);prC=prM;ren.setPixelRatio(prC);
   ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=.92;
   GL=new THREE.MeshStandardMaterial({color:'#2f4856',roughness:.12,metalness:.45});WL=new THREE.MeshStandardMaterial({color:'#f2c36b',emissive:0xffa940,emissiveIntensity:.35,roughness:.35});
   LAMPM=new THREE.MeshStandardMaterial({color:'#fff3b0',emissive:0xffd070,emissiveIntensity:.35,roughness:.35});
@@ -7190,11 +7204,12 @@ function hoverUpdate(){
 /* ---- UI ---- */
 function swatches(){const el=$('tnSw');el.innerHTML='<button class="sw'+(color<0?' on':'')+'" data-c="-1">🎲</button>'+WALLS.map((c,i)=>'<button class="sw'+(color===i?' on':'')+'" data-c="'+i+'" style="background:'+c[1]+'"></button>').join('');
   el.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{color=+b.dataset.c;swatches();snd('tap')})}
-function cats(){const el=$('tnCats');el.innerHTML=CATS.map(c=>'<button class="tc'+(cat===c[0]?' on':'')+'" data-c="'+c[0]+'"><span>'+c[1]+'</span>'+c[2]+'</button>').join('');
+function cats(){syncBar();const el=$('tnCats');el.innerHTML=CATS.map(c=>'<button class="tc'+(cat===c[0]?' on':'')+'" data-c="'+c[0]+'"><span>'+c[1]+'</span>'+c[2]+'</button>').join('');
   el.querySelectorAll('.tc').forEach(b=>b.onclick=()=>{cat=b.dataset.c;if(TY[kind].cat!==cat)kind=Object.keys(TY).find(k=>TY[k].cat===cat&&TY[k].u<=G.era);if(tool==='erase')setTool('build');cats();types();snd('tap')})}
 function types(){const el=$('tnTypes');el.innerHTML=Object.keys(TY).filter(k=>TY[k].cat===cat).map(k=>{const T=TY[k],lk=T.u>G.era;return '<button class="tp'+(kind===k?' on':'')+(lk?' lk':'')+'" data-k="'+k+'"><span>'+(lk?'🔒':T.e)+'</span>'+T.n+'<small>💰'+T.cost+'</small></button>'}).join('');
   el.querySelectorAll('.tp').forEach(b=>b.onclick=()=>{const T=TY[b.dataset.k];if(T.u>G.era){toast('🔒 '+T.n+' unlocks in '+ERAS[T.u]);return}kind=b.dataset.k;if(tool==='erase')setTool('build');types();snd('tap')})}
-function setTool(t){tool=t;['Build','Paint','Erase','Rotate'].forEach(n=>$('tn'+n).classList.toggle('on',t===n.toLowerCase()));snd('tap')}
+function syncBar(){const b=document.querySelector('.tn-bar');if(b){b.dataset.tool=tool;b.dataset.cat=cat}}
+function setTool(t){tool=t;syncBar();['Build','Paint','Erase','Rotate'].forEach(n=>$('tn'+n).classList.toggle('on',t===n.toLowerCase()));snd('tap')}
 function setDraw(b){drawMode=b;$('tnDraw').classList.toggle('on',b);$('tnDraw').textContent=b?'✏️':'🖐️';$('tnDraw').title=b?'Draw mode: drag to paint tiles':'Move mode: drag to pan the map';
   toast(b?'✏️ Draw mode — drag to paint roads, pavement, anything (two fingers still move the camera)':'🖐️ Move mode — drag to pan the map')}
 function setNight(b,q){
@@ -7256,10 +7271,7 @@ function frame(now){
   tick(dt);updMovers(dt,t);
   if(shDirty){ren.shadowMap.needsUpdate=true;shDirty=0}
   ren.render(scene,cam);
-  /* adaptive resolution: drop render scale if fps sags, raise it again when there is headroom */
-  fT+=dt;if(++fN>=40){const av=fT/fN;fT=0;fN=0;if(tt-prL>2){
-    if(av>.026&&prC>.7){prC=Math.max(.7,prC-.15);ren.setPixelRatio(prC);resize();prL=tt}
-    else if(av<.0185&&prC<prM){prC=Math.min(prM,prC+.1);ren.setPixelRatio(prC);resize();prL=tt}}}
+
 }
 function start(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(frame)}
 function stop(){running=false;cancelAnimationFrame(raf);endStroke();if(cloudDone){save();cloudSave(true)}}
@@ -7295,6 +7307,7 @@ window.addEventListener('resize',()=>{if(ready&&running)resize()});window.addEve
 $('tnBack').onclick=()=>{endVisit();stop();snd('tap');show('screen-lobby')};
 $('tnBuild').onclick=()=>setTool('build');$('tnPaint').onclick=()=>setTool('paint');$('tnErase').onclick=()=>setTool('erase');$('tnRotate').onclick=()=>setTool('rotate');$('tnNight').onclick=()=>{setNight(!night);snd('tap')};
 $('tnDraw').onclick=()=>setDraw(!drawMode);
+$('tnMoreBtn').onclick=()=>$('tnMore').classList.toggle('on');
 $('visLeave').onclick=()=>{endVisit();stop();snd('tap');show('screen-lobby')};
 $('tnZi').onclick=()=>{tdist=cl(tdist*.75,minD,maxD);snd('tap')};$('tnZo').onclick=()=>{tdist=cl(tdist*1.35,minD,maxD);snd('tap')};
 $('tnRl').onclick=()=>{taz+=Math.PI/4;snd('tap')};$('tnRr').onclick=()=>{taz-=Math.PI/4;snd('tap')};
