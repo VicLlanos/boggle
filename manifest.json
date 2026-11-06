@@ -1,7 +1,7 @@
 {
   "id": "/boggle-duo",
-  "name": "Play Arena",
-  "short_name": "PlayArena",
+  "name": "Arenova",
+  "short_name": "Arenova",
   "description": "Multiplayer Boggle — host or join, up to 3 players",
   "start_url": "./index.html",
   "scope": "./",
