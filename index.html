@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://www.wikidata.org" crossorigin>
 <link rel="preconnect" href="https://api.datamuse.com" crossorigin>
 <title>Play Arena · Games with Friends</title>
-<meta name="description" content="Play Arena: real-time multiplayer games with friends. Boggle, Scattergories, Hangman Race, Sketch Race, Spy Word, Snakes & Trivia, and Island Mayor.">
+<meta name="description" content="Play Arena: real-time multiplayer games with friends. Boggle, Scattergories, Hangman Race, Sketch Race, Spy Word, Word Chain, Snakes & Trivia, and Island Mayor.">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -931,65 +931,73 @@ input:focus-visible{outline:none}
 @keyframes dcatLand{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.dcat-reel.spin .dcat-emoji,.dcat-reel.spin .dcat-name,.dcat-reel.land{animation:none}}
 
-/* ===== LINK UP (isolated game styles) ===== */
-#screen-lastword{--lw:#5140b8;--lw-hot:#ef6b75;gap:11px}
-.lastword-round-label{font:800 .72rem Nunito,sans-serif;letter-spacing:1.1px;color:#fff;text-align:center;flex:1}
-.lastword-clock{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--lw);font:700 1.2rem Fredoka,sans-serif;box-shadow:0 4px 14px #1b124855;flex-shrink:0}
-.lastword-clock.low{background:#ffe1e1;color:#c0392b;animation:shake .4s infinite}
-.lastword-hero{background:linear-gradient(145deg,#21194f,#4d3bb0 60%,#7b5cff);color:#fff;text-align:center;padding:19px 16px 16px;border:1px solid #ffffff55}
-.lastword-eyebrow{font-size:.68rem;font-weight:900;letter-spacing:1.5px;opacity:.72}
-.lastword-category{font:700 clamp(1.35rem,5vw,1.8rem) Fredoka,sans-serif;margin:4px 0 13px}
-.lastword-seed-label{font-size:.65rem;font-weight:900;letter-spacing:1.2px;opacity:.68}
-.lastword-seed{font:700 1.45rem Fredoka,sans-serif;color:#ffe18a;letter-spacing:1px;margin:3px 0 5px}
-.lastword-chain-hint{font-size:.76rem;font-weight:700;opacity:.82;line-height:1.35}
-.lastword-required-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:13px auto 0;padding:9px 13px;max-width:220px;border-radius:14px;background:#ffffff18;border:1px solid #ffffff35}
-.lastword-required-row span{font-size:.64rem;font-weight:900;letter-spacing:.8px}
-.lastword-required-row strong{width:42px;height:42px;border-radius:12px;background:#ffe18a;color:#503a00;display:grid;place-items:center;font:700 1.7rem Fredoka,sans-serif;box-shadow:0 3px 0 #d39b2c}
-.lastword-turn{padding:15px}
-.lastword-turn-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
-.lastword-turn-name{font:700 1.1rem Fredoka,sans-serif;color:var(--lw);margin-top:3px}
-.lastword-active-count{background:#e9fff6;color:#007a59;padding:6px 9px;border-radius:99px;font-size:.68rem;font-weight:900}
-.lastword-input-wrap label{color:#686078}
-.lastword-input-wrap input,.lastword-chat-compose input{margin:0 0 8px}
-.lastword-input-wrap .btn{margin-top:7px}
-.lastword-feedback{font-size:.8rem;font-weight:800;color:#6b6478;min-height:1.25rem;line-height:1.35}
-.lastword-feedback.good{color:#008d67}.lastword-feedback.bad{color:#c0392b}.lastword-feedback.maybe{color:#946000}
-.lastword-spectator{padding:12px;border-radius:13px;background:#f1edff;color:#5140a0;font-size:.84rem;font-weight:800;line-height:1.4}
-.lastword-challenge{padding:15px;border:2px solid #f2c76c;background:#fffaf0}
-.lastword-challenge-title{font:700 1rem Fredoka,sans-serif;color:#815500}
-.lastword-challenge-answer{font:700 1.2rem Fredoka,sans-serif;color:#3d2b0b;margin:6px 0}
-.lastword-challenge-note,.lastword-vote-status{font-size:.78rem;font-weight:700;color:#75664d;line-height:1.4}
-.lastword-chat{max-height:145px;overflow:auto;background:#fff;border:1px solid #eee0c5;border-radius:12px;padding:8px;margin:10px 0;display:flex;flex-direction:column;gap:6px}
-.lastword-chat-line{font-size:.76rem;line-height:1.35;color:#4d4435;overflow-wrap:anywhere}
-.lastword-chat-line b{color:#6a4c12}
-.lastword-chat-compose{display:flex;gap:7px;align-items:center}
-.lastword-chat-compose input{flex:1;min-width:0;padding:10px 11px;font-size:.85rem}
-.lastword-chat-compose button{border:0;border-radius:11px;background:#5140b8;color:#fff;padding:10px 14px;font-weight:900}
-.lastword-vote-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.lastword-vote-actions .btn{font-size:.85rem;min-height:46px;padding:10px 8px}
-.lastword-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.lastword-section-head b{font:700 .95rem Fredoka,sans-serif;color:var(--lw)}
-.lastword-section-head span{font-size:.67rem;font-weight:800;color:#827b90;text-align:right}
-#lastWordPlayers{display:flex;flex-direction:column;gap:7px}
-.lastword-player{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;background:#f7f6fb;border:1px solid #ece9f5}
-.lastword-player.turn{border:2px solid #7c5cff;background:#f0edff}
-.lastword-player.out{opacity:.52;filter:grayscale(.45)}
-.lastword-player .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;font-size:1.2rem;flex-shrink:0}
-.lastword-player .nm{font-size:.82rem;font-weight:900;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lastword-player .state{font-size:.65rem;font-weight:900;padding:4px 7px;border-radius:99px;background:#e5fff4;color:#007b59}
-.lastword-player.out .state{background:#eee;color:#777}
-.lastword-player .hosttag{font-size:.6rem;color:#9a7100;font-weight:900}
-#lastWordHistory{display:flex;flex-wrap:wrap;gap:6px}
-.lastword-word-chip{display:flex;align-items:center;gap:5px;border-radius:99px;background:#eeeaff;color:#4b3a9d;padding:6px 9px;font-size:.74rem;font-weight:900}
-.lastword-word-chip b{background:#fff;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-size:.65rem}
-.lastword-word-chip.seed{background:#fff2d2;color:#805700}
-.lastword-finish{text-align:center;padding:20px 16px}
-.lastword-winner-cup{font-size:3rem}
-.lastword-winner-title{font:700 1.55rem Fredoka,sans-serif;color:#4b3a9d;margin:5px 0}
-.lastword-winner-sub{font-size:.85rem;font-weight:800;color:#716a80;margin-bottom:14px}
-.lastword-finish .btn{margin-top:8px}
-@media(max-width:360px){.lastword-vote-actions{grid-template-columns:1fr}.lastword-category{font-size:1.3rem}}
-
+/* ===== WORD CHAIN (last letter -> next word · elimination · 2-6 players) ===== */
+#screen-chain .timer{background:conic-gradient(#FF8A3D var(--pct,100%),rgba(255,255,255,.22) 0)}
+#screen-chain .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0);animation:shake .4s infinite}
+.ch-cat{flex:1;min-width:0;text-align:center;background:rgba(255,255,255,.95);color:var(--violet-d);border-radius:999px;padding:10px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.98rem;box-shadow:0 3px 10px rgba(0,0,0,.12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-card{padding:14px;display:flex;flex-direction:column;gap:10px}
+.ch-roster{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.ch-p{display:flex;align-items:center;gap:5px;background:#F3F0FF;border:2px solid transparent;border-radius:999px;padding:4px 10px 4px 6px;font-weight:800;font-size:.78rem;color:var(--violet-d);transition:transform .2s,background .2s,border-color .2s}
+.ch-p .av{font-size:1.1rem;line-height:1}
+.ch-p .nm{max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-p.me{border-color:var(--violet)}
+.ch-p.turn{background:#FFF3D6;border-color:#FFB020;box-shadow:0 0 0 3px rgba(255,176,32,.25);transform:scale(1.05)}
+.ch-p.out{opacity:.45;filter:grayscale(1)}
+.ch-p.out .nm{text-decoration:line-through}
+.ch-p.win{background:#E8FFF6;border-color:#00B894;opacity:1;filter:none}
+.ch-p.win .nm{text-decoration:none}
+.ch-meta{text-align:center;font-size:.75rem;font-weight:800;color:#636E72}
+.ch-trail{display:flex;flex-direction:column;gap:6px;max-height:215px;overflow-y:auto;padding:2px;scroll-behavior:smooth}
+.ch-more{text-align:center;font-size:.72rem;font-weight:800;color:#B2BEC3}
+.ch-w{display:flex;align-items:center;gap:8px;background:#F8F9FA;border:2px solid #EEF0F2;border-radius:14px;padding:8px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);letter-spacing:1px}
+.ch-w .who{font-size:1.1rem;line-height:1}
+.ch-w .wd{flex:1;min-width:0;overflow-wrap:anywhere}
+.ch-w .wd b{color:var(--violet-d)}
+.ch-w .wd i{font-style:normal;color:#E17055;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px}
+.ch-w .flag{font-family:'Nunito',sans-serif;font-size:.66rem;font-weight:800;letter-spacing:0;white-space:nowrap;color:#8A5A00;background:#FFF3D6;border-radius:99px;padding:2px 8px}
+.ch-w.sys{background:#F3F0FF;border-color:#D6CFFF}
+.ch-w.new{border-color:var(--violet);background:#fff;box-shadow:0 4px 14px rgba(124,92,255,.22);animation:chPop .35s cubic-bezier(.34,1.5,.64,1)}
+.ch-w.maybe{border-color:#FFB020;background:#FFFBF0}
+.ch-w.kept{border-color:#00B894}
+.ch-w.bad{opacity:.55;border-color:#E74C3C}
+.ch-w.bad .wd{text-decoration:line-through}
+@keyframes chPop{0%{transform:scale(.85);opacity:0}100%{transform:scale(1);opacity:1}}
+.ch-undecided{background:#FFF8E6;border:2px solid #FFD166;border-radius:14px;padding:10px 12px;font-size:.8rem;font-weight:700;color:#7A5200;line-height:1.35}
+.ch-turn{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#F3F0FF,#FFF3F9);border-radius:16px;padding:10px 12px}
+.ch-letter{width:62px;height:62px;flex-shrink:0;border-radius:16px;background:linear-gradient(160deg,#FFD23F,#F5A800);box-shadow:0 5px 0 #B97A00,inset 0 2px 0 rgba(255,255,255,.5);display:grid;place-items:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:2.2rem;color:#5C3D00}
+.ch-letter.pop{animation:chPop .4s cubic-bezier(.34,1.5,.64,1)}
+.ch-banner{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.08rem;color:var(--violet-d);line-height:1.2}
+.ch-sub{font-size:.8rem;font-weight:700;color:#636E72;margin-top:3px;line-height:1.3}
+#chInput{text-transform:uppercase;letter-spacing:1px}
+.ch-msg{min-height:1.2em;text-align:center;font-weight:800;font-size:.85rem;color:#636E72}
+.ch-msg.bad{color:#D63031}
+.ch-msg.good{color:#00896A}
+.ch-chal{background:linear-gradient(180deg,#FFE9A8,#FFC94D);color:#6D4C00;box-shadow:0 5px 0 #D9962B}
+.ch-chal:active{box-shadow:0 2px 0 #D9962B}
+.ch-vote{background:#FFF8F0;border:2px solid #FFD2A8;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.ch-vq{text-align:center;font-weight:800;font-size:.86rem;color:#6B4A2B}
+.ch-vword{text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.5rem;letter-spacing:2px;color:var(--violet-d)}
+.ch-vnote{text-align:center;font-size:.74rem;font-weight:700;color:#8A6B4A;line-height:1.3}
+.ch-vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ch-vbtn{padding:12px 8px;border-radius:14px;border:2px solid #DFE6E9;background:#fff;font-weight:800;font-family:inherit;cursor:pointer;font-size:.9rem}
+.ch-vbtn:active{transform:scale(.97)}
+.ch-vbtn.eject{border-color:#E74C3C;color:#B71C1C;background:#FFF1F0}
+.ch-vbtn.keep{border-color:#00B894;color:#00695C;background:#E8FFF6}
+.ch-vstat{text-align:center;font-weight:800;font-size:.8rem;color:#636E72}
+.ch-chat{display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto}
+.ch-chat div{background:#fff;border-radius:10px;padding:5px 9px;font-size:.8rem;font-weight:700;color:var(--ink)}
+.ch-chat div b{color:var(--violet-d)}
+.ch-quick{display:flex;flex-wrap:wrap;gap:6px}
+.ch-quick button{border:none;background:#fff;border:2px solid #E7DEFF;border-radius:99px;padding:5px 10px;font-weight:800;font-size:.72rem;font-family:inherit;color:var(--violet-d);cursor:pointer}
+.ch-out{text-align:center;background:#2D3436;color:#fff;border-radius:14px;padding:12px;font-weight:800;font-size:.85rem;line-height:1.4}
+.ch-over{background:linear-gradient(135deg,#E8FFF6,#FFF8E6);border:2px solid #00B894;border-radius:16px;padding:14px;text-align:center}
+.ch-over h3{font-family:'Fredoka',sans-serif;font-size:1.3rem;color:#00695C;margin-bottom:8px}
+.ch-stand{display:flex;flex-direction:column;gap:5px;margin:8px 0 10px;text-align:left}
+.ch-stand div{display:flex;justify-content:space-between;gap:8px;background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;font-size:.82rem}
+.ch-stand div span:last-child{color:#636E72;font-size:.72rem;font-weight:700}
+.ch-feed{font-size:.72rem;font-weight:700;color:#8A8A9A;text-align:center;line-height:1.5}
+.ch-leave{background:#F8F9FA;color:var(--violet-d);border:2px solid #DFE6E9;box-shadow:none;min-height:46px;font-size:.95rem}
+.ch-leave.big{background:linear-gradient(180deg,#9B87FF,var(--violet));color:#fff;border-color:transparent;box-shadow:0 5px 0 var(--violet-d)}
 </style>
 </head>
 <body>
@@ -1098,11 +1106,6 @@ input:focus-visible{outline:none}
         <div class="name">Scattergories</div>
         <div class="desc">Letter + categories, auto-checked</div>
       </div>
-      <div class="game-card" data-game="lastword" id="pickLastWord" style="cursor:pointer">
-        <div class="icon">🔤</div>
-        <div class="name">Link Up</div>
-        <div class="desc">Word-chain elimination · 2–6 players</div>
-      </div>
       <div class="game-card" data-game="hangman" id="pickHangman" style="cursor:pointer">
         <div class="icon">🪢</div>
         <div class="name">Hangman Race</div>
@@ -1117,6 +1120,11 @@ input:focus-visible{outline:none}
         <div class="icon">🕵️</div>
         <div class="name">Spy Word</div>
         <div class="desc">Bluff, clue, vote out the spy</div>
+      </div>
+      <div class="game-card" data-game="chain" id="pickChain" style="cursor:pointer;grid-column:1/-1">
+        <div class="icon">🔗</div>
+        <div class="name">Word Chain</div>
+        <div class="desc">Last letter becomes the next first letter · elimination · 2–6 players</div>
       </div>
       <div class="game-card" data-game="board" id="pickBoard" style="cursor:pointer">
         <div class="icon">🐍</div>
@@ -1217,73 +1225,6 @@ input:focus-visible{outline:none}
     </div>
     <div class="scat-cats" id="scatCats"></div>
     <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
-  </div>
-</section>
-
-<!-- LINK UP: independent elimination game screen -->
-<section id="screen-lastword" class="screen">
-  <div class="game-top">
-    <button class="btn btn-ghost" id="lastWordLeave" style="width:auto;min-height:40px;padding:8px 12px;font-size:.82rem">← Leave</button>
-    <div class="lastword-round-label" id="lastWordRoundLabel">LINK UP</div>
-    <div class="lastword-clock" id="lastWordClock">20</div>
-  </div>
-  <div class="lastword-hero card">
-    <div class="lastword-eyebrow">RANDOM CATEGORY</div>
-    <div class="lastword-category" id="lastWordCategory">Loading category…</div>
-    <div class="lastword-seed-label">THE SYSTEM STARTED WITH</div>
-    <div class="lastword-seed" id="lastWordSeed">—</div>
-    <div class="lastword-chain-hint">Every answer must fit the category and begin with the highlighted letter.</div>
-    <div class="lastword-required-row">
-      <span>YOUR FIRST LETTER</span>
-      <strong id="lastWordRequired">?</strong>
-    </div>
-  </div>
-  <div class="lastword-turn card">
-    <div class="lastword-turn-top">
-      <div>
-        <div class="lastword-eyebrow">CURRENT TURN</div>
-        <div class="lastword-turn-name" id="lastWordTurnName">Waiting…</div>
-      </div>
-      <div class="lastword-active-count" id="lastWordActiveCount">0 ACTIVE</div>
-    </div>
-    <div class="lastword-input-wrap" id="lastWordInputWrap">
-      <label for="lastWordAnswer">Your word</label>
-      <input type="text" id="lastWordAnswer" maxlength="40" placeholder="Type a word…" autocomplete="off" autocapitalize="none">
-      <div class="lastword-feedback" id="lastWordFeedback" aria-live="polite">Waiting for your turn.</div>
-      <button class="btn btn-primary" id="lastWordSubmit">CHECK WORD</button>
-      <button class="btn btn-mint" id="lastWordPass" style="display:none">PASS TO NEXT PLAYER →</button>
-    </div>
-    <div class="lastword-spectator" id="lastWordSpectator" style="display:none">👀 You’re spectating. Watch the remaining players battle for the final spot.</div>
-  </div>
-  <div class="lastword-challenge card" id="lastWordChallenge" style="display:none">
-    <div class="lastword-challenge-title">⚖️ CHALLENGE THIS ANSWER</div>
-    <div class="lastword-challenge-answer" id="lastWordChallengeAnswer"></div>
-    <div class="lastword-challenge-note" id="lastWordChallengeNote">The checker is unsure. Discuss it, then vote.</div>
-    <div class="lastword-chat" id="lastWordChat"></div>
-    <div class="lastword-chat-compose">
-      <input type="text" id="lastWordChatInput" maxlength="180" placeholder="Discuss the answer…">
-      <button type="button" id="lastWordChatSend">Send</button>
-    </div>
-    <div class="lastword-vote-actions" id="lastWordVoteActions">
-      <button class="btn btn-mint" id="lastWordKeep">✓ KEEP ANSWER</button>
-      <button class="btn btn-gold" id="lastWordEject">✕ EJECT PLAYER</button>
-    </div>
-    <div class="lastword-vote-status" id="lastWordVoteStatus"></div>
-  </div>
-  <div class="lastword-players card">
-    <div class="lastword-section-head"><b>PLAYERS</b><span>Eliminated players can spectate</span></div>
-    <div id="lastWordPlayers"></div>
-  </div>
-  <div class="lastword-history card">
-    <div class="lastword-section-head"><b>WORD CHAIN</b><span id="lastWordUsedCount">1 word used</span></div>
-    <div id="lastWordHistory"></div>
-  </div>
-  <div class="lastword-finish card" id="lastWordFinish" style="display:none">
-    <div class="lastword-winner-cup">🏆</div>
-    <div class="lastword-winner-title" id="lastWordWinnerTitle">Winner!</div>
-    <div class="lastword-winner-sub" id="lastWordWinnerSub">Last player standing</div>
-    <button class="btn btn-primary" id="lastWordPlayAgain" style="display:none">PLAY AGAIN</button>
-    <button class="btn btn-ghost" id="lastWordBackLobby">BACK TO LOBBY</button>
   </div>
 </section>
 
@@ -1470,6 +1411,55 @@ input:focus-visible{outline:none}
   </div>
 </section>
 
+<section id="screen-chain" class="screen">
+  <div class="game-top">
+    <div class="timer" id="chTimerRing"><span id="chTimerText">20</span></div>
+    <div class="ch-cat" id="chCatChip">🔗 Word Chain</div>
+    <button class="snd-btn" id="btnSoundChain" title="Toggle sound">🔊</button>
+  </div>
+  <div class="card ch-card">
+    <div class="ch-roster" id="chRoster"></div>
+    <div class="ch-meta" id="chMeta"></div>
+    <div class="ch-trail" id="chTrail"></div>
+    <div class="ch-undecided" id="chUndecided" style="display:none"></div>
+    <div class="ch-turn" id="chTurn">
+      <div class="ch-letter" id="chLetter">A</div>
+      <div style="min-width:0"><div class="ch-banner" id="chBanner">…</div><div class="ch-sub" id="chSub"></div></div>
+    </div>
+    <div class="spy-clue-form" id="chForm" style="display:none">
+      <input type="text" id="chInput" placeholder="Type your word…" maxlength="30" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="send">
+      <button class="btn btn-mint" id="btnChainSend" style="width:auto;min-width:90px;min-height:48px;padding:10px 14px">Send</button>
+    </div>
+    <div class="ch-msg" id="chMsg"></div>
+    <button class="btn btn-mint" id="btnChainPass" style="display:none">Pass to next player ➡️</button>
+    <button class="btn ch-chal" id="btnChainChallenge" style="display:none">⚖️ Challenge this word</button>
+    <div class="ch-vote" id="chVote" style="display:none">
+      <div id="chVoteInfo"></div>
+      <div class="ch-vbtns" id="chVoteBtns"></div>
+      <div class="ch-vstat" id="chVoteStat"></div>
+      <div class="ch-chat" id="chChatList"></div>
+      <div class="ch-quick" id="chQuick">
+        <button type="button" data-q="That fits 👍">That fits 👍</button>
+        <button type="button" data-q="Doesn’t fit 🤔">Doesn’t fit 🤔</button>
+        <button type="button" data-q="Not a real word ❌">Not a real word ❌</button>
+      </div>
+      <div class="spy-clue-form">
+        <input type="text" id="chChatInput" placeholder="Discuss…" maxlength="120" autocomplete="off">
+        <button class="btn btn-gold" id="btnChainChat" style="width:auto;min-width:80px;min-height:48px;padding:10px 14px">Send</button>
+      </div>
+    </div>
+    <div class="ch-out" id="chOutBanner" style="display:none"></div>
+    <div class="ch-over" id="chOver" style="display:none">
+      <h3 id="chOverTitle">Game over</h3>
+      <div class="ch-stand" id="chStand"></div>
+      <button class="btn btn-gold" id="btnChainAgain" style="display:none">🔁 Play again</button>
+      <p class="sub" id="chOverWait" style="margin:6px 0 0;display:none">Waiting for the host to start a new game…</p>
+    </div>
+    <div class="ch-feed" id="chFeed"></div>
+    <button class="btn ch-leave" id="btnChainLeave">Leave game</button>
+  </div>
+</section>
+
 <section id="screen-town" class="screen">
   <div id="townCv"></div>
   <div class="tn-top"><button class="tn-b" id="tnBack" aria-label="Back">←</button><div class="tn-t" id="tnEra">🎣 Fishing Village</div><div class="tn-stats" id="tnStats"></div><button class="tn-b" id="tnSnd" aria-label="Sound">🔊</button></div>
@@ -1507,7 +1497,7 @@ const auth=firebase.auth(),db=firebase.database();
 let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
 db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
 const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='lastword')return 6;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='chain')return 6;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -3288,11 +3278,11 @@ document.addEventListener('click',e=>{
 const GAME_META = {
   boggle:  { title:'🎲 Boggle', sub:'Shake the tray and find words on a 4×4 grid with friends.' },
   scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
-  lastword:{ title:'🔤 Link Up', sub:'Word-chain elimination · 2–6 players · last player standing wins.' },
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Play solo or with up to 5 friends. Roll the dice, answer trivia, dodge the snakes!' },
-  spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' }
+  spy:     { title:'🕵️ Spy Word', sub:'One player is the spy. Give clues, then vote — or the spy guesses the word.' },
+  chain:   { title:'🔗 Word Chain', sub:'A category is picked, the system says the first word, then each player answers with a word that starts with the last letter. Run out of time and you are out — last one standing wins.' }
 };
 
 function openMatchmaking(game){
@@ -3471,7 +3461,7 @@ function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=co
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='lastword'?'2–6 players · Link Up · Elimination':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
@@ -3858,6 +3848,7 @@ function joinFriendRoom(fid){
 })();
 
 function leaveRoom(){
+  try{ if(typeof chainOnLeave==='function') chainOnLeave(); }catch(e){}   // Word Chain: leaving mid-game = eliminated
   socialDetach();
   if(roomId&&user){try{const _g=(roomData&&roomData.gameType)||selectedGame,_p='rooms/'+roomId+'/players/'+user.uid;db.ref(_p).onDisconnect().cancel();db.ref(_p+'/online').onDisconnect().cancel();db.ref('lobbyIndex/'+_g+'/'+roomId).onDisconnect().cancel()}catch(e){}}
   discKey='';discN=-1;
@@ -3879,7 +3870,6 @@ function leaveRoom(){
     });
   }
   if(roomId)db.ref('rooms/'+roomId).off();
-  lastWordStopWatch();
   roomId=null;roomData=null;isHost=false;
   clearInterval(timerInterval);stopBoardFx();
   show('screen-lobby');
@@ -3978,62 +3968,6 @@ async function beginRound(){
   // Room is no longer open for joining
   db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
 
-  if(gameType === 'lastword'){
-    const ids = Object.keys(roomData.players || {});
-    if(ids.length < 2){ toast('Link Up needs at least 2 players'); return; }
-    if(ids.length > 6){ toast('Link Up supports up to 6 players'); return; }
-    const order = ids.slice();
-    for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
-    // Link Up uses matched category/seed pairs. Never choose a generic seed
-    // independently from the category: the opening word must itself fit.
-    const linkUpOpeners = [
-      ['A hobby','KNITTING'],
-      ['A sport or game','CHESS'],
-      ['A school subject','HISTORY'],
-      ['A holiday or celebration','HALLOWEEN'],
-      ['A color','PURPLE'],
-      ['A body part','ELBOW'],
-      ['A brand or company','GOOGLE'],
-      ['Something you do every day','SLEEP'],
-      ['A feeling or emotion','ANGER'],
-      ['A musical instrument','GUITAR'],
-      ['A toy','YOYO'],
-      ['A tool','HAMMER'],
-      ['A type of transport','BICYCLE'],
-      ['A drink','COFFEE'],
-      ['A dessert or sweet','BROWNIE'],
-      ['An animal','TIGER'],
-      ['A fruit or vegetable','APPLE'],
-      ['A country','CANADA'],
-      ['A city','LONDON'],
-      ['A movie or TV show','FRIENDS'],
-      ['Something you wear','JACKET'],
-      ['A food','PIZZA'],
-      ['A bird','EAGLE'],
-      ['A pet','HAMSTER']
-    ];
-    const [category, seedWord] = linkUpOpeners[Math.floor(Math.random()*linkUpOpeners.length)];
-    const now = srvNow();
-    const lw = {
-      category, seedWord, required:seedWord.slice(-1).toUpperCase(),
-      order, turnUid:order[0], turnStartedAt:now, turnEndsAt:now+20000,
-      used:{[seedWord.toLowerCase()]:true},
-      history:[{word:seedWord,uid:'system',name:'SYSTEM',seed:true,at:now}],
-      eliminated:{}, pending:null, winnerUid:null, status:'playing', turnNumber:1
-    };
-    const updates = {status:'playing',lastword:lw,board:null,letter:null,categories:null,hangWord:null,drawWord:null,endsAt:now+3600000,startedAt:now,endedAt:null};
-    ids.forEach(uid=>{
-      updates['players/'+uid+'/score']=0;
-      updates['players/'+uid+'/words']={};
-      updates['players/'+uid+'/answers']={};
-      updates['players/'+uid+'/lastwordEliminated']=false;
-    });
-    resetRoundState();
-    try{ await db.ref('rooms/'+roomId).update(updates); }
-    catch(e){ toast('Could not start Link Up: '+e.message); }
-    return;
-  }
-
   if(gameType === 'scatter'){
     const letter = randomLetter(false);
     const seed = roomId + '_' + srvNow();
@@ -4103,6 +4037,39 @@ async function beginRound(){
     try{await db.ref('rooms/'+roomId).update(up)}catch(e){toast('Could not start: '+e.message)}
     return;
   }
+  if(gameType === 'chain'){
+    const ids = Object.keys(roomData.players || {});
+    if(ids.length < CHAIN_MIN_PLAYERS){ toast('Word Chain needs at least 2 players'); return; }
+    const cat = pickChainCategory();
+    const first = pickChainFirstWord(cat);              // always a word from the shuffled category
+    const now = srvNow();
+    const order = ids.slice();
+    for(let i=order.length-1;i>0;i--){ const j = drawRandInt(i+1); const t = order[i]; order[i] = order[j]; order[j] = t; }
+    const names = {};
+    ids.forEach(u => { const p = roomData.players[u] || {}; names[u] = {n:p.name||'Player', a:p.avatar||'🙂'}; });
+    const chain = {
+      gid: now+'_'+Math.floor(Math.random()*1e6),
+      cat: {id:cat.id, name:cat.name, emoji:cat.emoji},
+      spinAt: now, spinMs: CHAIN_SPIN_MS,
+      order, names, out: {},
+      words: [{w:first, u:'sys', v:'ok', n:'Starting word'}],
+      letter: chLastLetter(first), turn: order[0], phase: 'answer',
+      deadline: now + CHAIN_SPIN_MS + CHAIN_TURN_SECONDS*1000,
+      turnNo: 1, chN: 0, logN: 1,
+      log: [{id:1, t:'🔗 Word Chain — category: '+cat.name+' · first word: '+first}]
+    };
+    const updates = {
+      status:'playing', chain, chainChat:null,
+      board:null, letter:null, categories:null, hangWord:null, drawWord:null,
+      endsAt:null, startedAt:now, endedAt:null
+    };
+    ids.forEach(u => { updates['players/'+u+'/score'] = 0; updates['players/'+u+'/words'] = {}; updates['players/'+u+'/answers'] = {}; });
+    resetRoundState();
+    try{ await db.ref('rooms/'+roomId).update(updates); }
+    catch(e){ toast('Could not start: '+e.message); }
+    return;
+  }
+
   if(gameType === 'spy'){
     const playerIds = Object.keys(roomData.players || {});
     if(playerIds.length < 3){ toast('Spy Word needs at least 3 players'); return; }
@@ -6225,6 +6192,590 @@ document.addEventListener('keydown', e => {
 });
 
 
+/* =====================================================================
+   WORD CHAIN  ·  2–6 players · elimination · last player standing wins
+   - A random category is picked (same animated reel as Sketch Race).
+   - The system says the first word (always from that category).
+   - Each player must say a word from the category that STARTS with the LAST letter of the previous word.
+   - Words are checked by the same fact-checker Scattergories uses (built-in lists + Wikidata + Datamuse).
+   - Valid word -> "Pass to next player". Run out of time (or get voted out) -> eliminated (can keep watching).
+   - A word can never be used twice in one game (a new game resets the list).
+   - Undecided ("maybe") words can be challenged by anyone -> everyone votes eject / keep.
+   All game state lives in ONE node (rooms/<code>/chain) and every change is a transaction, so
+   two phones can never step on each other.
+   ===================================================================== */
+const CHAIN_MIN_PLAYERS = 2, CHAIN_TURN_SECONDS = 20, CHAIN_GRACE = 1500, CHAIN_PASS_MS = 12000, CHAIN_VOTE_SECONDS = 25, CHAIN_SPIN_MS = 4800;
+
+// Sketch Race category -> which Scattergories fact-check categories can confirm a word for it
+const CHAIN_VERIFY = {
+  animals:['An animal'], food:['A food','A drink'], fruitveg:['A fruit or vegetable'],
+  home:['Something you find in a house'], school:['Something you find at school'], sports:['A sport or game'],
+  vehicles:['A type of transport'], nature:['A plant or flower','A type of weather','Something in a forest'],
+  music:['A musical instrument'], fantasy:[], space:[], jobs:['A job or occupation'],
+  clothes:['Something you wear'], places:['A type of building','A city','A country'], toys:['A toy'],
+  tools:['A tool'], body:['A body part'], party:['Things at a party','A holiday or celebration'],
+  camping:['Something you take on a trip'], ocean:['Something in the ocean','A sea creature','Something you find at the beach']
+};
+
+let chainInt = null, chainBusy = false, chainSeenLog = 0, chainFired = {key:'',at:0};
+let chainTurnKey = '', chainSpinKey = '', chainPrevWords = -1, chainPrevPhase = '', chainWasOut = false, chainLastTick = -1;
+const CHAIN_CATSEEN_KEY = 'chainSeenCatsV1';
+let CHAIN_CATSEEN = [];
+try{ CHAIN_CATSEEN = JSON.parse(localStorage.getItem(CHAIN_CATSEEN_KEY) || '[]') || []; }catch(e){ CHAIN_CATSEEN = []; }
+
+/* ---------- small helpers ---------- */
+function chNorm(s){ return String(s||'').toUpperCase().replace(/['’`]/g,'').replace(/[^A-Z ]/g,' ').replace(/\s+/g,' ').trim(); }
+function chLastLetter(s){ const m = String(s||'').toUpperCase().match(/[A-Z]/g); return m && m.length ? m[m.length-1] : 'A'; }
+function chKey(s){ return chNorm(s).replace(/ /g,''); }
+function chWords(c){ return Array.isArray(c.words) ? c.words.filter(Boolean) : Object.values(c.words||{}).filter(Boolean); }
+function chOrder(c){ return Array.isArray(c.order) ? c.order.filter(Boolean) : Object.values(c.order||{}).filter(Boolean); }
+function chAlive(c){ const out = c.out||{}; return chOrder(c).filter(u => !out[u]); }
+function chName(c,uid){ const p = (roomData&&roomData.players||{})[uid]; const n = (c.names||{})[uid]||{}; return (p&&p.name) || n.n || 'Player'; }
+function chP(c,uid){ const p = (roomData&&roomData.players||{})[uid]; const n = (c.names||{})[uid]||{}; return {name:(p&&p.name)||n.n||'Player', avatar:(p&&p.avatar)||n.a||'🙂'}; }
+function chNextAlive(c,fromUid){
+  const ord = chOrder(c), out = c.out||{}, i = ord.indexOf(fromUid);
+  for(let k=1;k<=ord.length;k++){ const u = ord[((i+k)%ord.length+ord.length)%ord.length]; if(!out[u]) return u; }
+  return null;
+}
+function chLastValidLetter(c){
+  const w = chWords(c);
+  for(let i=w.length-1;i>=0;i--){ if(!w[i].bad) return chLastLetter(w[i].w); }
+  return 'A';
+}
+// A word counts as used if the same word (or its plural / singular) was already played this game
+function chUsed(c,word){
+  const k = chKey(word), set = new Set(chWords(c).map(w => chKey(w.w)));
+  return set.has(k) || set.has(k+'S') || set.has(k+'ES') || (k.endsWith('S') && set.has(k.slice(0,-1))) || (k.endsWith('ES') && set.has(k.slice(0,-2)));
+}
+function chLog(c,txt){ c.logN = (c.logN||0)+1; c.log = (Array.isArray(c.log)?c.log:Object.values(c.log||{})).concat([{id:c.logN,t:String(txt).slice(0,160)}]).slice(-12); }
+function chEliminate(c,uid,reason,now){ c.out = c.out||{}; if(c.out[uid]) return; const place = chAlive(c).length; c.out[uid] = {at:now,r:reason,p:place}; }
+function chBeginTurn(c,uid,now){
+  c.turn = uid; c.phase = 'answer'; c.letter = chLastValidLetter(c);
+  c.deadline = now + CHAIN_TURN_SECONDS*1000; c.turnNo = (c.turnNo||0)+1;
+  c.chk = null; c.challenge = null; c.passDeadline = null; c.pauseLeft = null;
+}
+function chCheckWinner(c,now){
+  const al = chAlive(c);
+  if(al.length > 1) return false;
+  c.phase = 'over'; c.winner = al[0] || null; c.overAt = now;
+  c.deadline = null; c.passDeadline = null; c.challenge = null; c.chk = null;
+  chLog(c, c.winner ? '👑 '+chName(c,c.winner)+' is the last one standing!' : '🏁 Everyone left — game over');
+  return true;
+}
+function chVoteDecided(c){
+  const ch = c.challenge; if(!ch) return true;
+  const v = Array.isArray(ch.voters) ? ch.voters : Object.values(ch.voters||{}), n = v.length;
+  if(!n) return true;
+  let ej = 0, kp = 0;
+  v.forEach(u => { const x = (ch.votes||{})[u]; if(x==='eject') ej++; else if(x==='keep') kp++; });
+  if(ej*2 > n) return true;               // eject already has a majority
+  if((n-kp)*2 <= n) return true;          // eject can no longer reach a majority
+  return (ej+kp) >= n;                    // everybody voted
+}
+function chResolve(c,now){
+  const ch = c.challenge; if(!ch) return;
+  const v = Array.isArray(ch.voters) ? ch.voters : Object.values(ch.voters||{}), n = v.length;
+  let ej = 0; v.forEach(u => { if((ch.votes||{})[u]==='eject') ej++; });
+  const w = c.words[ch.idx], eject = ej*2 > n;
+  if(eject){
+    if(w) w.bad = true;
+    chLog(c, '⚖️ Voted out: '+chName(c,ch.target)+' — “'+(w?w.w:'')+'” rejected ('+ej+'/'+n+')');
+    chEliminate(c, ch.target, 'ejected', now);
+    c.challenge = null;
+    if(chCheckWinner(c,now)) return;
+    const holder = c.turn;
+    if(holder===ch.target || (c.out||{})[holder]) chBeginTurn(c, chNextAlive(c,holder), now);
+    else chBeginTurn(c, holder, now);       // same player, but the letter is rolled back to the last valid word
+  }else{
+    if(w) w.v = 'kept';
+    chLog(c, '✅ “'+(w?w.w:'')+'” stays — '+chName(c,ch.target)+' is safe');
+    const res = ch.resume || {}; c.challenge = null;
+    if((c.out||{})[c.turn]){ chBeginTurn(c, chNextAlive(c,c.turn), now); return; }
+    c.phase = res.phase || 'answer';
+    if(c.phase==='answer') c.deadline = now + (res.left || CHAIN_TURN_SECONDS*1000);
+    else c.passDeadline = now + (res.pass || 5000);
+  }
+}
+
+/* ---------- one atomic write helper ---------- */
+function chainTx(fn){
+  const rid = roomId;
+  if(!rid || !user) return Promise.resolve({committed:false});
+  return db.ref('rooms/'+rid+'/chain').transaction(cur => {
+    if(cur===null || cur===undefined) return null;
+    try{
+      const c = JSON.parse(JSON.stringify(cur));
+      c.words = chWords(c).slice(); c.order = chOrder(c).slice(); c.out = c.out||{};
+      c.log = Array.isArray(c.log) ? c.log : Object.values(c.log||{});
+      const r = fn(c, srvNow());
+      return r===false ? undefined : c;
+    }catch(e){ console.warn('chain tx fn', e); return undefined; }
+  }, undefined, false).catch(e => { console.warn('chain tx', e); return {committed:false}; });
+}
+
+/* ---------- category + first word ---------- */
+function pickChainCategory(){
+  const recent = new Set(CHAIN_CATSEEN.slice(-6));
+  if(roomData && roomData.chain && roomData.chain.cat) recent.add(roomData.chain.cat.id);
+  let pool = DRAW_CATS.filter(c => !recent.has(c.id));
+  if(!pool.length) pool = DRAW_CATS.slice();
+  const cat = pool[drawRandInt(pool.length)];
+  CHAIN_CATSEEN = CHAIN_CATSEEN.filter(x => x !== cat.id); CHAIN_CATSEEN.push(cat.id);
+  try{ localStorage.setItem(CHAIN_CATSEEN_KEY, JSON.stringify(CHAIN_CATSEEN.slice(-30))); }catch(e){}
+  return cat;
+}
+// The opening word ALWAYS comes from the chosen category, and ends in a letter players can realistically continue from
+function pickChainFirstWord(cat){
+  const dc = drawCatById(cat.id) || cat;
+  const all = (dc.easy||[]).concat(dc.hard||[]);
+  const starts = {}; all.forEach(w => { starts[w[0]] = (starts[w[0]]||0)+1; });
+  let pool = (dc.easy||[]).filter(w => w.length >= 3 && w.length <= 12 && (starts[chLastLetter(w)]||0) >= 3);
+  if(!pool.length) pool = all.filter(w => (starts[chLastLetter(w)]||0) >= 2);
+  if(!pool.length) pool = all;
+  return pool[drawRandInt(pool.length)];
+}
+
+/* ---------- word judge (bank first, then the Scattergories fact-checker) ---------- */
+const CHAIN_BANKS = {};
+function chainBank(catId){
+  if(!CHAIN_BANKS[catId]){
+    const dc = drawCatById(catId), s = new Set();
+    if(dc) (dc.easy||[]).concat(dc.hard||[]).forEach(w => s.add(w.replace(/ /g,'')));
+    CHAIN_BANKS[catId] = s;
+  }
+  return CHAIN_BANKS[catId];
+}
+function chainInBank(cat,word){
+  const s = chainBank(cat.id), k = chKey(word);
+  return s.has(k) || s.has(k+'S') || s.has(k+'ES') || (k.endsWith('S') && s.has(k.slice(0,-1))) || (k.endsWith('ES') && s.has(k.slice(0,-2)));
+}
+async function chainJudge(cat,word){
+  if(chainInBank(cat,word)) return {v:'ok', note:'In the '+cat.name+' list'};
+  const names = (CHAIN_VERIFY[cat.id]||[]).length ? CHAIN_VERIFY[cat.id] : [cat.name];   // unknown category text = "is it a real word / name?"
+  const tasks = names.map(n => ScatVerify.check(n, word.toLowerCase()).catch(() => ({v:'maybe',note:'The fact-checker is unreachable, so this is undecided.',offline:1})));
+  const res = await Promise.race([Promise.all(tasks), new Promise(r => setTimeout(() => r(null), 7000))]);
+  if(!res) return {v:'maybe', note:'The fact-checker took too long, so this one is undecided.'};
+  const ok = res.find(r => r && r.v==='ok');
+  if(ok) return {v:'ok', note:ok.note||''};
+  if(res.every(r => r && r.v==='no')) return {v:'no', note:res[0].note||''};
+  const m = res.find(r => r && r.v==='maybe') || res[0] || {};
+  return {v:'maybe', note:m.note||'The system could not confirm this word.'};
+}
+
+/* ---------- actions ---------- */
+function chMsg(text,kind){ const m = $('chMsg'); if(!m) return; m.textContent = text||''; m.className = 'ch-msg'+(kind?' '+kind:''); }
+async function chainSubmit(){
+  const c = roomData && roomData.chain; if(!c || !user || chainBusy) return;
+  if(c.phase!=='answer' || c.turn!==user.uid) return;
+  const input = $('chInput'), word = chNorm(input.value);
+  if(word.length < 2){ chMsg('Type a word first ✍️','bad'); return; }
+  if(word[0] !== c.letter){ chMsg('It has to start with “'+c.letter+'”.','bad'); snd('bad'); return; }
+  if(chUsed(c,word)){ chMsg('“'+word+'” was already used this game.','bad'); snd('bad'); return; }
+  const turnNo = c.turnNo, cat = c.cat, me = user.uid;
+  chainBusy = true; chMsg('🔎 Checking…',''); renderChain();
+  try{
+    // 1) reserve the turn so the clock cannot eliminate me while the fact-checker is working
+    const r1 = await chainTx((c2,now) => {
+      if(c2.phase!=='answer' || c2.turn!==me || c2.turnNo!==turnNo) return false;
+      if(now > c2.deadline + CHAIN_GRACE) return false;
+      c2.pauseLeft = Math.max(5000, c2.deadline - now);
+      c2.phase = 'checking'; c2.chk = {u:me, until:now+9000};
+      return true;
+    });
+    if(!r1.committed){ chMsg('Too slow — the clock ran out!','bad'); return; }
+    // 2) judge the word
+    let verdict;
+    try{ verdict = await chainJudge(cat, word); }
+    catch(e){ verdict = {v:'maybe', note:'The checker hit a problem, so this one is undecided.'}; }
+    if(verdict.v==='no'){
+      await chainTx((c2,now) => {
+        if(c2.phase!=='checking' || c2.turn!==me || c2.turnNo!==turnNo) return false;
+        c2.phase = 'answer'; c2.deadline = now + (c2.pauseLeft||5000); c2.chk = null; c2.pauseLeft = null; return true;
+      });
+      chMsg('❌ '+(verdict.note || 'That doesn’t fit the category.')+' Try another word!','bad'); snd('bad');
+      return;
+    }
+    // 3) commit the word
+    const r2 = await chainTx((c2,now) => {
+      if(c2.phase!=='checking' || c2.turn!==me || c2.turnNo!==turnNo) return false;
+      if(chUsed(c2,word)){ c2.phase = 'answer'; c2.deadline = now + (c2.pauseLeft||5000); c2.chk = null; return true; }
+      c2.words.push({w:word, u:me, v:verdict.v, n:String(verdict.note||'').slice(0,160)});
+      c2.phase = 'passing'; c2.passDeadline = now + CHAIN_PASS_MS; c2.deadline = null; c2.chk = null; c2.pauseLeft = null;
+      return true;
+    });
+    if(r2.committed){ input.value = ''; chMsg(verdict.v==='ok' ? '✅ '+(verdict.note||'Accepted!') : '⚠️ Accepted, but undecided — others may challenge.', verdict.v==='ok'?'good':''); snd(verdict.v==='ok'?'ok':'tap'); }
+    else chMsg('Too slow — the clock ran out!','bad');
+  }finally{
+    chainBusy = false; renderChain();
+  }
+}
+function chainPass(){
+  const me = user && user.uid; if(!me) return;
+  snd('tap');
+  chainTx((c,now) => {
+    if(c.phase!=='passing' || c.turn!==me) return false;
+    chBeginTurn(c, chNextAlive(c,me), now); return true;
+  });
+}
+function chainAutoPassTx(turnNo){
+  return chainTx((c,now) => {
+    if(c.phase!=='passing' || c.turnNo!==turnNo || now < c.passDeadline) return false;
+    chBeginTurn(c, chNextAlive(c,c.turn), now); return true;
+  });
+}
+function chainTimeoutTx(turnNo){
+  return chainTx((c,now) => {
+    if(c.turnNo!==turnNo) return false;
+    if(c.phase==='answer'){ if(now < c.deadline + CHAIN_GRACE) return false; }
+    else if(c.phase==='checking'){ if(!c.chk || now < c.chk.until) return false; }
+    else return false;
+    const uid = c.turn;
+    chLog(c, '⏰ '+chName(c,uid)+' ran out of time and is out!');
+    chEliminate(c, uid, 'time', now);
+    if(chCheckWinner(c,now)) return true;
+    chBeginTurn(c, chNextAlive(c,uid), now);
+    return true;
+  });
+}
+async function chainChallenge(){
+  const c = roomData && roomData.chain; if(!c || !user) return;
+  const me = user.uid, words = chWords(c), last = words[words.length-1];
+  if(!last || last.v!=='maybe' || last.ch || last.bad || last.u==='sys') return;
+  // jury = every player still in the room except the accused (eliminated spectators can vote too)
+  const eligible = Object.values(roomData.players||{}).filter(p => p && p.uid!==last.u && p.online!==false).map(p => p.uid);
+  if(!eligible.includes(me)) eligible.push(me);
+  if(eligible.length < 2){ toast('Nobody else is here to vote on a challenge'); return; }
+  snd('tap');
+  const r = await chainTx((c2,now) => {
+    if(c2.phase!=='answer' && c2.phase!=='passing') return false;
+    const idx = c2.words.length-1, w = c2.words[idx];
+    if(!w || w.v!=='maybe' || w.ch || w.bad || w.u==='sys' || w.u===me) return false;
+    if(c2.out[me] || c2.out[w.u]) return false;
+    w.ch = true; c2.chN = (c2.chN||0)+1;
+    const votes = {}; votes[me] = 'eject';
+    c2.challenge = {by:me, idx, target:w.u, voters:eligible, votes, until:now+CHAIN_VOTE_SECONDS*1000,
+      resume:{phase:c2.phase, left:c2.phase==='answer'?Math.max(4000,c2.deadline-now):0, pass:c2.phase==='passing'?Math.max(5000,c2.passDeadline-now):0}};
+    c2.phase = 'vote'; c2.deadline = null; c2.passDeadline = null;
+    chLog(c2, '🚨 '+chName(c2,me)+' challenged “'+w.w+'”');
+    if(chVoteDecided(c2)) chResolve(c2,now);
+    return true;
+  });
+  if(!r.committed) toast('Too late — the game already moved on');
+}
+function chainVote(choice){
+  const me = user && user.uid; if(!me) return;
+  snd('tap');
+  chainTx((c,now) => {
+    if(c.phase!=='vote' || !c.challenge) return false;
+    const ch = c.challenge, v = Array.isArray(ch.voters) ? ch.voters : Object.values(ch.voters||{});
+    if(!v.includes(me)) return false;
+    ch.votes = ch.votes||{}; if(ch.votes[me]) return false;
+    ch.votes[me] = choice;
+    if(chVoteDecided(c)) chResolve(c,now);
+    return true;
+  });
+}
+function chainVoteTimeoutTx(){
+  return chainTx((c,now) => {
+    if(c.phase!=='vote' || !c.challenge || now < c.challenge.until) return false;
+    chResolve(c,now); return true;
+  });
+}
+function chainSendChat(text){
+  const c = roomData && roomData.chain; if(!c || !user || !roomId) return;
+  text = String(text||'').trim().slice(0,120); if(!text) return;
+  db.ref('rooms/'+roomId+'/chainChat').push({u:user.uid, n:(profile&&profile.name)||'Player', t:text, ch:c.chN||0, at:srvNow()}).catch(()=>{});
+}
+// Called from leaveRoom(): leaving mid-game = eliminated (so nobody waits on an empty seat)
+function chainOnLeave(){
+  if(!roomData || roomData.gameType!=='chain' || !roomData.chain || !roomId || !user) return;
+  const me = user.uid, c0 = roomData.chain;
+  if(c0.phase==='over' || !chOrder(c0).includes(me)) return;
+  if((c0.out||{})[me] && c0.phase!=='vote') return;
+  chainTx((c,now) => {
+    if(c.phase==='over') return false;
+    const alreadyOut = !!c.out[me];
+    let wasTarget = false;
+    if(c.phase==='vote' && c.challenge){
+      const ch = c.challenge;
+      ch.voters = (Array.isArray(ch.voters) ? ch.voters : Object.values(ch.voters||{})).filter(u => u!==me);
+      if(ch.votes) delete ch.votes[me];
+      wasTarget = ch.target===me;
+    }
+    if(alreadyOut){ if(c.phase==='vote' && chVoteDecided(c)) chResolve(c,now); return true; }
+    const wasTurn = c.turn===me;
+    chLog(c, '🚪 '+chName(c,me)+' left the game');
+    chEliminate(c, me, 'left', now);
+    if(chCheckWinner(c,now)) return true;
+    if(c.phase==='vote' && c.challenge){
+      if(wasTarget){
+        const w = c.words[c.challenge.idx]; if(w) w.bad = true;
+        const holder = c.turn; c.challenge = null;
+        chBeginTurn(c, (holder===me || c.out[holder]) ? chNextAlive(c,holder) : holder, now);
+      }else if(chVoteDecided(c)) chResolve(c,now);
+    }else if(wasTurn){
+      chBeginTurn(c, chNextAlive(c,me), now);
+    }
+    return true;
+  });
+}
+
+/* ---------- category reel (same look as Sketch Race, own text) ---------- */
+function maybeShowChainSpin(){
+  const c = roomData && roomData.chain; if(!c || !c.spinAt || !c.cat) return;
+  const key = roomId+'|'+c.gid;
+  if(chainSpinKey === key) return;
+  chainSpinKey = key;
+  const total = c.spinMs || CHAIN_SPIN_MS, left = total - (srvNow() - c.spinAt);
+  if(left < 700) return;
+  runChainCatSpin(c.cat, left, chWords(c)[0] ? chWords(c)[0].w : '');
+}
+function runChainCatSpin(cat, ms, firstWord){
+  const old = document.getElementById('chainCatOverlay'); if(old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'chainCatOverlay'; ov.className = 'dcat-ov';
+  ov.innerHTML = '<div class="dcat-card"><div class="dcat-title">🔗 Choosing your category…</div>'
+    + '<div class="dcat-reel"><div class="dcat-emoji" id="chcEmoji">🎲</div><div class="dcat-name" id="chcName">Get ready!</div></div>'
+    + '<div class="dcat-sub" id="chcSub">Every word this game must fit the category that lands</div></div>';
+  document.body.appendChild(ov);
+  const emojiEl = ov.querySelector('#chcEmoji'), nameEl = ov.querySelector('#chcName'), subEl = ov.querySelector('#chcSub'), reel = ov.querySelector('.dcat-reel');
+  const t0 = Date.now(), revealAt = Math.max(900, ms - 1700);
+  let delay = 70, lastId = '', done = false;
+  const step = () => {
+    if(done || !document.body.contains(ov)) return;
+    const el = Date.now() - t0;
+    if(el >= revealAt){
+      done = true;
+      emojiEl.textContent = cat.emoji; nameEl.textContent = cat.name;
+      reel.classList.remove('spin'); reel.classList.add('land');
+      ov.querySelector('.dcat-title').textContent = '✨ Your category is…';
+      subEl.textContent = firstWord ? 'The system starts with “'+firstWord+'” — next word must start with “'+chLastLetter(firstWord)+'”' : 'Good luck!';
+      try{ snd('big'); }catch(e){}
+      setTimeout(() => { ov.classList.add('out'); setTimeout(() => ov.remove(), 400); }, Math.max(700, ms - (Date.now() - t0)));
+      return;
+    }
+    let c2, guard = 0;
+    do{ c2 = DRAW_CATS[Math.floor(Math.random()*DRAW_CATS.length)]; guard++; }while((c2.id===lastId || c2.id===cat.id) && guard < 12);
+    lastId = c2.id; emojiEl.textContent = c2.emoji; nameEl.textContent = c2.name;
+    reel.classList.add('spin');
+    try{ snd('tick'); }catch(e){}
+    delay = Math.min(360, delay*1.1 + 4);
+    setTimeout(step, delay);
+  };
+  step();
+}
+
+/* ---------- screen ---------- */
+function enterChain(){
+  const c = roomData && roomData.chain; if(!c) return;
+  roundEnded = false; chainBusy = false; chainTurnKey = ''; chainPrevWords = -1; chainPrevPhase = ''; chainWasOut = false; chainLastTick = -1;
+  chainSeenLog = (Array.isArray(c.log) ? c.log : Object.values(c.log||{})).reduce((m,l) => Math.max(m, l&&l.id||0), 0);
+  const inp = $('chInput'); if(inp) inp.value = '';
+  chMsg('','');
+  const sb = $('btnSoundChain'); if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; }
+  show('screen-chain');
+  try{ const names = CHAIN_VERIFY[c.cat&&c.cat.id] || []; ScatVerify.warm(names); }catch(e){}
+  renderChain();
+  maybeShowChainSpin();
+  clearInterval(chainInt); chainInt = setInterval(chainTick, 250); chainTick();
+  snd('go');
+}
+
+function renderChain(){
+  if(!roomData || !roomData.chain || !user) return;
+  const c = roomData.chain, me = user.uid, out = c.out||{}, order = chOrder(c), words = chWords(c);
+  const over = c.phase==='over', meIn = order.includes(me), meOut = !!out[me] || !meIn;
+  const alive = chAlive(c), last = words[words.length-1];
+  const isMe = c.turn===me, holder = c.turn ? chP(c,c.turn) : {name:'',avatar:''};
+
+  // header + roster + meta
+  $('chCatChip').textContent = c.cat ? c.cat.emoji+' '+c.cat.name : '🔗 Word Chain';
+  $('chRoster').innerHTML = order.map(uid => {
+    const p = chP(c,uid), isOut = !!out[uid], turn = !over && !isOut && c.turn===uid && c.phase!=='vote', win = over && c.winner===uid;
+    return `<div class="ch-p${uid===me?' me':''}${isOut?' out':''}${turn?' turn':''}${win?' win':''}"><span class="av">${esc(p.avatar)}</span><span class="nm">${esc(p.name)}</span><span>${win?'👑':isOut?'💀':turn?'🎯':''}</span></div>`;
+  }).join('');
+  const validCount = words.filter(w => !w.bad && w.u!=='sys').length;
+  $('chMeta').textContent = '🔗 '+validCount+' word'+(validCount===1?'':'s')+' so far · 🧍 '+alive.length+' still in';
+
+  // word trail
+  const shown = words.slice(-8), startIdx = words.length - shown.length;
+  const trail = $('chTrail');
+  trail.innerHTML = (startIdx>0 ? '<div class="ch-more">… '+startIdx+' earlier word'+(startIdx>1?'s':'')+'</div>' : '') + shown.map((w,i) => {
+    const sys = w.u==='sys', isLast = i===shown.length-1;
+    const t = String(w.w||''), a = t.charAt(0), mid = t.slice(1,-1), z = t.slice(-1);
+    const flag = w.bad ? '<span class="flag">🚫 rejected</span>' : w.v==='kept' ? '<span class="flag">⚖️ kept</span>' : w.v==='maybe' ? '<span class="flag">⚠️ undecided</span>' : '';
+    return `<div class="ch-w${sys?' sys':''}${isLast&&!w.bad?' new':''}${w.v==='maybe'&&!w.bad?' maybe':''}${w.v==='kept'?' kept':''}${w.bad?' bad':''}"><span class="who">${sys?'🤖':esc(chP(c,w.u).avatar)}</span><span class="wd"><b>${esc(a)}</b>${esc(mid)}<i>${esc(z)}</i></span>${flag}</div>`;
+  }).join('');
+  trail.scrollTop = trail.scrollHeight;
+
+  // undecided note under the trail
+  const un = $('chUndecided');
+  if(last && last.v==='maybe' && !last.bad && !last.ch && !over){
+    un.style.display = 'block';
+    un.innerHTML = '⚠️ <b>Undecided:</b> '+esc(last.n || 'The system couldn’t confirm this word.')+(last.u!==me && !meOut ? ' Think it doesn’t belong? Challenge it below.' : '');
+  }else un.style.display = 'none';
+
+  // letter tile + banner
+  const tileLetter = (c.phase==='answer'||c.phase==='checking') ? c.letter : chLastLetter(last ? last.w : 'A');
+  const lt = $('chLetter');
+  if(lt.textContent !== tileLetter){ lt.textContent = tileLetter; lt.classList.remove('pop'); void lt.offsetWidth; lt.classList.add('pop'); }
+  $('chTurn').style.display = over ? 'none' : 'flex';
+  let banner = '', sub = '';
+  if(c.phase==='answer'){
+    banner = isMe ? '🎯 Your turn!' : '⏳ '+holder.name+'’s turn';
+    sub = isMe ? 'Say a '+(c.cat?c.cat.name:'')+' word starting with “'+c.letter+'”' : 'Waiting for '+holder.name+'… (next word starts with “'+c.letter+'”)';
+  }else if(c.phase==='checking'){
+    banner = isMe ? '🔎 Checking your word…' : '🔎 '+holder.name+' answered — checking…'; sub = 'Hang tight';
+  }else if(c.phase==='passing'){
+    banner = isMe ? '✅ Nice one!' : '✅ '+holder.name+' got it'; sub = isMe ? 'Pass the turn — next word starts with “'+tileLetter+'”' : 'Passing to the next player…';
+  }else if(c.phase==='vote'){
+    banner = '⚖️ Challenge!'; sub = 'Vote below — a majority is needed to eject';
+  }
+  $('chBanner').textContent = banner; $('chSub').textContent = sub;
+
+  // answer form / pass / challenge
+  const showForm = !over && !meOut && isMe && (c.phase==='answer' || c.phase==='checking');
+  $('chForm').style.display = showForm ? 'flex' : 'none';
+  const canType = showForm && c.phase==='answer' && !chainBusy;
+  $('chInput').disabled = !canType; $('btnChainSend').disabled = !canType;
+  const key = (c.turnNo||0)+'|'+(c.chN||0);
+  if(showForm && c.phase==='answer' && key!==chainTurnKey){
+    chainTurnKey = key; $('chInput').value = ''; chMsg('','');
+    snd('go'); try{ if(navigator.vibrate) navigator.vibrate(60); }catch(e){}
+    setTimeout(() => { try{ $('chInput').focus(); }catch(e){} }, 120);
+  }
+  if(!showForm && !chainBusy && c.phase!=='passing' && c.phase!=='checking') chMsg('','');   // the author keeps their ✅ note while passing
+  $('btnChainPass').style.display = (!over && !meOut && c.phase==='passing' && isMe) ? 'flex' : 'none';
+  const jurySize = last ? Object.values(roomData.players||{}).filter(p => p && p.uid!==last.u && p.online!==false).length : 0;
+  const canChal = !over && !meOut && (c.phase==='answer' || c.phase==='passing') && last && last.v==='maybe' && !last.ch && !last.bad && last.u!=='sys' && last.u!==me && !out[last.u] && jurySize >= 2;
+  $('btnChainChallenge').style.display = canChal ? 'flex' : 'none';
+  if(last && last.v==='maybe' && !last.ch && !last.bad && last.u!=='sys' && last.u!==me && !meOut && !over && jurySize < 2) un.innerHTML += ' <i>(Only two of you are here, so there’s nobody to vote — undecided words get the benefit of the doubt.)</i>';
+
+  // challenge vote panel
+  const vp = $('chVote');
+  if(c.phase==='vote' && c.challenge){
+    const ch = c.challenge, w = words[ch.idx] || {w:'',n:''}, voters = Array.isArray(ch.voters) ? ch.voters : Object.values(ch.voters||{}), votes = ch.votes||{};
+    const tp = chP(c,ch.target), bp = chP(c,ch.by);
+    vp.style.display = 'flex';
+    $('chVoteInfo').innerHTML = `<div class="ch-vq"><b>${esc(bp.name)}</b> challenged <b>${esc(tp.name)}</b>’s word</div><div class="ch-vword">${esc(w.w)}</div><div class="ch-vnote">${esc(w.n||'')}</div>`;
+    let ej = 0, kp = 0; voters.forEach(u => { if(votes[u]==='eject') ej++; else if(votes[u]==='keep') kp++; });
+    const myVote = votes[me], canVote = voters.includes(me) && !myVote;
+    $('chVoteBtns').innerHTML = canVote ? `<button type="button" class="ch-vbtn eject" data-v="eject">🚪 Eject ${esc(tp.name)}</button><button type="button" class="ch-vbtn keep" data-v="keep">✅ Keep ${esc(tp.name)}</button>` : '';
+    let stat = '🚪 Eject '+ej+' · ✅ Keep '+kp+' · waiting on '+Math.max(0,voters.length-ej-kp)+' · need '+(Math.floor(voters.length/2)+1)+' to eject';
+    if(myVote) stat = 'You voted to '+(myVote==='eject'?'eject':'keep')+'. ' + stat;
+    else if(me===ch.target) stat = 'It’s your word — the others decide. Make your case in the chat! 😅 · ' + stat;
+    else if(!voters.includes(me)) stat = 'You can watch and chat. · ' + stat;
+    $('chVoteStat').textContent = stat;
+    const chat = Object.values(roomData.chainChat||{}).filter(m => m && m.ch===(c.chN||0)).sort((a,b) => (a.at||0)-(b.at||0)).slice(-20);
+    const cl = $('chChatList'), atBottom = cl.scrollTop + cl.clientHeight >= cl.scrollHeight - 8;
+    cl.innerHTML = chat.map(m => `<div><b>${esc(m.n||'Player')}:</b> ${esc(m.t||'')}</div>`).join('');
+    if(atBottom) cl.scrollTop = cl.scrollHeight;
+  }else vp.style.display = 'none';
+
+  // eliminated banner
+  const ob = $('chOutBanner');
+  if(!over && meOut && meIn){
+    ob.style.display = 'block';
+    ob.innerHTML = '💀 You’re out!<br><span style="font-weight:700;opacity:.85">Keep watching until the last player standing is declared — or leave and play a different game.</span>';
+  }else ob.style.display = 'none';
+
+  // game over
+  const ov = $('chOver');
+  if(over){
+    ov.style.display = 'block';
+    $('chOverTitle').textContent = c.winner ? (c.winner===me ? '🏆 You’re the last one standing!' : '👑 '+chP(c,c.winner).name+' wins!') : '🏁 Game over';
+    const rows = order.map(uid => ({uid, place: uid===c.winner ? 1 : ((out[uid]&&out[uid].p)||99), why: uid===c.winner ? 'Last one standing' : ({time:'Ran out of time',ejected:'Voted out',left:'Left the game'}[out[uid]&&out[uid].r]||'Out')})).sort((a,b) => a.place-b.place);
+    $('chStand').innerHTML = rows.map(r => `<div><span>${r.place===1?'👑':r.place+'.'} ${esc(chP(c,r.uid).avatar)} ${esc(chP(c,r.uid).name)}${r.uid===me?' (you)':''}</span><span>${esc(r.why)}</span></div>`).join('') + `<div><span>🔗 Words played</span><span>${validCount}</span></div>`;
+    const hostGone = !(roomData.players||{})[roomData.hostUid];
+    const canAgain = isHostNow() || hostGone;
+    $('btnChainAgain').style.display = canAgain ? 'flex' : 'none';
+    $('chOverWait').style.display = canAgain ? 'none' : 'block';
+  }else ov.style.display = 'none';
+
+  // feed (last few events) + toast for fresh ones
+  const log = (Array.isArray(c.log) ? c.log : Object.values(c.log||{})).filter(Boolean);
+  $('chFeed').innerHTML = log.slice(-4).reverse().map(l => esc(l.t)).join('<br>');
+  const fresh = log.filter(l => l.id > chainSeenLog);
+  if(fresh.length){ chainSeenLog = Math.max(chainSeenLog, ...fresh.map(l => l.id)); if(chainPrevPhase) toast(fresh[fresh.length-1].t); }
+
+  // leave button wording
+  const lb = $('btnChainLeave');
+  lb.textContent = over ? '← Back to lobby' : (meOut ? '🎮 Leave & play another game' : 'Leave game');
+  lb.classList.toggle('big', meOut || over);
+
+  // sounds
+  if(chainPrevWords >= 0){
+    if(words.length > chainPrevWords && last && last.u!==me && last.u!=='sys') snd('opp');
+    if(c.phase==='vote' && chainPrevPhase!=='vote') snd('shake');
+    if(meOut && !chainWasOut && meIn) snd('bad');
+    if(over && chainPrevPhase!=='over') snd(c.winner===me ? 'win' : 'go');
+  }
+  chainPrevWords = words.length; chainPrevPhase = c.phase; chainWasOut = meOut;
+}
+
+function chainTick(){
+  if(!roomData || roomData.gameType!=='chain' || !roomId || !user){ clearInterval(chainInt); chainInt = null; return; }
+  const c = roomData.chain; if(!c) return;
+  const now = srvNow(), me = user.uid, TURN = CHAIN_TURN_SECONDS*1000;
+  const ring = $('chTimerRing'), tx = $('chTimerText');
+  let ms = 0, tot = TURN, txt = '', low = false;
+  if(c.phase==='answer'){
+    ms = Math.min(TURN, Math.max(0, c.deadline - now)); txt = (c.deadline - now > TURN) ? CHAIN_TURN_SECONDS : Math.ceil(ms/1000); low = ms > 0 && ms <= 5000;
+  }else if(c.phase==='checking'){ ms = Math.min(TURN, c.pauseLeft || TURN); txt = '🔎'; }
+  else if(c.phase==='passing'){ tot = CHAIN_PASS_MS; ms = Math.max(0, c.passDeadline - now); txt = Math.ceil(ms/1000); }
+  else if(c.phase==='vote' && c.challenge){ tot = CHAIN_VOTE_SECONDS*1000; ms = Math.max(0, c.challenge.until - now); txt = Math.ceil(ms/1000); }
+  else{ ms = 0; txt = '🏁'; }
+  ring.style.setProperty('--pct', (tot ? ms/tot*100 : 0)+'%');
+  tx.textContent = txt; ring.classList.toggle('low', low);
+  if(low && c.turn===me){ const s = Math.ceil(ms/1000); if(s!==chainLastTick){ chainLastTick = s; snd('tick'); } } else chainLastTick = -1;
+  if(c.phase==='passing' && c.turn===me){ const b = $('btnChainPass'); if(b) b.textContent = 'Pass to next player ➡️ ('+Math.ceil(ms/1000)+')'; }
+
+  // Anyone can close an expired phase (it is idempotent) — the player on the clock first, then the host, then everyone else
+  const delay = c.turn===me ? 0 : (isHostNow() ? 700 : 1500 + (String(me).charCodeAt(0)%10)*150);
+  const key = c.phase+'|'+(c.turnNo||0)+'|'+(c.chN||0);
+  const due = (t) => {
+    if(now < t + delay) return false;
+    if(chainFired.key===key && now - chainFired.at < 4000) return false;
+    chainFired = {key, at:now}; return true;
+  };
+  if(c.phase==='answer' && due(c.deadline + CHAIN_GRACE)) chainTimeoutTx(c.turnNo);
+  else if(c.phase==='checking' && c.chk && due(c.chk.until)) chainTimeoutTx(c.turnNo);
+  else if(c.phase==='passing' && due(c.passDeadline)) chainAutoPassTx(c.turnNo);
+  else if(c.phase==='vote' && c.challenge && due(c.challenge.until)) chainVoteTimeoutTx();
+}
+
+/* ---------- wiring ---------- */
+(function chainWire(){
+  const on = (id, ev, fn) => { const el = $(id); if(el) el.addEventListener(ev, fn); };
+  on('btnChainSend','click', chainSubmit);
+  on('chInput','keydown', e => { if(e.key==='Enter'){ e.preventDefault(); chainSubmit(); } });
+  on('btnChainPass','click', chainPass);
+  on('btnChainChallenge','click', chainChallenge);
+  on('chVoteBtns','click', e => { const b = e.target.closest && e.target.closest('button[data-v]'); if(b) chainVote(b.getAttribute('data-v')); });
+  on('btnChainChat','click', () => { const i = $('chChatInput'); chainSendChat(i.value); i.value = ''; });
+  on('chChatInput','keydown', e => { if(e.key==='Enter'){ e.preventDefault(); const i = $('chChatInput'); chainSendChat(i.value); i.value = ''; } });
+  on('chQuick','click', e => { const b = e.target.closest && e.target.closest('button[data-q]'); if(b) chainSendChat(b.getAttribute('data-q')); });
+  on('btnSoundChain','click', () => { toggleSound(); const b = $('btnSoundChain'); if(b) b.textContent = soundOn ? '🔊' : '🔇'; });
+  on('btnChainLeave','click', () => {
+    const c = roomData && roomData.chain;
+    const playing = !!(c && c.phase!=='over' && user && chOrder(c).includes(user.uid) && !(c.out||{})[user.uid]);
+    if(playing && !confirm('Leave the game? You will be eliminated.')) return;
+    leaveRoom();
+  });
+  on('btnChainAgain','click', async () => {
+    if(!roomData || !roomId || !user) return;
+    const hostGone = !(roomData.players||{})[roomData.hostUid];
+    if(hostGone){
+      try{ await db.ref('rooms/'+roomId).update({hostUid:user.uid}); roomData.hostUid = user.uid; isHost = true; }
+      catch(e){ toast('Could not take over as host'); return; }
+    }
+    if(!isHostNow()) return;
+    isHost = true;
+    beginRound();
+  });
+})();
+
+
 function onRoom(snap){
   if(!snap.exists()){toast('Room closed');leaveRoom();return}
   const prevStatus=roomData?roomData.status:null;
@@ -6255,9 +6806,7 @@ function onRoom(snap){
   const drawPuzzleChanged = gt==='draw' && drawSig && drawSig !== window._lastDrawSig;
 
   if(st==='shaking'||st==='playing'){
-    if(gt==='lastword'){
-      enterLastWord();
-    } else if(gt==='hangman'){
+    if(gt==='hangman'){
       if(hangPuzzleChanged || prevStatus==='results' || prevStatus==='lobby' || prevStatus===null){
         window._lastHangSig = hangSig;
         roundEnded = false;
@@ -6289,6 +6838,15 @@ function onRoom(snap){
       } else {
         checkSpyState();
       }
+    } else if(gt==='chain'){
+      const chainGid = roomData.chain ? roomData.chain.gid : '';
+      if(chainGid && (chainGid !== window._lastChainGid || prevStatus==='results' || prevStatus==='lobby' || prevStatus===null)){
+        window._lastChainGid = chainGid;
+        roundEnded = false;
+        enterChain();
+      } else {
+        renderChain();
+      }
     } else if(!roundEnded || prevStatus==='results' || prevStatus==='lobby'){
       roundEnded = false;
       if(gt==='scatter') enterScatter();
@@ -6302,12 +6860,8 @@ function onRoom(snap){
   }
 
   if(st==='results'){
-    if(gt==='lastword'){
-      enterLastWord(true);
-    } else {
-      if(!roundEnded)finishLocalRound();
-      if(prevStatus!=='results'||$('screen-results').classList.contains('active'))showResults();
-    }
+    if(!roundEnded)finishLocalRound();
+    if(prevStatus!=='results'||$('screen-results').classList.contains('active'))showResults();
   }
 }
 
@@ -7282,365 +7836,6 @@ $('btnPlayAgain').onclick=async()=>{
 };
 
 document.body.addEventListener('touchmove',e=>{if(selecting)e.preventDefault()},{passive:false});
-
-
-/* ===== LINK UP ENGINE (standalone; does not alter other game rules) ===== */
-const LASTWORD_TURN_SECONDS = 20;
-const LASTWORD_CHALLENGE_SECONDS = 35;
-let lastWordWatch = null;
-let lastWordSubmitting = false;
-let lastWordUiKey = '';
-let lastWordLocalFeedback = '';
-
-function lastWordRef(){ return db.ref('rooms/'+roomId+'/lastword'); }
-function lastWordActiveIds(lw){
-  const players = roomData?.players || {};
-  return (lw?.order || Object.keys(players)).filter(uid => players[uid] && !(lw.eliminated||{})[uid]);
-}
-function lastWordPlayer(uid){ return roomData?.players?.[uid] || {name:'Player',avatar:'🎮'}; }
-function lastWordNorm(word){ return String(word||'').toLowerCase().replace(/[^a-z]/g,''); }
-function lastWordSetFeedback(message,kind){
-  const el=$('lastWordFeedback'); if(!el)return;
-  el.textContent=message; el.className='lastword-feedback'+(kind?' '+kind:'');
-}
-function lastWordStopWatch(){ if(lastWordWatch){clearInterval(lastWordWatch);lastWordWatch=null;} }
-
-function enterLastWord(force){
-  if(!roomData || !roomData.lastword || !user)return;
-  if(!force && $('screen-lastword').classList.contains('active')){
-    renderLastWord();
-    return;
-  }
-  lastWordStopWatch();
-  show('screen-lastword');
-  lastWordLocalFeedback='';
-  $('lastWordAnswer').value='';
-  $('lastWordAnswer').disabled=false;
-  $('lastWordSubmit').disabled=false;
-  $('lastWordSubmit').style.display='flex';
-  $('lastWordPass').style.display='none';
-  renderLastWord();
-  if(roomData.status==='playing'){
-    lastWordWatch=setInterval(lastWordTick,250);
-    lastWordTick();
-    // A separate host monitor resolves deadlines and challenge votes across all clients.
-    if(isHost) lastWordHostMonitor();
-  }else{
-    lastWordStopWatch();
-    lastWordTick();
-  }
-  const sound=$('btnSound'); if(sound)sound.textContent=soundOn?'🔊':'🔇';
-}
-
-function lastWordTick(){
-  if(!roomData || !roomData.lastword)return;
-  const lw=roomData.lastword, now=srvNow();
-  const pending=lw.pending, pendingPass=lw.pendingPass;
-  const clock=$('lastWordClock');
-  if(pendingPass){ if(clock){clock.textContent='→';clock.classList.remove('low');} return; }
-  const deadline=pending?(pending.endsAt||now):(lw.turnEndsAt||now);
-  const left=Math.max(0,Math.ceil((deadline-now)/1000));
-  if(clock){clock.textContent=left;clock.classList.toggle('low',left<=6);}
-  if(roomData.status==='playing' && isHost){
-    if(pending){
-      const eligible=lastWordActiveIds(lw).filter(uid=>uid!==pending.uid);
-      const votes=Object.keys(pending.votes||{}).length;
-      if(eligible.length>0 && votes>=eligible.length) lastWordResolveChallenge('votes');
-      else if(left<=0) lastWordResolveChallenge('timeout');
-    }else if(left<=0) lastWordEliminate(lw.turnUid,'Time ran out');
-  }
-}
-
-function renderLastWord(){
-  if(!roomData || !roomData.lastword || !user)return;
-  const lw=roomData.lastword, players=roomData.players||{};
-  const active=lastWordActiveIds(lw), pending=lw.pending||null;
-  const me=players[user.uid]||{};
-  const pendingPass=lw.pendingPass||null;
-  const isMyTurn=roomData.status==='playing' && !pending && !pendingPass && lw.turnUid===user.uid && !lw.eliminated?.[user.uid];
-  const canPass=roomData.status==='playing' && pendingPass && pendingPass.uid===user.uid;
-  const isOut=!!(lw.eliminated||{})[user.uid];
-  $('lastWordCategory').textContent=lw.category||'—';
-  $('lastWordSeed').textContent=lw.seedWord||'—';
-  $('lastWordRequired').textContent=lw.required||'?';
-  $('lastWordTurnName').textContent=roomData.status==='results'
-    ? 'Game complete'
-    : pending ? 'Challenge in progress'
-    : canPass ? 'Your answer is valid — pass it on!'
-    : pendingPass ? (lastWordPlayer(pendingPass.uid).name||'Player')+' is ready to pass'
-    : (lastWordPlayer(lw.turnUid).name||'Player')+(isMyTurn?' · YOUR TURN':'’s turn');
-  $('lastWordActiveCount').textContent=active.length+' ACTIVE';
-  $('lastWordRoundLabel').textContent='TURN '+(lw.turnNumber||1)+' · NO REPEATED WORDS';
-  const inputWrap=$('lastWordInputWrap'), spectator=$('lastWordSpectator');
-  inputWrap.style.display=isMyTurn?'block':'none';
-  $('lastWordPass').style.display=canPass?'flex':'none';
-  spectator.style.display=(!isMyTurn && !canPass && roomData.status==='playing')?'block':'none';
-  if(isOut) spectator.textContent='👀 You have been eliminated, but you can keep watching until the winner is declared — or leave to play another game.';
-  else if(pendingPass && !canPass) spectator.textContent='✓ '+(lastWordPlayer(pendingPass.uid).name||'Player')+' entered a valid word. Waiting for them to pass the turn.';
-  else if(!isMyTurn && !canPass) spectator.textContent=pending?'⚖️ Players are reviewing an uncertain answer.':'👀 Spectating — waiting for the active player to finish their turn.';
-  if(isMyTurn){
-    $('lastWordAnswer').disabled=false;
-    $('lastWordSubmit').disabled=lastWordSubmitting;
-    if(!lastWordLocalFeedback)lastWordSetFeedback('Your word must fit “'+lw.category+'”, start with '+(lw.required||'?')+', and be unused.','');
-  }
-  if(canPass)lastWordSetFeedback('✓ Valid! Press “Pass to next player” when you are ready.','good');
-  const challenge=$('lastWordChallenge');
-  challenge.style.display=pending?'block':'none';
-  if(pending){
-    const author=lastWordPlayer(pending.uid);
-    $('lastWordChallengeAnswer').textContent=(author.avatar||'🎮')+' '+(author.name||'Player')+' answered: “'+pending.word+'”';
-    $('lastWordChallengeNote').textContent=pending.note||'The verifier is unsure. Discuss it, then vote to keep or eject.';
-    const canVote=roomData.status==='playing' && !isOut && active.includes(user.uid) && user.uid!==pending.uid && !(pending.votes||{})[user.uid];
-    $('lastWordVoteActions').style.display=canVote?'grid':'none';
-    const votes=Object.values(pending.votes||{});
-    const keep=votes.filter(v=>v==='keep').length, eject=votes.filter(v=>v==='eject').length;
-    $('lastWordVoteStatus').textContent=keep+' keep · '+eject+' eject · '+Math.max(0,active.length-1-votes.length)+' waiting';
-    renderLastWordChat(pending.chat||{});
-  }
-  const playersEl=$('lastWordPlayers');
-  playersEl.innerHTML=(lw.order||Object.keys(players)).map(uid=>{
-    const p=players[uid]; if(!p)return '';
-    const out=!!(lw.eliminated||{})[uid], turn=uid===lw.turnUid&&!pending&&roomData.status==='playing';
-    const state=out?'ELIMINATED':turn?'TURN':uid===user.uid?'YOU':'ACTIVE';
-    return '<div class="lastword-player'+(out?' out':'')+(turn?' turn':'')+'"><div class="av">'+esc(p.avatar||'🎮')+'</div><div class="nm">'+esc(p.name||'Player')+(uid===roomData.hostUid?' <span class="hosttag">HOST</span>':'')+'</div><span class="state">'+state+'</span></div>';
-  }).join('');
-  const hist=lw.history||[];
-  $('lastWordUsedCount').textContent=hist.length+' word'+(hist.length===1?'':'s')+' used';
-  $('lastWordHistory').innerHTML=hist.slice().reverse().map((h,i)=>{
-    const who=h.seed?'SYSTEM':(players[h.uid]?.name||h.name||'Player');
-    return '<span class="lastword-word-chip'+(h.seed?' seed':'')+'" title="'+esc(who)+'"><b>'+esc(String(h.word||'?').slice(0,1).toUpperCase())+'</b>'+esc(h.word||'')+'</span>';
-  }).join('');
-  const finish=$('lastWordFinish');
-  finish.style.display=roomData.status==='results'?'block':'none';
-  if(roomData.status==='results'){
-    const winner=lw.winnerUid&&players[lw.winnerUid];
-    $('lastWordWinnerTitle').textContent=winner?'🏆 '+(winner.name||'Player')+' wins!':'Game over';
-    $('lastWordWinnerSub').textContent=winner?'Last player standing · '+(hist.length-1)+' accepted chain word'+(hist.length-1===1?'':'s'):'The game ended without a remaining player.';
-    $('lastWordPlayAgain').style.display=isHost?'flex':'none';
-  }
-}
-
-function renderLastWordChat(chat){
-  const el=$('lastWordChat'); if(!el)return;
-  const entries=Object.values(chat||{}).sort((a,b)=>(a.at||0)-(b.at||0)).slice(-35);
-  el.innerHTML=entries.map(m=>'<div class="lastword-chat-line"><b>'+esc(m.name||'Player')+':</b> '+esc(m.text||'')+'</div>').join('')||'<div class="lastword-chat-line">No discussion yet. Share your reasoning here.</div>';
-  el.scrollTop=el.scrollHeight;
-}
-
-async function lastWordSubmit(){
-  if(lastWordSubmitting || !roomData || !roomData.lastword || roomData.status!=='playing')return;
-  const lw=roomData.lastword, raw=$('lastWordAnswer').value.trim(), norm=lastWordNorm(raw);
-  if(lw.pending || lw.turnUid!==user.uid || lw.eliminated?.[user.uid])return;
-  if(!norm){lastWordSetFeedback('Enter a word first.','bad');return;}
-  if(norm[0]!==String(lw.required||'').toLowerCase()){lastWordSetFeedback('Your word must start with '+lw.required+'.','bad');return;}
-  if(lw.used?.[norm]){lastWordSetFeedback('That word has already been used in this game. Try another.','bad');return;}
-  if(norm.length<2){lastWordSetFeedback('Use a word with at least two letters.','bad');return;}
-  lastWordSubmitting=true; $('lastWordSubmit').disabled=true;
-  lastWordSetFeedback('Checking the word against the category…','maybe');
-  let verdict;
-  try{ verdict=await ScatVerify.check(lw.category,raw); }
-  catch(e){ verdict={v:'maybe',note:'The checker could not verify this answer. Players may challenge it.'}; }
-  if(!roomData || roomData.status!=='playing' || roomData.lastword?.turnUid!==user.uid || roomData.lastword?.pending){
-    lastWordSubmitting=false;return;
-  }
-  if(verdict.v==='no'){
-    lastWordSetFeedback((verdict.note||'That answer does not fit. Try another.')+' You are still on your turn.','bad');
-    $('lastWordAnswer').select(); lastWordSubmitting=false;$('lastWordSubmit').disabled=false;return;
-  }
-  if(verdict.v==='maybe'){
-    const now=srvNow();
-    const pending={uid:user.uid,word:raw,norm,note:verdict.note||'The system is unsure about this answer.',votes:{},chat:{},at:now,endsAt:now+LASTWORD_CHALLENGE_SECONDS*1000};
-    try{
-      const result=await lastWordRef().transaction(current=>{
-        if(!current || current.turnUid!==user.uid || current.pending || current.eliminated?.[user.uid] || current.used?.[norm])return;
-        current.pending=pending; return current;
-      });
-      if(!result.committed)lastWordSetFeedback('The turn changed before the answer could be submitted.','bad');
-      else {lastWordSetFeedback('Uncertain answer submitted for player review.','maybe');$('lastWordAnswer').value='';renderLastWord();}
-    }catch(e){lastWordSetFeedback('Could not submit the answer. Check your connection.','bad');}
-    lastWordSubmitting=false;return;
-  }
-  try{
-    const result=await lastWordRef().transaction(current=>{
-      if(!current || current.turnUid!==user.uid || current.pending || current.eliminated?.[user.uid] || current.used?.[norm])return;
-      current.used=current.used||{};current.used[norm]=true;
-      current.history=current.history||[];
-      current.history.push({word:raw,uid:user.uid,name:profile?.name||'Player',at:srvNow()});
-      current.required=norm.slice(-1).toUpperCase();
-      current.pendingPass={uid:user.uid,word:raw,norm,at:srvNow()};
-      return current;
-    });
-    if(result.committed){
-      $('lastWordAnswer').value='';lastWordSetFeedback('Valid word! Press PASS TO NEXT PLAYER when ready.','good');snd('win');
-      renderLastWord();
-    }else lastWordSetFeedback('The turn has already moved.','bad');
-  }catch(e){lastWordSetFeedback('Could not save your word. Check your connection.','bad');}
-  lastWordSubmitting=false;
-  if($('lastWordSubmit'))$('lastWordSubmit').disabled=false;
-}
-
-function lastWordNextUid(lw,fromUid){
-  const active=lastWordActiveIds(lw);
-  if(!active.length)return null;
-  const order=lw.order||active, idx=order.indexOf(fromUid);
-  for(let step=1;step<=order.length;step++){
-    const candidate=order[(idx+step+order.length)%order.length];
-    if(active.includes(candidate))return candidate;
-  }
-  return active[0];
-}
-
-async function lastWordCheckWinner(){
-  if(!isHost || !roomData?.lastword)return;
-  const lw=roomData.lastword, active=lastWordActiveIds(lw);
-  if(active.length<=1){
-    const winnerUid=active[0]||null;
-    await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow(),'lastword/winnerUid':winnerUid,'lastword/status':'finished'});
-    lastWordStopWatch();
-  }
-}
-
-async function lastWordEliminate(uid,reason){
-  if(!isHost || !uid || !roomData?.lastword || roomData.status!=='playing')return;
-  let committedState=null;
-  try{
-    const result=await lastWordRef().transaction(current=>{
-      if(!current || current.pending || current.turnUid!==uid || current.eliminated?.[uid])return;
-      current.eliminated=current.eliminated||{};
-      current.eliminated[uid]={reason:reason||'Eliminated',at:srvNow()};
-      current.pending=null;
-      current.turnUid=lastWordNextUid(current,uid);
-      current.turnStartedAt=srvNow();current.turnEndsAt=srvNow()+LASTWORD_TURN_SECONDS*1000;
-      current.turnNumber=(current.turnNumber||1)+1;
-      return current;
-    });
-    if(result.committed)committedState=result.snapshot.val();
-  }catch(e){console.warn('Last Letter elimination failed',e);}
-  if(committedState){
-    const active=lastWordActiveIds(committedState);
-    if(active.length<=1){
-      await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow(),'lastword/winnerUid':active[0]||null,'lastword/status':'finished'});
-      lastWordStopWatch();
-    }else{
-      toast((lastWordPlayer(uid).name||'Player')+' eliminated — '+reason+'.');
-    }
-  }
-}
-
-async function lastWordResolveChallenge(mode){
-  if(!isHost || !roomData?.lastword?.pending || roomData.status!=='playing')return;
-  const pending=roomData.lastword.pending;
-  const active=lastWordActiveIds(roomData.lastword);
-  const votes=Object.values(pending.votes||{});
-  const eject=votes.filter(v=>v==='eject').length, keep=votes.filter(v=>v==='keep').length;
-  const shouldEject=mode==='timeout'?eject>keep:eject>keep;
-  if(shouldEject){
-    // Challenge target is eliminated; the disputed word is not added to the chain.
-    const target=pending.uid;
-    let state=null;
-    const result=await lastWordRef().transaction(current=>{
-      if(!current?.pending || current.pending.uid!==target)return;
-      current.eliminated=current.eliminated||{};
-      current.eliminated[target]={reason:'Challenge vote',at:srvNow()};
-      current.pending=null;
-      current.turnUid=lastWordNextUid(current,target);
-      current.turnStartedAt=srvNow();current.turnEndsAt=srvNow()+LASTWORD_TURN_SECONDS*1000;
-      current.turnNumber=(current.turnNumber||1)+1;
-      return current;
-    });
-    if(result.committed)state=result.snapshot.val();
-    if(state && lastWordActiveIds(state).length<=1){
-      const winner=lastWordActiveIds(state)[0]||null;
-      await db.ref('rooms/'+roomId).update({status:'results',endedAt:srvNow(),'lastword/winnerUid':winner,'lastword/status':'finished'});
-      lastWordStopWatch();
-    }
-  }else{
-    const norm=pending.norm||lastWordNorm(pending.word);
-    const result=await lastWordRef().transaction(current=>{
-      if(!current?.pending || current.pending.uid!==pending.uid)return;
-      current.used=current.used||{};current.used[norm]=true;
-      current.history=current.history||[];
-      current.history.push({word:pending.word,uid:pending.uid,name:lastWordPlayer(pending.uid).name||'Player',at:srvNow(),challenged:true});
-      current.required=norm.slice(-1).toUpperCase();
-      current.pending=null;
-      current.pendingPass={uid:pending.uid,word:pending.word,norm,at:srvNow(),challenged:true};
-      return current;
-    });
-  }
-  await lastWordCheckWinner();
-}
-
-async function lastWordVote(vote){
-  const lw=roomData?.lastword,pending=lw?.pending;
-  if(!pending || roomData.status!=='playing' || !lastWordActiveIds(lw).includes(user.uid) || pending.uid===user.uid || pending.votes?.[user.uid])return;
-  try{
-    await lastWordRef().child('pending/votes/'+user.uid).set(vote);
-    toast(vote==='eject'?'Vote submitted: eject':'Vote submitted: keep answer');
-  }catch(e){toast('Could not submit vote.');}
-}
-
-async function lastWordSendChat(){
-  const pending=roomData?.lastword?.pending, input=$('lastWordChatInput');
-  const value=(input?.value||'').trim();
-  if(!pending||!value)return;
-  try{
-    await lastWordRef().child('pending/chat').push({uid:user.uid,name:profile?.name||'Player',text:value,at:srvNow()});
-    input.value='';
-  }catch(e){toast('Could not send discussion message.');}
-}
-
-
-async function lastWordPassTurn(){
-  const lw=roomData?.lastword, pass=lw?.pendingPass;
-  if(!pass || pass.uid!==user.uid || roomData.status!=='playing')return;
-  try{
-    const result=await lastWordRef().transaction(current=>{
-      if(!current?.pendingPass || current.pendingPass.uid!==user.uid)return;
-      const next=lastWordNextUid(current,user.uid);
-      current.pendingPass=null;
-      current.turnUid=next;
-      current.turnStartedAt=srvNow();
-      current.turnEndsAt=srvNow()+LASTWORD_TURN_SECONDS*1000;
-      current.turnNumber=(current.turnNumber||1)+1;
-      return current;
-    });
-    if(result.committed){lastWordLocalFeedback='';lastWordSetFeedback('Turn passed. Good luck!','good');$('lastWordAnswer').value='';}
-  }catch(e){toast('Could not pass the turn. Check your connection.');}
-}
-
-$('lastWordSubmit').onclick=lastWordSubmit;
-$('lastWordPass').onclick=lastWordPassTurn;
-$('lastWordAnswer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lastWordSubmit();}});
-$('lastWordKeep').onclick=()=>lastWordVote('keep');
-$('lastWordEject').onclick=()=>lastWordVote('eject');
-$('lastWordChatSend').onclick=lastWordSendChat;
-$('lastWordChatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lastWordSendChat();}});
-$('lastWordLeave').onclick=leaveRoom;
-$('lastWordBackLobby').onclick=leaveRoom;
-$('lastWordPlayAgain').onclick=async()=>{
-  if(!isHost)return;
-  $('lastWordPlayAgain').disabled=true;
-  try{await beginRound();}
-  finally{$('lastWordPlayAgain').disabled=false;}
-};
-
-// Host resolves timeout and completed voting; all devices render shared room state.
-const _lastWordOriginalRenderPlayers = renderPlayers;
-function lastWordHostMonitor(){
-  if(lastWordWatch)return;
-  lastWordWatch=setInterval(()=>{
-    if(!roomData || roomData.gameType!=='lastword' || roomData.status!=='playing' || !isHost)return;
-    const lw=roomData.lastword;if(!lw)return;
-    if(lw.pending){
-      const active=lastWordActiveIds(lw).filter(uid=>uid!==lw.pending.uid);
-      const votes=Object.keys(lw.pending.votes||{}).length;
-      if(votes>=active.length && active.length>0)lastWordResolveChallenge('votes');
-      else if(srvNow()>=(lw.pending.endsAt||0))lastWordResolveChallenge('timeout');
-    }else if(srvNow()>=(lw.turnEndsAt||0)){
-      lastWordEliminate(lw.turnUid,'Time ran out');
-    }
-  },500);
-}
 
 /* ========== PWA & INSTALL LOGIC ========== */
 let deferredPrompt = null;
