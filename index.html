@@ -931,7 +931,7 @@ input:focus-visible{outline:none}
 @keyframes dcatLand{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.dcat-reel.spin .dcat-emoji,.dcat-reel.spin .dcat-name,.dcat-reel.land{animation:none}}
 
-/* ===== LAST LETTER SHOWDOWN (isolated game styles) ===== */
+/* ===== LINK UP (isolated game styles) ===== */
 #screen-lastword{--lw:#5140b8;--lw-hot:#ef6b75;gap:11px}
 .lastword-round-label{font:800 .72rem Nunito,sans-serif;letter-spacing:1.1px;color:#fff;text-align:center;flex:1}
 .lastword-clock{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--lw);font:700 1.2rem Fredoka,sans-serif;box-shadow:0 4px 14px #1b124855;flex-shrink:0}
@@ -1100,7 +1100,7 @@ input:focus-visible{outline:none}
       </div>
       <div class="game-card" data-game="lastword" id="pickLastWord" style="cursor:pointer">
         <div class="icon">🔤</div>
-        <div class="name">Last Letter Showdown</div>
+        <div class="name">Link Up</div>
         <div class="desc">Word-chain elimination · 2–6 players</div>
       </div>
       <div class="game-card" data-game="hangman" id="pickHangman" style="cursor:pointer">
@@ -1220,11 +1220,11 @@ input:focus-visible{outline:none}
   </div>
 </section>
 
-<!-- LAST LETTER SHOWDOWN: independent elimination game screen -->
+<!-- LINK UP: independent elimination game screen -->
 <section id="screen-lastword" class="screen">
   <div class="game-top">
     <button class="btn btn-ghost" id="lastWordLeave" style="width:auto;min-height:40px;padding:8px 12px;font-size:.82rem">← Leave</button>
-    <div class="lastword-round-label" id="lastWordRoundLabel">LAST LETTER SHOWDOWN</div>
+    <div class="lastword-round-label" id="lastWordRoundLabel">LINK UP</div>
     <div class="lastword-clock" id="lastWordClock">20</div>
   </div>
   <div class="lastword-hero card">
@@ -3288,7 +3288,7 @@ document.addEventListener('click',e=>{
 const GAME_META = {
   boggle:  { title:'🎲 Boggle', sub:'Shake the tray and find words on a 4×4 grid with friends.' },
   scatter: { title:'✍️ Scattergories', sub:'Letter + categories — race to fill creative answers that fit.' },
-  lastword:{ title:'🔤 Last Letter Showdown', sub:'Word-chain elimination · 2–6 players · last player standing wins.' },
+  lastword:{ title:'🔤 Link Up', sub:'Word-chain elimination · 2–6 players · last player standing wins.' },
   hangman: { title:'🪢 Hangman Race', sub:'Drag letters, beat the clock, and race to save your figure.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, others race to guess — up to 6 players, 10 levels.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Play solo or with up to 5 friends. Roll the dice, answer trivia, dodge the snakes!' },
@@ -3471,7 +3471,7 @@ function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=co
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='lastword'?'2–6 players · Last Letter Showdown · Elimination':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='lastword'?'2–6 players · Link Up · Elimination':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
@@ -3980,14 +3980,39 @@ async function beginRound(){
 
   if(gameType === 'lastword'){
     const ids = Object.keys(roomData.players || {});
-    if(ids.length < 2){ toast('Last Letter Showdown needs at least 2 players'); return; }
-    if(ids.length > 6){ toast('Last Letter Showdown supports up to 6 players'); return; }
+    if(ids.length < 2){ toast('Link Up needs at least 2 players'); return; }
+    if(ids.length > 6){ toast('Link Up supports up to 6 players'); return; }
     const order = ids.slice();
     for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
-    const categories = generateCategories(roomId + '_lastword_' + srvNow(), 1);
-    const category = (categories && categories[0]) || 'Animals';
-    const seedBank = ['APPLE','PLANET','RIVER','TIGER','GARDEN','ROCKET','BRIDGE','ORANGE','MIRROR','CASTLE','LANTERN','PENCIL','ISLAND','MONKEY','BOTTLE','CAMERA','THUNDER','MARKET','POCKET','WINDOW'];
-    const seedWord = seedBank[Math.floor(Math.random()*seedBank.length)];
+    // Link Up uses matched category/seed pairs. Never choose a generic seed
+    // independently from the category: the opening word must itself fit.
+    const linkUpOpeners = [
+      ['A hobby','KNITTING'],
+      ['A sport or game','CHESS'],
+      ['A school subject','HISTORY'],
+      ['A holiday or celebration','HALLOWEEN'],
+      ['A color','PURPLE'],
+      ['A body part','ELBOW'],
+      ['A brand or company','GOOGLE'],
+      ['Something you do every day','SLEEP'],
+      ['A feeling or emotion','ANGER'],
+      ['A musical instrument','GUITAR'],
+      ['A toy','YOYO'],
+      ['A tool','HAMMER'],
+      ['A type of transport','BICYCLE'],
+      ['A drink','COFFEE'],
+      ['A dessert or sweet','BROWNIE'],
+      ['An animal','TIGER'],
+      ['A fruit or vegetable','APPLE'],
+      ['A country','CANADA'],
+      ['A city','LONDON'],
+      ['A movie or TV show','FRIENDS'],
+      ['Something you wear','JACKET'],
+      ['A food','PIZZA'],
+      ['A bird','EAGLE'],
+      ['A pet','HAMSTER']
+    ];
+    const [category, seedWord] = linkUpOpeners[Math.floor(Math.random()*linkUpOpeners.length)];
     const now = srvNow();
     const lw = {
       category, seedWord, required:seedWord.slice(-1).toUpperCase(),
@@ -4005,7 +4030,7 @@ async function beginRound(){
     });
     resetRoundState();
     try{ await db.ref('rooms/'+roomId).update(updates); }
-    catch(e){ toast('Could not start Last Letter Showdown: '+e.message); }
+    catch(e){ toast('Could not start Link Up: '+e.message); }
     return;
   }
 
@@ -7259,7 +7284,7 @@ $('btnPlayAgain').onclick=async()=>{
 document.body.addEventListener('touchmove',e=>{if(selecting)e.preventDefault()},{passive:false});
 
 
-/* ===== LAST LETTER SHOWDOWN ENGINE (standalone; does not alter other game rules) ===== */
+/* ===== LINK UP ENGINE (standalone; does not alter other game rules) ===== */
 const LASTWORD_TURN_SECONDS = 20;
 const LASTWORD_CHALLENGE_SECONDS = 35;
 let lastWordWatch = null;
