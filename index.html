@@ -912,6 +912,24 @@ input:focus-visible{outline:none}
 .tn-who .av{font-size:1.8rem;background:#f3e2b8;border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center}
 .tn-card p{font-weight:700;font-size:.95rem;line-height:1.45;color:#3b2f1f;min-height:4.3em;margin-bottom:10px;cursor:pointer}
 .tn-ch{display:flex;flex-direction:column;gap:8px}
+/* Sketch Race: category chip + animated category cycle */
+.draw-level-bar .draw-cat-chip{background:#FFF3D6;color:#8A5A00}
+.draw-level-bar .draw-cat-chip:empty{display:none}
+.dcat-ov{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(135deg,#2D1B69,#6C3FD1 55%,#FF6BB5);animation:dcatIn .25s ease-out}
+.dcat-ov.out{opacity:0;transition:opacity .35s ease}
+.dcat-card{width:100%;max-width:380px;text-align:center;color:#fff}
+.dcat-title{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.35rem;margin-bottom:16px;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.dcat-reel{background:#fff;color:#2D1B69;border-radius:26px;padding:26px 14px 22px;box-shadow:0 14px 40px rgba(0,0,0,.35),inset 0 -6px 0 rgba(108,63,209,.12);overflow:hidden}
+.dcat-reel.spin .dcat-emoji{animation:dcatTick .12s ease-out}
+.dcat-reel.spin .dcat-name{animation:dcatTick .12s ease-out}
+.dcat-reel.land{animation:dcatLand .7s cubic-bezier(.2,1.6,.4,1)}
+.dcat-emoji{font-size:4.2rem;line-height:1.1}
+.dcat-name{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.6rem;margin-top:8px;min-height:2.1rem}
+.dcat-sub{margin-top:16px;font-weight:800;font-size:.9rem;opacity:.92}
+@keyframes dcatIn{from{opacity:0}to{opacity:1}}
+@keyframes dcatTick{0%{transform:translateY(-14px);opacity:.2}100%{transform:none;opacity:1}}
+@keyframes dcatLand{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.dcat-reel.spin .dcat-emoji,.dcat-reel.spin .dcat-name,.dcat-reel.land{animation:none}}
 </style>
 </head>
 <body>
@@ -1239,6 +1257,7 @@ input:focus-visible{outline:none}
   <div class="card draw-card">
     <div class="draw-level-bar">
       <span id="drawLevelLabel">Level 1 / 10</span>
+      <span class="draw-cat-chip" id="drawCatChip"></span>
       <span id="drawSeriesScore">Your wins: 0</span>
     </div>
     <div class="draw-role" id="drawRole">Waiting…</div>
@@ -1399,188 +1418,114 @@ function isValidWord(w){
 // ----------------------------------
 
 /* ===== DYNAMIC SCATTERGORIES CATEGORY GENERATOR ===== */
-// Broad, high-yield categories — many answers exist for almost every letter
-// Avoided narrow ones (farm animal, insect, pizza topping, etc.) that leave players stuck on letters like N, Q, X
+// Broad, everyday categories that almost anyone can answer for most letters.
+// Overly narrow ideas (pizza topping, excuse for being late, something with buttons, etc.) were removed.
 const BASE_CATEGORIES = [
-  // Names & people (huge answer pools)
+  // People & names
   "A boy's name",
   "A girl's name",
   "A famous person",
+  "An actor or actress",
+  "A singer or band",
+  "An athlete",
   "A job or occupation",
+  "A cartoon character",
 
-  // Living things (keep broad)
+  // Animals & nature
   "An animal",
+  "A wild animal",
+  "A pet",
+  "A bird",
+  "A sea creature",
+  "An insect or bug",
+  "Something at the zoo",
+  "Something on a farm",
   "A fruit or vegetable",
   "A plant or flower",
+  "A type of weather",
 
   // Places
   "A country",
   "A city",
+  "A type of building",
+  "A type of store",
+  "A place to visit on vacation",
   "Something you find in a house",
   "Something you find in a kitchen",
   "Something you find at school",
   "Something you find at the beach",
   "Something you find in a park",
+  "Something in a bathroom",
+  "Something in a bedroom",
+  "Something in a garden",
+  "Something in the sky",
+  "Something in the ocean",
+  "Something in a forest",
 
-  // Food & drink (broad)
+  // Food & drink
   "A food",
   "A drink",
   "A dessert or sweet",
+  "A snack",
   "Something you eat for breakfast",
 
-  // Objects & things
+  // Things
   "Something you wear",
   "A piece of furniture",
   "Something with wheels",
+  "A type of transport",
+  "A tool",
+  "A toy",
+  "A musical instrument",
   "Something you can hold in your hand",
+  "Something you take on a trip",
+
+  // Describing words
   "Something soft",
   "Something hard",
   "Something cold",
   "Something hot",
   "Something round",
+  "Something sweet",
   "Something that makes a sound",
+  "Something that flies",
 
-  // Entertainment & culture
+  // Culture & everyday life
   "A movie or TV show",
-  "A book or song title",
-  "A cartoon or superhero character",
   "A sport or game",
   "A hobby",
-  "A musical instrument",
-  "A brand or company",
-
-  // Everyday & abstract (still clear, many options)
-  "A color",
-  "A body part",
   "A school subject",
   "A holiday or celebration",
-  "A type of weather",
+  "A color",
+  "A body part",
+  "A brand or company",
   "Something you do every day",
-  "Something you take on a trip",
   "Things at a party",
-  "An excuse for being late",
   "Something that makes you happy",
   "Something scary",
   "Something funny",
-
-  // More variety (added)
-  "A city or town",
-  "A river or lake",
-  "A mountain or landmark",
-  "A type of transport",
-  "A tool",
-  "A kitchen utensil",
-  "Something in a bathroom",
-  "Something in a bedroom",
-  "Something in a garden",
-  "Something at the zoo",
-  "Something on a farm",
-  "Something in the sky",
-  "Something in the ocean",
-  "Something in a forest",
-  "A bird",
-  "A sea creature",
-  "An insect or bug",
-  "A pet",
-  "A wild animal",
-  "A dog or cat breed",
-  "A type of tree",
-  "A fruit",
-  "A vegetable",
-  "A snack",
-  "A candy or chocolate",
-  "A fast food",
-  "A pizza topping",
-  "A soup or stew",
-  "A pasta or rice dish",
-  "A spice or herb",
-  "Something you drink hot",
-  "Something sweet",
-  "Something sour",
-  "Something salty",
-  "Something crunchy",
-  "Something sticky",
-  "Something sharp",
-  "Something heavy",
-  "Something tiny",
-  "Something huge",
-  "Something shiny",
-  "Something that flies",
-  "Something that floats",
-  "Something with a screen",
-  "Something with buttons",
-  "Something with strings",
-  "Something with a handle",
-  "Something with legs",
-  "Something yellow",
-  "Something red",
-  "Something green",
-  "Something blue",
-  "Something white",
-  "Something you plug in",
-  "Something you wear on your head",
-  "Something you wear on your feet",
-  "A piece of jewelry",
-  "A type of bag",
-  "A cartoon character",
-  "A video game or game character",
-  "A fictional character",
-  "A singer or band",
-  "An actor or actress",
-  "An athlete",
-  "A scientist or inventor",
-  "A historical figure",
-  "A fairy tale character",
-  "A monster or mythical creature",
-  "A superhero or villain",
-  "A kind of dance",
-  "A music genre",
-  "Something you make with your hands",
-  "A type of book",
-  "A sport played with a ball",
-  "A winter activity",
-  "A water activity",
-  "A board or card game",
-  "Something at a playground",
-  "A toy",
-  "Something at a birthday party",
-  "Something at a wedding",
-  "Something at a festival",
-  "Something at the circus",
-  "Something at a supermarket",
-  "Something at a hospital",
-  "Something at the airport",
-  "Something in a library",
-  "Something in a toolbox",
-  "Something in a backpack",
-  "Something in a wallet or purse",
-  "Something in a classroom",
-  "Something in a museum",
-  "Something at the gym",
-  "Something in space",
-  "A natural wonder",
-  "A type of building",
-  "A room or place in a building",
-  "A type of store",
-  "A place to visit on vacation",
-  "A language",
-  "A currency",
-  "A capital city",
-  "An island",
-  "A feeling or emotion",
-  "A personality trait",
-  "A reason to celebrate",
-  "Something you do on weekends",
-  "Something you do outdoors",
-  "Something you do on a rainy day",
-  "Something you do before bed",
-  "A chore",
-  "A superpower",
-  "Something you see on a road trip",
-  "Something found in a castle",
-  "Something found underground",
-  "Something in a desert"
+  "A feeling or emotion"
 ];
+
+// Categories that overlap each other (e.g. "An animal" and "Something at the zoo") are grouped into
+// families, and a single round only takes up to `cap` categories from the same family.
+// This keeps the 12 categories varied and avoids confusing near-duplicates on the same sheet.
+const CATEGORY_FAMILY = {
+  "An animal":"animal","A wild animal":"animal","A pet":"animal","A bird":"animal","A sea creature":"animal",
+  "An insect or bug":"animal","Something at the zoo":"animal","Something on a farm":"animal","Something in the ocean":"animal",
+  "A fruit or vegetable":"food","A food":"food","A drink":"food","A dessert or sweet":"food","A snack":"food",
+  "Something you eat for breakfast":"food","Something sweet":"food",
+  "Something with wheels":"wheels","A type of transport":"wheels",
+  "A country":"place","A city":"place","A place to visit on vacation":"place","A type of building":"place","A type of store":"place",
+  "Something you find in a house":"scene","Something you find in a kitchen":"scene","Something you find at school":"scene",
+  "Something you find at the beach":"scene","Something you find in a park":"scene","Something in a bathroom":"scene",
+  "Something in a bedroom":"scene","Something in a garden":"scene","Something in the sky":"scene","Something in a forest":"scene",
+  "Something soft":"prop","Something hard":"prop","Something cold":"prop","Something hot":"prop","Something round":"prop",
+  "Something that makes a sound":"prop","Something that flies":"prop",
+  "Something that makes you happy":"mood","Something scary":"mood","Something funny":"mood","A feeling or emotion":"mood",
+  "A famous person":"person","An actor or actress":"person","A singer or band":"person","An athlete":"person","A cartoon character":"person"
+};
+const CATEGORY_FAMILY_CAP = { animal:1, food:2, wheels:1, place:2, scene:2, prop:2, mood:1, person:2 };
 
 function seededRandom(seed){
   let s = seed % 2147483647;
@@ -1589,7 +1534,8 @@ function seededRandom(seed){
 }
 
 function generateCategories(seedStr, count=12){
-  // Pick 12 unique categories from the broad list only (no sparse procedural combos)
+  // Pick unique categories from the broad list, shuffled with a seeded random,
+  // while limiting how many overlapping (same-family) categories can appear in one round.
   let seed = 0;
   for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
   const rand = seededRandom(seed || srvNow());
@@ -1600,7 +1546,21 @@ function generateCategories(seedStr, count=12){
     const j = Math.floor(rand()*(i+1));
     [pool[i],pool[j]] = [pool[j],pool[i]];
   }
-  return pool.slice(0, Math.min(count, pool.length));
+  const picked = [], used = {};
+  const want = Math.min(count, pool.length);
+  for(const c of pool){
+    if(picked.length >= want) break;
+    const fam = CATEGORY_FAMILY[c];
+    if(fam){
+      const cap = CATEGORY_FAMILY_CAP[fam] || 1;
+      if((used[fam]||0) >= cap) continue;
+      used[fam] = (used[fam]||0) + 1;
+    }
+    picked.push(c);
+  }
+  // Safety net: should never be needed, but guarantees `count` categories
+  for(const c of pool){ if(picked.length >= want) break; if(!picked.includes(c)) picked.push(c); }
+  return picked;
 }
 
 function randomLetter(hard=false){
@@ -1733,6 +1693,130 @@ const DRAW_WORDS = (() => {
   });
   return out;
 })();
+
+/* ===== SKETCH RACE – CATEGORY WORD BANK =====
+   When a Sketch Race game starts, a random category is picked (with an animated cycle) and EVERY word of that
+   game comes from that category. Words are remembered (per room and per device) so they don't keep coming back.
+   (The older DRAW_WORDS_* lists above are still used by Spy Word.) Words use only A-Z and spaces. */
+const DRAW_SPIN_MS = 4800;
+const DRAW_CATS = [
+  {id:'animals',emoji:'🐾',name:'Animals',
+   easy:'cat,dog,cow,pig,horse,sheep,goat,duck,chicken,rabbit,mouse,fish,bird,frog,snake,turtle,lion,tiger,bear,monkey,elephant,giraffe,zebra,hippo,penguin,owl,fox,wolf,deer,squirrel,kangaroo,panda,dolphin,shark,whale,crab,snail,bee,ant,butterfly,spider,parrot,camel,crocodile,gorilla,koala,eagle,swan,rooster,donkey,hedgehog,flamingo,peacock,octopus',
+   hard:'sloth,armadillo,porcupine,meerkat,walrus,anteater,pelican,toucan,ostrich,chameleon,scorpion,seahorse,jellyfish,starfish,lobster,rhino,cheetah,leopard,otter,beaver,bat,hamster,lizard,caterpillar,dragonfly,ladybug,platypus,llama,moose,raccoon,skunk,vulture,seal,stingray,hyena,antelope,bison,praying mantis,firefly'},
+  {id:'food',emoji:'🍔',name:'Food & Drinks',
+   easy:'pizza,burger,hot dog,french fries,sandwich,spaghetti,taco,sushi,pancake,waffle,egg,bread,cheese,cake,cupcake,donut,cookie,ice cream,popcorn,pretzel,soup,salad,rice,noodles,fried chicken,steak,bacon,sausage,toast,cereal,pie,candy,chocolate,lollipop,milkshake,juice,coffee,tea,milk,burrito,dumplings,nachos,omelet,croissant,bagel,cotton candy,candy cane',
+   hard:'lasagna,ramen,paella,kebab,curry,dim sum,churros,cannoli,macaron,fondue,hummus,falafel,gyoza,tempura,ceviche,quesadilla,meatball,sundae,cheesecake,pudding,brownie,smoothie,hamburger,french toast,garlic bread,apple pie,birthday cake,pasta,lemonade,hot chocolate,baguette,caramel apple,fortune cookie,banana split,chicken nuggets'},
+  {id:'fruitveg',emoji:'🍎',name:'Fruits & Vegetables',
+   easy:'apple,banana,orange,grapes,strawberry,watermelon,pineapple,cherry,lemon,peach,pear,mango,coconut,kiwi,blueberry,carrot,tomato,potato,corn,broccoli,onion,pumpkin,cucumber,lettuce,pepper,mushroom,garlic,peas,eggplant,cabbage,banana bunch,avocado',
+   hard:'pomegranate,papaya,dragon fruit,artichoke,asparagus,cauliflower,celery,radish,turnip,beetroot,zucchini,cranberry,raspberry,blackberry,plum,fig,lime,grapefruit,tangerine,apricot,cantaloupe,olive,leek,spinach,sweet potato,jackfruit,lychee,durian,star fruit,pea pod,ear of corn,bell pepper'},
+  {id:'home',emoji:'🏠',name:'Around the House',
+   easy:'bed,chair,table,sofa,lamp,door,window,clock,mirror,pillow,blanket,curtain,carpet,fridge,stove,oven,sink,toilet,bathtub,shower,toothbrush,towel,soap,broom,bucket,key,television,computer,telephone,fan,candle,vase,shelf,stairs,roof,chimney,fence,mailbox,doorbell,ladder,bookshelf',
+   hard:'chandelier,fireplace,bunk bed,rocking chair,washing machine,vacuum cleaner,microwave,toaster,blender,iron,ironing board,hanger,doormat,coat rack,umbrella stand,light bulb,remote control,wardrobe,dishwasher,piggy bank,smoke alarm,thermostat,hammock,cuckoo clock,drawer,basket,kettle,teapot,rolling pin,cutting board,welcome mat,night light'},
+  {id:'school',emoji:'🎒',name:'School & Office',
+   easy:'pencil,pen,eraser,ruler,scissors,glue,notebook,book,backpack,desk,chalk,blackboard,whiteboard,globe,map,calculator,stapler,tape,paper,crayon,marker,paintbrush,bell,locker,lunchbox,printer,folder,paper clip,pencil sharpener,school bus,envelope,computer',
+   hard:'microscope,protractor,easel,projector,trophy,diploma,graduation cap,flag,lab coat,test tube,telescope,abacus,highlighter,thumbtack,binder,rubber stamp,filing cabinet,calendar,megaphone,clipboard,hole puncher,bulletin board,pencil case,compass,desk lamp,swivel chair,water cooler,photocopier'},
+  {id:'sports',emoji:'⚽',name:'Sports & Games',
+   easy:'soccer ball,basketball,baseball,tennis racket,golf club,bowling ball,football,hockey stick,volleyball,boxing gloves,skateboard,bicycle,swimming,surfing,skiing,ice skating,archery,fishing,running,jump rope,trophy,medal,whistle,helmet,goal,dumbbell,yoga,karate,gymnastics,diving,table tennis,badminton,rugby ball,chess,dice,playing cards',
+   hard:'fencing,javelin,pole vault,high jump,hurdles,snowboard,sled,curling,trampoline,weightlifting,wrestling,horse riding,rock climbing,sailing,kayak,scoreboard,referee,mascot,stopwatch,podium,pommel horse,balance beam,discus,shot put,ping pong,bobsled,marathon,cheerleader,pool table,dartboard,boxing ring,golf cart'},
+  {id:'vehicles',emoji:'🚗',name:'Vehicles & Transport',
+   easy:'car,bus,truck,train,plane,helicopter,boat,ship,bicycle,motorcycle,scooter,taxi,ambulance,fire truck,police car,tractor,submarine,rocket,sailboat,canoe,skateboard,van,jeep,tricycle,wagon,hot air balloon,school bus,race car,tow truck',
+   hard:'bulldozer,excavator,crane,forklift,dump truck,steamroller,cable car,monorail,ferry,yacht,jet ski,snowmobile,segway,unicycle,limousine,garbage truck,cement mixer,go kart,blimp,glider,parachute,gondola,rickshaw,sled,rowboat,hovercraft,space shuttle,tank,ice cream truck,pirate ship,steam train,tuk tuk'},
+  {id:'nature',emoji:'🌳',name:'Nature & Weather',
+   easy:'sun,moon,star,cloud,rain,snow,wind,rainbow,lightning,tornado,tree,flower,leaf,grass,mountain,river,lake,waterfall,volcano,island,beach,desert,cave,forest,rock,mushroom,cactus,palm tree,sunflower,fire,ice,iceberg,thunderstorm,sunrise,sunset,waves,pond,hill',
+   hard:'avalanche,geyser,canyon,glacier,swamp,oasis,coral reef,eclipse,shooting star,aurora,earthquake,tsunami,hurricane,blizzard,meteor,stalactite,boulder,cliff,meadow,rainforest,sand dune,sandstorm,tulip,acorn,pinecone,seashell,snowflake,dewdrop,fog,hail,puddle,tide pool'},
+  {id:'music',emoji:'🎸',name:'Music & Instruments',
+   easy:'guitar,piano,drum,violin,trumpet,flute,microphone,headphones,radio,speaker,saxophone,harp,cello,tambourine,xylophone,maracas,bell,whistle,music note,record player,keyboard,ukulele,banjo,trombone,clarinet,harmonica,accordion,concert,stage,singer,dancer,band,orchestra,conductor,piano keys,jukebox',
+   hard:'bagpipes,tuba,oboe,bassoon,triangle,gong,cymbals,sheet music,metronome,tuning fork,music box,drum set,electric guitar,french horn,piccolo,didgeridoo,mandolin,sitar,castanets,cowbell,bongos,kazoo,grand piano,karaoke,boombox,vinyl record,megaphone,music stand,treble clef,choir,dj turntable'},
+  {id:'fantasy',emoji:'🧙',name:'Fantasy & Fairy Tales',
+   easy:'dragon,unicorn,mermaid,fairy,wizard,witch,ghost,vampire,zombie,castle,crown,sword,shield,knight,princess,prince,king,queen,magic wand,genie,robot,alien,pirate,treasure chest,monster,giant,dinosaur,snowman,elf,troll,santa claus,angel,superhero,ninja,cape,potion,broomstick,magic carpet,crystal ball',
+   hard:'phoenix,centaur,minotaur,griffin,cyclops,werewolf,mummy,frankenstein,pegasus,kraken,goblin,ogre,fairy wings,magic lamp,enchanted forest,dungeon,drawbridge,moat,catapult,suit of armor,pot of gold,leprechaun,sorcerer,hydra,yeti,bigfoot,scarecrow,jack o lantern,gingerbread house,spell book,wishing well,fairy godmother'},
+  {id:'space',emoji:'🚀',name:'Space & Science',
+   easy:'rocket,astronaut,planet,moon,sun,star,comet,galaxy,telescope,satellite,space station,alien,saturn,earth,mars,meteor,robot,microscope,test tube,magnet,battery,light bulb,atom,skeleton,brain,thermometer,magnifying glass,globe,compass,volcano,fossil,flying saucer',
+   hard:'black hole,asteroid,space shuttle,lunar rover,constellation,solar system,eclipse,rocket launch,orbit,radar,satellite dish,antenna,gears,lever,pulley,prism,periscope,stethoscope,syringe,petri dish,circuit,bunsen burner,beaker,lab coat,x ray,dna helix,spacesuit,launch pad,mission control,moon crater,telescope lens,planet rings'},
+  {id:'jobs',emoji:'👷',name:'Jobs & Occupations',
+   easy:'doctor,nurse,teacher,chef,farmer,pilot,firefighter,police officer,astronaut,dentist,mailman,builder,painter,singer,dancer,clown,magician,cowboy,pirate,scientist,mechanic,plumber,electrician,cashier,waiter,baker,barber,gardener,fisherman,sailor,soldier,lifeguard,photographer,artist,judge,librarian,detective',
+   hard:'surgeon,veterinarian,archaeologist,carpenter,blacksmith,butcher,florist,tailor,lumberjack,miner,beekeeper,bus driver,taxi driver,construction worker,window washer,street sweeper,referee,coach,conductor,juggler,acrobat,fortune teller,pharmacist,meteorologist,mountain climber,deep sea diver,zookeeper,snake charmer,chimney sweep,shepherd,sculptor,puppeteer'},
+  {id:'clothes',emoji:'👕',name:'Clothes & Accessories',
+   easy:'hat,shoe,sock,shirt,pants,dress,skirt,jacket,coat,scarf,gloves,mittens,belt,tie,glasses,sunglasses,watch,ring,necklace,bracelet,earrings,crown,backpack,umbrella,boots,sandals,sneakers,slippers,pajamas,sweater,hoodie,shorts,swimsuit,cap,helmet,apron,mask,bow tie,purse,wallet',
+   hard:'top hat,cowboy hat,high heels,flip flops,suspenders,raincoat,tuxedo,wedding dress,kimono,cape,poncho,overalls,tutu,lab coat,bandana,beanie,tiara,pocket watch,cufflinks,handbag,briefcase,fanny pack,snow boots,swim goggles,bathrobe,hair clip,headband,ballet shoes,roller skates,life jacket,graduation gown'},
+  {id:'places',emoji:'🏰',name:'Places & Buildings',
+   easy:'house,castle,school,hospital,church,library,bank,hotel,airport,train station,bridge,tower,lighthouse,windmill,barn,tent,igloo,treehouse,skyscraper,museum,zoo,farm,park,playground,pyramid,statue,fountain,gas station,fire station,police station,supermarket,restaurant,cinema,stadium,mall,factory,city,village,beach',
+   hard:'eiffel tower,leaning tower,great wall,statue of liberty,big ben,taj mahal,colosseum,sphinx,stonehenge,drawbridge,fortress,cathedral,mosque,pagoda,observatory,aquarium,amusement park,carnival,circus tent,drive in,farmhouse,log cabin,cottage,palace,monastery,water tower,sydney opera house,space needle,tipi,bus stop,telephone booth,haunted house'},
+  {id:'toys',emoji:'🧸',name:'Toys & Fun',
+   easy:'ball,doll,teddy bear,kite,balloon,blocks,puzzle,robot,yo yo,spinning top,train set,toy car,rocking horse,swing,slide,seesaw,sandbox,bubbles,jump rope,frisbee,marbles,dice,playing cards,chess,dominoes,crayons,play dough,dollhouse,puppet,drum,rattle,trampoline,bouncy castle,water gun,pinwheel,party hat,birthday cake,gift box',
+   hard:'jack in the box,carousel,ferris wheel,roller coaster,bumper cars,merry go round,rubiks cube,slinky,kaleidoscope,tic tac toe,hopscotch,tug of war,hula hoop,pogo stick,pinata,confetti,water slide,jigsaw puzzle,snow globe,music box,toy soldier,building blocks,remote control car,paper airplane,paper boat,slingshot,monkey bars,go kart,bouncy ball,cat cradle'},
+  {id:'tools',emoji:'🔧',name:'Tools & Technology',
+   easy:'hammer,screwdriver,wrench,saw,drill,pliers,ladder,nail,screw,axe,shovel,rake,paintbrush,tape measure,flashlight,scissors,computer,laptop,phone,tablet,camera,television,radio,headphones,keyboard,mouse,printer,battery,plug,light bulb,clock,calculator,robot,drone,microwave,remote control',
+   hard:'video game controller,smart watch,webcam,usb stick,wifi router,satellite dish,antenna,power drill,chainsaw,welding mask,toolbox,wheelbarrow,paint roller,sandpaper,magnifying glass,joystick,floppy disk,typewriter,camcorder,walkie talkie,hard hat,garden hose,lawn mower,gas pump,power outlet,extension cord,circuit board,robot arm,vr headset,security camera'},
+  {id:'body',emoji:'🦷',name:'Body & Health',
+   easy:'eye,nose,mouth,ear,hand,foot,finger,thumb,toe,tooth,tongue,heart,brain,bone,skeleton,muscle,hair,knee,elbow,shoulder,smile,tears,fingerprint,bandage,thermometer,toothbrush,glasses,ambulance,first aid kit,pill,medicine bottle,band aid',
+   hard:'stethoscope,syringe,crutches,wheelchair,hearing aid,x ray,hospital bed,belly button,eyebrow,eyelash,nostril,wrist,ankle,spine,rib cage,lungs,stomach,tooth fairy,dental floss,eye chart,blood pressure,sling,cast,reading glasses,contact lens,hot water bottle,sunscreen,mouthguard,inhaler,microscope'},
+  {id:'party',emoji:'🎉',name:'Parties & Holidays',
+   easy:'balloon,cake,candle,gift,confetti,party hat,fireworks,christmas tree,santa claus,snowman,reindeer,easter egg,bunny,pumpkin,ghost,witch,heart,turkey,candy cane,stocking,wreath,ornament,sleigh,present,streamers,party popper,birthday cake,cupcake,gingerbread man,jack o lantern,mistletoe,trick or treat',
+   hard:'pinata,pinwheel,advent calendar,lantern,fortune cookie,menorah,paper lantern,dreidel,party horn,disco ball,photo booth,confetti cannon,sparkler,bouquet,wedding cake,valentine card,love letter,haunted house,scarecrow,cornucopia,easter basket,chocolate egg,gift bow,champagne tower,balloon arch,red envelope,piggy bank,new year clock,dragon dance'},
+  {id:'camping',emoji:'⛺',name:'Camping & Outdoors',
+   easy:'tent,campfire,sleeping bag,backpack,compass,flashlight,lantern,binoculars,map,canoe,fishing rod,hammock,marshmallow,smores,hiking boots,trail,mountain,tree,log cabin,cooler,picnic basket,thermos,rope,bonfire,kayak,life jacket,paddle,bug spray,sunscreen,matches',
+   hard:'swiss army knife,camp stove,hatchet,fishing net,walking stick,trail sign,hot dog on a stick,campsite,telescope,rain poncho,water bottle,first aid kit,bear,tree stump,fire pit,tent stakes,ranger hat,hiking trail,mosquito,rock climbing,zip line,rope bridge,compass rose,sleeping mat,headlamp,fishing hook,rowboat,lake'},
+  {id:'ocean',emoji:'🌊',name:'Ocean & Beach',
+   easy:'sandcastle,beach ball,surfboard,seashell,starfish,crab,sailboat,lighthouse,pirate ship,treasure chest,anchor,life jacket,beach umbrella,flip flops,sunglasses,sunscreen,snorkel,scuba diver,dolphin,whale,shark,octopus,jellyfish,seahorse,turtle,fish,wave,island,palm tree,coconut,seagull,submarine,mermaid,seaweed',
+   hard:'hammock,lifeguard tower,coral reef,pier,fishing boat,swim ring,diving board,kite,pelican,lobster,stingray,clownfish,seal,iceberg,penguin,bucket and spade,fishing net,message in a bottle,shipwreck,diving mask,snow cone,boardwalk,sand dune,rowboat,surfer,beach towel,sea turtle,narwhal,swordfish,manta ray,oyster'}
+].map(c => {
+  const clean = s => Array.from(new Set(String(s).split(',').map(w => w.trim().toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim()).filter(w => w.length >= 2)));
+  return {id:c.id, emoji:c.emoji, name:c.name, easy:clean(c.easy), hard:clean(c.hard)};
+});
+function drawCatById(id){ return DRAW_CATS.find(c => c.id === id) || null; }
+
+// Words / categories this device has already seen (also recorded when you only GUESS), so they don't keep coming back
+const DRAW_SEEN_KEY = 'drawSeenWordsV3', DRAW_CATSEEN_KEY = 'drawSeenCatsV3';
+let DRAW_SEEN = [], DRAW_CATSEEN = [];
+try{ DRAW_SEEN = JSON.parse(localStorage.getItem(DRAW_SEEN_KEY) || '[]') || []; }catch(e){ DRAW_SEEN = []; }
+try{ DRAW_CATSEEN = JSON.parse(localStorage.getItem(DRAW_CATSEEN_KEY) || '[]') || []; }catch(e){ DRAW_CATSEEN = []; }
+function drawRememberWord(w){
+  w = String(w||'').toUpperCase().trim(); if(!w) return;
+  DRAW_SEEN = DRAW_SEEN.filter(x => x !== w); DRAW_SEEN.push(w);
+  if(DRAW_SEEN.length > 900) DRAW_SEEN = DRAW_SEEN.slice(-900);
+  try{ localStorage.setItem(DRAW_SEEN_KEY, JSON.stringify(DRAW_SEEN)); }catch(e){}
+}
+function drawRememberCat(id){
+  DRAW_CATSEEN = DRAW_CATSEEN.filter(x => x !== id); DRAW_CATSEEN.push(id);
+  if(DRAW_CATSEEN.length > 40) DRAW_CATSEEN = DRAW_CATSEEN.slice(-40);
+  try{ localStorage.setItem(DRAW_CATSEEN_KEY, JSON.stringify(DRAW_CATSEEN)); }catch(e){}
+}
+function drawRandInt(n){
+  try{ const b = new Uint32Array(1); crypto.getRandomValues(b); return b[0] % n; }catch(e){ return Math.floor(Math.random()*n); }
+}
+// New game -> random category, skipping the last few that were played (here or on the previous game of this room)
+function pickDrawCategory(){
+  const recent = new Set(DRAW_CATSEEN.slice(-Math.min(6, DRAW_CATS.length - 4)));
+  if(roomData && roomData.drawCategory && roomData.drawCategory.id) recent.add(roomData.drawCategory.id);
+  let pool = DRAW_CATS.filter(c => !recent.has(c.id));
+  if(!pool.length) pool = DRAW_CATS.slice();
+  const cat = pool[drawRandInt(pool.length)];
+  drawRememberCat(cat.id);
+  return cat;
+}
+// Pick a word from the game's category. Levels 1-4 lean easy, 8-10 lean hard, in between mixes both.
+// Never repeats a word seen in this room, in earlier games of this room, or recently on this device.
+function pickDrawWordCat(level, cat){
+  const lvl = level || 1;
+  const seen = new Set(DRAW_SEEN);
+  if(roomData){
+    (roomData.drawHistory || []).forEach(h => { if(h && h.word) seen.add(String(h.word).toUpperCase()); });
+    (roomData.drawUsedWords || []).forEach(w => seen.add(String(w).toUpperCase()));
+    (roomData.drawSeenWords || []).forEach(w => seen.add(String(w).toUpperCase()));
+    if(roomData.drawWord) seen.add(String(roomData.drawWord).toUpperCase());
+  }
+  const order = lvl <= 4 ? [cat.easy, cat.hard] : lvl <= 7 ? (drawRandInt(2) ? [cat.hard, cat.easy] : [cat.easy, cat.hard]) : [cat.hard, cat.easy];
+  for(const list of order){
+    const pool = list.filter(w => !seen.has(w));
+    if(pool.length) return pool[drawRandInt(pool.length)];
+  }
+  // Whole category exhausted: take one of the least recently seen words of this category
+  const all = [...cat.easy, ...cat.hard];
+  all.sort((a, b) => DRAW_SEEN.indexOf(a) - DRAW_SEEN.indexOf(b));
+  const oldest = all.slice(0, Math.max(3, Math.floor(all.length / 4)));
+  return oldest[drawRandInt(oldest.length)] || 'APPLE';
+}
 
 function pickDrawWord(seed, level){
   const used = new Set();
@@ -2472,10 +2556,10 @@ const BG_RAW=`sci|1|Which planet is known as the Red Planet?|Mars|Venus|Jupiter|
 sci|1|Water that freezes becomes what?|Ice|Steam|Smoke|Sand
 sci|2|How many planets are in our solar system?|8|7|9|10
 sci|2|What is the chemical symbol for water?|H2O|CO2|O2|HO
-sci|3|Which gas do plants absorb from the air?|Carbon dioxide|Oxygen|Helium|Hydrogen
-sci|3|What is the hardest natural substance?|Diamond|Gold|Iron|Quartz
-sci|4|What is the powerhouse of the cell?|Mitochondria|Nucleus|Ribosome|Membrane
-sci|4|About how fast does light travel?|300,000 km/s|30,000 km/s|3,000 km/s|3 million km/s
+sci|2|Which gas do plants absorb from the air?|Carbon dioxide|Oxygen|Helium|Hydrogen
+sci|2|What is the hardest natural substance?|Diamond|Gold|Iron|Quartz
+sci|2|What is the powerhouse of the cell?|Mitochondria|Nucleus|Ribosome|Membrane
+sci|3|About how fast does light travel?|300,000 km/s|30,000 km/s|3,000 km/s|3 million km/s
 geo|1|Which continent is Egypt in?|Africa|Asia|Europe|Australia
 geo|1|What is the largest ocean?|Pacific|Atlantic|Indian|Arctic
 geo|2|What is the capital of France?|Paris|Rome|Madrid|Berlin
@@ -2483,47 +2567,47 @@ geo|2|In which country is the city of Tokyo?|Japan|China|Korea|Thailand
 geo|3|Which river is the longest in South America?|Amazon|Nile|Orinoco|Danube
 geo|3|What is the capital of Australia?|Canberra|Sydney|Melbourne|Perth
 geo|4|Which country has the most time zones?|France|Russia|USA|China
-geo|4|What is the smallest country in the world?|Vatican City|Monaco|Malta|San Marino
+geo|2|What is the smallest country in the world?|Vatican City|Monaco|Malta|San Marino
 his|1|Which ancient people built the pyramids of Giza?|Egyptians|Romans|Vikings|Aztecs
 his|1|Who sailed to the Americas in 1492?|Christopher Columbus|Marco Polo|Magellan|Captain Cook
 his|2|In which year did World War II end?|1945|1918|1939|1950
 his|2|Which city was the center of the Roman Empire?|Rome|Athens|Paris|Cairo
-his|3|Which empire was ruled by Genghis Khan?|Mongol Empire|Ottoman Empire|Persian Empire|Byzantine Empire
+his|2|Which empire was ruled by Genghis Khan?|Mongol Empire|Ottoman Empire|Persian Empire|Byzantine Empire
 his|3|In which year did the Berlin Wall fall?|1989|1979|1991|1969
-his|4|Which treaty ended World War I with Germany?|Treaty of Versailles|Treaty of Paris|Treaty of Rome|Treaty of Tordesillas
-his|4|Who was the first woman to win a Nobel Prize?|Marie Curie|Rosalind Franklin|Mother Teresa|Florence Nightingale
+his|3|Which treaty ended World War I with Germany?|Treaty of Versailles|Treaty of Paris|Treaty of Rome|Treaty of Tordesillas
+his|3|Who was the first woman to win a Nobel Prize?|Marie Curie|Rosalind Franklin|Mother Teresa|Florence Nightingale
 ani|1|What sound does a cow make?|Moo|Meow|Woof|Quack
 ani|1|Which animal is called the King of the Jungle?|Lion|Tiger|Bear|Wolf
 ani|2|What is a baby kangaroo called?|Joey|Cub|Kit|Pup
 ani|2|Which of these birds cannot fly?|Penguin|Eagle|Parrot|Owl
-ani|3|What is the fastest land animal?|Cheetah|Lion|Horse|Leopard
+ani|2|What is the fastest land animal?|Cheetah|Lion|Horse|Leopard
 ani|3|How many hearts does an octopus have?|3|1|2|8
-ani|4|What is a group of crows called?|A murder|A flock|A pack|A herd
-ani|4|Which mammal lays eggs?|Platypus|Dolphin|Bat|Kangaroo
+ani|3|What is a group of crows called?|A murder|A flock|A pack|A herd
+ani|3|Which mammal lays eggs?|Platypus|Dolphin|Bat|Kangaroo
 food|1|Which fruit is long and yellow?|Banana|Apple|Grape|Cherry
 food|1|Which treat is frozen, sweet and creamy?|Ice cream|Soup|Bread|Rice
 food|2|Which country did pizza come from?|Italy|France|Mexico|Greece
 food|2|What is sushi traditionally wrapped in?|Seaweed|Lettuce|Paper|Cheese
 food|3|Which spice is usually the most expensive by weight?|Saffron|Cinnamon|Pepper|Paprika
-food|3|What is tofu made from?|Soybeans|Rice|Wheat|Corn
+food|2|What is tofu made from?|Soybeans|Rice|Wheat|Corn
 food|4|Which pastry is used to make baklava?|Phyllo|Puff|Choux|Shortcrust
 food|4|Which rice is traditionally used for risotto?|Arborio|Basmati|Jasmine|Brown rice
 spt|1|How many players does one soccer team have on the field?|11|9|10|12
 spt|1|In which sport do you slam dunk?|Basketball|Tennis|Golf|Rugby
 spt|2|How many rings are on the Olympic flag?|5|4|6|7
 spt|2|Which sport uses a shuttlecock?|Badminton|Squash|Tennis|Cricket
-spt|3|Which country has won the most FIFA World Cups?|Brazil|Germany|Italy|France
-spt|3|In tennis, what is a score of zero called?|Love|Nil|Duck|Zero
-spt|4|How long is a marathon?|42.2 km|40 km|35 km|45 km
-spt|4|Which city hosted the 2016 Summer Olympics?|Rio de Janeiro|London|Beijing|Tokyo
+spt|2|Which country has won the most FIFA World Cups?|Brazil|Germany|Italy|France
+spt|2|In tennis, what is a score of zero called?|Love|Nil|Duck|Zero
+spt|2|How long is a marathon?|42.2 km|40 km|35 km|45 km
+spt|3|Which city hosted the 2016 Summer Olympics?|Rio de Janeiro|London|Beijing|Tokyo
 pop|1|Which animated film has a snowman named Olaf?|Frozen|Moana|Cars|Shrek
 pop|1|What animal is Simba in The Lion King?|Lion|Tiger|Bear|Cheetah
 pop|2|Who wrote the Harry Potter books?|J.K. Rowling|Roald Dahl|C.S. Lewis|Stan Lee
 pop|2|How many strings does a standard guitar have?|6|4|5|8
-pop|3|Which band sang "Hey Jude"?|The Beatles|Queen|ABBA|The Rolling Stones
-pop|3|Who painted "The Starry Night"?|Van Gogh|Picasso|Monet|Da Vinci
-pop|4|Who composed the "Moonlight Sonata"?|Beethoven|Mozart|Bach|Chopin
-pop|4|Who directed the movie Jurassic Park?|Steven Spielberg|James Cameron|George Lucas|Tim Burton
+pop|2|Which band sang "Hey Jude"?|The Beatles|Queen|ABBA|The Rolling Stones
+pop|2|Who painted "The Starry Night"?|Van Gogh|Picasso|Monet|Da Vinci
+pop|3|Who composed the "Moonlight Sonata"?|Beethoven|Mozart|Bach|Chopin
+pop|3|Who directed the movie Jurassic Park?|Steven Spielberg|James Cameron|George Lucas|Tim Burton
 wrd|1|What is the opposite of "hot"?|Cold|Warm|Big|Fast
 wrd|1|Which letter comes right after C?|D|B|E|F
 wrd|2|Which word means the same as "big"?|Large|Tiny|Quick|Soft
@@ -2551,23 +2635,20 @@ gen|2|Which ocean lies between Africa and Australia?|Indian Ocean|Atlantic Ocean
 gen|3|Which element has the chemical symbol Fe?|Iron|Fluorine|Francium|Fermium
 gen|3|What is the study of earthquakes called?|Seismology|Meteorology|Ecology|Astronomy
 gen|3|What is the longest bone in the human body?|Femur|Tibia|Humerus|Fibula
-gen|3|Which planet has the most prominent ring system?|Saturn|Mars|Mercury|Venus
-gen|3|In which direction does the Sun rise?|East|West|North|South
-gen|3|What do botanists study?|Plants|Rocks|Weather|Stars
-gen|3|Which continent has the largest population?|Asia|Africa|Europe|South America
-gen|3|What is the capital of Iceland?|Reykjavik|Oslo|Helsinki|Nuuk
-gen|4|What is the SI unit of electric current?|Ampere|Volt|Watt|Ohm
+gen|2|Which planet has the most prominent ring system?|Saturn|Mars|Mercury|Venus
+gen|1|In which direction does the Sun rise?|East|West|North|South
+gen|2|What do botanists study?|Plants|Rocks|Weather|Stars
+gen|2|Which continent has the largest population?|Asia|Africa|Europe|South America
+gen|2|What is the capital of Iceland?|Reykjavik|Oslo|Helsinki|Nuuk
+gen|3|What is the SI unit of electric current?|Ampere|Volt|Watt|Ohm
 gen|4|Which language family does Finnish belong to?|Uralic|Germanic|Romance|Slavic
 gen|4|What is the smallest bone in the human body?|Stapes|Femur|Patella|Ulna
 gen|4|What is the process by which plants release water vapor called?|Transpiration|Photosynthesis|Germination|Fermentation
 gen|4|Which strait separates Asia and North America?|Bering Strait|Gibraltar Strait|Malacca Strait|Bosporus
-gen|4|Which scientist developed the general theory of relativity?|Albert Einstein|Niels Bohr|Isaac Newton|Michael Faraday
-gen|4|Which desert is the largest hot desert in the world?|Sahara|Gobi|Kalahari|Mojave
-gen|4|What is the only even prime number?|2|0|4|6
+gen|3|What is the only even prime number?|2|0|4|6
 gen|1|Which animal is famous for carrying its home on its back?|Turtle|Rabbit|Fox|Horse
-gen|1|Which planet rotates so slowly that its day is longer than its year?|Venus|Mercury|Mars|Neptune
+gen|3|Which planet rotates so slowly that its day is longer than its year?|Venus|Mercury|Mars|Neptune
 gen|1|Which tool shows directions using a magnetic needle?|Compass|Thermometer|Telescope|Ruler
-gen|1|Which of these is a primary color of light?|Blue|Green|Orange|Purple
 gen|1|What is a baby dog called?|Puppy|Kitten|Calf|Chick
 gen|1|Which farm animal is known for producing wool?|Sheep|Pig|Duck|Goat
 gen|1|What do you call water in its gaseous state?|Water vapor|Ice|Dew|Snow
@@ -2595,7 +2676,6 @@ gen|2|Which vitamin can the body make when skin is exposed to sunlight?|Vitamin 
 gen|2|What is the hardest substance in the human body?|Tooth enamel|Bone|Cartilage|Fingernail
 gen|2|Which hypersaline lake on the Jordan-Israel border is famous for its exceptionally high salinity?|Dead Sea|Baltic Sea|Black Sea|North Sea
 gen|2|Which country is home to the ancient city of Machu Picchu?|Peru|Chile|Mexico|Bolivia
-gen|2|What is the name of the galaxy that contains our solar system?|Milky Way|Andromeda|Whirlpool|Sombrero
 gen|2|Which natural material is formed from the hardened resin of ancient trees?|Amber|Granite|Pumice|Slate
 gen|2|What is the longest river in Europe?|Volga|Danube|Rhine|Seine
 gen|2|Which animal is the largest living reptile?|Saltwater crocodile|Komodo dragon|Green anaconda|Nile monitor
@@ -2604,43 +2684,36 @@ gen|2|Which organ pumps blood around the human body?|Heart|Liver|Stomach|Pancrea
 gen|2|Which country is famous for the historic Angkor Wat temple complex?|Cambodia|Thailand|Nepal|Myanmar
 gen|2|Which part of the eye controls how much light enters?|Iris|Retina|Cornea|Lens
 gen|2|What is the largest island in the world, excluding continents?|Greenland|Borneo|Madagascar|New Guinea
-gen|3|Which scale is commonly used to measure the magnitude of earthquakes?|Moment magnitude scale|Beaufort scale|Richter temperature scale|Fujita scale
-gen|3|What is the name of the boundary where Earth's tectonic plates meet?|Plate boundary|Tropopause|Littoral zone|Watershed
 gen|3|Which blood type is known as the universal red-cell donor?|O negative|AB positive|A positive|B negative
 gen|3|Which planet rotates on its side relative to most planets?|Uranus|Mars|Mercury|Jupiter
 gen|3|What is the scientific study of fungi called?|Mycology|Ornithology|Herpetology|Entomology
 gen|3|Which ancient writing system used wedge-shaped marks on clay tablets?|Cuneiform|Hieroglyphics|Linear B|Runes
 gen|3|What is the name for animals that are most active at dawn and dusk?|Crepuscular|Nocturnal|Diurnal|Aquatic
 gen|3|Which layer of Earth's atmosphere contains most of the ozone layer?|Stratosphere|Troposphere|Mesosphere|Thermosphere
-gen|3|Which sea is the saltiest large body of water on Earth?|Dead Sea|Baltic Sea|Black Sea|North Sea
 gen|3|What is the name of the first artificial satellite launched into space?|Sputnik 1|Explorer 1|Vostok 1|Luna 2
 gen|3|Which scientist is associated with the laws of planetary motion?|Johannes Kepler|Louis Pasteur|Gregor Mendel|Dmitri Mendeleev
 gen|3|Which is the smallest of the world's major oceans?|Arctic Ocean|Indian Ocean|Atlantic Ocean|Southern Ocean
-gen|3|What is the main function of red blood cells?|Carry oxygen|Fight infection|Form antibodies|Digest fats
+gen|2|What is the main function of red blood cells?|Carry oxygen|Fight infection|Form antibodies|Digest fats
 gen|3|Which ancient civilization developed democracy in Athens?|Ancient Greeks|Phoenicians|Sumerians|Etruscans
-gen|3|What is the name of the imaginary line connecting the North and South Poles?|Axis|Equator|Ecliptic|Meridian
 gen|3|Which type of rock forms when existing rock is changed by heat and pressure?|Metamorphic|Igneous|Sedimentary|Volcanic ash
 gen|3|Which scientist proposed the three laws of motion?|Isaac Newton|James Clerk Maxwell|Charles Darwin|Antoine Lavoisier
 gen|3|What is the process called when a solid changes directly into a gas?|Sublimation|Condensation|Deposition|Evaporation
 gen|3|Which moon is the largest in the solar system?|Ganymede|Titan|Europa|Earth's Moon
 gen|3|Which country contains the region of Transylvania?|Romania|Hungary|Bulgaria|Serbia
-gen|4|Which particle in an atom has a negative electric charge?|Electron|Proton|Neutron|Nucleus
 gen|4|What is the name of the point in an orbit closest to the Sun?|Perihelion|Aphelion|Perigee|Zenith
 gen|4|Which scientist first described the circulation of blood through the body?|William Harvey|Andreas Vesalius|Edward Jenner|Robert Hooke
 gen|4|What is the name of the supercontinent that existed before today's continents drifted apart?|Pangaea|Gondwana|Laurasia|Rodinia
 gen|4|Which element is named after the Swedish village where it was discovered?|Ytterbium|Germanium|Polonium|Americium
-gen|4|What is the branch of mathematics that studies rates of change?|Calculus|Topology|Number theory|Combinatorics
+gen|3|What is the branch of mathematics that studies rates of change?|Calculus|Topology|Number theory|Combinatorics
 gen|4|Which treaty formally established the European Union in 1993?|Maastricht Treaty|Treaty of Versailles|Treaty of Utrecht|Treaty of Lisbon
 gen|4|What is the name of the boundary around a black hole beyond which light cannot escape?|Event horizon|Accretion disk|Singularity|Photon sphere
 gen|4|Which enzyme in saliva begins the digestion of starch?|Amylase|Pepsin|Lipase|Lactase
-gen|4|Which ancient Greek mathematician is known for a theorem about right triangles?|Pythagoras|Euclid|Archimedes|Eratosthenes
 gen|4|What is the term for the number of cycles a wave completes per second?|Frequency|Amplitude|Wavelength|Phase
 gen|4|Which layer of the Sun is visible as its apparent surface?|Photosphere|Corona|Chromosphere|Core
 gen|4|What is the name for a word or phrase that reads the same backward and forward?|Palindrome|Anagram|Oxymoron|Homonym
-gen|4|Which scientist showed that plants release oxygen during photosynthesis?|Joseph Priestley|Robert Brown|Jan Ingenhousz|Theodor Schwann
 gen|4|Which branch of biology focuses on the classification of organisms?|Taxonomy|Cytology|Embryology|Ethology
 gen|4|What is the name of the ancient trade route linking China with the Mediterranean?|Silk Road|Amber Road|Royal Road|Incense Route
-gen|4|Which number is represented by the Roman numeral XL?|40|60|90|15
+gen|3|Which number is represented by the Roman numeral XL?|40|60|90|15
 gen|4|What is the term for the point in an orbit farthest from Earth?|Apogee|Perigee|Aphelion|Perihelion
 gen|4|Which fundamental force holds protons and neutrons together in an atomic nucleus?|Strong nuclear force|Electromagnetic force|Gravity|Weak nuclear force
 gen|4|What is the study of the origin and history of words called?|Etymology|Phonetics|Syntax|Lexicography
@@ -2691,60 +2764,173 @@ his|2|Who painted the Mona Lisa?|Leonardo da Vinci|Michelangelo|Raphael|Van Gogh
 his|2|Which ship sank in 1912 after hitting an iceberg?|Titanic|Lusitania|Britannic|Bismarck
 his|2|Who was the first President of the United States?|George Washington|Abraham Lincoln|Thomas Jefferson|John Adams
 his|2|Who is widely regarded as the national hero of the Philippines?|José Rizal|Andrés Bonifacio|Emilio Aguinaldo|Apolinario Mabini
-gen|3|Which painter famously cut off part of his own ear?|Vincent van Gogh|Pablo Picasso|Claude Monet|Salvador Dalí
+gen|2|Which painter famously cut off part of his own ear?|Vincent van Gogh|Pablo Picasso|Claude Monet|Salvador Dalí
 gen|3|Which composer wrote "The Four Seasons"?|Vivaldi|Mozart|Bach|Beethoven
-gen|3|In chess, which piece moves only diagonally?|Bishop|Rook|Knight|Pawn
-gen|3|What is the Spanish word for "thank you"?|Gracias|Merci|Danke|Grazie
-gen|3|Which tennis tournament is played on grass in London?|Wimbledon|US Open|Roland Garros|Australian Open
+gen|2|In chess, which piece moves only diagonally?|Bishop|Rook|Knight|Pawn
+gen|2|What is the Spanish word for "thank you"?|Gracias|Merci|Danke|Grazie
+gen|2|Which tennis tournament is played on grass in London?|Wimbledon|US Open|Roland Garros|Australian Open
 gen|3|How many strings does a standard violin have?|4|5|6|3
-gen|3|What does CPU stand for?|Central Processing Unit|Computer Personal Unit|Central Program Utility|Core Power Unit
+gen|2|What does CPU stand for?|Central Processing Unit|Computer Personal Unit|Central Program Utility|Core Power Unit
 gen|3|Which language has the most native speakers?|Mandarin Chinese|English|Spanish|Hindi
-sci|3|What is the chemical symbol for gold?|Au|Ag|Gd|Go
-sci|3|Which planet has the Great Red Spot?|Jupiter|Mars|Saturn|Neptune
-sci|3|What is the largest organ of the human body?|Skin|Liver|Brain|Lungs
-sci|3|What type of animal is a Komodo dragon?|Lizard|Snake|Crocodile|Turtle
-sci|3|What process do plants use to make their food?|Photosynthesis|Respiration|Digestion|Fermentation
-sci|3|Which blood cells carry oxygen?|Red blood cells|White blood cells|Platelets|Plasma
+sci|2|What is the chemical symbol for gold?|Au|Ag|Gd|Go
+sci|2|Which planet has the Great Red Spot?|Jupiter|Mars|Saturn|Neptune
+sci|2|What is the largest organ of the human body?|Skin|Liver|Brain|Lungs
+sci|2|What type of animal is a Komodo dragon?|Lizard|Snake|Crocodile|Turtle
+sci|2|What process do plants use to make their food?|Photosynthesis|Respiration|Digestion|Fermentation
+sci|2|Which blood cells carry oxygen?|Red blood cells|White blood cells|Platelets|Plasma
 sci|3|Which star is closest to Earth after the Sun?|Proxima Centauri|Sirius|Betelgeuse|Vega
 geo|3|Which is the longest river in Asia?|Yangtze|Mekong|Ganges|Indus
 geo|3|What is the capital of Turkey?|Ankara|Istanbul|Izmir|Bursa
 geo|3|Which strait separates Spain from Morocco?|Strait of Gibraltar|Bosphorus|Strait of Hormuz|Strait of Malacca
 geo|3|In which country is Mount Kilimanjaro?|Tanzania|Kenya|Uganda|Ethiopia
-geo|3|Which is the deepest ocean trench?|Mariana Trench|Tonga Trench|Java Trench|Puerto Rico Trench
+geo|2|Which is the deepest ocean trench?|Mariana Trench|Tonga Trench|Java Trench|Puerto Rico Trench
 geo|3|What is the capital of Brazil?|Brasília|Rio de Janeiro|São Paulo|Salvador
 geo|3|Lake Titicaca lies on the border of Peru and which country?|Bolivia|Chile|Ecuador|Colombia
-his|3|Which civilization built Machu Picchu?|Inca|Aztec|Maya|Olmec
+his|2|Which civilization built Machu Picchu?|Inca|Aztec|Maya|Olmec
 his|3|Who discovered penicillin?|Alexander Fleming|Louis Pasteur|Marie Curie|Joseph Lister
 his|3|Which explorer led the Spanish expedition that reached the Philippines in 1521?|Ferdinand Magellan|Christopher Columbus|Vasco da Gama|Miguel López de Legazpi
-his|3|Who led India's nonviolent independence movement?|Mahatma Gandhi|Jawaharlal Nehru|Subhas Chandra Bose|Bhagat Singh
+his|2|Who led India's nonviolent independence movement?|Mahatma Gandhi|Jawaharlal Nehru|Subhas Chandra Bose|Bhagat Singh
 his|3|Which queen ruled Britain for 63 years until 1901?|Queen Victoria|Elizabeth I|Queen Anne|Mary I
 his|3|The Renaissance began in which country?|Italy|France|England|Spain
-gen|4|Which Russian author wrote "War and Peace"?|Leo Tolstoy|Fyodor Dostoevsky|Anton Chekhov|Nikolai Gogol
-gen|4|Which Greek mathematician is linked to the a²+b²=c² theorem?|Pythagoras|Euclid|Archimedes|Fibonacci
-gen|4|Which artist painted "The Persistence of Memory"?|Salvador Dalí|Pablo Picasso|René Magritte|Joan Miró
-gen|4|Which Japanese poem form has three lines of 5-7-5 syllables?|Haiku|Tanka|Sonnet|Limerick
-gen|4|Which programming language is named after a snake?|Python|Java|Swift|Rust
-gen|4|Which city hosted the first modern Olympic Games in 1896?|Athens|Paris|London|Rome
-gen|4|Who composed the Ninth Symphony with "Ode to Joy"?|Beethoven|Mozart|Brahms|Schubert
+gen|3|Which Russian author wrote "War and Peace"?|Leo Tolstoy|Fyodor Dostoevsky|Anton Chekhov|Nikolai Gogol
+gen|2|Which Greek mathematician is linked to the a²+b²=c² theorem?|Pythagoras|Euclid|Archimedes|Fibonacci
+gen|3|Which artist painted "The Persistence of Memory"?|Salvador Dalí|Pablo Picasso|René Magritte|Joan Miró
+gen|3|Which Japanese poem form has three lines of 5-7-5 syllables?|Haiku|Tanka|Sonnet|Limerick
+gen|2|Which programming language is named after a snake?|Python|Java|Swift|Rust
+gen|3|Which city hosted the first modern Olympic Games in 1896?|Athens|Paris|London|Rome
+gen|3|Who composed the Ninth Symphony with "Ode to Joy"?|Beethoven|Mozart|Brahms|Schubert
 sci|4|Which subatomic particle carries a negative charge?|Electron|Proton|Neutron|Quark
-sci|4|What is the pH of pure water at 25°C?|7|0|14|5
-sci|4|What is the SI unit of force?|Newton|Joule|Watt|Pascal
-sci|4|Who proposed the theory of general relativity?|Albert Einstein|Isaac Newton|Niels Bohr|Max Planck
-sci|4|What is the most abundant gas in Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Argon
-sci|4|Which element has atomic number 1?|Hydrogen|Helium|Lithium|Carbon
-sci|4|What is the name of the galaxy we live in?|Milky Way|Andromeda|Triangulum|Whirlpool
-sci|4|In human cells, where is most DNA found?|Nucleus|Cytoplasm|Vacuole|Lysosome
+sci|3|What is the pH of pure water at 25°C?|7|0|14|5
+sci|3|What is the SI unit of force?|Newton|Joule|Watt|Pascal
+sci|2|Who proposed the theory of general relativity?|Albert Einstein|Isaac Newton|Niels Bohr|Max Planck
+sci|2|What is the most abundant gas in Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Argon
+sci|2|Which element has atomic number 1?|Hydrogen|Helium|Lithium|Carbon
+sci|1|What is the name of the galaxy we live in?|Milky Way|Andromeda|Triangulum|Whirlpool
+sci|2|In human cells, where is most DNA found?|Nucleus|Cytoplasm|Vacuole|Lysosome
 geo|4|Which country has the longest coastline in the world?|Canada|Russia|Australia|Indonesia
 geo|4|What is the capital of Kazakhstan?|Astana|Almaty|Tashkent|Bishkek
 geo|4|Which African country was formerly known as Abyssinia?|Ethiopia|Eritrea|Somalia|Sudan
-geo|4|What is the tallest waterfall in the world?|Angel Falls|Niagara Falls|Victoria Falls|Iguazu Falls
-geo|4|Which lake is the deepest in the world?|Lake Baikal|Lake Superior|Lake Tanganyika|Lake Victoria
-his|4|Which battle ended Napoleon's rule in 1815?|Waterloo|Austerlitz|Trafalgar|Borodino
-his|4|Who was the first woman to fly solo across the Atlantic?|Amelia Earhart|Bessie Coleman|Harriet Quimby|Jacqueline Cochran
+geo|3|What is the tallest waterfall in the world?|Angel Falls|Niagara Falls|Victoria Falls|Iguazu Falls
+geo|3|Which lake is the deepest in the world?|Lake Baikal|Lake Superior|Lake Tanganyika|Lake Victoria
+his|3|Which battle ended Napoleon's rule in 1815?|Waterloo|Austerlitz|Trafalgar|Borodino
+his|3|Who was the first woman to fly solo across the Atlantic?|Amelia Earhart|Bessie Coleman|Harriet Quimby|Jacqueline Cochran
 his|4|Which dynasty built most of the surviving Great Wall?|Ming|Qin|Han|Tang
 his|4|In what year did the Philippines declare independence from Spain?|1898|1946|1872|1521
-his|4|Which charter signed in 1215 limited King John's power?|Magna Carta|Bill of Rights|Domesday Book|Declaration of Arbroath
-his|4|Who co-wrote The Communist Manifesto with Karl Marx?|Friedrich Engels|Vladimir Lenin|Leon Trotsky|Mikhail Bakunin`;
+his|3|Which charter signed in 1215 limited King John's power?|Magna Carta|Bill of Rights|Domesday Book|Declaration of Arbroath
+his|4|Who co-wrote The Communist Manifesto with Karl Marx?|Friedrich Engels|Vladimir Lenin|Leon Trotsky|Mikhail Bakunin
+sci|3|What is the chemical symbol for sodium?|Na|So|Sd|Sn
+sci|3|Which organ produces insulin?|Pancreas|Liver|Kidney|Spleen
+sci|3|What is the process by which a cell divides into two identical cells?|Mitosis|Meiosis|Osmosis|Diffusion
+sci|3|Which scientist is credited with discovering the electron?|J.J. Thomson|Ernest Rutherford|Niels Bohr|James Chadwick
+sci|3|Which type of chemical bond involves sharing pairs of electrons?|Covalent bond|Ionic bond|Hydrogen bond|Metallic bond
+sci|3|Roughly how fast does sound travel through air at sea level?|343 m/s|34 m/s|3,430 m/s|300,000 m/s
+sci|3|A lack of which vitamin causes scurvy?|Vitamin C|Vitamin D|Vitamin A|Vitamin K
+sci|3|What is the most abundant element in the universe?|Hydrogen|Helium|Oxygen|Carbon
+sci|3|Which cell structure contains chlorophyll?|Chloroplast|Mitochondrion|Nucleus|Golgi apparatus
+sci|3|What is the atomic number of carbon?|6|12|8|4
+sci|3|Which planet has the shortest year?|Mercury|Venus|Mars|Earth
+sci|3|What does a seismograph measure?|Earthquake waves|Wind speed|Air pressure|Rainfall
+sci|3|Which organelle is the site of protein synthesis in a cell?|Ribosome|Lysosome|Golgi apparatus|Vacuole
+sci|3|Which hormone is mainly responsible for regulating sleep cycles?|Melatonin|Cortisol|Insulin|Adrenaline
+sci|3|Which metal is the best conductor of electricity?|Silver|Copper|Gold|Aluminium
+sci|4|Which scientist discovered the neutron in 1932?|James Chadwick|Ernest Rutherford|J.J. Thomson|Niels Bohr
+sci|4|Which metal has the highest melting point?|Tungsten|Titanium|Platinum|Iron
+sci|4|The Chandrasekhar limit describes the maximum mass of what?|A white dwarf star|A neutron star|A black hole|A planet
+sci|4|Which law states that the pressure and volume of a gas are inversely proportional at constant temperature?|Boyle's law|Charles's law|Avogadro's law|Ohm's law
+sci|4|What type of galaxy is the Milky Way?|Barred spiral|Elliptical|Irregular|Lenticular
+sci|4|Which element is the most electronegative?|Fluorine|Oxygen|Chlorine|Nitrogen
+sci|4|Which particle carries the electromagnetic force?|Photon|Gluon|W boson|Graviton
+sci|4|What is the approximate age of the universe?|13.8 billion years|4.5 billion years|1 trillion years|6 billion years
+sci|4|Which planet has the large moon Triton?|Neptune|Uranus|Saturn|Jupiter
+sci|4|Which scientist formulated the uncertainty principle?|Werner Heisenberg|Erwin Schrödinger|Max Born|Paul Dirac
+sci|4|Which gas is the main component of the atmosphere of Mars?|Carbon dioxide|Nitrogen|Oxygen|Methane
+geo|3|Which country is the city of Timbuktu in?|Mali|Niger|Mauritania|Senegal
+geo|3|What is the capital of New Zealand?|Wellington|Auckland|Christchurch|Hamilton
+geo|3|Which river flows through Baghdad?|Tigris|Euphrates|Nile|Jordan
+geo|3|Which is the largest country in Africa by area?|Algeria|Sudan|Democratic Republic of the Congo|Libya
+geo|3|Which is the world's largest inland body of water?|Caspian Sea|Black Sea|Dead Sea|Aral Sea
+geo|3|Which country has the most natural lakes?|Canada|Russia|United States|Finland
+geo|3|Which is the longest mountain range above water?|Andes|Rockies|Himalayas|Alps
+geo|3|Which desert covers much of Botswana?|Kalahari|Namib|Gobi|Sahara
+geo|4|Which country has the most islands in the world?|Sweden|Indonesia|Philippines|Canada
+geo|4|What is the capital of Bhutan?|Thimphu|Kathmandu|Dhaka|Paro
+geo|4|Which two countries share the longest international land border?|Canada and the United States|Russia and China|Argentina and Chile|India and Bangladesh
+geo|4|What is the highest mountain in South America?|Aconcagua|Chimborazo|Huascarán|Illimani
+geo|4|Which is the largest lake in Africa by area?|Lake Victoria|Lake Tanganyika|Lake Malawi|Lake Chad
+his|3|Which pharaoh's nearly intact tomb was discovered in 1922?|Tutankhamun|Ramses II|Khufu|Akhenaten
+his|3|Who was the first emperor of Rome?|Augustus|Julius Caesar|Nero|Caligula
+his|3|Which conflict was fought between the houses of Lancaster and York?|Wars of the Roses|Hundred Years' War|English Civil War|Crimean War
+his|3|Which empire was ruled by Montezuma II?|Aztec Empire|Inca Empire|Maya civilization|Olmec civilization
+his|3|Which ancient wonder stood on the island of Pharos near Alexandria?|The Lighthouse|The Hanging Gardens|The Colossus|The Temple of Artemis
+his|3|In which year did the French Revolution begin?|1789|1776|1804|1815
+his|3|Who nailed the 95 Theses to a church door in 1517?|Martin Luther|John Calvin|Erasmus|Thomas More
+his|3|At which 1805 naval battle did Admiral Nelson die?|Trafalgar|Waterloo|Jutland|Copenhagen
+his|4|Which Roman general crossed the Rubicon in 49 BC?|Julius Caesar|Pompey|Mark Antony|Scipio
+his|4|Which dynasty ruled China immediately before the Qing?|Ming|Han|Tang|Song
+his|4|In which year was the Battle of Hastings fought?|1066|1166|1086|1006
+his|4|Which 1648 treaty ended the Thirty Years' War?|Peace of Westphalia|Treaty of Utrecht|Treaty of Trianon|Congress of Vienna
+his|4|Who was crowned Emperor of the Romans by the Pope in 800?|Charlemagne|Otto I|Frederick Barbarossa|Constantine
+his|4|Which Mughal emperor commissioned the Taj Mahal?|Shah Jahan|Akbar|Babur|Aurangzeb
+his|4|In which year did the Ottomans capture Constantinople?|1453|1492|1389|1204
+his|4|In which year did the Chernobyl disaster happen?|1986|1979|1991|1983
+ani|3|What is the largest species of penguin?|Emperor penguin|King penguin|Adélie penguin|Gentoo penguin
+ani|3|Which land animal has the longest pregnancy?|Elephant|Giraffe|Rhinoceros|Hippopotamus
+ani|3|What is a group of lions called?|A pride|A pack|A herd|A troop
+ani|3|Which living bird lays the largest egg?|Ostrich|Emu|Albatross|Eagle
+ani|3|Which is the only mammal capable of true flight?|Bat|Flying squirrel|Sugar glider|Colugo
+ani|4|What is a group of flamingos called?|A flamboyance|A pride|A parliament|A murder
+ani|4|Which land animal has the highest blood pressure?|Giraffe|Elephant|Blue whale|Ostrich
+ani|4|Which is the largest living species of shark?|Whale shark|Great white shark|Basking shark|Tiger shark
+ani|4|Which animal is known for having fingerprints very similar to humans'?|Koala|Chimpanzee|Gorilla|Raccoon
+food|3|What is the main ingredient of hummus?|Chickpeas|Lentils|Black beans|Soybeans
+food|3|Which cheese is traditionally used in a Greek salad?|Feta|Gouda|Cheddar|Brie
+food|3|What is the Japanese dish of thinly sliced raw fish served without rice called?|Sashimi|Sushi|Tempura|Teriyaki
+food|3|What is the main ingredient in traditional Italian pesto?|Basil|Parsley|Spinach|Mint
+food|3|Which nut is used to make marzipan?|Almond|Cashew|Walnut|Pistachio
+food|3|What does the Scoville scale measure?|Spiciness of peppers|Sweetness|Saltiness|Acidity
+food|4|Which classic French sauce is made from butter, egg yolks and lemon juice?|Hollandaise|Béchamel|Velouté|Espagnole
+food|4|Which grain is used to make the Ethiopian flatbread injera?|Teff|Barley|Maize|Sorghum
+spt|3|Which country hosted the 2018 FIFA World Cup?|Russia|Brazil|Qatar|Germany
+spt|3|In golf, what is one stroke under par called?|Birdie|Eagle|Bogey|Albatross
+spt|3|How many points is a touchdown worth in American football?|6|7|3|5
+spt|3|Who won a record 23 Olympic gold medals in swimming?|Michael Phelps|Ian Thorpe|Mark Spitz|Ryan Lochte
+spt|3|What is the highest possible score in a single game of ten-pin bowling?|300|200|250|400
+spt|4|Which country won the first FIFA World Cup in 1930?|Uruguay|Brazil|Argentina|Italy
+spt|4|Which country has won the most Summer Olympic gold medals overall?|United States|Soviet Union|China|Great Britain
+pop|3|Which artist painted "Girl with a Pearl Earring"?|Johannes Vermeer|Rembrandt|Frans Hals|Jan van Eyck
+pop|3|Who is the author of "The Lord of the Rings"?|J.R.R. Tolkien|C.S. Lewis|George R.R. Martin|Roald Dahl
+pop|3|In Romeo and Juliet, which family is the rival of the Montagues?|The Capulets|The Lancasters|The Medicis|The Borgias
+pop|4|Who directed the film "Pulp Fiction"?|Quentin Tarantino|Martin Scorsese|David Fincher|Steven Soderbergh
+pop|4|Which author created the detective Hercule Poirot?|Agatha Christie|Arthur Conan Doyle|Dorothy L. Sayers|Raymond Chandler
+pop|4|Which composer wrote the opera "The Magic Flute"?|Mozart|Verdi|Wagner|Puccini
+pop|4|Who painted "Guernica"?|Pablo Picasso|Salvador Dalí|Joan Miró|Diego Rivera
+pop|4|Which novel opens with the line "Call me Ishmael"?|Moby-Dick|Treasure Island|Robinson Crusoe|Great Expectations
+pop|4|In which Shakespeare play does the villain Iago appear?|Othello|Hamlet|Macbeth|King Lear
+pop|4|Who wrote the dystopian novel "1984"?|George Orwell|Aldous Huxley|Ray Bradbury|H.G. Wells
+wrd|3|Which word is a synonym of "benevolent"?|Kind|Hostile|Lazy|Clumsy
+wrd|3|What is the plural of "phenomenon"?|Phenomena|Phenomenons|Phenomenae|Phenomenas
+wrd|4|Which phrase is an example of an oxymoron?|Deafening silence|Loud noise|Quick run|Bright light
+wrd|4|What is a word formed from the initial letters of a name and pronounced as a word, like NASA?|Acronym|Initialism|Abbreviation|Portmanteau
+wrd|4|What does "ubiquitous" mean?|Present everywhere|Very rare|Extremely old|Easily broken
+wrd|4|Which word is closest in meaning to "ephemeral"?|Short-lived|Eternal|Powerful|Ancient
+math|3|What is the next number in the sequence 2, 3, 5, 7, 11?|13|12|15|14
+math|3|What is the area of a circle with a radius of 3?|9π|6π|3π|12π
+math|3|What is 15% of 240?|36|24|30|40
+math|4|What is the sum of the interior angles of a hexagon?|720°|540°|900°|360°
+math|4|What is 7 factorial (7!)?|5040|720|40320|2520
+math|4|What is the next prime number after 89?|97|91|93|101
+math|4|What is the derivative of sin(x)?|cos(x)|-sin(x)|-cos(x)|tan(x)
+math|4|What is the approximate value of Euler's number e?|2.718|3.142|1.618|1.414
+gen|3|In which year did the first iPhone launch?|2007|2005|2009|2010
+gen|3|Who is credited with inventing the World Wide Web?|Tim Berners-Lee|Bill Gates|Steve Jobs|Vint Cerf
+gen|3|What is the currency of Switzerland?|Swiss franc|Euro|Krona|Pound
+gen|3|What is the largest desert in the world, counting polar deserts?|Antarctic Desert|Sahara|Arctic Desert|Gobi
+gen|3|Which Greek philosopher tutored Alexander the Great?|Aristotle|Plato|Socrates|Pythagoras
+gen|3|Which philosopher wrote "The Republic"?|Plato|Aristotle|Socrates|Epicurus
+gen|4|What is the smallest country in Africa by area?|Seychelles|Gambia|Eswatini|Djibouti
+gen|4|Which Austrian physicist is known for a thought experiment involving a cat in a box?|Erwin Schrödinger|Werner Heisenberg|Max Planck|Wolfgang Pauli
+gen|4|Which mathematician is known for his last theorem, proved in 1994 by Andrew Wiles?|Pierre de Fermat|Carl Friedrich Gauss|Leonhard Euler|Blaise Pascal
+gen|4|Which Renaissance polymath designed flying machines and painted "The Last Supper"?|Leonardo da Vinci|Michelangelo|Galileo Galilei|Raphael`;
 const BG_QS=BG_RAW.trim().split('\n').map(l=>{const p=l.split('|');return{c:p[0],d:+p[1],q:p[2],a:p.slice(3)}});
 /* ===== Endless question engine: live trivia API + generators + curated, with no-repeat tracking ===== */
 let bgCurQ=null;
@@ -2756,7 +2942,8 @@ function bgMarkSeen(h){const s=bgSeenSet();s.add(h);try{localStorage.setItem('bg
 const BG_FW=FALLBACK_WORDS.split(' ').filter(w=>/^[a-z]+$/.test(w));
 const BG_CAP={1:'France:Paris,Japan:Tokyo,Italy:Rome,Spain:Madrid,Germany:Berlin,Egypt:Cairo,China:Beijing,India:New Delhi,Brazil:Brasília,Canada:Ottawa,Mexico:Mexico City,Russia:Moscow,Australia:Canberra,United Kingdom:London,Greece:Athens',
 2:'Argentina:Buenos Aires,Portugal:Lisbon,Turkey:Ankara,Thailand:Bangkok,Kenya:Nairobi,Peru:Lima,Norway:Oslo,Sweden:Stockholm,Poland:Warsaw,Ireland:Dublin,Austria:Vienna,Cuba:Havana,Chile:Santiago,Vietnam:Hanoi,South Korea:Seoul,Philippines:Manila,Indonesia:Jakarta,Saudi Arabia:Riyadh,Colombia:Bogotá',
-3:'Nigeria:Abuja,Morocco:Rabat,Ethiopia:Addis Ababa,Pakistan:Islamabad,Bangladesh:Dhaka,Kazakhstan:Astana,Ukraine:Kyiv,Switzerland:Bern,Finland:Helsinki,Denmark:Copenhagen,Hungary:Budapest,Czech Republic:Prague,New Zealand:Wellington,Ghana:Accra,Tanzania:Dodoma,Myanmar:Naypyidaw,Ecuador:Quito,Mongolia:Ulaanbaatar,Nepal:Kathmandu,Malaysia:Kuala Lumpur,Iceland:Reykjavik,Cambodia:Phnom Penh,Uganda:Kampala,Laos:Vientiane,Jordan:Amman'};
+3:'Nigeria:Abuja,Morocco:Rabat,Ethiopia:Addis Ababa,Pakistan:Islamabad,Bangladesh:Dhaka,Kazakhstan:Astana,Ukraine:Kyiv,Switzerland:Bern,Finland:Helsinki,Denmark:Copenhagen,Hungary:Budapest,Czech Republic:Prague,New Zealand:Wellington,Ghana:Accra,Tanzania:Dodoma,Myanmar:Naypyidaw,Ecuador:Quito,Mongolia:Ulaanbaatar,Nepal:Kathmandu,Malaysia:Kuala Lumpur,Iceland:Reykjavik,Cambodia:Phnom Penh,Uganda:Kampala,Laos:Vientiane,Jordan:Amman',
+4:'Bhutan:Thimphu,Burkina Faso:Ouagadougou,Eritrea:Asmara,Uzbekistan:Tashkent,Turkmenistan:Ashgabat,Tajikistan:Dushanbe,Azerbaijan:Baku,Georgia:Tbilisi,Armenia:Yerevan,Belarus:Minsk,Latvia:Riga,Lithuania:Vilnius,Estonia:Tallinn,Slovakia:Bratislava,Slovenia:Ljubljana,Croatia:Zagreb,Serbia:Belgrade,Albania:Tirana,North Macedonia:Skopje,Mozambique:Maputo,Zambia:Lusaka,Zimbabwe:Harare,Madagascar:Antananarivo,Senegal:Dakar,Cameroon:Yaoundé,Botswana:Gaborone,Namibia:Windhoek,Brunei:Bandar Seri Begawan,Suriname:Paramaribo,Paraguay:Asunción,Kyrgyzstan:Bishkek,Sri Lanka:Sri Jayawardenepura Kotte,Libya:Tripoli,Sudan:Khartoum,Oman:Muscat,Qatar:Doha,Yemen:Sanaa'};
 const BG_PAIRS=Object.values(BG_CAP).join(',').split(',').map(x=>x.split(':'));
 function bgNumOpts(a){const c=bgShuf([a+1,a-1,a+2,a-2,a+10,a-10,a+3,a-3,a*2,Math.round(a/2)]).filter(x=>x!==a&&x>=0);return[...new Set(c)].slice(0,3).map(String)}
 function genMath(d){const r=bgRnd,t=r(d<3?2:3);let q,a;
@@ -2765,7 +2952,7 @@ function genMath(d){const r=bgRnd,t=r(d<3?2:3);let q,a;
   else if(d===3){if(t===0){const x=3+r(10),y=3+r(10),z=5+r(30);q='What is ('+x+' × '+y+') + '+z+'?';a=x*y+z}else if(t===1){const p=[10,20,25,50][r(4)],n=(2+r(18))*20;q='What is '+p+'% of '+n+'?';a=p*n/100}else{const s=2+r(6),k=2+r(3);q='What comes next? '+[0,1,2,3].map(i=>s*Math.pow(k,i)).join(', ')+', ?';a=s*Math.pow(k,4)}}
   else{if(t===0){const x=11+r(15);q='What is '+x+'²?';a=x*x}else if(t===1){const x=6+r(20);q='What is the square root of '+x*x+'?';a=x}else{const x=3+r(10);q='What is '+x+' cubed?';a=x*x*x}}
   return{c:'math',q,a:[String(a),...bgNumOpts(a)]}}
-function genCap(d){const tier=d===1?1:d===2?2:d===3?2+bgRnd(2):3,p=BG_CAP[tier].split(',').map(x=>x.split(':')),[c,cap]=p[bgRnd(p.length)];
+function genCap(d){const tier=d===1?1:d===2?2:d===3?3:3+bgRnd(2),p=BG_CAP[tier].split(',').map(x=>x.split(':')),[c,cap]=p[bgRnd(p.length)];
   if(d>1&&bgRnd(2)){return{c:'geo',q:cap+' is the capital of which country?',a:[c,...bgShuf(BG_PAIRS.filter(x=>x[0]!==c)).slice(0,3).map(x=>x[0])]}}
   return{c:'geo',q:'What is the capital of '+c+'?',a:[cap,...bgShuf(BG_PAIRS.filter(x=>x[1]!==cap)).slice(0,3).map(x=>x[1])]}}
 function genUnsc(d){const [lo,hi]=[[3,4],[5,5],[6,7],[8,9]][d-1],ws=BG_FW.filter(w=>w.length>=lo&&w.length<=hi);if(!ws.length)return null;
@@ -2780,7 +2967,26 @@ function genSpell(d){const ws=BG_FW.filter(w=>w.length>=4+d);if(!ws.length)retur
 function genGen(d){const SH={triangle:3,square:4,pentagon:5,hexagon:6,heptagon:7,octagon:8,nonagon:9,decagon:10},MO='January February March April May June July August September October November December'.split(' ');
   if(bgRnd(2)){const k=Object.keys(SH).slice(0,d<3?4:8),s=k[bgRnd(k.length)],a=SH[s];return{c:'gen',q:'How many sides does a '+s+' have?',a:[String(a),...bgNumOpts(a).filter(x=>+x>=3)]}}
   const i=bgRnd(12),k=d<3?1:2+bgRnd(4),ans=MO[(i+k)%12];return{c:'gen',q:k===1?'Which month comes right after '+MO[i]+'?':'Which month is '+k+' months after '+MO[i]+'?',a:[ans,...bgShuf(MO.filter(m=>m!==ans)).slice(0,3)]}}
-function bgGen(d){for(const f of bgShuf([genMath,genMath,genCap,genGen,genUnsc,genSpell])){const Q=f(d);if(Q&&Q.a.length===4&&new Set(Q.a).size===4)return Q}return genMath(d)}
+/* Harder generators (Hard / Expert tiles only). The simple shape/month generator is limited to Easy / Medium tiles. */
+function toRoman(n){const m=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';m.forEach(([v,r])=>{while(n>=v){s+=r;n-=v}});return s}
+function genRoman(d){const a=d<=3?14+bgRnd(86):140+bgRnd(1860);
+  if(bgRnd(2))return{c:'math',q:'Which number does the Roman numeral '+toRoman(a)+' stand for?',a:[String(a),...bgNumOpts(a)]};
+  return{c:'math',q:'How is the number '+a+' written in Roman numerals?',a:[toRoman(a),...bgNumOpts(a).map(x=>toRoman(+x)).filter(x=>x)]}}
+const BG_EL=[['Hydrogen','H',1],['Helium','He',2],['Lithium','Li',3],['Carbon','C',6],['Nitrogen','N',7],['Oxygen','O',8],['Neon','Ne',10],['Sodium','Na',11],['Magnesium','Mg',12],['Aluminium','Al',13],['Silicon','Si',14],['Sulfur','S',16],['Chlorine','Cl',17],['Potassium','K',19],['Calcium','Ca',20],['Iron','Fe',26],['Copper','Cu',29],['Zinc','Zn',30],['Silver','Ag',47],['Tin','Sn',50],['Tungsten','W',74],['Gold','Au',79],['Mercury','Hg',80],['Lead','Pb',82],['Uranium','U',92]];
+function genElem(d){const tricky=BG_EL.filter(e=>e[0][0]!==e[1][0]),t=bgRnd(2);
+  if(d===3||t){const e=tricky[bgRnd(tricky.length)];
+    if(d===3||bgRnd(2))return{c:'sci',q:'What is the chemical symbol for '+e[0].toLowerCase()+'?',a:[e[1],...bgShuf(BG_EL.filter(x=>x[1]!==e[1])).slice(0,3).map(x=>x[1])]};
+    return{c:'sci',q:'Which element has the chemical symbol '+e[1]+'?',a:[e[0],...bgShuf(BG_EL.filter(x=>x[0]!==e[0])).slice(0,3).map(x=>x[0])]}}
+  const e=BG_EL.filter(x=>x[2]>=10)[bgRnd(BG_EL.filter(x=>x[2]>=10).length)];
+  return{c:'sci',q:'What is the atomic number of '+e[0].toLowerCase()+'?',a:[String(e[2]),...bgNumOpts(e[2])]}}
+function genPrime(d){const isP=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true},lo=d===3?20:100,hi=d===3?100:300;
+  let p;for(let i=0;i<500;i++){p=lo+bgRnd(hi-lo);if(isP(p))break}if(!isP(p))return null;
+  const bad=[];for(let i=0;i<600&&bad.length<3;i++){const n=lo+bgRnd(hi-lo);if(!isP(n)&&n%2&&n%3&&(d===3||n%5)&&!bad.includes(n))bad.push(n)}
+  return bad.length<3?null:{c:'math',q:'Which of these numbers is prime?',a:[String(p),...bad.map(String)]}}
+function genBase(d){const a=d<=3?5+bgRnd(11):20+bgRnd(44);return{c:'math',q:'What is the binary number '+a.toString(2)+' in decimal?',a:[String(a),...bgNumOpts(a)]}}
+function bgGen(d){
+  const set=d<=2?[genMath,genMath,genCap,genGen,genUnsc,genSpell]:[genMath,genCap,genRoman,genElem,genPrime,genBase,genUnsc,genSpell];
+  for(const f of bgShuf(set)){const Q=f(d);if(Q&&Q.a.length===4&&new Set(Q.a).size===4)return Q}return genMath(d)}
 /* Live pool from Open Trivia DB (thousands of questions, family-filtered). Falls back silently when offline. */
 const BGX={tok:null,pool:{easy:[],medium:[],hard:[]},busy:false,last:0};
 const BGX_MAP={9:'gen',17:'sci',22:'geo',23:'his',27:'ani',21:'spt',11:'pop',12:'pop',10:'pop',25:'pop',20:'his',19:'math',18:'sci'},BGX_IDS=Object.keys(BGX_MAP).map(Number);
@@ -2796,13 +3002,27 @@ async function bgxFill(){if(BGX.busy)return;BGX.busy=true;
     if(j.response_code===4)await fetch('https://opentdb.com/api_token.php?command=reset&token='+BGX.tok).catch(()=>{});
     (j.results||[]).forEach(x=>{const Q=bgxNorm(x,cid);if(Q)BGX.pool[df].push(Q)})}}
   catch(e){}finally{BGX.busy=false}}
+/* ===== Adaptive difficulty =====
+   The tile sets the difficulty band (Easy → Expert) and questions are always drawn from that band. Inside the band, how this
+   player has been doing recently (kept on this device) decides how hard the question is: a player on a roll gets the harder
+   questions of the band (and sometimes a step up), a struggling player gets the gentler ones. Hard / Expert tiles never fall
+   back to easy questions. */
+let bgSkill=.5;
+try{const s=parseFloat(localStorage.getItem('bgSkillV1'));if(s>=0&&s<=1)bgSkill=s}catch(e){}
+function bgNoteResult(d,ok){const w=.12+.04*d;bgSkill=Math.max(0,Math.min(1,bgSkill*(1-w)+(ok?1:0)*w));try{localStorage.setItem('bgSkillV1',String(bgSkill))}catch(e){}}
+function bgTier(d){const r=Math.random(),s=bgSkill;
+  if(d<=1)return'easy';
+  if(d===2)return r<(s>=.65?.1:s<=.35?.5:.25)?'easy':'medium';
+  if(d===3)return r<(s>=.65?.85:s<=.35?.4:.65)?'hard':'medium';
+  return'hard'}
 function bgNewQ(d){
   const used=(roomData.bg&&roomData.bg.used)||{},seen=bgSeenSet(),ok=Q=>{const h=bgHash(Q.q);return !used[h]&&!seen.has(h)};
-  const df=d===1?'easy':d===2?(bgRnd(2)?'medium':'easy'):d===3?'medium':'hard';
-  const live=()=>{const p=BGX.pool[df];while(p.length){const Q=p.shift();if(ok(Q))return Q}return null};
+  const pref=bgTier(d),tiers=d<=1?['easy']:d===2?(pref==='easy'?['easy','medium']:['medium','easy']):d===3?(pref==='hard'?['hard','medium']:['medium','hard']):['hard'];
+  const live=()=>{for(const t of tiers){const p=BGX.pool[t];while(p.length){const Q=p.shift();if(ok(Q))return Q}}return null};
   const gen=()=>{for(let i=0;i<200;i++){const Q=bgGen(d);if(Q&&ok(Q))return Q}return null};
-  const cur=()=>{const p=BG_QS.filter(q=>q.d===d&&ok(q));return p.length?p[bgRnd(p.length)]:null};
-  const r=Math.random(),order=r<.55?[live,gen,cur]:r<.9?[gen,live,cur]:[cur,live,gen];
+  const cur=()=>{const lv=[d];if(d>=2&&d<4&&bgSkill>=.7&&Math.random()<.3)lv.unshift(d+1);
+    for(const L of lv){const p=BG_QS.filter(q=>q.d===L&&ok(q));if(p.length)return p[bgRnd(p.length)]}return null};
+  const r=Math.random(),order=d<=2?(r<.55?[live,gen,cur]:r<.9?[gen,live,cur]:[cur,live,gen]):(r<.5?[live,cur,gen]:r<.9?[cur,live,gen]:[gen,live,cur]);
   for(const f of order){const Q=f();if(Q)return{c:Q.c,q:Q.q,a:Q.a}}
   return null;
 }
@@ -2893,7 +3113,7 @@ async function bgDoTurn(){
       const h=bgHash(Q.q),sh=[0,1,2,3].sort(()=>Math.random()-.5);
       const wait=new Promise(res=>{bgAns=res;bgTO=setTimeout(()=>{if(bgAns){bgAns=null;res(-1)}},BG_TIME*1000+300)});
       bgMarkSeen(h);bgxFill();await bgEmit({k:'q',u,Q,d,snake,tile:to,sh,t0:srvNow()},{['used/'+h]:true});
-      const pick=await wait,ok=pick===0;
+      const pick=await wait,ok=pick===0;bgNoteResult(d,ok);
       await bgEmit({k:'ans',u,pick,ok,ans:Q.a[0]},{});
       if(!ok&&snake)await bgEmit({k:'eat',u,h:to,t:BG_SNAKES[to]},{['pos/'+u]:BG_SNAKES[to]});
       else if(!ok){const np=Math.max(0,to-BG_BACK[d]);await bgEmit({k:'back',u,from:to,to:np},{['pos/'+u]:np})}
@@ -3748,9 +3968,17 @@ async function beginRound(){
     if(!playerIds.length){ toast('Need at least one player'); return; }
     const drawerIdx = (level - 1) % playerIds.length;
     const drawerUid = playerIds[drawerIdx];
-    const word = pickDrawWord(roomId + '_' + srvNow() + '_' + level, level);
+    // New game (level 1): pick a random category (the animated cycle plays for everyone); later levels keep that category
+    const newGame = level === 1;
+    let dCat = newGame ? null : drawCatById(roomData.drawCategory && roomData.drawCategory.id);
+    if(!dCat) dCat = pickDrawCategory();
+    const word = pickDrawWordCat(level, dCat);
+    drawRememberWord(word);
     const prevUsed = Array.isArray(roomData.drawUsedWords) ? roomData.drawUsedWords.slice() : [];
     if(word && !prevUsed.includes(word)) prevUsed.push(word);
+    const seenWords = (Array.isArray(roomData.drawSeenWords) ? roomData.drawSeenWords.slice() : []).filter(w => w !== word);
+    seenWords.push(word);
+    const spinMs = newGame ? DRAW_SPIN_MS : 0;
     const updates = {
       status: 'playing',
       drawLevel: level,
@@ -3758,11 +3986,15 @@ async function beginRound(){
       drawWord: word,
       drawDrawerUid: drawerUid,
       drawUsedWords: level === 1 ? [word] : prevUsed,
+      drawSeenWords: seenWords.slice(-200),
+      drawCategory: {id: dCat.id, name: dCat.name, emoji: dCat.emoji},
+      drawSpinAt: newGame ? srvNow() : null,
+      drawSpinMs: newGame ? DRAW_SPIN_MS : null,
       drawStrokes: [],
       drawGuesses: null,
       board: null, letter: null, categories: null,
       hangCategory: null, hangWord: null,
-      endsAt: srvNow() + DRAW_SECONDS * 1000,
+      endsAt: srvNow() + spinMs + DRAW_SECONDS * 1000,
       startedAt: srvNow(),
       endedAt: null
     };
@@ -4397,7 +4629,10 @@ document.addEventListener('click', async e => {
 
 /* ===== SCATTERGORIES CATEGORY VERIFIER (first layer of validation) =====
    Layer 1: built-in word lists for closed sets (instant, works offline).
-   Layer 2: Wikidata. The answer is looked up and its "is a / subclass of / parent taxon" chain is
+   Layer 2: category inheritance. A kangaroo is an animal, so it also fits "Something at the zoo",
+            "A wild animal", "A pet" (softly) etc. Related categories no longer disagree with each other.
+   Layer 3: word-association data (Datamuse) for "something you find in / at ..." and descriptive categories.
+   Layer 4: Wikidata. The answer is looked up and its "is a / subclass of / parent taxon / occupation" chain is
             tested against the category's classes, so "Tiger" is confirmed as an animal and "Table" is not.
    Verdicts: ok = confirmed in category · maybe = real but unconfirmed (counts, players may challenge)
              no = not a real word/name, or clearly something else (auto-rejected, can be restored). */
@@ -4430,81 +4665,177 @@ const ScatVerify=(()=>{
     daily:'eat sleep brush shower bathe walk work study read drink cook clean dress commute run exercise pray text call wake nap shop wash drive ride cycle stretch meditate journal write breathe think talk laugh smile play watch listen scroll browse email chat feed water cleaning laundry dishes shave comb groom floss moisturize jog yoga gym school class lunch dinner breakfast snack coffee tea',
     late:'traffic overslept oversleep sleep alarm bus train flat tire tyre car breakdown rain storm snow accident sick illness emergency lost phone keys key battery gas fuel jam delay clock traffic strike construction roadwork detour parking elevator lift stuck dog cat baby kid child homework forgot wallet bike bicycle ferry flight plane subway metro mrt jeepney tricycle flood typhoon blackout brownout wifi internet meeting call appointment doctor dentist hospital funeral wedding line queue crowd closed road bridge rush hour weather headache fever stomach cramps hangover nap procrastination'
   };
-  // category text -> classes it accepts (Wikidata QIDs). strict = a confident mismatch is auto-rejected.
+  // ---- additional lexicons (compact form: "ice cream" is written icecream) ----
+  Object.assign(LEX,{
+    boyname:'aaron adam adrian aiden alan albert alex alexander alfred andrew andres andy anthony arthur ben benjamin bill billy blake bob bobby brandon brian bruce bryan caleb carl carlos charles charlie chris christian christopher colin connor craig dan daniel dave david dennis derek diego dominic donald douglas dylan ed eddie edward eli elijah emmanuel eric ethan evan felix francis frank fred gabriel gary george gerald gilbert glen gordon grant greg harry henry howard hugo ian isaac isaiah ivan jack jacob jake james jason jay jeff jeremy jerry jesse jim jimmy joe joel john johnny jonathan jordan jose joseph joshua juan julian justin keith ken kenneth kevin kyle larry lawrence lee leo leon leonard liam logan louis lucas luke marco marcus mark martin mason matt matthew max michael miguel mike nathan neil nicholas nick noah oliver oscar owen patrick paul pedro peter philip phil randy ray raymond richard rick rico robert roger ron ronald ryan sam samuel scott sean sebastian simon stephen steve steven ted terry theodore thomas tim timothy tom tommy tony travis tyler victor vincent walter wayne william xavier zach zachary',
+    girlname:'abby abigail ada adriana alexandra alice alicia alina alison amanda amber amelia amy ana andrea angela angelica anna anne annie ariana ashley audrey ava barbara beatrice becky bella beth bianca brenda bridget brittany caitlin camila carla carmen caroline catherine cecilia charlotte chloe christina cindy claire clara claudia cora courtney daisy dana daniela debbie diana donna dora eileen elena eleanor elizabeth ella ellie emily emma erica erin eva eve evelyn faith fiona florence frances gabriela gemma georgia gina grace gwen hailey hannah heather heidi helen holly irene iris isabel isabella ivy jackie jade jane janet jasmine jean jenna jennifer jenny jessica jill joan joanna josephine joy judy julia juliet june karen kate katherine kathy katie kayla kelly kim kimberly laura lauren leah lena lily linda lisa liz lola lucy luna lydia mabel madison maggie maria marie marina martha mary maya megan melanie melissa mia michelle mila molly monica nadia naomi natalie natasha nicole nina nora olivia paige pamela patricia paula penny phoebe priscilla rachel rebecca renee rita rosa rose ruby ruth sabrina sally samantha sandra sara sarah scarlett sharon sheila sophia sophie stella stephanie susan sylvia tanya tara teresa tiffany tina valerie vanessa veronica victoria violet virginia vivian wendy yvonne zoe',
+    job:'accountant actor actress analyst architect artist astronaut athlete attorney auditor author baker banker barber bartender biologist boxer broker builder butcher carpenter cashier chef chemist clerk clown coach comedian cook counselor courier dancer dentist designer detective dietitian director diver doctor driver economist editor electrician engineer farmer firefighter fisherman florist gardener guard guide hairdresser handyman illustrator inspector instructor interpreter inventor janitor jeweler jockey journalist judge lawyer lecturer librarian lifeguard locksmith magician mailman manager mason mechanic miner minister model monk musician nanny navigator nurse officer optician painter paramedic pastor pharmacist photographer pianist pilot pirate plumber poet police policeman policewoman politician porter postman potter priest principal producer professor programmer psychologist publisher receptionist referee reporter sailor scientist sculptor secretary senator sheriff shopkeeper singer soldier stylist surgeon surveyor tailor teacher technician therapist translator tutor typist umpire usher vendor vet veterinarian waiter waitress warden weaver welder wrestler writer zookeeper cowboy lumberjack beekeeper blacksmith shepherd',
+    bird:'albatross blackbird bluebird bluejay budgie bunting buzzard canary cardinal cassowary chickadee chicken cockatiel cockatoo condor cormorant crane crow cuckoo dove duck eagle egret emu falcon finch flamingo goose grouse gull harrier hawk hen heron hornbill hummingbird ibis jay kestrel kingfisher kiwi kookaburra lark lovebird loon macaw magpie mockingbird nightingale oriole osprey ostrich owl parakeet parrot partridge peacock pelican penguin pheasant pigeon puffin quail raven rhea roadrunner robin rooster seagull shrike sparrow starling stork swallow swan swift tern thrush toucan turkey vulture warbler woodpecker wren bird',
+    sea:'shark whale dolphin orca octopus squid jellyfish starfish seahorse crab lobster shrimp prawn clam oyster mussel scallop eel stingray manta turtle seal sealion walrus otter seaotter manatee dugong narwhal beluga coral anemone urchin seaurchin barnacle krill plankton swordfish tuna salmon cod trout bass marlin clownfish angelfish pufferfish piranha goldfish catfish mackerel sardine anchovy herring flounder halibut snapper grouper barracuda lionfish hammerhead nautilus cuttlefish conch sponge seaweed kelp penguin blobfish anglerfish tilapia carp perch pike guppy fish seagull pelican',
+    insect:'ant bee wasp hornet fly mosquito gnat moth butterfly beetle ladybug ladybird cricket grasshopper locust cicada dragonfly damselfly mantis cockroach termite flea louse tick spider scorpion centipede millipede caterpillar firefly lightningbug weevil aphid earwig bedbug maggot mite tarantula stinkbug bumblebee honeybee larva grub worm snail slug katydid mayfly bug insect',
+    pet:'dog cat puppy kitten hamster gerbil guineapig rabbit bunny fish goldfish betta parrot parakeet budgie canary cockatiel turtle tortoise lizard gecko iguana snake ferret chinchilla mouse rat hedgehog horse pony tarantula frog pigeon cockatoo lovebird bird',
+    domestic:'dog cat cow pig sheep goat chicken hen rooster duck goose turkey horse pony donkey hamster rabbit puppy kitten guineapig goldfish canary parakeet budgie bull ox calf lamb piglet',
+    zoo:'cage enclosure keeper zookeeper aquarium aviary reptilehouse ticket tickets giftshop cafe tram safari exhibit habitat feeding pen fence bars moat sign map stroller balloon popcorn icecream souvenir tour guide',
+    farm:'cow pig horse sheep goat chicken hen rooster duck goose turkey donkey llama alpaca bull ox lamb calf piglet foal chick cat dog barn silo tractor hay haystack straw plow plough fence field crop corn wheat rice barley oats soybean farmer scarecrow trough stable coop pen pasture windmill orchard harvest manure mud well bucket pitchfork shovel wagon cart combine irrigation sprinkler egg milk wool meadow carabao kalabaw',
+    plant:'rose tulip daisy lily orchid sunflower daffodil lavender jasmine violet poppy marigold carnation peony iris lilac hyacinth dandelion buttercup petunia pansy hibiscus lotus magnolia azalea begonia camellia chrysanthemum cactus fern moss ivy bamboo palm oak maple pine birch willow elm cedar cypress redwood sequoia banyan mango acacia bonsai bush shrub hedge grass clover weed vine sage thyme mint basil parsley rosemary oregano cilantro dill chive tree flower plant herb seed sprout fungus mushroom sampaguita gumamela aloe algae seaweed',
+    snack:'chips crisps popcorn pretzel crackers cracker cookies cookie nuts peanuts almonds cashews trailmix granola candy chocolate gummy gummies fries nachos pizza sandwich fruit apple banana grapes yogurt cheese jerky biscuit biscuits cake muffin cupcake donut doughnut icecream pudding raisins ricecake popsicle chicharron kropek turon fishball lumpia siomai wafer bar pie',
+    dessert:'cake cupcake pie tart brownie cookie cookies icecream sundae gelato sorbet pudding custard flan mousse tiramisu cheesecake donut doughnut cobbler crumble macaron eclair profiterole trifle parfait fudge candy chocolate caramel toffee lollipop gummy marshmallow jelly jello waffle pancake crepe baklava cannoli churro halohalo leche bibingka sorbetes biko turon candyfloss cottoncandy froyo popsicle',
+    drink:'water juice milk tea coffee soda cola lemonade smoothie milkshake shake cocoa punch cider espresso latte cappuccino mocha frappe tonic sprite fanta pepsi coke gatorade slush kefir yogurt coconutwater gulaman taho sago icedtea hotchocolate mineralwater sparklingwater',
+    breakfast:'eggs egg bacon sausage toast bread butter jam cereal oatmeal porridge pancakes pancake waffles waffle muffin bagel croissant yogurt fruit banana apple orange juice milk coffee tea granola omelet omelette hashbrowns ham cheese pastry donut danish biscuit grits tapsilog silog longganisa tocino tapa rice garlicrice pandesal champorado',
+    food:'pizza burger hamburger sandwich pasta noodles rice bread soup salad steak chicken fish pork beef lamb sausage bacon ham egg eggs cheese butter yogurt cereal pancake waffle fries chips taco burrito sushi curry stew lasagna spaghetti ramen dumpling nugget hotdog adobo sinigang lechon pancit pie cake cookie icecream popcorn pretzel bagel donut muffin toast omelet tofu beans lentils oatmeal porridge noodle meatball meatloaf casserole kebab falafel hummus paella risotto pho gyoza tempura tamale quesadilla nachos enchilada shawarma dimsum',
+    furniture:'chair table desk bed sofa couch bench stool shelf bookshelf bookcase cabinet dresser wardrobe closet drawer nightstand ottoman armchair recliner rocker hammock futon bunk crib cradle highchair cot daybed headboard hutch sideboard buffet console vanity counter bar throne beanbag',
+    wheels:'car bus truck van bike bicycle motorcycle scooter skateboard rollerskates rollerblades wagon cart wheelbarrow stroller wheelchair tricycle trike train tram tractor taxi jeep jeepney tuktuk trolley pram skates lorry limo limousine ambulance firetruck bulldozer forklift golfcart gokart segway unicycle caravan camper rv suitcase luggage shoppingcart dolly cab',
+    transport:'car bus train plane airplane aeroplane boat ship ferry yacht canoe kayak raft submarine helicopter jet rocket subway metro tram trolley taxi cab bike bicycle motorcycle scooter skateboard tricycle jeepney tuktuk rickshaw cablecar gondola balloon hotairballoon sled sleigh horse camel donkey carriage cart van truck lorry limousine monorail hoverboard segway parachute zipline escalator elevator walking',
+    tool:'hammer screwdriver wrench spanner pliers saw drill axe hatchet chisel file plane level ruler tapemeasure shovel spade rake hoe trowel pickaxe crowbar sledgehammer mallet wirecutters scissors knife vise clamp sander grinder ladder toolbox nail screw bolt nut tweezers shears jackhammer chainsaw blowtorch soldering',
+    toy:'ball doll teddy teddybear bear lego blocks puzzle kite yoyo robot car truck train dollhouse actionfigure figure frisbee marbles jumprope top spinner slinky rattle drum xylophone puppet playdoh clay crayon balloon bubbles swing seesaw slide trampoline scooter bike skates tricycle sandbox bucket watergun boomerang cards jigsaw checkers chess dominoes dice rubikscube barbie hotwheels plush stuffed hulahoop pogostick tops',
+    bath:'toilet sink shower bathtub tub towel soap shampoo conditioner toothbrush toothpaste mirror razor comb brush loofah sponge mat rug plunger toiletpaper tissue faucet drain curtain cabinet scale hairdryer dryer floss mouthwash deodorant lotion cream cottonswab bathrobe robe slippers bidet tap bucket dipper tabo',
+    bed:'bed pillow blanket sheet sheets mattress duvet comforter quilt lamp nightstand closet wardrobe dresser alarmclock clock mirror curtain rug carpet poster teddy teddybear slippers pajamas pyjamas hanger shelf desk chair fan aircon diary book headboard bunk crib window',
+    garden:'flower flowers rose tulip daisy grass lawn tree bush hedge shrub fence gate path pond fountain statue bench swing hose sprinkler wateringcan shovel spade rake hoe trowel pot planter vase soil dirt mud compost seed seeds bulb weed weeds worm worms snail slug bee butterfly ladybug bird birdhouse birdbath scarecrow greenhouse shed trellis vine ivy fern moss pebble rock stone gnome mower lawnmower wheelbarrow gloves',
+    sky:'cloud clouds sun moon star stars planet comet meteor rainbow lightning thunder bird birds plane airplane helicopter kite balloon rocket satellite drone jet aurora sunrise sunset storm rain snow hail wind fog mist haze eclipse galaxy constellation venus mars jupiter saturn mercury parachute firework fireworks smoke cirrus cumulus ufo blimp zeppelin skydiver bat butterfly eagle hawk',
+    ocean:'water wave waves tide current salt sand shell shells coral reef seaweed kelp fish shark whale dolphin octopus squid jellyfish starfish crab lobster shrimp turtle seal walrus eel ship boat sailboat submarine ferry buoy anchor island iceberg diver scuba snorkel surfer surfboard trench plankton krill lighthouse pearl treasure shipwreck mermaid',
+    forest:'tree trees bush leaf leaves branch trunk bark log stump moss fern mushroom acorn pinecone pine oak maple birch cedar vine ivy path trail stream creek river pond squirrel deer bear wolf fox owl rabbit hare bird woodpecker raccoon skunk badger boar moose elk lynx hedgehog beaver chipmunk bat snake frog toad spider ant bee butterfly firefly cabin camp tent campfire hiker ranger berries berry flower grass mud rock rocks cave',
+    weather:'rain snow sleet hail wind storm thunder lightning fog mist cloud clouds sun sunny cloudy rainy windy foggy stormy snowy humid dry hot cold cool warm freezing frost ice tornado hurricane typhoon cyclone monsoon blizzard drizzle shower downpour flood drought heatwave breeze gust gale tempest haze smog rainbow dew thunderstorm hailstorm sandstorm squall overcast bagyo',
+    emotion:'happy sad angry mad joy joyful love hate fear scared afraid anxious nervous worried excited calm relaxed bored tired sleepy lonely jealous proud shy embarrassed ashamed guilty grateful hopeful hope surprised shocked confused curious cheerful content delighted disgusted eager envious frustrated glad grumpy gloomy irritated annoyed upset stressed depressed amazed awe panic rage sorrow grief bliss ecstatic enthusiastic optimistic pessimistic miserable terrified thrilled',
+    building:'house home apartment condo mansion cottage cabin hut shack tent igloo castle palace tower skyscraper temple church mosque cathedral chapel synagogue school college university library museum hospital clinic bank hotel inn motel hostel airport station terminal mall market store shop supermarket restaurant cafe bakery factory warehouse barn garage shed office stadium arena theater theatre cinema gym pool prison jail fortress lighthouse windmill pyramid monument barracks dormitory dorm bungalow villa townhouse penthouse hall pavilion greenhouse',
+    store:'supermarket grocery market mall boutique bakery butcher pharmacy drugstore bookstore bookshop shoestore florist hardware toystore deli cafe convenience sarisari department outlet gasstation petshop jewelry electronics furniture clothing pawnshop thrift stationery sportinggoods kiosk mart shop store',
+    vacation:'beach island resort hotel cruise safari camp camping mountain mountains lake river waterfall forest park museum zoo themepark disneyland paris london rome tokyo hawaii bali boracay palawan cebu cancun maldives thailand italy spain greece egypt japan mexico dubai venice swiss alps',
+    sweet:'candy sugar honey cake chocolate cookie icecream syrup jam jelly caramel fudge pie donut pastry cupcake pudding lollipop gum gummy marshmallow molasses nectar mango pineapple strawberry banana grape watermelon cherry dates fruit soda juice maple frosting icing sherbet',
+    flies:'bird plane airplane helicopter jet kite balloon rocket drone butterfly bee fly mosquito wasp hornet bat eagle owl hawk dragonfly moth superman angel fairy ufo glider parachute frisbee paperairplane arrow bullet insect parrot sparrow pigeon',
+    hobby:'reading drawing painting singing dancing cooking baking gardening fishing hiking camping cycling swimming running jogging knitting sewing crocheting photography writing blogging gaming collecting stamps coins traveling surfing skating skiing climbing yoga chess puzzles origami pottery sculpting woodworking birdwatching bowling archery fencing karaoke acting magic juggling skateboarding scrapbooking embroidery calligraphy',
+    sport:'soccer football basketball baseball softball tennis golf rugby cricket hockey volleyball badminton boxing wrestling karate judo taekwondo swimming diving gymnastics athletics running track marathon cycling skiing snowboarding surfing skating archery fencing rowing sailing bowling billiards pool darts chess checkers monopoly scrabble sepaktakraw arnis pickleball squash polo lacrosse handball netball weightlifting climbing triathlon tag hideandseek hopscotch jackstones patintero uno poker bingo cards',
+    subject:'math mathematics science english history geography art music pe physicaleducation biology chemistry physics algebra geometry calculus literature language spanish french filipino drama computer technology economics civics reading writing spelling grammar health socialstudies psychology sociology philosophy statistics trigonometry',
+    holiday:'christmas easter halloween thanksgiving newyear newyears valentines valentine independenceday birthday wedding anniversary graduation eid diwali hanukkah ramadan lent carnival fiesta festival mothersday fathersday laborday memorialday patriotday holiday party reunion'
+  });
+  // category text -> how it is verified.
+  //   t = Wikidata classes · lex = built-in word list(s) · via = ANY answer that is OK for these categories is OK here too
+  //   viaSoft = answers OK for those categories are only "maybe" here · viaStrict = reject if the answer is clearly not any via-category
+  //   assoc / adj = Datamuse word-association / "adjective + noun" sets · strict = a confident mismatch is auto-rejected
+  //   maybeLex = real answer but not a great fit (shown yellow) · head/any = match on last word / any word
   const R={
-    "A boy's name":{t:['Q12308941','Q3409032']},"A girl's name":{t:['Q11879590','Q3409032']},
-    "A famous person":{t:['Q5']},"A job or occupation":{t:['Q12737077','Q28640']},
-    "An animal":{t:['Q729','Q7377','Q5113','Q10811','Q10908','Q1390','Q1358','Q127282','Q10915'],lex:'animal',strict:1},"A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
-    "A plant or flower":{t:['Q756','Q506']},"A country":{t:['Q6256'],lex:'country',strict:1},"A city":{t:['Q515','Q1549591'],strict:1},
-    "A food":{t:['Q2095','Q746549']},"A drink":{t:['Q40050']},"A dessert or sweet":{t:['Q182413']},
-    "Something you eat for breakfast":{t:['Q2095','Q746549']},"A piece of furniture":{t:['Q14745']},"Something with wheels":{t:['Q42889']},
-    "A movie or TV show":{t:['Q11424','Q5398426','Q15416']},"A book or song title":{t:['Q571','Q7725634','Q7366','Q482994']},
-    "A cartoon or superhero character":{t:['Q95074','Q188784','Q1114461']},"A sport or game":{t:['Q349','Q11410']},
-    "A hobby":{t:['Q47728']},"A musical instrument":{t:['Q34379'],lex:'inst',strict:1},"A brand or company":{t:['Q431289','Q4830453','Q783794']},
-    "A color":{t:['Q1075'],lex:'color'},"A body part":{t:['Q4936952'],lex:'part'},"A school subject":{t:['Q11862829','Q2465832']},
-    "A holiday or celebration":{t:['Q1445650','Q132241']},
-    "Something you take on a trip":{lex:'travel'},
-    "Something you find in a house":{lex:'house'},
-    "Something you find in a kitchen":{lex:'kitchen'},
+    "A boy's name":{t:['Q12308941','Q3409032'],lex:'boyname'},
+    "A girl's name":{t:['Q11879590','Q3409032'],lex:'girlname'},
+    "A famous person":{t:['Q5']},
+    "An actor or actress":{t:['Q33999']},
+    "A singer or band":{t:['Q177220','Q215380','Q639669']},
+    "An athlete":{t:['Q2066131']},
+    "A job or occupation":{t:['Q12737077','Q28640'],lex:'job'},
+    "A cartoon character":{t:['Q95074','Q1114461','Q188784']},
+
+    "An animal":{t:['Q729','Q7377','Q5113','Q10811','Q10908','Q1390','Q1358','Q127282','Q10915'],lex:'animal',strict:1},
+    "A wild animal":{via:['An animal'],viaStrict:1,maybeLex:'domestic',maybeNote:'is a real animal, but it is usually a domestic one rather than a wild animal'},
+    "A pet":{lex:'pet',viaSoft:['An animal'],viaStrict:1},
+    "A bird":{lex:'bird',t:['Q5113'],strict:1},
+    "A sea creature":{lex:'sea',assoc:['sea','ocean'],viaSoft:['An animal'],where:'in the sea'},
+    "An insect or bug":{lex:'insect',t:['Q1390','Q1358']},
+    "Something at the zoo":{lex:'zoo',via:['An animal'],assoc:['zoo'],where:'at a zoo'},
+    "Something on a farm":{lex:'farm',via:['A fruit or vegetable'],viaSoft:['An animal'],assoc:['farm'],where:'on a farm'},
+    "A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
+    "A plant or flower":{t:['Q756','Q506','Q10884'],lex:'plant'},
+    "A type of weather":{lex:'weather',assoc:['weather'],where:'in the weather'},
+
+    "A country":{t:['Q6256'],lex:'country',strict:1},
+    "A city":{t:['Q515','Q1549591'],strict:1},
+    "A type of building":{lex:'building',t:['Q41176']},
+    "A type of store":{lex:'store',t:['Q213441'],assoc:['shop','store']},
+    "A place to visit on vacation":{lex:'vacation',via:['A country','A city'],t:['Q570116','Q23442','Q40080']},
+    "Something you find in a house":{lex:'house',assoc:['house','home'],where:'in a house'},
+    "Something you find in a kitchen":{lex:'kitchen',assoc:['kitchen','cooking'],where:'in a kitchen'},
     "Something you find at school":{lex:'school',head:1,assoc:['school','classroom'],where:'at school'},
     "Something you find at the beach":{lex:'beach',head:1,assoc:['beach','seaside'],where:'at the beach'},
     "Something you find in a park":{lex:'park',head:1,assoc:['park','playground'],where:'in a park'},
+    "Something in a bathroom":{lex:'bath',assoc:['bathroom'],where:'in a bathroom'},
+    "Something in a bedroom":{lex:'bed',assoc:['bedroom','sleep'],where:'in a bedroom'},
+    "Something in a garden":{lex:'garden',via:['A plant or flower'],assoc:['garden'],where:'in a garden'},
+    "Something in the sky":{lex:'sky',via:['A bird'],assoc:['sky'],where:'in the sky'},
+    "Something in the ocean":{lex:'ocean',via:['A sea creature'],assoc:['ocean','sea'],where:'in the ocean'},
+    "Something in a forest":{lex:'forest',via:['A plant or flower'],assoc:['forest','woods'],viaSoft:['An animal'],where:'in a forest'},
+
+    "A food":{t:['Q2095','Q746549'],lex:'food',via:['A fruit or vegetable']},
+    "A drink":{t:['Q40050'],lex:'drink'},
+    "A dessert or sweet":{t:['Q182413'],lex:'dessert'},
+    "A snack":{lex:'snack',via:['A dessert or sweet'],viaSoft:['A food']},
+    "Something you eat for breakfast":{lex:'breakfast',via:['A fruit or vegetable'],viaSoft:['A food'],where:'for breakfast'},
+
     "Something you wear":{lex:'clothing',t:['Q11460','Q11457']},
-    "Something soft":{lex:'soft'},
-    "Something hard":{lex:'hard'},
-    "Something cold":{lex:'cold',head:1},
-    "Something hot":{lex:'hot',head:1},
-    "Something round":{lex:'round',head:1},
-    "Something that makes a sound":{lex:'sound',head:1},
+    "A piece of furniture":{lex:'furniture',t:['Q14745']},
+    "Something with wheels":{lex:'wheels',t:['Q42889']},
+    "A type of transport":{lex:'transport',t:['Q42889']},
+    "A tool":{lex:'tool',t:['Q39546']},
+    "A toy":{lex:'toy',t:['Q11422']},
+    "A musical instrument":{t:['Q34379'],lex:'inst',strict:1},
     "Something you can hold in your hand":{lex:'hand',head:1},
+    "Something you take on a trip":{lex:'travel',assoc:['travel','trip','vacation'],where:'on a trip'},
+
+    "Something soft":{lex:'soft',adj:['soft']},
+    "Something hard":{lex:'hard',adj:['hard']},
+    "Something cold":{lex:'cold',head:1,adj:['cold']},
+    "Something hot":{lex:'hot',head:1,adj:['hot']},
+    "Something round":{lex:'round',head:1,adj:['round']},
+    "Something sweet":{lex:'sweet',via:['A dessert or sweet'],adj:['sweet']},
+    "Something that makes a sound":{lex:'sound',head:1,assoc:['sound','noise']},
+    "Something that flies":{lex:'flies',via:['A bird'],assoc:['fly','flying']},
+
+    "A movie or TV show":{t:['Q11424','Q5398426','Q15416']},
+    "A sport or game":{lex:'sport',t:['Q349','Q11410']},
+    "A hobby":{lex:'hobby',t:['Q47728']},
+    "A school subject":{lex:'subject',t:['Q11862829','Q2465832']},
+    "A holiday or celebration":{lex:'holiday',t:['Q1445650','Q132241']},
+    "A color":{t:['Q1075'],lex:'color'},
+    "A body part":{t:['Q4936952'],lex:'part'},
+    "A brand or company":{t:['Q431289','Q4830453','Q783794']},
     "Something you do every day":{lex:'daily',any:1},
     "Things at a party":{lex:'party',head:1,assoc:['party','celebration'],where:'at a party'},
-    "An excuse for being late":{lex:'late',any:1},
     "Something that makes you happy":{lex:'happy',head:1},
     "Something scary":{lex:'scary',head:1},
-    "Something funny":{lex:'funny',head:1}
+    "Something funny":{lex:'funny',head:1},
+    "A feeling or emotion":{lex:'emotion',t:['Q9415']}
   };
   const SETS={};
-  const has=(k,w)=>{if(!w)return false;(SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));return SETS[k].has(w)||SETS[k].has(w.replace(/(es|s)$/,''))||SETS[k].has(w.replace(/ies$/,'y'))};
+  const has=(k,w)=>{if(!w||!LEX[k])return false;(SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));return SETS[k].has(w)||SETS[k].has(w.replace(/(es|s)$/,''))||SETS[k].has(w.replace(/ies$/,'y'))};
+  const keysOf=k=>k?[].concat(k):[];
   // Lexicon match: whole answer, joined form (sand castle -> sandcastle), head noun (beach TOWEL), or any word for verb-ish categories
-  const lexHit=(rule,norm)=>{
-    if(!rule||!rule.lex)return false;
-    const k=rule.lex,compact=norm.replace(/[\s\-']+/g,''),toks=norm.split(/[\s\-']+/).filter(Boolean);
-    if(has(k,norm)||has(k,compact))return true;
-    if(rule.head&&toks.length>1&&has(k,toks[toks.length-1]))return true;
-    if(rule.any&&toks.some(t=>t.length>=3&&has(k,t)))return true;
-    return false;
+  const lexHitKeys=(keys,rule,norm)=>{
+    const compact=norm.replace(/[\s\-']+/g,''),toks=norm.split(/[\s\-']+/).filter(Boolean);
+    return keysOf(keys).some(k=>{
+      if(has(k,norm)||has(k,compact))return true;
+      if(rule&&rule.head&&toks.length>1&&has(k,toks[toks.length-1]))return true;
+      if(rule&&rule.any&&toks.some(t=>t.length>=3&&has(k,t)))return true;
+      return false;
+    });
   };
-  // Word-association sets from Datamuse ("triggers" of a seed word), cached 30 days. Used to confirm obvious answers for place categories.
+  const lexHit=(rule,norm)=>!!(rule&&rule.lex&&lexHitKeys(rule.lex,rule,norm));
+  // Word-association sets from Datamuse: "triggers" of a seed word (rel_trg) and nouns usually described by an adjective (rel_jja), cached 30 days.
   const AS_TTL=30*864e5, ASC={};
-  function assocSet(seed){
-    if(ASC[seed])return ASC[seed];
-    try{const o=JSON.parse(localStorage.getItem('wa_as1_'+seed)||'null');if(o&&srvNow()-o.t<AS_TTL){return ASC[seed]=Promise.resolve(new Set(o.w))}}catch(e){}
+  function assocSet(kind,seed){
+    const key=kind+'_'+seed;
+    if(ASC[key])return ASC[key];
+    try{const o=JSON.parse(localStorage.getItem('wa_as2_'+key)||'null');if(o&&srvNow()-o.t<AS_TTL){return ASC[key]=Promise.resolve(new Set(o.w))}}catch(e){}
     const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),4000);
-    return ASC[seed]=fetch('https://api.datamuse.com/words?rel_trg='+encodeURIComponent(seed)+'&max=800',{signal:ctl.signal})
+    return ASC[key]=fetch('https://api.datamuse.com/words?'+(kind==='a'?'rel_jja=':'rel_trg=')+encodeURIComponent(seed)+'&max=1000',{signal:ctl.signal})
       .then(r=>r.ok?r.json():[]).then(a=>{
         const w=(a||[]).map(x=>String(x.word||'').toLowerCase());
-        if(w.length){try{localStorage.setItem('wa_as1_'+seed,JSON.stringify({t:srvNow(),w}))}catch(e){}}
-        else delete ASC[seed];
+        if(w.length){try{localStorage.setItem('wa_as2_'+key,JSON.stringify({t:srvNow(),w}))}catch(e){}}
+        else delete ASC[key];
         return new Set(w);
-      }).catch(()=>{delete ASC[seed];return new Set()}).finally(()=>clearTimeout(tm));
+      }).catch(()=>{delete ASC[key];return new Set()}).finally(()=>clearTimeout(tm));
   }
   async function assocCheck(rule,norm){
     const toks=norm.split(/[\s\-']+/).filter(Boolean);
     const cand=new Set([norm,norm.replace(/(es|s)$/,''),norm.replace(/ies$/,'y'),norm.replace(/[\s\-']+/g,'')]);
     if(toks.length>1){const l=toks[toks.length-1];cand.add(l);cand.add(l.replace(/(es|s)$/,''));cand.add(l.replace(/ies$/,'y'))}
-    const sets=await Promise.all((rule.assoc||[]).map(assocSet));
+    const ps=[];(rule.assoc||[]).forEach(s=>ps.push(assocSet('t',s)));(rule.adj||[]).forEach(s=>ps.push(assocSet('a',s)));
+    const sets=await Promise.all(ps);
     return sets.some(S=>[...cand].some(c=>c&&S.has(c)));
   }
   // Pre-load association data for this round's categories so answers are confirmed instantly
-  function warm(cats){(cats||[]).forEach(c=>{const r=R[c];if(r&&r.assoc)r.assoc.forEach(assocSet)})}
+  function warm(cats){(cats||[]).forEach(c=>{const r=R[c];if(!r)return;(r.assoc||[]).forEach(s=>assocSet('t',s));(r.adj||[]).forEach(s=>assocSet('a',s))})}
   const dictHas=w=>{const t=w.split(/[\s\-']+/).filter(x=>x.length>=3);return dictReady&&DICT.size>50000&&t.length>0&&t.every(x=>DICT.has(x)||DICT.has(x.replace(/(es|s)$/,'')))};
   const cache={};
   const lbl=h=>h.label+(h.description?' ('+h.description+')':'');
   // Faster failure on a hung request (was 8s x2): 4.5s, one retry
   async function jget(url,n=2){for(let k=0;k<n;k++){const c=new AbortController(),t=setTimeout(()=>c.abort(),4500);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}catch(e){if(k===n-1){console.warn('Fact-check request failed:',e);throw e}}finally{clearTimeout(t)}}}
   // ---- caches: in-memory + localStorage (14-day TTL) so repeat answers/ancestors cost zero requests ----
-  const TTL=14*864e5, LS_P='wa_wd_parents_v1', LS_S='wa_wd_search_v1';
+  const TTL=14*864e5, LS_P='wa_wd_parents_v2', LS_S='wa_wd_search_v1';
   const loadLS=k=>{try{const o=JSON.parse(localStorage.getItem(k)||'{}'),now=srvNow(),out={};for(const id in o){if(o[id]&&now-o[id][0]<TTL)out[id]=o[id]}return out}catch(e){return{}}};
   const PC=loadLS(LS_P), SC=loadLS(LS_S);           // id -> [ts, parents[]] · term -> [ts, hits[]]
   let saveT=null;
@@ -4519,14 +4850,14 @@ const ScatVerify=(()=>{
       .then(d=>{const h=d.search||[];SC[k]=[srvNow(),h.map(x=>({id:x.id,label:x.label,description:x.description}))];persist();return SC[k][1]})
       .finally(()=>{delete inflightS[k]});
   };
-  // Walk "instance of / subclass of / parent taxon" upwards. Only uncached ids hit the network, in parallel batches of 50.
+  // Walk "instance of / subclass of / parent taxon / occupation" upwards. Only uncached ids hit the network, in parallel batches of 50.
   async function parents(ids){
     const need=ids.filter(i=>!PC[i]);
     const chunks=[];for(let k=0;k<need.length;k+=50)chunks.push(need.slice(k,k+50));
     await Promise.all(chunks.map(async ch=>{
       const d=await jget('https://www.wikidata.org/w/api.php?'+new URLSearchParams({action:'wbgetentities',ids:ch.join('|'),props:'claims',format:'json',origin:'*'}));
       const now=srvNow();
-      ch.forEach(id=>{const e=(d.entities||{})[id];if(!e)return;const par=[];['P31','P279','P171'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));PC[id]=[now,par]});
+      ch.forEach(id=>{const e=(d.entities||{})[id];if(!e)return;const par=[];['P31','P279','P171','P106'].forEach(pr=>((e.claims||{})[pr]||[]).forEach(c=>{const v=c.mainsnak&&c.mainsnak.datavalue&&c.mainsnak.datavalue.value;if(v&&v.id)par.push(v.id)}));PC[id]=[now,par]});
     }));
     persist();
     const out={};ids.forEach(i=>{out[i]=PC[i]?PC[i][1]:[]});return out;
@@ -4553,76 +4884,60 @@ const ScatVerify=(()=>{
     if(inflight[k]) return inflight[k];
     return inflight[k]=checkImpl(cat,val).finally(()=>{delete inflight[k]});
   }
+  const lcFirst=s=>s.charAt(0).toLowerCase()+s.slice(1);
+  const OFFLINE_NOTE='The online fact-checker isn’t reachable right now, so this is unverified. Others can challenge it.';
   async function checkImpl(cat,val){
-    const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat],short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=cat.charAt(0).toLowerCase()+cat.slice(1);
-    // Fast path: built-in lexicon match (common sense lists)
+    const norm=val.toLowerCase().replace(/[^a-z' \-]/g,'').trim(),rule=R[cat]||null,short=cat.replace(/^(An?|The) /,'').toLowerCase(),art=lcFirst(cat);
+    // 1) Fast path: built-in lexicon match (common-sense lists, plural/singular handled inside has())
     if(lexHit(rule,norm))return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'};
-    // Also try plural/singular variants against lexicon
-    if(rule&&rule.lex){
-      const variants=[norm, norm.replace(/s$/,''), norm+'s', norm.replace(/ies$/,'y'), norm.replace(/es$/,'')];
-      for(const v of variants){ if(v!==norm && has(rule.lex,v)) return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'}; }
-    }
+    // Real answer, but not a great fit (e.g. a dog is not really a "wild animal")
+    if(rule&&rule.maybeLex&&lexHitKeys(rule.maybeLex,rule,norm))return{v:'maybe',note:'“'+val+'” '+(rule.maybeNote||'is real, but may not fit')+'. Others may challenge.'};
     const ck=cat+'|'+norm;if(cache[ck])return cache[ck];
-    let res;
+    let offline=false,softNote='';
     try{
-      // Place categories (school / beach / park / party): lexicon above, then word-association, then real-word check.
-      if(rule && rule.assoc){
-        let okA=false; try{ okA=await assocCheck(rule,norm); }catch(e){}
-        if(okA){ res={v:'ok',note:'Confirmed: “'+val+'” is commonly found '+rule.where}; return cache[ck]=res; }
-        let h=[],failed=false; try{ h=await search(val); }catch(e){ failed=true; }
-        if(dictHas(norm)||h.length) res={v:'maybe',note:'Real word, but we couldn’t confirm it’s something found '+rule.where+'. Others may challenge.'};
-        else if(failed) return{v:'maybe',note:'The online fact-checker isn’t reachable right now, so this is unverified. Others can challenge it.',offline:1};
-        else res={v:'no',note:'Not recognised as a real word or name.'};
-        return cache[ck]=res;
-      }
-      // Categories with only a lexicon (no Wikidata types) — still try a light Datamuse relatedness check
-      if(rule && rule.lex && !(rule.t&&rule.t.length) && ['travel','house','kitchen','soft','hard'].includes(rule.lex)){
-        // Same verdicts as before, but a dictionary word is accepted instantly (it would have been 'ok' either way)
-        if(dictHas(norm) && ['travel','house','kitchen','clothing','soft','hard'].includes(rule.lex)){
-          res={v:'ok',note:'Looks good: “'+val+'” is a reasonable answer for “'+short+'”'};
-          return cache[ck]=res;
+      // 2) Category inheritance: if the answer is good for a parent category, it is good here too
+      //    (kangaroo -> animal -> "something at the zoo"). All parent checks run in parallel.
+      if(rule&&(rule.via||rule.viaSoft)){
+        const names=[...(rule.via||[]),...(rule.viaSoft||[])];
+        const res=await Promise.all(names.map(n=>checkImpl(n,val).catch(()=>({v:'maybe',offline:1}))));
+        const byName={};names.forEach((n,i)=>byName[n]=res[i]);
+        res.forEach(r=>{if(r&&r.offline)offline=true});
+        const hard=(rule.via||[]).find(n=>byName[n].v==='ok');
+        if(hard)return cache[ck]={v:'ok',note:'Confirmed: “'+val+'” is '+lcFirst(hard)+', so it fits “'+short+'”'};
+        const soft=(rule.viaSoft||[]).find(n=>byName[n].v==='ok');
+        if(soft){
+          softNote='“'+val+'” is '+lcFirst(soft)+', but we couldn’t confirm it fits “'+short+'”. Others may challenge.';
+          if(!(rule.assoc||rule.adj||(rule.t&&rule.t.length)))return cache[ck]={v:'maybe',note:softNote};
         }
-        try{
-          const q = rule.lex === 'travel' ? 'travel item packing' :
-                    rule.lex === 'house' ? 'household item furniture' :
-                    rule.lex === 'kitchen' ? 'kitchen utensil' :
-                    rule.lex === 'clothing' ? 'clothing apparel' :
-                    rule.lex === 'soft' ? 'soft object' :
-                    rule.lex === 'hard' ? 'hard object' : rule.lex;
-          const ctl=new AbortController(), tm=setTimeout(()=>ctl.abort(),3000);
-          const r = await fetch('https://api.datamuse.com/words?ml='+encodeURIComponent(q)+'&sp='+encodeURIComponent(norm[0]+'*')+'&max=40',{signal:ctl.signal}).then(x=>x.ok?x.json():[]).finally(()=>clearTimeout(tm));
-          const hit = (r||[]).some(w => (w.word||'').toLowerCase().replace(/-/g,' ') === norm || (w.word||'').toLowerCase() === norm);
-          if(hit){ res={v:'ok',note:'Confirmed: '+val+' is a common “'+short+'”'}; return cache[ck]=res; }
-        }catch(e){}
-        // Concrete real word in a lex-only category → accept with confidence for common-sense categories
-        if(dictHas(norm) && ['travel','house','kitchen','clothing','soft','hard'].includes(rule.lex)){
-          res={v:'ok',note:'Looks good: “'+val+'” is a reasonable answer for “'+short+'”'};
-          return cache[ck]=res;
-        }
-        if(dictHas(norm)) res={v:'maybe',note:'Real word. Not in the common list for “'+short+'”, so others may challenge.'};
-        else res={v:'no',note:'Not recognised as a real word.'};
-        return cache[ck]=res;
+        // Clearly none of the parent categories (e.g. "table" is not an animal) -> reject for strict inheritance categories
+        if(rule.viaStrict&&!offline&&names.every(n=>byName[n].v==='no'))return cache[ck]={v:'no',note:'“'+val+'” isn’t '+art+'.'};
       }
-
-      if(!rule || (rule.lex && !(rule.t&&rule.t.length))){   // subjective category (lexicon already tried above)
-        if(dictHas(norm))res={v:'maybe',note:'Real word. This category is a judgement call, so others may challenge it.'};
-        else{const h=await search(val);res=h.length?{v:'maybe',note:'Found “'+lbl(h[0])+'”. Judgement-call category, others may challenge.'}:{v:'no',note:'Not recognised as a real word or name.'}}
-      }else if(!(rule.t&&rule.t.length)){
-        // rule exists but empty types
-        if(dictHas(norm))res={v:'maybe',note:'Real word. Others may challenge if it doesn’t fit.'};
-        else res={v:'no',note:'Not recognised as a real word or name.'};
-      }else{
-        const hits=await search(val);
-        if(!hits.length)res=dictHas(norm)&&!rule.strict?{v:'maybe',note:'Real word, but couldn’t confirm it’s '+art+'.'}:{v:'no',note:'Not recognised as a real word or name.'};
-        else{
+      // 3) Word association / "adjective + noun" data (Datamuse)
+      if(rule&&(rule.assoc||rule.adj)){
+        let okA=false;try{okA=await assocCheck(rule,norm)}catch(e){}
+        if(okA)return cache[ck]={v:'ok',note:rule.where?'Confirmed: “'+val+'” is commonly found '+rule.where:'Confirmed: '+val+' fits “'+short+'”'};
+      }
+      // 4) Wikidata classes
+      let hits=null;
+      if(rule&&rule.t&&rule.t.length){
+        hits=await search(val);
+        if(!hits.length){
+          if(rule.strict&&!dictHas(norm))return cache[ck]={v:'no',note:'Not recognised as a real word or name.'};
+        }else{
           const mr=await match(hits.map(h=>h.id),rule.t),id=mr.id,h0=hits.find(h=>h.id===id);
-          if(id)res={v:'ok',note:'Confirmed: '+lbl(h0)};
-          else if(rule.strict&&mr.complete)res={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
-          else res={v:'maybe',note:'Found “'+lbl(hits[0])+'” but couldn’t confirm it’s '+art+'. Others may challenge.'};
+          if(id)return cache[ck]={v:'ok',note:'Confirmed: '+lbl(h0)};
+          if(rule.strict&&mr.complete)return cache[ck]={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
+          return cache[ck]={v:'maybe',note:'Found “'+lbl(hits[0])+'” but couldn’t confirm it’s '+art+'. Others may challenge.'};
         }
       }
+      // 5) Leftovers: a real word we just cannot place is a judgement call (yellow, counts, can be challenged)
+      if(softNote)return cache[ck]={v:'maybe',note:softNote};
+      if(dictHas(norm))return cache[ck]={v:'maybe',note:'Real word, but we couldn’t confirm it fits “'+short+'”. Others may challenge it.'};
+      if(hits===null){try{hits=await search(val)}catch(e){offline=true;hits=[]}}
+      if(hits&&hits.length)return cache[ck]={v:'maybe',note:'Found “'+lbl(hits[0])+'”. Judgement-call category, others may challenge.'};
+      if(offline)return{v:'maybe',note:OFFLINE_NOTE,offline:1};
+      return cache[ck]={v:'no',note:'Not recognised as a real word or name.'};
     }catch(e){return{v:'maybe',note:(dictHas(norm)?'Real word, but the':'The')+' online fact-checker isn’t reachable right now, so this is unverified. Others can challenge it.',offline:1}}
-    return cache[ck]=res;
   }
   return{check,warm};
 })();
@@ -4791,6 +5106,54 @@ function startScatTimer(){
   timerInterval=setInterval(tick,250);
 }
 
+
+/* ===== SKETCH RACE – animated category cycle (shown once at the start of every new game) ===== */
+let _drawSpinKey = '';
+function maybeShowDrawCatSpin(){
+  if(!roomData || roomData.gameType !== 'draw' || !roomData.drawSpinAt || !roomData.drawCategory) return;
+  const key = roomId + '|' + roomData.drawSpinAt;
+  if(_drawSpinKey === key) return;
+  _drawSpinKey = key;
+  const total = roomData.drawSpinMs || DRAW_SPIN_MS;
+  const left = total - (srvNow() - roomData.drawSpinAt);
+  if(left < 700) return;                    // joined/reloaded after the cycle finished
+  runDrawCatSpin(roomData.drawCategory, left);
+}
+function runDrawCatSpin(cat, ms){
+  const old = document.getElementById('drawCatOverlay'); if(old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = 'drawCatOverlay'; ov.className = 'dcat-ov';
+  ov.innerHTML = '<div class="dcat-card"><div class="dcat-title">🎨 Choosing your category…</div>'
+    + '<div class="dcat-reel"><div class="dcat-emoji" id="dcatEmoji">🎲</div><div class="dcat-name" id="dcatName">Get ready!</div></div>'
+    + '<div class="dcat-sub" id="dcatSub">Every word this game comes from the category that lands</div></div>';
+  document.body.appendChild(ov);
+  const emojiEl = ov.querySelector('#dcatEmoji'), nameEl = ov.querySelector('#dcatName'), subEl = ov.querySelector('#dcatSub'), reel = ov.querySelector('.dcat-reel');
+  const t0 = Date.now(), revealAt = Math.max(900, ms - 1500);
+  let delay = 70, lastId = '', done = false;
+  const step = () => {
+    if(done || !document.body.contains(ov)) return;
+    const el = Date.now() - t0;
+    if(el >= revealAt){
+      done = true;
+      emojiEl.textContent = cat.emoji; nameEl.textContent = cat.name;
+      reel.classList.remove('spin'); reel.classList.add('land');
+      ov.querySelector('.dcat-title').textContent = '✨ Your category is…';
+      subEl.textContent = 'All words this game are from ' + cat.name + '. Good luck!';
+      try{ snd('big'); }catch(e){}
+      setTimeout(() => { ov.classList.add('out'); setTimeout(() => ov.remove(), 400); }, Math.max(700, ms - (Date.now() - t0)));
+      return;
+    }
+    let c; let guard = 0;
+    do{ c = DRAW_CATS[Math.floor(Math.random() * DRAW_CATS.length)]; guard++; }while((c.id === lastId || c.id === cat.id) && guard < 12);
+    lastId = c.id;
+    emojiEl.textContent = c.emoji; nameEl.textContent = c.name;
+    reel.classList.add('spin');
+    try{ snd('tick'); }catch(e){}
+    delay = Math.min(360, delay * 1.1 + 4);
+    setTimeout(step, delay);
+  };
+  step();
+}
 
 /* ===== SKETCH RACE UI & REAL-TIME DRAWING ===== */
 let drawCtx = null;
@@ -5043,12 +5406,14 @@ function enterDraw(force){
   startDrawTimer();
   boardReady = true;
   snd('go');
+  try{ maybeShowDrawCatSpin(); }catch(e){}
 }
 
 function updateDrawLevelBar(){
   const lvl = roomData.drawLevel || 1;
   const max = roomData.drawMaxLevels || DRAW_MAX_LEVELS;
   if($('drawLevelLabel')) $('drawLevelLabel').textContent = 'Level '+lvl+' / '+max;
+  if($('drawCatChip')){ const dc = roomData.drawCategory; $('drawCatChip').textContent = dc ? (dc.emoji+' '+dc.name) : ''; }
   const me = roomData.players?.[user.uid];
   const wins = me?.drawWins || 0;
   if($('drawSeriesScore')) $('drawSeriesScore').textContent = 'Your wins: '+wins;
@@ -5124,12 +5489,13 @@ function startDrawTimer(){
   const tick = () => {
     if(!roomData || !roomData.endsAt) return;
     const left = Math.max(0, Math.ceil((roomData.endsAt - srvNow())/1000));
-    const el = $('drawTimerText'); if(el) el.textContent = left;
+    const shown = Math.min(left, DRAW_SECONDS);          // the category cycle at the start of a game is not counted
+    const el = $('drawTimerText'); if(el) el.textContent = shown;
     const ring = $('drawTimerRing');
     if(ring){
-      const pct = Math.max(0, left / DRAW_SECONDS * 100);
+      const pct = Math.max(0, shown / DRAW_SECONDS * 100);
       ring.style.setProperty('--pct', pct + '%');
-      ring.classList.toggle('low', left <= 15);
+      ring.classList.toggle('low', shown <= 15);
     }
     if(left <= 0 && !roundEnded) finishDrawRound(null);
   };
@@ -5236,6 +5602,7 @@ async function finishDrawRound(winnerUid){
     $('drawStatus').style.color = '#E74C3C';
   }
 
+  try{ drawRememberWord(answer); }catch(e){}
   // Reveal word to everyone
   const wordBox = $('drawWordBox');
   if(wordBox){
