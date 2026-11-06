@@ -1431,7 +1431,6 @@ input:focus-visible{outline:none}
       <button class="btn btn-mint" id="btnChainSend" style="width:auto;min-width:90px;min-height:48px;padding:10px 14px">Send</button>
     </div>
     <div class="ch-msg" id="chMsg"></div>
-    <button class="btn btn-mint" id="btnChainPass" style="display:none">Pass to next player ➡️</button>
     <button class="btn ch-chal" id="btnChainChallenge" style="display:none">⚖️ Challenge this word</button>
     <div class="ch-vote" id="chVote" style="display:none">
       <div id="chVoteInfo"></div>
@@ -6400,10 +6399,10 @@ async function chainSubmit(){
       if(c2.phase!=='checking' || c2.turn!==me || c2.turnNo!==turnNo) return false;
       if(chUsed(c2,word)){ c2.phase = 'answer'; c2.deadline = now + (c2.pauseLeft||5000); c2.chk = null; return true; }
       c2.words.push({w:word, u:me, v:verdict.v, n:String(verdict.note||'').slice(0,160)});
-      c2.phase = 'passing'; c2.passDeadline = now + CHAIN_PASS_MS; c2.deadline = null; c2.chk = null; c2.pauseLeft = null;
+      chBeginTurn(c2, chNextAlive(c2,me), now);   // automatic: straight on to the next player still in the game
       return true;
     });
-    if(r2.committed){ input.value = ''; chMsg(verdict.v==='ok' ? '✅ '+(verdict.note||'Accepted!') : '⚠️ Accepted, but undecided — others may challenge.', verdict.v==='ok'?'good':''); snd(verdict.v==='ok'?'ok':'tap'); }
+    if(r2.committed){ input.value = ''; chMsg(verdict.v==='ok' ? '✅ '+(verdict.note||'Accepted!')+' — next player is up!' : '⚠️ Accepted, but undecided — others may challenge.', verdict.v==='ok'?'good':''); snd(verdict.v==='ok'?'ok':'tap'); }
     else chMsg('Too slow — the clock ran out!','bad');
   }finally{
     chainBusy = false; renderChain();
@@ -6644,8 +6643,7 @@ function renderChain(){
     snd('go'); try{ if(navigator.vibrate) navigator.vibrate(60); }catch(e){}
     setTimeout(() => { try{ $('chInput').focus(); }catch(e){} }, 120);
   }
-  if(!showForm && !chainBusy && c.phase!=='passing' && c.phase!=='checking') chMsg('','');   // the author keeps their ✅ note while passing
-  $('btnChainPass').style.display = (!over && !meOut && c.phase==='passing' && isMe) ? 'flex' : 'none';
+  if(!showForm && !chainBusy && c.phase!=='checking' && !(last && last.u===me && c.turn!==me && !meOut && c.phase==='answer')) chMsg('','');   // the author keeps their ✅ note while the next player is up
   const jurySize = last ? Object.values(roomData.players||{}).filter(p => p && p.uid!==last.u && p.online!==false).length : 0;
   const canChal = !over && !meOut && (c.phase==='answer' || c.phase==='passing') && last && last.v==='maybe' && !last.ch && !last.bad && last.u!=='sys' && last.u!==me && !out[last.u] && jurySize >= 2;
   $('btnChainChallenge').style.display = canChal ? 'flex' : 'none';
@@ -6728,7 +6726,6 @@ function chainTick(){
   ring.style.setProperty('--pct', (tot ? ms/tot*100 : 0)+'%');
   tx.textContent = txt; ring.classList.toggle('low', low);
   if(low && c.turn===me){ const s = Math.ceil(ms/1000); if(s!==chainLastTick){ chainLastTick = s; snd('tick'); } } else chainLastTick = -1;
-  if(c.phase==='passing' && c.turn===me){ const b = $('btnChainPass'); if(b) b.textContent = 'Pass to next player ➡️ ('+Math.ceil(ms/1000)+')'; }
 
   // Anyone can close an expired phase (it is idempotent) — the player on the clock first, then the host, then everyone else
   const delay = c.turn===me ? 0 : (isHostNow() ? 700 : 1500 + (String(me).charCodeAt(0)%10)*150);
@@ -6749,7 +6746,6 @@ function chainTick(){
   const on = (id, ev, fn) => { const el = $(id); if(el) el.addEventListener(ev, fn); };
   on('btnChainSend','click', chainSubmit);
   on('chInput','keydown', e => { if(e.key==='Enter'){ e.preventDefault(); chainSubmit(); } });
-  on('btnChainPass','click', chainPass);
   on('btnChainChallenge','click', chainChallenge);
   on('chVoteBtns','click', e => { const b = e.target.closest && e.target.closest('button[data-v]'); if(b) chainVote(b.getAttribute('data-v')); });
   on('btnChainChat','click', () => { const i = $('chChatInput'); chainSendChat(i.value); i.value = ''; });
