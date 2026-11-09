@@ -1340,6 +1340,130 @@ body[class*="theme-"] .word-rain{display:none!important}
   #themeDecor .td.fall{animation:none!important;display:none}
 }
 
+
+/* ===== ILLUSTRATED, INTERACTIVE GAME THUMBNAILS ===== */
+.game-card{
+  padding:0;min-height:0;justify-content:flex-start;align-items:stretch;
+  --rx:0deg;--ry:0deg;--px:0;--py:0;--mx:50%;--my:30%;
+  transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .15s,box-shadow .15s;
+  touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;will-change:transform
+}
+.game-card.tilting{transition:transform .08s linear,border-color .15s,box-shadow .15s}
+@media(hover:hover){.game-card:hover{transform:perspective(700px) translateY(-3px) rotateX(var(--rx)) rotateY(var(--ry))}}
+.game-card:active{transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry)) scale(.97)}
+.game-card::before{top:auto;bottom:-52px;right:-30px}
+body.theme-halloween .game-card::before{top:4px;bottom:auto;right:auto;z-index:3}
+body[class*="theme-"] .game-card::after{z-index:3}
+.game-card .name{margin-top:10px;padding:0 12px}
+.game-card .desc{padding:0 12px 12px}
+
+.thumb{position:relative;flex:none;width:100%;aspect-ratio:16/10;overflow:hidden;z-index:1;border-radius:21px 21px 0 0;background:#1b1340;margin:0}
+.thumb svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.thumb::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;background:radial-gradient(circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.38),transparent 55%)}
+.game-card:hover .thumb::after,.game-card.tilting .thumb::after{opacity:1}
+.thumb .rip{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:rgba(255,255,255,.6);pointer-events:none;z-index:2;animation:thRip .6s ease-out forwards}
+@keyframes thRip{to{transform:scale(16);opacity:0}}
+
+/* parallax layers: shift with the tilt / pointer position */
+.thumb .px1{transform:translate(calc(var(--px,0)*-4px),calc(var(--py,0)*-3px));transition:transform .25s ease-out}
+.thumb .px2{transform:translate(calc(var(--px,0)*3px),calc(var(--py,0)*2px));transition:transform .25s ease-out}
+.thumb .px3{transform:translate(calc(var(--px,0)*7px),calc(var(--py,0)*5px));transition:transform .25s ease-out}
+.game-card.tilting .thumb .px1,.game-card.tilting .thumb .px2,.game-card.tilting .thumb .px3{transition:transform .06s linear}
+.thumb .a{transform-box:fill-box;transform-origin:center}
+
+/* shared keyframes */
+@keyframes thPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes thSoft{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.18);opacity:1}}
+@keyframes thHop{0%{transform:translateY(0) scale(1)}40%{transform:translateY(-6px) scale(1.14)}100%{transform:translateY(0) scale(1)}}
+@keyframes thBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes thDraw{0%{stroke-dashoffset:100}45%,80%{stroke-dashoffset:0}100%{stroke-dashoffset:-100}}
+
+/* Boggle */
+.t-boggle .hl{animation:thPulse 1.8s ease-in-out infinite;animation-delay:calc(var(--o)*.18s)}
+.t-boggle .line{stroke-dasharray:100;animation:thDraw 3.4s ease-in-out infinite both}
+.game-card.pop .t-boggle .tile{animation:thHop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*25ms)}
+
+/* Scattergories */
+@keyframes thScribble{0%{transform:translate(-42px,0) rotate(0)}15%{transform:translate(-36px,-2px) rotate(-3deg)}60%,100%{transform:translate(0,0) rotate(0)}}
+@keyframes thWrite{0%{stroke-dashoffset:100}60%,100%{stroke-dashoffset:0}}
+@keyframes thCheck{0%,100%{transform:scale(1)}8%{transform:scale(1.35)}16%{transform:scale(1)}}
+.t-scatter .wr{stroke-dasharray:100;animation:thWrite 3.2s ease-in-out infinite both}
+.t-scatter .pencil{animation:thScribble 3.2s ease-in-out infinite}
+.t-scatter .ck{animation:thCheck 3.2s ease-in-out infinite;animation-delay:calc(var(--i)*.5s)}
+.game-card.pop .t-scatter .ck{animation:thHop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*90ms)}
+
+/* Hangman Race */
+@keyframes thClimb{0%,100%{transform:translateY(2px)}50%{transform:translateY(-5px)}}
+@keyframes thLeg{0%,100%{transform:rotate(calc(var(--s)*10deg))}50%{transform:rotate(calc(var(--s)*-10deg))}}
+.t-hangman .man{animation:thClimb 1.4s ease-in-out infinite}
+.t-hangman .leg{transform-origin:50% 0;animation:thLeg 1.4s ease-in-out infinite}
+.t-hangman .bal{animation:thBob 3s ease-in-out infinite;animation-delay:calc(var(--i)*.45s)}
+.game-card.pop .t-hangman .man{animation:thHop .6s cubic-bezier(.3,1.6,.5,1)}
+
+/* Sketch Race */
+@keyframes thDrawLoop{0%{stroke-dashoffset:100;opacity:1}22%,86%{stroke-dashoffset:0;opacity:1}95%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:100;opacity:0}}
+@keyframes thDrawQuick{0%{stroke-dashoffset:100}100%{stroke-dashoffset:0}}
+@keyframes thPen{0%,100%{transform:translate(0,0) rotate(0)}30%{transform:translate(-14px,-3px) rotate(-6deg)}65%{transform:translate(-24px,1px) rotate(4deg)}}
+.t-draw .st{stroke-dasharray:100;animation:thDrawLoop 6s ease-in-out infinite both;animation-delay:calc(var(--i)*.55s)}
+.t-draw .pen{animation:thPen 3s ease-in-out infinite}
+.t-draw .dot.on{animation:thSoft 1.6s ease-in-out infinite}
+.game-card.pop .t-draw .st{animation:thDrawQuick .7s ease-out both;animation-delay:calc(var(--i)*.1s)}
+
+/* Spy Word */
+@keyframes thSweep{0%,100%{transform:translate(0,0) rotate(0)}35%{transform:translate(-16px,3px) rotate(-8deg)}70%{transform:translate(4px,-3px) rotate(5deg)}}
+@keyframes thGlint{0%,70%,100%{transform:translateX(0);opacity:.85}80%{transform:translateX(5px);opacity:.2}}
+@keyframes thBeam{0%,100%{opacity:.55}50%{opacity:1}}
+.t-spy .mag{animation:thSweep 4s ease-in-out infinite}
+.t-spy .glint{animation:thGlint 3.4s ease-in-out infinite}
+.t-spy .beam{animation:thBeam 4s ease-in-out infinite}
+.game-card.pop .t-spy .mag{animation:thPulse .6s ease-in-out}
+
+/* Word Chain */
+@keyframes thLink{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.25);opacity:1}}
+@keyframes thFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+.t-chain .lk{animation:thLink 1.8s ease-in-out infinite;animation-delay:calc(var(--i)*.16s)}
+.t-chain .card{animation:thFloat 3s ease-in-out infinite;animation-delay:calc(var(--i)*.5s)}
+.game-card.pop .t-chain .card{animation:thHop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*110ms)}
+
+/* Snakes & Trivia */
+@keyframes thSlither{to{stroke-dashoffset:-22}}
+@keyframes thWig{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+@keyframes thRock{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-2px)}}
+@keyframes thRoll{0%{transform:rotate(0) translateY(0)}35%{transform:rotate(200deg) translateY(-12px)}100%{transform:rotate(720deg) translateY(0)}}
+.t-board .sg{stroke-dasharray:2 9;animation:thSlither 1s linear infinite}
+.t-board .snake{animation:thWig 2.4s ease-in-out infinite}
+.t-board .die{animation:thRock 2.8s ease-in-out infinite}
+.t-board .qb{animation:thBob 2.2s ease-in-out infinite}
+.game-card.pop .t-board .die{animation:thRoll .8s cubic-bezier(.2,.8,.3,1)}
+
+/* Island Mayor */
+@keyframes thDrift{0%{transform:translateX(-8px)}100%{transform:translateX(12px)}}
+@keyframes thWave{0%,100%{transform:translateX(0);opacity:.9}50%{transform:translateX(6px);opacity:.4}}
+@keyframes thSmoke{0%{transform:translateY(0) scale(1);opacity:.85}100%{transform:translateY(-14px) scale(1.9);opacity:0}}
+@keyframes thSway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@keyframes thBoat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(2px) rotate(2deg)}}
+.t-town .cloud{animation:thDrift 9s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+.t-town .wave{animation:thWave 3s ease-in-out infinite;animation-delay:var(--d,0s)}
+.t-town .smoke{animation:thSmoke 2.4s ease-out infinite;animation-delay:calc(var(--i)*1.2s)}
+.t-town .palm{transform-origin:50% 100%;animation:thSway 3s ease-in-out infinite}
+.t-town .sun{animation:thSoft 4s ease-in-out infinite}
+.t-town .boat{animation:thBoat 3.2s ease-in-out infinite}
+.game-card.pop .t-town .bld{animation:thHop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i)*120ms)}
+
+/* paused while off-screen (saves battery on phones) */
+.game-card.off .thumb *{animation-play-state:paused!important}
+
+/* Preview banner on the matchmaking screen */
+.match-thumb{position:relative;width:100%;aspect-ratio:16/10;max-height:200px;border-radius:16px;overflow:hidden;margin:0 0 12px;box-shadow:0 6px 18px rgba(20,10,50,.25)}
+.match-thumb.thumb{border-radius:16px;aspect-ratio:16/10;max-height:200px}
+
+@media(prefers-reduced-motion:reduce){
+  .thumb *{animation:none!important;transition:none!important}
+  .game-card{transform:none!important}
+  .thumb .rip{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1447,42 +1571,42 @@ body[class*="theme-"] .word-rain{display:none!important}
     <div class="picker-head"><h2>Pick a game</h2></div>
     <div class="game-picker">
       <div class="game-card" data-game="boggle" id="pickBoggle" style="cursor:pointer">
-        <div class="icon">🎲</div>
+        <div class="thumb t-boggle" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD98A"/><stop offset="1" stop-color="#F0932B"/></linearGradient></defs><rect width="160" height="100" fill="url(#bgA)"/><g class="px1"><circle cx="14" cy="16" r="20" fill="#fff" opacity=".18"/><circle cx="150" cy="86" r="24" fill="#fff" opacity=".14"/></g><g class="px2"><rect x="30" y="3" width="100" height="94" rx="10" fill="#F5A800" stroke="#B97A00" stroke-width="2"/><rect x="33" y="6" width="94" height="88" rx="7" fill="#E89B00"/><polyline class="line" pathLength="100" points="93.5,19 117,19 93.5,41 70,41" fill="none" stroke="#FFF1A8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><g class="tile a" style="--i:0;--o:0"><rect x="36.0" y="10.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="36.0" y="9" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="46.5" y="23.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">S</text></g><g class="tile a" style="--i:1;--o:0"><rect x="59.5" y="10.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="59.5" y="9" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="70.0" y="23.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">T</text></g><g class="tile a hl" style="--i:2;--o:0"><rect x="83.0" y="10.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="83.0" y="9" width="21" height="20" rx="4" fill="#FF5FA8" stroke="#C2185B"/><text x="93.5" y="23.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#fff">A</text></g><g class="tile a hl" style="--i:3;--o:1"><rect x="106.5" y="10.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="106.5" y="9" width="21" height="20" rx="4" fill="#FF5FA8" stroke="#C2185B"/><text x="117.0" y="23.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#fff">R</text></g><g class="tile a" style="--i:4;--o:0"><rect x="36.0" y="32.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="36.0" y="31" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="46.5" y="45.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">O</text></g><g class="tile a hl" style="--i:5;--o:3"><rect x="59.5" y="32.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="59.5" y="31" width="21" height="20" rx="4" fill="#FF5FA8" stroke="#C2185B"/><text x="70.0" y="45.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#fff">N</text></g><g class="tile a hl" style="--i:6;--o:2"><rect x="83.0" y="32.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="83.0" y="31" width="21" height="20" rx="4" fill="#FF5FA8" stroke="#C2185B"/><text x="93.5" y="45.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#fff">E</text></g><g class="tile a" style="--i:7;--o:0"><rect x="106.5" y="32.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="106.5" y="31" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="117.0" y="45.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">M</text></g><g class="tile a" style="--i:8;--o:0"><rect x="36.0" y="54.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="36.0" y="53" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="46.5" y="67.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">W</text></g><g class="tile a" style="--i:9;--o:0"><rect x="59.5" y="54.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="59.5" y="53" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="70.0" y="67.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">V</text></g><g class="tile a" style="--i:10;--o:0"><rect x="83.0" y="54.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="83.0" y="53" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="93.5" y="67.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">O</text></g><g class="tile a" style="--i:11;--o:0"><rect x="106.5" y="54.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="106.5" y="53" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="117.0" y="67.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">L</text></g><g class="tile a" style="--i:12;--o:0"><rect x="36.0" y="76.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="36.0" y="75" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="46.5" y="89.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">A</text></g><g class="tile a" style="--i:13;--o:0"><rect x="59.5" y="76.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="59.5" y="75" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="70.0" y="89.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">G</text></g><g class="tile a" style="--i:14;--o:0"><rect x="83.0" y="76.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="83.0" y="75" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="93.5" y="89.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">L</text></g><g class="tile a" style="--i:15;--o:0"><rect x="106.5" y="76.5" width="21" height="20" rx="4" fill="#B9B3A4"/><rect x="106.5" y="75" width="21" height="20" rx="4" fill="#FFFDF5" stroke="#E3DCC7"/><text x="117.0" y="89.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="13" fill="#1d1d1d">E</text></g></g></svg></div>
         <div class="name">Boggle</div>
         <div class="desc">4×4 word hunt</div>
       </div>
       <div class="game-card" data-game="scatter" id="pickScatter" style="cursor:pointer">
-        <div class="icon">✍️</div>
+        <div class="thumb t-scatter" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="scA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9A8B"/><stop offset="1" stop-color="#E74C3C"/></linearGradient></defs><rect width="160" height="100" fill="url(#scA)"/><g class="px1"><circle cx="16" cy="84" r="24" fill="#fff" opacity=".13"/><circle cx="148" cy="14" r="26" fill="#fff" opacity=".11"/></g><g class="px2"><g transform="rotate(-5 78 52)"><rect x="40" y="13" width="84" height="86" rx="7" fill="#000" opacity=".2"/><rect x="38" y="10" width="84" height="86" rx="7" fill="#FFFBF0" stroke="#D4C4A8"/><path d="M50 10V96" stroke="#FF9AA2" stroke-width="1.2"/><circle cx="64" cy="27" r="12" fill="#FF6B6B"/><text x="64" y="33" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="17" fill="#fff">S</text><rect x="82" y="21" width="30" height="4" rx="2" fill="#E0D5BC"/><rect x="82" y="29" width="20" height="4" rx="2" fill="#E8DFCA"/><g transform="translate(56 50)"><g class="ck a" style="--i:0"><circle r="5" fill="#00B894"/><path d="M-2.4 0 L-.7 2 L2.6 -2" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g><path d="M66 50 q4 -6 8 0 t8 0 t8 0 t8 0 t8 0" stroke="#2C1810" stroke-width="1.6" fill="none" stroke-linecap="round"/><g transform="translate(56 64)"><g class="ck a" style="--i:1"><circle r="5" fill="#00B894"/><path d="M-2.4 0 L-.7 2 L2.6 -2" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g><path d="M66 64 q4 -6 8 0 t8 0 t8 0 t8 0 t8 0" stroke="#2C1810" stroke-width="1.6" fill="none" stroke-linecap="round"/><g transform="translate(56 78)"><circle r="5" fill="none" stroke="#C9BBA0" stroke-width="1.4" stroke-dasharray="2 2"/></g><path class="wr" pathLength="100" d="M66 78 q4 -6 8 0 t8 0 t8 0 t8 0 t8 0" stroke="#2C1810" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><g transform="translate(108 82) rotate(38)"><g class="pencil a"><rect x="-4" y="-26" width="8" height="22" fill="#FFD166"/><rect x="-1" y="-26" width="2" height="22" fill="#F5B335"/><polygon points="-4,-4 4,-4 0,5" fill="#F3D9B1"/><polygon points="-1.3,2 1.3,2 0,5" fill="#3b3b3b"/><rect x="-4" y="-31" width="8" height="5" fill="#B0BEC5"/><rect x="-4" y="-36" width="8" height="5" rx="2" fill="#FF7675"/></g></g></g></svg></div>
         <div class="name">Scattergories</div>
         <div class="desc">Letter + categories</div>
       </div>
       <div class="game-card" data-game="hangman" id="pickHangman" style="cursor:pointer">
-        <div class="icon">🪢</div>
+        <div class="thumb t-hangman" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F7A64"/><stop offset="1" stop-color="#0B2F29"/></linearGradient></defs><rect width="160" height="100" fill="url(#hgA)"/><g class="px1"><circle cx="146" cy="12" r="9" fill="#E9FFF7" opacity=".85"/><circle cx="20" cy="14" r="1.4" fill="#fff"/><circle cx="48" cy="8" r="1" fill="#fff"/><circle cx="96" cy="12" r="1.2" fill="#fff"/></g><g class="px2"><ellipse cx="50" cy="77" rx="36" ry="4" fill="#061a17"/><rect x="24" y="12" width="7" height="66" rx="1.5" fill="#7B5A45"/><rect x="24" y="12" width="56" height="7" rx="1.5" fill="#8D6B54"/><polygon points="31,19 31,31 43,19" fill="#6D4C41"/><line x1="74" y1="19" x2="74" y2="42" stroke="#D7B98E" stroke-width="2.2" stroke-linecap="round"/><g class="man a"><g class="leg a" style="--s:1"><line x1="72" y1="68" x2="72" y2="77" stroke="#37474F" stroke-width="3" stroke-linecap="round"/></g><g class="leg a" style="--s:-1"><line x1="76" y1="68" x2="76" y2="77" stroke="#37474F" stroke-width="3" stroke-linecap="round"/></g><rect x="70" y="56" width="8" height="13" rx="3" fill="#6C5CE7"/><path d="M71 58 Q64 50 73 41" stroke="#6C5CE7" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M77 58 Q84 50 75 41" stroke="#6C5CE7" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="74" cy="50" r="6.2" fill="#FFE0B2" stroke="#5D4037" stroke-width="1"/><path d="M67.8 49 Q67 43.5 74 43.8 Q81 43.5 80.2 49 Q77.5 46 74 46.4 Q70.5 46 67.8 49Z" fill="#5D4037"/><circle cx="71.8" cy="50.6" r="1" fill="#2d3436"/><circle cx="76.2" cy="50.6" r="1" fill="#2d3436"/><path d="M71.6 54 Q74 56 76.4 54" stroke="#3E2723" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="73" cy="41" r="2.1" fill="#FFE0B2" stroke="#5D4037" stroke-width=".8"/><circle cx="75" cy="41" r="2.1" fill="#FFE0B2" stroke="#5D4037" stroke-width=".8"/></g></g><g class="px3"><g class="bal a" style="--i:0"><path d="M120 44.5 q-3 8 2 18" stroke="#E9FFF7" stroke-width="1" fill="none" opacity=".8"/><ellipse cx="120" cy="36" rx="7" ry="8.5" fill="#FF6B6B"/><ellipse cx="117.6" cy="33" rx="1.8" ry="2.6" fill="#fff" opacity=".55"/><polygon points="118.4,44.3 121.6,44.3 120,47" fill="#FF6B6B"/></g><g class="bal a" style="--i:1"><path d="M138 60.5 q-3 8 2 18" stroke="#E9FFF7" stroke-width="1" fill="none" opacity=".8"/><ellipse cx="138" cy="52" rx="7" ry="8.5" fill="#FFD166"/><ellipse cx="135.6" cy="49" rx="1.8" ry="2.6" fill="#fff" opacity=".55"/><polygon points="136.4,60.3 139.6,60.3 138,63" fill="#FFD166"/></g><g class="bal a" style="--i:2"><path d="M128 26.5 q-3 8 2 18" stroke="#E9FFF7" stroke-width="1" fill="none" opacity=".8"/><ellipse cx="128" cy="18" rx="7" ry="8.5" fill="#A78BFF"/><ellipse cx="125.6" cy="15" rx="1.8" ry="2.6" fill="#fff" opacity=".55"/><polygon points="126.4,26.3 129.6,26.3 128,29" fill="#A78BFF"/></g></g><rect x="38" y="82" width="18" height="14" rx="3" fill="#F4FFFB" stroke="#BFEFE0" stroke-width="1"/><text x="47" y="93" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="11" fill="#0B3B31">R</text><rect x="60" y="82" width="18" height="14" rx="3" fill="#F4FFFB" stroke="#BFEFE0" stroke-width="1"/><text x="69" y="93" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="11" fill="#0B3B31">A</text><rect x="82" y="82" width="18" height="14" rx="3" fill="#0B2F29" stroke="#2BFFB0" stroke-width="1.6"/><rect x="104" y="82" width="18" height="14" rx="3" fill="#F4FFFB" stroke="#BFEFE0" stroke-width="1"/><text x="113" y="93" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="11" fill="#0B3B31">E</text></svg></div>
         <div class="name">Hangman Race</div>
         <div class="desc">Solve it first</div>
       </div>
       <div class="game-card" data-game="draw" id="pickDraw" style="cursor:pointer">
-        <div class="icon">🎨</div>
+        <div class="thumb t-draw" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="drA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#62B4FF"/><stop offset="1" stop-color="#1B4F9C"/></linearGradient></defs><rect width="160" height="100" fill="url(#drA)"/><g class="px1"><circle cx="14" cy="88" r="22" fill="#fff" opacity=".13"/><circle cx="150" cy="10" r="24" fill="#fff" opacity=".12"/></g><g class="px2"><rect x="22" y="13" width="116" height="62" rx="8" fill="#000" opacity=".22"/><rect x="20" y="10" width="116" height="62" rx="8" fill="#fff"/><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="st" style="--i:0" pathLength="100" d="M30 60 H126" stroke="#55C26B" stroke-width="3"/><path class="st" style="--i:1" pathLength="100" d="M48 60 V40 L68 24 L88 40 V60 Z" stroke="#2D3436" stroke-width="2.6"/><path class="st" style="--i:2" pathLength="100" d="M62 60 V47 H74 V60" stroke="#E17055" stroke-width="2.4"/><path class="st" style="--i:3" pathLength="100" d="M78 44 h6 v6 h-6 z" stroke="#4DA3FF" stroke-width="2"/><path class="st" style="--i:4" pathLength="100" d="M120 28 A8 8 0 1 1 119.99 28" stroke="#FDB82C" stroke-width="2.6"/><path class="st" style="--i:5" pathLength="100" d="M112 14v-3M123 18l2-2M126 28h3M101 18l-2-2M98 28h-3" stroke="#FDB82C" stroke-width="2"/></g><g transform="translate(120 66) rotate(40)"><g class="pen a"><rect x="-4" y="-26" width="8" height="22" fill="#FF5FA8"/><rect x="-1" y="-26" width="2" height="22" fill="#D63384"/><polygon points="-4,-4 4,-4 0,5" fill="#F3D9B1"/><polygon points="-1.3,2 1.3,2 0,5" fill="#2B8CFF"/><rect x="-4" y="-31" width="8" height="5" fill="#B0BEC5"/></g></g></g><g class="px3"><circle class="dot a" cx="44" cy="86" r="5.5" fill="#FF4F4F" stroke="#fff" stroke-width="1"/><circle class="dot a" cx="58" cy="86" r="5.5" fill="#FFB020" stroke="#fff" stroke-width="1"/><circle class="dot a" cx="72" cy="86" r="5.5" fill="#2BD97C" stroke="#fff" stroke-width="1"/><circle class="dot a on" cx="86" cy="86" r="5.5" fill="#2B8CFF" stroke="#fff" stroke-width="2"/><circle class="dot a" cx="100" cy="86" r="5.5" fill="#9B5CFF" stroke="#fff" stroke-width="1"/><circle class="dot a" cx="114" cy="86" r="5.5" fill="#2D3436" stroke="#fff" stroke-width="1"/></g></svg></div>
         <div class="name">Sketch Race</div>
         <div class="desc">Draw &amp; guess</div>
       </div>
       <div class="game-card" data-game="spy" id="pickSpy" style="cursor:pointer">
-        <div class="icon">🕵️</div>
+        <div class="thumb t-spy" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B2A7A"/><stop offset="1" stop-color="#130C33"/></linearGradient><linearGradient id="spB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF3B0" stop-opacity=".6"/><stop offset="1" stop-color="#FFF3B0" stop-opacity=".05"/></linearGradient></defs><rect width="160" height="100" fill="url(#spA)"/><polygon class="beam" points="52,0 92,0 124,100 20,100" fill="url(#spB)"/><g class="px1"><circle cx="140" cy="14" r="8" fill="#F3EEFF" opacity=".9"/><circle cx="132" cy="11" r="7" fill="#3B2A7A"/><rect x="0" y="72" width="16" height="30" fill="#1c1148"/><rect x="18" y="60" width="12" height="42" fill="#190F40"/><rect x="132" y="66" width="14" height="36" fill="#1c1148"/><rect x="146" y="76" width="16" height="26" fill="#190F40"/><rect x="4" y="78" width="3" height="3" fill="#FFD84D"/><rect x="10" y="86" width="3" height="3" fill="#FFD84D" opacity=".6"/><rect x="22" y="68" width="3" height="3" fill="#FFD84D" opacity=".7"/><rect x="136" y="74" width="3" height="3" fill="#FFD84D"/></g><g class="px2"><path d="M20 100 Q22 72 46 68 L74 68 Q98 72 100 100 Z" fill="#0E0A22"/><path d="M46 66 L58 90 L52 98 L38 74 Z" fill="#251B55" stroke="#4B3E96" stroke-width=".8"/><path d="M74 66 L62 90 L68 98 L82 74 Z" fill="#251B55" stroke="#4B3E96" stroke-width=".8"/><rect x="54" y="60" width="12" height="12" fill="#120C2B"/><ellipse cx="60" cy="52" rx="13" ry="15" fill="#171034"/><g class="shades"><rect x="46" y="49" width="12" height="8" rx="3.5" fill="#000"/><rect x="62" y="49" width="12" height="8" rx="3.5" fill="#000"/><rect x="57" y="51" width="6" height="2" fill="#000"/><path class="glint" d="M48.5 51.5 l4 0 M64.5 51.5 l4 0" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/></g><path d="M54 63 Q60 65.5 66 63" stroke="#4B3E96" stroke-width="1.4" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="40" rx="28" ry="6.5" fill="#0A0719" stroke="#6D5BD0" stroke-width=".8"/><path d="M44 40 Q44 21 60 21 Q76 21 76 40 Z" fill="#0A0719" stroke="#6D5BD0" stroke-width=".8"/><rect x="44" y="33" width="32" height="5" fill="#E0485F"/></g><g class="px3"><g class="mag a"><line x1="129" y1="52" x2="143" y2="68" stroke="#A1887F" stroke-width="6" stroke-linecap="round"/><circle cx="118" cy="40" r="15" fill="#fff" fill-opacity=".16" stroke="#FFD84D" stroke-width="4"/><text x="118" y="47" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="20" fill="#FFD84D">?</text><path d="M108 33 Q112 28 118 27" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/></g></g></svg></div>
         <div class="name">Spy Word</div>
         <div class="desc">Bluff &amp; vote</div>
       </div>
       <div class="game-card" data-game="chain" id="pickChain" style="cursor:pointer">
-        <div class="icon">🔗</div>
+        <div class="thumb t-chain" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="chA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9A6B"/><stop offset="1" stop-color="#D93A22"/></linearGradient></defs><rect width="160" height="100" fill="url(#chA)"/><g class="px1"><circle cx="140" cy="16" r="24" fill="#fff" opacity=".13"/><circle cx="14" cy="88" r="22" fill="#fff" opacity=".12"/></g><g class="px2"><g class="card a" style="--i:0"><rect x="10" y="14.5" width="46" height="22" rx="7" fill="#000" opacity=".2"/><rect x="10" y="12" width="46" height="22" rx="7" fill="#fff"/><rect x="14" y="16" width="11" height="14" rx="3" fill="#F3EEFF"/><text x="19.5" y="26.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#3B1D6E">S</text><rect x="27" y="16" width="11" height="14" rx="3" fill="#F3EEFF"/><text x="32.5" y="26.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#3B1D6E">U</text><rect x="40" y="16" width="11" height="14" rx="3" fill="#FFD166"/><text x="45.5" y="26.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#6D3A00">N</text></g><g class="card a" style="--i:1"><rect x="57" y="41.5" width="46" height="22" rx="7" fill="#000" opacity=".2"/><rect x="57" y="39" width="46" height="22" rx="7" fill="#fff"/><rect x="61" y="43" width="11" height="14" rx="3" fill="#FFD166"/><text x="66.5" y="53.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#6D3A00">N</text><rect x="74" y="43" width="11" height="14" rx="3" fill="#F3EEFF"/><text x="79.5" y="53.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#3B1D6E">E</text><rect x="87" y="43" width="11" height="14" rx="3" fill="#FFD166"/><text x="92.5" y="53.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#6D3A00">T</text></g><g class="card a" style="--i:2"><rect x="104" y="68.5" width="46" height="22" rx="7" fill="#000" opacity=".2"/><rect x="104" y="66" width="46" height="22" rx="7" fill="#fff"/><rect x="108" y="70" width="11" height="14" rx="3" fill="#FFD166"/><text x="113.5" y="80.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#6D3A00">T</text><rect x="121" y="70" width="11" height="14" rx="3" fill="#F3EEFF"/><text x="126.5" y="80.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#3B1D6E">A</text><rect x="134" y="70" width="11" height="14" rx="3" fill="#F3EEFF"/><text x="139.5" y="80.6" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="10" fill="#3B1D6E">P</text></g><g class="lk a" style="--i:0"><ellipse cx="52.4" cy="32" rx="4.3" ry="2.2" transform="rotate(51 52.4 32)" fill="none" stroke="#FFD166" stroke-width="2.4"/></g><g class="lk a" style="--i:1"><ellipse cx="56" cy="36.5" rx="4.3" ry="2.2" transform="rotate(51 56 36.5)" fill="none" stroke="#FFFFFF" stroke-width="2.4"/></g><g class="lk a" style="--i:2"><ellipse cx="59.6" cy="41" rx="4.3" ry="2.2" transform="rotate(51 59.6 41)" fill="none" stroke="#FFD166" stroke-width="2.4"/></g><g class="lk a" style="--i:3"><ellipse cx="99.6" cy="58" rx="4.3" ry="2.2" transform="rotate(51 99.6 58)" fill="none" stroke="#FFFFFF" stroke-width="2.4"/></g><g class="lk a" style="--i:4"><ellipse cx="103.5" cy="62.5" rx="4.3" ry="2.2" transform="rotate(51 103.5 62.5)" fill="none" stroke="#FFD166" stroke-width="2.4"/></g><g class="lk a" style="--i:5"><ellipse cx="107.4" cy="67" rx="4.3" ry="2.2" transform="rotate(51 107.4 67)" fill="none" stroke="#FFFFFF" stroke-width="2.4"/></g></g></svg></div>
         <div class="name">Word Chain</div>
         <div class="desc">Last letter, next word</div>
       </div>
       <div class="game-card" data-game="board" id="pickBoard" style="cursor:pointer">
-        <div class="icon">🐍</div>
+        <div class="thumb t-board" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bdA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3DBE5A"/><stop offset="1" stop-color="#0F5E30"/></linearGradient></defs><rect width="160" height="100" fill="url(#bdA)"/><g class="px1"><circle cx="146" cy="12" r="24" fill="#fff" opacity=".12"/><circle cx="12" cy="90" r="24" fill="#fff" opacity=".1"/></g><g class="px2"><rect x="28" y="16" width="102" height="64" rx="8" fill="#0B3B1F" opacity=".55"/><rect x="32" y="20" width="17" height="17" rx="3" fill="#b8f5d9" stroke="#fff" stroke-opacity=".7"/><rect x="51" y="20" width="17" height="17" rx="3" fill="#fff1ad" stroke="#fff" stroke-opacity=".7"/><rect x="70" y="20" width="17" height="17" rx="3" fill="#ffcda4" stroke="#fff" stroke-opacity=".7"/><rect x="89" y="20" width="17" height="17" rx="3" fill="#f9c0c6" stroke="#fff" stroke-opacity=".7"/><rect x="108" y="20" width="17" height="17" rx="3" fill="#b8f5d9" stroke="#fff" stroke-opacity=".7"/><rect x="32" y="39" width="17" height="17" rx="3" fill="#fff1ad" stroke="#fff" stroke-opacity=".7"/><rect x="51" y="39" width="17" height="17" rx="3" fill="#ffcda4" stroke="#fff" stroke-opacity=".7"/><rect x="70" y="39" width="17" height="17" rx="3" fill="#f9c0c6" stroke="#fff" stroke-opacity=".7"/><rect x="89" y="39" width="17" height="17" rx="3" fill="#b8f5d9" stroke="#fff" stroke-opacity=".7"/><rect x="108" y="39" width="17" height="17" rx="3" fill="#fff1ad" stroke="#fff" stroke-opacity=".7"/><rect x="32" y="58" width="17" height="17" rx="3" fill="#ffcda4" stroke="#fff" stroke-opacity=".7"/><rect x="51" y="58" width="17" height="17" rx="3" fill="#f9c0c6" stroke="#fff" stroke-opacity=".7"/><rect x="70" y="58" width="17" height="17" rx="3" fill="#b8f5d9" stroke="#fff" stroke-opacity=".7"/><rect x="89" y="58" width="17" height="17" rx="3" fill="#fff1ad" stroke="#fff" stroke-opacity=".7"/><rect x="108" y="58" width="17" height="17" rx="3" fill="#ffcda4" stroke="#fff" stroke-opacity=".7"/><path d="M109 76 L103 26 M117 76 L111 26" stroke="#A9692F" stroke-width="2.6" stroke-linecap="round" fill="none"/><line x1="108.0" y1="67.7" x2="116.0" y2="67.7" stroke="#A9692F" stroke-width="2.2" stroke-linecap="round"/><line x1="107.0" y1="59.3" x2="115.0" y2="59.3" stroke="#A9692F" stroke-width="2.2" stroke-linecap="round"/><line x1="106.0" y1="51.0" x2="114.0" y2="51.0" stroke="#A9692F" stroke-width="2.2" stroke-linecap="round"/><line x1="105.0" y1="42.7" x2="113.0" y2="42.7" stroke="#A9692F" stroke-width="2.2" stroke-linecap="round"/><line x1="104.0" y1="34.3" x2="112.0" y2="34.3" stroke="#A9692F" stroke-width="2.2" stroke-linecap="round"/><g class="snake a"><path d="M48 24 C70 24 46 44 66 52 S88 64 84 74" fill="none" stroke="#7A1022" stroke-width="9" stroke-linecap="round" opacity=".5" transform="translate(0 1.5)"/><path d="M48 24 C70 24 46 44 66 52 S88 64 84 74" fill="none" stroke="#E0405E" stroke-width="7" stroke-linecap="round"/><path class="sg" d="M48 24 C70 24 46 44 66 52 S88 64 84 74" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/><circle cx="48" cy="24" r="7" fill="#E0405E" stroke="#7A1022" stroke-width="1"/><circle cx="45.5" cy="22" r="2.2" fill="#fff"/><circle cx="50.5" cy="22" r="2.2" fill="#fff"/><circle cx="45.8" cy="22.2" r="1" fill="#1b0e13"/><circle cx="50.2" cy="22.2" r="1" fill="#1b0e13"/><path d="M48 30 V34 M48 34 l-2 2 M48 34 l2 2" stroke="#FF274E" stroke-width="1.2" fill="none" stroke-linecap="round"/></g></g><g class="px3"><g transform="translate(133 72)"><g class="die a"><rect x="-12" y="-9" width="24" height="24" rx="5" fill="#000" opacity=".25"/><rect x="-12" y="-12" width="24" height="24" rx="5" fill="#fff" stroke="#E3E3EE"/><circle cx="-6" cy="-6" r="2.4" fill="#E63946"/><circle cx="6" cy="-6" r="2.4" fill="#E63946"/><circle cx="0" cy="0" r="2.4" fill="#E63946"/><circle cx="-6" cy="6" r="2.4" fill="#E63946"/><circle cx="6" cy="6" r="2.4" fill="#E63946"/></g></g><g transform="translate(22 82)"><g class="qb a"><circle r="10" fill="#FFD166" stroke="#C98A00" stroke-width="1.4"/><text y="6.5" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="16" fill="#6D4C00">?</text></g></g></g></svg></div>
         <div class="name">Snakes &amp; Trivia</div>
         <div class="desc">Dice + trivia</div>
       </div>
       <div class="game-card" data-game="town" id="pickTown" style="cursor:pointer">
-        <div class="icon">🏝️</div>
+        <div class="thumb t-town" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tnA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FD6FF"/><stop offset="1" stop-color="#E9F9FF"/></linearGradient><linearGradient id="tnB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35B9E0"/><stop offset="1" stop-color="#176E9A"/></linearGradient></defs><rect width="160" height="56" fill="url(#tnA)"/><rect y="56" width="160" height="44" fill="url(#tnB)"/><g class="px1"><circle class="sun a" cx="132" cy="20" r="15" fill="#FFE066" opacity=".35"/><circle cx="132" cy="20" r="9" fill="#FFE066"/><g class="cloud a"><ellipse cx="30" cy="18" rx="14" ry="5" fill="#fff"/><ellipse cx="40" cy="14" rx="9" ry="5" fill="#fff"/><ellipse cx="22" cy="15" rx="8" ry="4" fill="#fff"/></g><g class="cloud a" style="--d:-3s"><ellipse cx="96" cy="9" rx="10" ry="3.5" fill="#fff" opacity=".9"/><ellipse cx="102" cy="6.5" rx="6" ry="3.5" fill="#fff" opacity=".9"/></g><path class="wave a" d="M6 70 q6 -3 12 0 t12 0 M110 90 q6 -3 12 0 t12 0" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" fill="none" stroke-linecap="round"/><path class="wave a" style="--d:-1.4s" d="M126 64 q6 -3 12 0 t12 0 M8 90 q6 -3 12 0 t12 0" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><g class="px2"><g class="boat a"><path d="M10 78 H30 L26 85 H14 Z" fill="#E4572E"/><polygon points="20,60 20,77 31,77" fill="#fff"/><line x1="20" y1="58" x2="20" y2="78" stroke="#8D6B54" stroke-width="1.4"/></g><polygon points="26,68 80,92 80,98 26,74" fill="#D9BF84"/><polygon points="134,68 80,92 80,98 134,74" fill="#E6CE92"/><polygon points="80,50 134,68 80,92 26,68" fill="#F2DDA4"/><polygon points="80,54 124,69 80,87 36,69" fill="#79D26A"/><polygon points="80,54 124,69 112,73.5 80,62 48,73.5 36,69" fill="#92E07F"/><path d="M50 72 L80 83 L110 72" stroke="#EDE6D3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><g class="bld a" style="--i:0"><rect x="57" y="58" width="14" height="10" fill="#FFF4E0"/><polygon points="55,58 64,50 73,58" fill="#E4572E"/><rect x="62" y="62" width="4" height="6" fill="#8C6B5A"/><rect x="68" y="49" width="3" height="6" fill="#8C6B5A"/></g><circle class="smoke a" style="--i:0" cx="69.5" cy="47" r="2" fill="#fff" opacity=".85"/><circle class="smoke a" style="--i:1" cx="69.5" cy="47" r="2" fill="#fff" opacity=".85"/><g class="bld a" style="--i:1"><rect x="89" y="52" width="12" height="17" fill="#FFD166"/><polygon points="87,52 95,45 103,52" fill="#3B82F6"/><rect x="91.5" y="55" width="3" height="3" fill="#7DD3FC"/><rect x="96.5" y="55" width="3" height="3" fill="#7DD3FC"/><rect x="94" y="62" width="4" height="7" fill="#8C6B5A"/></g><path d="M116 71 Q118 62 115 55" stroke="#A66A3F" stroke-width="2.4" fill="none" stroke-linecap="round"/><g class="palm a"><path d="M115 55 Q107 51 103 58 M115 55 Q110 47 104 49 M115 55 Q123 51 127 58 M115 55 Q121 47 127 49" stroke="#2E9E4F" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="114" cy="57" r="1.4" fill="#7B4A2A"/><circle cx="117" cy="57" r="1.4" fill="#7B4A2A"/></g></g></svg></div>
         <div class="name">Island Mayor</div>
         <div class="desc">Build your island</div>
       </div>
@@ -9394,6 +9518,112 @@ $('tnUndo').onclick=()=>{if(!undo.length)return toast('Nothing to undo');restore
 $('tnClear').onclick=()=>{if(!Object.keys(cells).length)return;undo.push(snapshot());cells={};rebuildAll();syncMovers();save();cloudSave();toast('Island cleared — tap ↩️ to bring it back')};
 $('tnNext').onclick=()=>{snd('tap');nextLine()};$('tnTxt').onclick=()=>{if(dCur&&$('tnNext').style.display==='none'&&!dCur.ch||dCur&&dCur.ch&&dFull!==$('tnTxt').textContent)finishLine()};
 $('tnSnd').onclick=()=>{toggleSound();$('tnSnd').textContent=soundOn?'🔊':'🔇'};
+})();
+
+</script>
+<script>
+/* ===== Interactive thumbnails: tilt, ripple, tap reaction, battery-friendly pausing ===== */
+(function(){
+  var LABELS = {"boggle": "Boggle", "scatter": "Scattergories", "hangman": "Hangman Race", "draw": "Sketch Race", "spy": "Spy Word", "chain": "Word Chain", "board": "Snakes and Trivia", "town": "Island Mayor"};
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.game-card'));
+
+  function setPos(card, e){
+    var r = card.getBoundingClientRect();
+    if(!r.width) return;
+    var x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    var y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+    card.style.setProperty('--ry', ((x - .5) * 14).toFixed(2) + 'deg');
+    card.style.setProperty('--rx', ((.5 - y) * 10).toFixed(2) + 'deg');
+    card.style.setProperty('--px', ((x - .5) * 2).toFixed(3));
+    card.style.setProperty('--py', ((y - .5) * 2).toFixed(3));
+    card.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+  }
+  function rest(card){
+    card.classList.remove('tilting');
+    card.style.setProperty('--rx', '0deg');
+    card.style.setProperty('--ry', '0deg');
+    card.style.setProperty('--px', '0');
+    card.style.setProperty('--py', '0');
+  }
+  function ripple(card, e){
+    var t = card.querySelector('.thumb');
+    if(!t) return;
+    var r = t.getBoundingClientRect();
+    var d = document.createElement('span');
+    d.className = 'rip';
+    d.style.left = (e.clientX - r.left) + 'px';
+    d.style.top = (e.clientY - r.top) + 'px';
+    t.appendChild(d);
+    setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 650);
+  }
+  function pop(card){
+    card.classList.remove('pop');
+    void card.offsetWidth;                 // restart the CSS animations
+    card.classList.add('pop');
+    clearTimeout(card._popT);
+    card._popT = setTimeout(function(){ card.classList.remove('pop'); }, 900);
+  }
+
+  cards.forEach(function(card){
+    var g = card.dataset.game;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    if(LABELS[g]) card.setAttribute('aria-label', 'Play ' + LABELS[g]);
+    card.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); card.click(); }
+    });
+    if(reduce) return;
+    card.addEventListener('pointerenter', function(e){
+      if(e.pointerType === 'mouse'){ card.classList.add('tilting'); setPos(card, e); }
+    });
+    card.addEventListener('pointermove', function(e){
+      if(e.pointerType === 'mouse' || card.classList.contains('tilting')) setPos(card, e);
+    });
+    card.addEventListener('pointerdown', function(e){
+      card.classList.add('tilting');
+      setPos(card, e);
+      ripple(card, e);
+      pop(card);
+    });
+    ['pointerleave', 'pointerup', 'pointercancel'].forEach(function(ev){
+      card.addEventListener(ev, function(){ rest(card); });
+    });
+  });
+
+  /* pause animations for cards that are scrolled out of view or on a hidden screen */
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(list){
+      list.forEach(function(en){ en.target.classList.toggle('off', !en.isIntersecting); });
+    }, {threshold: 0.05});
+    cards.forEach(function(c){ io.observe(c); });
+  }
+
+  /* artwork banner on the matchmaking screen (ids are re-suffixed so gradients never collide) */
+  function fillMatchThumb(game){
+    var title = document.getElementById('matchGameTitle');
+    var src = document.querySelector('.game-card[data-game="' + game + '"] .thumb');
+    if(!title || !src) return;
+    var host = document.getElementById('matchThumb');
+    if(!host){
+      host = document.createElement('div');
+      host.id = 'matchThumb';
+      host.setAttribute('aria-hidden', 'true');
+      title.parentNode.insertBefore(host, title);
+    }
+    var svg = src.querySelector('svg').outerHTML.replace(/(id="|url\(#)([A-Za-z0-9_-]+)/g, '$1$2m');
+    host.className = 'match-thumb thumb t-' + game;
+    host.innerHTML = svg;
+  }
+  var _open = window.openMatchmaking;
+  if(typeof _open === 'function'){
+    window.openMatchmaking = function(game){
+      var out = _open.apply(this, arguments);
+      try{ fillMatchThumb(game); }catch(e){}
+      return out;
+    };
+  }
 })();
 
 </script>
