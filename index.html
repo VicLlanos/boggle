@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#4B2FDB">
+<meta name="theme-color" content="#0D0A24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Arenova">
@@ -235,6 +235,11 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 .pslot.host .bdg{background:var(--gold);color:#6D4C00}
 
 .game-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+.game-leave-btn{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:8800;min-height:42px;padding:0 13px;border-radius:13px;border:1px solid rgba(255,255,255,.65);background:#fff;color:#A12C45;font:800 .82rem 'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.22);cursor:pointer;white-space:nowrap}
+.game-leave-btn.on{display:flex;align-items:center}
+.game-leave-btn:active{transform:scale(.96)}
+
 .timer{width:72px;height:72px;border-radius:50%;background:conic-gradient(var(--mint) var(--pct,100%),rgba(255,255,255,.25) 0);display:grid;place-items:center;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.18);flex-shrink:0;transition:background .3s}
 .timer::after{content:'';position:absolute;inset:6px;background:#fff;border-radius:50%}
 .timer span{position:relative;z-index:1;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem}
@@ -1052,6 +1057,18 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .fs-empty{color:#B9AEE0}
 .fs-chip .nm{color:#E9E4FF}
 
+
+/* Friends are accessed from a compact launcher; the list lives in its modal. */
+.lobby-social-actions{position:relative;z-index:2}
+.friends-launch{width:100%;display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:18px;border:1px solid var(--line);background:var(--glass);color:#fff;text-align:left;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.friends-launch-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:rgba(43,255,176,.13);font-size:1.35rem;flex-shrink:0}
+.friends-launch-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}
+.friends-launch-copy b{font-size:.95rem;font-weight:800}
+.friends-launch-copy small{font-size:.72rem;color:#B9AEE0;font-weight:700}
+.friends-launch-badge{min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:#FF4FA3;color:#fff;font-size:.72rem;font-weight:900;display:none;place-items:center}
+.friends-launch-badge.on{display:grid}
+.friends-launch-arrow{font-size:1.7rem;color:#B9AEE0;line-height:1}
+
 /* game picker */
 .picker{display:flex;flex-direction:column;gap:10px;position:relative;z-index:2}
 .picker-head h2{font-size:1.15rem;font-weight:800;letter-spacing:-.01em;color:#fff;padding:2px 2px 0}
@@ -1076,270 +1093,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .sc{border-radius:14px}
 
 
-/* ===== GLOBAL THEME COLORS ===== */
-body.theme-pasko{
-  --violet:#C41E3A;--violet-d:#8B0000;--pink:#FF6B6B;--coral:#E74C3C;
-  --mint:#2E8B57;--mint-l:#3CB371;--gold:#FFD700;--ink:#1A0A0A;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(255,215,0,.35),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(46,139,87,.28),transparent 45%),
-    linear-gradient(165deg,#1A0A0A 0%,#8B0000 42%,#1A0A0A 100%);
-}
-body.theme-bagong_taon{
-  --violet:#FFD700;--violet-d:#B8860B;--pink:#FFEC8B;--coral:#FFA500;
-  --mint:#00CED1;--mint-l:#40E0D0;--gold:#FFF8DC;--ink:#0D0D0D;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(255,215,0,.4),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(0,206,209,.25),transparent 45%),
-    linear-gradient(165deg,#0D0D0D 0%,#1A1A2E 42%,#0D0D0D 100%);
-}
-body.theme-chinese_new_year{
-  --violet:#C41E3A;--violet-d:#8B0000;--pink:#FF4D4D;--coral:#E74C3C;
-  --mint:#FFD700;--mint-l:#FFE55C;--gold:#FFD700;--ink:#2A0A0A;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(255,215,0,.45),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(196,30,58,.35),transparent 45%),
-    linear-gradient(165deg,#2A0A0A 0%,#C41E3A 42%,#1A0505 100%);
-}
-body.theme-semana_santa{
-  --violet:#6B3FA0;--violet-d:#4A2C6A;--pink:#C9A0DC;--coral:#9B59B6;
-  --mint:#D4AF37;--mint-l:#E8C547;--gold:#F5E6C8;--ink:#1A1225;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(107,63,160,.35),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(212,175,55,.22),transparent 45%),
-    linear-gradient(165deg,#1A1225 0%,#4A2C6A 42%,#120B1A 100%);
-}
-body.theme-independencia{
-  --violet:#0038A8;--violet-d:#00287A;--pink:#CE1126;--coral:#CE1126;
-  --mint:#FCD116;--mint-l:#FFE55C;--gold:#FCD116;--ink:#0A1628;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(0,56,168,.4),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(206,17,38,.3),transparent 45%),
-    linear-gradient(165deg,#0A1628 0%,#0038A8 35%,#CE1126 70%,#0A1628 100%);
-}
-body.theme-undas{
-  --violet:#5D4E8C;--violet-d:#3D2E6C;--pink:#B8A9C9;--coral:#8E7CC3;
-  --mint:#E8E0F0;--mint-l:#F5F0FA;--gold:#D4AF37;--ink:#1A1525;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(93,78,140,.35),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(212,175,55,.2),transparent 45%),
-    linear-gradient(165deg,#1A1525 0%,#3D2E6C 42%,#120E1A 100%);
-}
-body.theme-valentines{
-  --violet:#E91E63;--violet-d:#C2185B;--pink:#FF80AB;--coral:#F06292;
-  --mint:#F8BBD0;--mint-l:#FCE4EC;--gold:#FFD54F;--ink:#2A0A15;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(233,30,99,.4),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(255,128,171,.3),transparent 45%),
-    linear-gradient(165deg,#2A0A15 0%,#C2185B 42%,#1A0510 100%);
-}
-body.theme-halloween{
-  --violet:#FF6D00;--violet-d:#E65100;--pink:#FF9100;--coral:#FF3D00;
-  --mint:#7B1FA2;--mint-l:#9C27B0;--gold:#FFD54F;--ink:#0D0D0D;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(255,109,0,.4),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(123,31,162,.3),transparent 45%),
-    linear-gradient(165deg,#0D0D0D 0%,#1A0A00 30%,#3D1A00 60%,#0D0D0D 100%);
-}
-body.theme-fiesta{
-  --violet:#E91E63;--violet-d:#C2185B;--pink:#FF4081;--coral:#FF5722;
-  --mint:#00BCD4;--mint-l:#26C6DA;--gold:#FFEB3B;--ink:#1A0A2E;
-  background:radial-gradient(ellipse 120% 80% at 10% -10%,rgba(233,30,99,.4),transparent 50%),
-    radial-gradient(ellipse 100% 70% at 100% 10%,rgba(0,188,212,.3),transparent 45%),
-    radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,235,59,.25),transparent 50%),
-    linear-gradient(165deg,#1A0A2E 0%,#4A148C 42%,#1A0A2E 100%);
-}
-
-/* Theme section chips in profile */
-.theme-chip{
-  font-size:.72rem;font-weight:800;padding:8px 12px;border-radius:999px;
-  border:2px solid #E8E0FF;background:#fff;cursor:pointer;color:var(--violet-d);
-  transition:all .15s;line-height:1.2;text-align:center;
-}
-.theme-chip.on{border-color:var(--violet);background:#F3F0FF;box-shadow:0 0 0 3px rgba(124,92,255,.2)}
-.theme-chip:active{transform:scale(.96)}
-
-/* ===== THEME DECORATIONS ===== */
-#themeDecor{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-#themeDecor .td{
-  position:absolute;pointer-events:none;user-select:none;
-  font-size:1.6rem;line-height:1;opacity:.85;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
-  will-change:transform,opacity;
-}
-#themeDecor .td.sm{font-size:1.15rem;opacity:.7}
-#themeDecor .td.lg{font-size:2.3rem;opacity:.9}
-#themeDecor .td.xl{font-size:3rem;opacity:.95}
-
-@keyframes tdFloat{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-14px) rotate(calc(var(--r,0deg) + 5deg))}}
-@keyframes tdTwinkle{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
-@keyframes tdSwing{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
-@keyframes tdPulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.15);opacity:1}}
-@keyframes tdSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes fwRise{
-  0%{transform:translateY(0) scale(1);opacity:0}
-  8%{opacity:1}
-  70%{opacity:1;transform:translateY(calc(-1 * var(--rise,55vh))) scale(1.05)}
-  85%{opacity:0;transform:translateY(calc(-1 * var(--rise,55vh) - 8px)) scale(.6)}
-  100%{opacity:0;transform:translateY(calc(-1 * var(--rise,55vh) - 20px)) scale(.3)}
-}
-@keyframes fwBurst{
-  0%{transform:translate(0,0) scale(.4);opacity:0}
-  10%{opacity:1;transform:translate(0,0) scale(1)}
-  100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}
-}
-@keyframes fwTrail{0%{opacity:0;transform:scale(.5)}30%{opacity:.9}100%{opacity:0;transform:scale(1.4) translateY(12px)}}
-
-#themeDecor .float{animation:tdFloat 4.5s ease-in-out infinite}
-#themeDecor .twinkle{animation:tdTwinkle 2.2s ease-in-out infinite}
-#themeDecor .swing{animation:tdSwing 3.2s ease-in-out infinite;transform-origin:top center}
-#themeDecor .pulse{animation:tdPulse 2.8s ease-in-out infinite}
-#themeDecor .spin{animation:tdSpin 12s linear infinite}
-#themeDecor .fw-rocket{font-size:1.4rem;animation:fwRise var(--dur,2.4s) ease-out infinite;animation-delay:var(--delay,0s)}
-#themeDecor .fw-burst{position:absolute;font-size:1.1rem;animation:fwBurst var(--bdur,1.1s) ease-out infinite;animation-delay:var(--bdelay,1.6s);opacity:0}
-#themeDecor .fw-trail{position:absolute;font-size:.9rem;animation:fwTrail .8s ease-out infinite;animation-delay:var(--tdelay,0s);opacity:0}
-
-@media (prefers-reduced-motion:reduce){
-  #themeDecor .float,#themeDecor .twinkle,#themeDecor .swing,#themeDecor .pulse,#themeDecor .spin,
-  #themeDecor .fw-rocket,#themeDecor .fw-burst,#themeDecor .fw-trail{animation:none!important}
-}
-body.in-town #themeDecor{display:none}
-
-
-/* ===== THEMED GAME CARDS + ON-CARD DECOR ===== */
-body.theme-pasko .game-card{
-  background:linear-gradient(180deg,#2a0a0a,#4a1010)!important;
-  border-color:rgba(255,215,0,.45)!important;
-  box-shadow:0 6px 20px rgba(196,30,58,.35),inset 0 0 0 1px rgba(255,215,0,.15)!important;
-}
-body.theme-pasko .game-card .name{color:#FFD700!important}
-body.theme-pasko .game-card .desc{color:#FFB6C1!important}
-body.theme-pasko .game-card::after{
-  content:'🎄';position:absolute;top:6px;right:8px;font-size:1.1rem;
-  opacity:.9;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));
-}
-
-body.theme-bagong_taon .game-card{
-  background:linear-gradient(180deg,#0d0d1a,#1a1a2e)!important;
-  border-color:rgba(255,215,0,.5)!important;
-  box-shadow:0 6px 20px rgba(255,215,0,.2),inset 0 0 0 1px rgba(255,215,0,.12)!important;
-}
-body.theme-bagong_taon .game-card .name{color:#FFD700!important}
-body.theme-bagong_taon .game-card .desc{color:#FFEAA7!important}
-body.theme-bagong_taon .game-card::after{
-  content:'✨';position:absolute;top:6px;right:8px;font-size:1rem;
-  opacity:.9;pointer-events:none;animation:tdTwinkle 2s ease-in-out infinite;
-}
-
-body.theme-chinese_new_year .game-card{
-  background:linear-gradient(180deg,#2a0a0a,#5c1010)!important;
-  border-color:rgba(255,215,0,.55)!important;
-  box-shadow:0 6px 20px rgba(196,30,58,.4)!important;
-}
-body.theme-chinese_new_year .game-card .name{color:#FFD700!important}
-body.theme-chinese_new_year .game-card .desc{color:#FFCCCB!important}
-body.theme-chinese_new_year .game-card::after{
-  content:'🧧';position:absolute;top:6px;right:8px;font-size:1.05rem;
-  opacity:.95;pointer-events:none;
-}
-
-body.theme-semana_santa .game-card{
-  background:linear-gradient(180deg,#1a1225,#2e1f45)!important;
-  border-color:rgba(212,175,55,.4)!important;
-  box-shadow:0 6px 18px rgba(107,63,160,.3)!important;
-}
-body.theme-semana_santa .game-card .name{color:#E8D5A3!important}
-body.theme-semana_santa .game-card .desc{color:#C9A0DC!important}
-body.theme-semana_santa .game-card::after{
-  content:'✝️';position:absolute;top:6px;right:8px;font-size:1rem;
-  opacity:.85;pointer-events:none;
-}
-
-body.theme-independencia .game-card{
-  background:linear-gradient(180deg,#0a1628,#0d2a5c)!important;
-  border-color:rgba(252,209,22,.45)!important;
-  box-shadow:0 6px 18px rgba(0,56,168,.35)!important;
-}
-body.theme-independencia .game-card .name{color:#FCD116!important}
-body.theme-independencia .game-card .desc{color:#A8C5FF!important}
-body.theme-independencia .game-card::after{
-  content:'🇵🇭';position:absolute;top:6px;right:8px;font-size:1.05rem;
-  opacity:.95;pointer-events:none;
-}
-
-body.theme-undas .game-card{
-  background:linear-gradient(180deg,#1a1525,#2a2040)!important;
-  border-color:rgba(212,175,55,.35)!important;
-  box-shadow:0 6px 18px rgba(93,78,140,.3)!important;
-}
-body.theme-undas .game-card .name{color:#E8E0F0!important}
-body.theme-undas .game-card .desc{color:#B8A9C9!important}
-body.theme-undas .game-card::after{
-  content:'🕯️';position:absolute;top:6px;right:8px;font-size:1rem;
-  opacity:.9;pointer-events:none;animation:tdPulse 2.5s ease-in-out infinite;
-}
-
-body.theme-valentines .game-card{
-  background:linear-gradient(180deg,#2a0a15,#4a1528)!important;
-  border-color:rgba(255,128,171,.5)!important;
-  box-shadow:0 6px 20px rgba(233,30,99,.35)!important;
-}
-body.theme-valentines .game-card .name{color:#FF80AB!important}
-body.theme-valentines .game-card .desc{color:#F8BBD0!important}
-body.theme-valentines .game-card::after{
-  content:'💕';position:absolute;top:6px;right:8px;font-size:1rem;
-  opacity:.9;pointer-events:none;animation:tdPulse 2.2s ease-in-out infinite;
-}
-
-body.theme-halloween .game-card{
-  background:linear-gradient(180deg,#0d0d0d,#1a1000)!important;
-  border-color:rgba(255,109,0,.5)!important;
-  box-shadow:0 6px 20px rgba(255,109,0,.25),inset 0 0 0 1px rgba(123,31,162,.15)!important;
-}
-body.theme-halloween .game-card .name{color:#FF9100!important}
-body.theme-halloween .game-card .desc{color:#CE93D8!important}
-body.theme-halloween .game-card::before{
-  content:'🕸️';position:absolute;top:4px;left:6px;font-size:1.15rem;
-  opacity:.75;pointer-events:none;transform:rotate(-8deg);
-}
-body.theme-halloween .game-card::after{
-  content:'🕷️';position:absolute;top:6px;right:8px;font-size:.95rem;
-  opacity:.85;pointer-events:none;
-}
-
-body.theme-fiesta .game-card{
-  background:linear-gradient(180deg,#1a0a2e,#3a1050)!important;
-  border-color:rgba(255,64,129,.45)!important;
-  box-shadow:0 6px 20px rgba(233,30,99,.3)!important;
-}
-body.theme-fiesta .game-card .name{color:#FF80AB!important}
-body.theme-fiesta .game-card .desc{color:#80DEEA!important}
-body.theme-fiesta .game-card::after{
-  content:'🎊';position:absolute;top:6px;right:8px;font-size:1rem;
-  opacity:.9;pointer-events:none;
-}
-
-/* Ensure game cards can host the pseudo decorations */
-.game-card{position:relative;overflow:hidden}
-
-/* Slightly stronger selected state under themes */
-body[class*="theme-"] .game-card.selected{
-  transform:translateY(-3px);
-  box-shadow:0 0 0 3px rgba(255,255,255,.25),0 10px 28px rgba(0,0,0,.35)!important;
-}
-
-
-/* Hide word-rain when any holiday theme is active */
-body[class*="theme-"] .word-rain{display:none!important}
-
-/* Falling theme particles */
-#themeDecor .td.fall{
-  animation: tdThemeFall linear infinite;
-  top: -10%;
-  opacity: 0;
-}
-@keyframes tdThemeFall{
-  0%{transform:translateY(0) rotate(var(--r,0deg)) scale(.85); opacity:0}
-  8%{opacity:.9}
-  85%{opacity:.85}
-  100%{transform:translateY(115vh) rotate(calc(var(--r,0deg) * 1.8)) scale(.9); opacity:0}
-}
-@media (prefers-reduced-motion:reduce){
-  #themeDecor .td.fall{animation:none!important;display:none}
-}
-
+/* Seasonal theme system removed; Arenova now uses one consistent visual style. */
 
 /* ===== ILLUSTRATED, INTERACTIVE GAME THUMBNAILS ===== */
 .game-card{
@@ -1353,8 +1107,6 @@ body[class*="theme-"] .word-rain{display:none!important}
 @media(hover:hover){.game-card:hover{transform:perspective(700px) translateY(-3px) rotateX(var(--rx)) rotateY(var(--ry))}}
 .game-card:active{transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry)) scale(.97)}
 .game-card::before{top:auto;bottom:-52px;right:-30px}
-body.theme-halloween .game-card::before{top:4px;bottom:auto;right:auto;z-index:3}
-body[class*="theme-"] .game-card::after{z-index:3}
 .game-card .name{margin-top:10px;padding:0 12px}
 .game-card .desc{padding:0 12px 12px}
 
@@ -1469,7 +1221,6 @@ body[class*="theme-"] .game-card::after{z-index:3}
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="word-rain" id="wordRain" aria-hidden="true"></div>
-<div id="themeDecor" aria-hidden="true"></div>
 
 <div class="profile-overlay" id="profileOverlay" aria-hidden="true">
   <div class="profile-sheet" role="dialog" aria-label="Edit profile">
@@ -1491,13 +1242,6 @@ body[class*="theme-"] .game-card::after{z-index:3}
     <div class="title-row" id="profTitleRow"></div>
     <label for="profBioInput">Bio <span style="font-weight:700;color:#B2BEC3;text-transform:none;letter-spacing:0">(optional)</span></label>
     <input type="text" id="profBioInput" maxlength="48" placeholder="Short tagline…" autocomplete="off">
-
-    <div id="profThemeSection" style="display:none;margin-top:16px;padding-top:14px;border-top:2px dashed #E8E0FF">
-      <label>Game Theme <span style="font-weight:700;color:#B2BEC3;text-transform:none;letter-spacing:0">(Admin · visible to everyone)</span></label>
-      <p class="sub" style="margin-bottom:8px;font-size:.78rem;line-height:1.35">Switch the entire app look for all players. Philippine holiday presets.</p>
-      <div id="profThemeGrid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-      <div id="profThemeStatus" style="font-size:.75rem;font-weight:700;color:#636E72;margin-top:8px;min-height:1.2em"></div>
-    </div>
 
     <div class="btn-row" style="margin-top:8px">
       <button type="button" class="btn btn-ghost" id="btnProfCancel" style="color:var(--violet-d);border-color:#DFE6E9;background:#F8F9FA">Cancel</button>
@@ -1534,6 +1278,7 @@ body[class*="theme-"] .game-card::after{z-index:3}
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+<button type="button" class="game-leave-btn" id="btnGameLeave" title="Leave this game" aria-label="Leave this game">↩ Leave game</button>
 
 <section id="screen-auth" class="screen active">
   <div class="logo">Are<em>Nova</em></div>
@@ -1562,9 +1307,13 @@ body[class*="theme-"] .game-card::after{z-index:3}
     <div class="stat"><div class="v" id="stStreak">0</div><div class="l">Streak</div></div>
   </div>
 
-  <div class="card fs-card" id="friendsStrip">
-    <div class="fs-head"><b>👥 Friends</b><span class="cnt" id="fsCount">0 online</span><button type="button" class="mng" id="btnOpenFriends">Manage<span class="bdgn" id="fsBadge">0</span></button></div>
-    <div class="fs-row" id="fsRow"></div>
+  <div class="lobby-social-actions">
+    <button type="button" class="friends-launch" id="btnOpenFriends">
+      <span class="friends-launch-icon">👥</span>
+      <span class="friends-launch-copy"><b>Friends</b><small><span id="fsCount">0 online</span> · view live activity</small></span>
+      <span class="friends-launch-badge" id="fsBadge">0</span>
+      <span class="friends-launch-arrow">›</span>
+    </button>
   </div>
 
   <div class="picker">
@@ -2758,6 +2507,8 @@ function liveToast(msg){
 }
 function show(id){
   document.body.classList.toggle('in-town',id==='screen-town');
+  const leaveControl=$('btnGameLeave');
+  if(leaveControl) leaveControl.classList.toggle('on',['screen-game','screen-scatter','screen-hangman','screen-draw','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id));
   document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -3006,246 +2757,7 @@ function refreshStats(){
 const PROFILE_TITLES = ['Newcomer','Word Rookie','Letter Ace','Vocabulary Pro','Arena Champion','Puzzle Master','Speed Typist','Clue Captain','Sketch Star','Spy Hunter'];
 const FOUNDER_NAME = 'koyvic'; // exclusive Founder title
 
-/* ===== GLOBAL THEME SYSTEM (only koyvic can change) ===== */
-const THEME_PRESETS = {
-  default:          { id:'default',          label:'Default',           emoji:'🎮' },
-  pasko:            { id:'pasko',            label:'Pasko (Christmas)', emoji:'🎄' },
-  bagong_taon:      { id:'bagong_taon',      label:'Bagong Taon',       emoji:'🎆' },
-  chinese_new_year: { id:'chinese_new_year', label:'Chinese New Year',  emoji:'🧧' },
-  semana_santa:     { id:'semana_santa',     label:'Semana Santa',      emoji:'✝️' },
-  independencia:    { id:'independencia',    label:'Independence Day',  emoji:'🇵🇭' },
-  undas:            { id:'undas',            label:'Undas',             emoji:'🕯️' },
-  valentines:       { id:'valentines',       label:"Valentine's Day",   emoji:'💕' },
-  halloween:        { id:'halloween',        label:'Halloween',         emoji:'🎃' },
-  fiesta:           { id:'fiesta',           label:'Fiesta',            emoji:'🎊' }
-};
-let currentThemeId = 'default';
-let themeListenerBound = false;
-
-// Restore last theme immediately so refresh keeps the look
-(function earlyThemeRestore(){
-  try{
-    var saved = localStorage.getItem('arenova_theme');
-    if(saved && THEME_PRESETS[saved]){
-      currentThemeId = saved;
-      if(saved !== 'default') document.body.classList.add('theme-' + saved);
-      // decorations need the #themeDecor node — run after DOM is ready
-      if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', function(){ if(typeof renderThemeDecor === 'function') renderThemeDecor(saved); });
-      } else {
-        setTimeout(function(){ if(typeof renderThemeDecor === 'function') renderThemeDecor(saved); }, 0);
-      }
-    }
-  }catch(e){}
-})();
-
-function applyTheme(id){
-  const tid = (THEME_PRESETS[id] ? id : 'default');
-  currentThemeId = tid;
-  try{ localStorage.setItem('arenova_theme', tid); }catch(e){}
-  const classes = Array.from(document.body.classList).filter(function(c){ return c.indexOf('theme-') === 0; });
-  classes.forEach(function(c){ document.body.classList.remove(c); });
-  if(tid !== 'default') document.body.classList.add('theme-' + tid);
-  const st = document.getElementById('profThemeStatus');
-  if(st){
-    const t = THEME_PRESETS[tid];
-    st.textContent = t ? ('Active: ' + t.emoji + ' ' + t.label) : 'Active: Default';
-  }
-  document.querySelectorAll('#profThemeGrid .theme-chip').forEach(function(btn){
-    btn.classList.toggle('on', btn.dataset.theme === tid);
-  });
-  renderThemeDecor(tid);
-}
-
-function renderThemeDecor(tid){
-  const host = document.getElementById('themeDecor');
-  if(!host) return;
-  host.innerHTML = '';
-  if(!tid || tid === 'default') return;
-
-  function place(emoji, x, y, cls, size, delay){
-    const el = document.createElement('span');
-    el.className = 'td ' + (cls || '') + (size ? ' ' + size : '');
-    el.textContent = emoji;
-    el.style.left = x;
-    el.style.top = y;
-    if(delay) el.style.animationDelay = delay;
-    el.style.setProperty('--r', ((Math.random() * 24) - 12).toFixed(1) + 'deg');
-    host.appendChild(el);
-  }
-
-  // Continuous falling items (replaces the word-rain)
-  function spawnFallers(emojis, count){
-    for(let i = 0; i < count; i++){
-      const el = document.createElement('span');
-      el.className = 'td fall ' + (Math.random() > 0.6 ? 'sm' : (Math.random() > 0.7 ? 'lg' : ''));
-      el.textContent = emojis[i % emojis.length];
-      el.style.left = (4 + Math.random() * 92).toFixed(1) + '%';
-      el.style.animationDuration = (7 + Math.random() * 8).toFixed(1) + 's';
-      el.style.animationDelay = (Math.random() * 10).toFixed(1) + 's';
-      el.style.setProperty('--r', ((Math.random() * 40) - 20).toFixed(1) + 'deg');
-      el.style.fontSize = (1.1 + Math.random() * 1.2).toFixed(2) + 'rem';
-      host.appendChild(el);
-    }
-  }
-
-  function firework(xPct, riseVh, delaySec, colorEmojis){
-    const group = document.createElement('div');
-    group.style.cssText = 'position:absolute;left:' + xPct + ';bottom:2%;width:0;height:0;pointer-events:none';
-    host.appendChild(group);
-    const rocket = document.createElement('span');
-    rocket.className = 'td fw-rocket';
-    rocket.textContent = '🚀';
-    rocket.style.setProperty('--rise', riseVh + 'vh');
-    rocket.style.setProperty('--dur', (2.1 + Math.random() * 0.6).toFixed(2) + 's');
-    rocket.style.setProperty('--delay', delaySec + 's');
-    group.appendChild(rocket);
-    const peakY = -(riseVh * 0.92);
-    const burstDelay = delaySec + 1.55 + Math.random() * 0.25;
-    const emojis = colorEmojis || ['✨','⭐','💥','🌟'];
-    for(let i = 0; i < 8; i++){
-      const p = document.createElement('span');
-      p.className = 'td fw-burst';
-      p.textContent = emojis[i % emojis.length];
-      const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.4;
-      const dist = 28 + Math.random() * 38;
-      p.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(1) + 'px');
-      p.style.setProperty('--dy', (Math.sin(angle) * dist - 10).toFixed(1) + 'px');
-      p.style.setProperty('--bdur', (0.9 + Math.random() * 0.4).toFixed(2) + 's');
-      p.style.setProperty('--bdelay', burstDelay.toFixed(2) + 's');
-      p.style.left = '0';
-      p.style.top = peakY + 'vh';
-      group.appendChild(p);
-    }
-  }
-
-  if(tid === 'pasko'){
-    spawnFallers(['🎄','⭐','🔴','🟡','🟢','❄','🎁','✨','🔔'], 18);
-    place('🎄','3%','12%','float','lg','0s');
-    place('🎄','88%','72%','float','lg','1.2s');
-    place('🏮','12%','38%','swing','','0s');
-    place('🏮','85%','42%','swing','','0.8s');
-  } else if(tid === 'bagong_taon'){
-    firework('12%', 58, 0.0, ['💛','✨','⭐','💥','🌟']);
-    firework('28%', 64, 1.8, ['🧡','✨','🌟','💥','⭐']);
-    firework('48%', 70, 0.9, ['💖','✨','⭐','💥','🌟']);
-    firework('68%', 62, 2.6, ['💚','✨','⭐','💥','🌟']);
-    firework('85%', 66, 1.3, ['💙','✨','🌟','💥','⭐']);
-    firework('38%', 52, 3.4, ['💛','✨','⭐','💥']);
-    firework('75%', 55, 4.1, ['🧡','✨','🌟','💥']);
-    spawnFallers(['✨','⭐','🌟','💫','🎉'], 10);
-    place('🥂','10%','70%','float','','0.3s');
-    place('🥳','50%','82%','pulse','','0.6s');
-  } else if(tid === 'chinese_new_year'){
-    spawnFallers(['🧧','🏮','💰','🌸','✨','🧨','🐉'], 16);
-    place('🧧','6%','12%','float','lg','0s');
-    place('🏮','48%','8%','swing','lg','1.4s');
-    place('🐉','50%','75%','float','xl','0.5s');
-  } else if(tid === 'semana_santa'){
-    spawnFallers(['✝️','🕊️','🕯️','🙏','🌿','✨'], 14);
-    place('✝️','10%','15%','float','lg','0s');
-    place('🕯️','78%','50%','pulse','','1.0s');
-  } else if(tid === 'independencia'){
-    spawnFallers(['🇵🇭','⭐','☀️','🎉','💙','❤️','💛'], 16);
-    place('🇵🇭','8%','12%','float','lg','0s');
-    place('☀️','50%','5%','pulse','xl','0.6s');
-  } else if(tid === 'undas'){
-    spawnFallers(['🕯️','🌸','🕊️','💜','✨','💮'], 14);
-    place('🕯️','10%','18%','pulse','lg','0s');
-    place('🕯️','88%','22%','pulse','lg','1.2s');
-  } else if(tid === 'valentines'){
-    spawnFallers(['💕','❤️','💖','🌹','💌','💘','✨'], 16);
-    place('💕','8%','12%','float','lg','0s');
-    place('💖','50%','8%','twinkle','xl','0.6s');
-  } else if(tid === 'halloween'){
-    spawnFallers(['🎃','👻','🦇','🕷️','🍬','🌙','🕸️'], 16);
-    place('🎃','8%','14%','float','lg','0s');
-    place('🎃','88%','20%','float','lg','1.2s');
-    place('👻','20%','40%','float','','0.4s');
-  } else if(tid === 'fiesta'){
-    spawnFallers(['🎊','🎉','🪅','🌺','🥳','💃','🥁','✨'], 16);
-    place('🪅','48%','8%','float','xl','0.6s');
-    place('🎊','8%','12%','float','lg','0s');
-  }
-}
-
-async function setGlobalTheme(id){
-  if(!isFounderName(profile && profile.name)){
-    toast('Only the founder can change the global theme');
-    return;
-  }
-  if(!THEME_PRESETS[id]){
-    toast('Unknown theme');
-    return;
-  }
-  try{
-    await db.ref('config/theme').set({
-      id: id,
-      setBy: profile.name,
-      setAt: firebase.database.ServerValue.TIMESTAMP
-    });
-    applyTheme(id);
-    toast('Theme saved to cloud · ' + THEME_PRESETS[id].label + ' for everyone');
-    snd('ok');
-  }catch(e){
-    console.warn('setGlobalTheme failed', e);
-    applyTheme(id);
-    toast('Theme applied on this device (cloud write failed)');
-  }
-}
-
-function renderThemePicker(){
-  const section = document.getElementById('profThemeSection');
-  const grid = document.getElementById('profThemeGrid');
-  if(!section || !grid) return;
-  const show = isFounderName(profile && profile.name);
-  section.style.display = show ? 'block' : 'none';
-  if(!show) return;
-  grid.innerHTML = '';
-  Object.values(THEME_PRESETS).forEach(function(t){
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'theme-chip' + (t.id === currentThemeId ? ' on' : '');
-    btn.dataset.theme = t.id;
-    btn.textContent = t.emoji + ' ' + t.label;
-    btn.addEventListener('click', function(ev){
-      ev.preventDefault();
-      setGlobalTheme(t.id);
-    });
-    grid.appendChild(btn);
-  });
-  const st = document.getElementById('profThemeStatus');
-  if(st){
-    const t = THEME_PRESETS[currentThemeId];
-    st.textContent = t ? ('Active: ' + t.emoji + ' ' + t.label) : 'Active: Default';
-  }
-}
-
-function bindThemeListener(){
-  if(themeListenerBound || !window.db) return;
-  themeListenerBound = true;
-  try{
-    // Live updates for all players
-    db.ref('config/theme').on('value', function(snap){
-      const val = snap.val();
-      var id = 'default';
-      if(val && typeof val === 'object' && val.id) id = val.id;
-      else if(typeof val === 'string') id = val;
-      applyTheme(id || 'default');
-    });
-    // Force one-time fetch so refresh always restores from Firebase
-    // even if localStorage was cleared
-    db.ref('config/theme').once('value').then(function(snap){
-      const val = snap.val();
-      if(!val) return; // nothing in cloud yet — keep localStorage/default
-      var id = (typeof val === 'object' && val.id) ? val.id : (typeof val === 'string' ? val : null);
-      if(id) applyTheme(id);
-    }).catch(function(e){ console.warn('theme once() failed', e); });
-  }catch(e){
-    console.warn('theme listener failed', e);
-  }
-}
-
+/* Theme customization and cloud theme synchronization removed. */
 
 let profDraft = { name:'', avatar:'🦊', title:'Newcomer', bio:'' };
 
@@ -3270,8 +2782,6 @@ function openProfileEditor(){
   renderProfPreview();
   renderProfAvatars();
   renderProfTitles();
-  renderThemePicker();
-  bindThemeListener();
   const ov = $('profileOverlay');
   if(ov){ ov.classList.add('on'); ov.setAttribute('aria-hidden','false'); }
 }
@@ -4195,7 +3705,7 @@ $('btnBackGames').onclick = () => {
 
 $('authSwitch').onclick=()=>{authMode=authMode==='login'?'signup':'login';$('authTitle').textContent=authMode==='login'?'Welcome back!':'Create account';$('authSub').textContent=authMode==='login'?'Enter your username & password to play.':"Pick a username and password — that's it!";$('authSubmit').textContent=authMode==='login'?'LOG IN':'SIGN UP';$('authSwitch').textContent=authMode==='login'?'New here? Create account':'Have an account? Log in';$('authErr').textContent=''};
 $('authSubmit').onclick=async()=>{const username=($('authUser').value||'').trim();const pass=$('authPass').value;$('authErr').textContent='';if(!username||username.length<3){$('authErr').textContent='Username needs at least 3 characters';return}if(!/^[a-zA-Z0-9_]+$/.test(username)){$('authErr').textContent='Letters, numbers, underscore only';return}if(!pass||pass.length<6){$('authErr').textContent='Password needs at least 6 characters';return}$('authSubmit').disabled=true;const email=userEmail(username);const unameKey=username.toLowerCase();try{if(authMode==='signup'){const cred=await auth.createUserWithEmailAndPassword(email,pass);await cred.user.updateProfile({displayName:username});const unameRef=db.ref('usernames/'+unameKey);const claimed=await unameRef.transaction(current=>{if(current===null||current===cred.user.uid)return cred.user.uid;return;});if(!claimed.committed){await cred.user.delete().catch(()=>{});throw new Error('Username already taken')}await loadProfile(cred.user.uid,username)}else{await auth.signInWithEmailAndPassword(email,pass)}}catch(e){let m=e.message||'Error';if(m.includes('user-not-found')||m.includes('wrong-password')||m.includes('invalid-credential'))m='Wrong username or password';else if(m.includes('email-already-in-use'))m='Username already taken';else if(m.includes('permission_denied')||m.includes('PERMISSION_DENIED'))m='Database permission error — check Firebase rules';else m=m.replace('Firebase: ','').replace(/\(auth.*?\)\.?/,'').trim();$('authErr').textContent=m}$('authSubmit').disabled=false};
-auth.onAuthStateChanged(async u=>{user=u;if(u){await loadProfile(u.uid,u.displayName||'Player');refreshStats();show('screen-lobby');friendsInit();bindThemeListener()}else{friendsTeardown();profile=null;show('screen-auth')}});
+auth.onAuthStateChanged(async u=>{user=u;if(u){await loadProfile(u.uid,u.displayName||'Player');refreshStats();show('screen-lobby');friendsInit()}else{friendsTeardown();profile=null;show('screen-auth')}});
 $('btnLogout').onclick=async()=>{ try{ await friendsGoOffline(); }catch(e){} auth.signOut(); };
 
 async function updateLobbyIndex(code, room){
@@ -4364,7 +3874,10 @@ function socialRoomUpdate(){
   if(!roomData||!user) return;
   const me=(roomData.players||{})[user.uid]||{};
   const st=roomData.status, lobby=st==='lobby';
-  if(st!==presStatus){ presStatus=st; presenceSet({status:st}); }
+  if(st!==presStatus){
+    presStatus=st;
+  }
+  presenceSet({room:roomId||null,game:roomData.gameType||selectedGame||null,status:st});
   const rb=$('btnReady');
   if(rb){
     rb.style.display=(lobby&&!isHostNow())?'flex':'none';
@@ -4539,8 +4052,8 @@ function friendStatus(fid){
   if(p&&p.online){
     if(p.room){
       return p.status==='lobby'||!p.status
-        ? {online:true,text:'🟢 In lobby · '+gameLabel(p.game)+' · '+p.room}
-        : {online:true,text:'🟢 Playing '+gameLabel(p.game)};
+        ? {online:true,text:'🟢 In lobby · '+gameLabel(p.game)+' · '+p.room,activity:'In lobby · '+gameLabel(p.game)}
+        : {online:true,text:'🟢 Playing now · '+gameLabel(p.game),activity:'Playing now · '+gameLabel(p.game)};
     }
     return {online:true,text:'🟢 Online'};
   }
@@ -4562,12 +4075,6 @@ function friendsRender(){
   const reqN=Object.keys(reqIn).length;
   const cnt=$('fsCount'); if(cnt) cnt.textContent=online.length+' online';
   const bd=$('fsBadge'); if(bd){ bd.textContent=reqN; bd.classList.toggle('on',reqN>0); }
-  const row=$('fsRow');
-  if(row){
-    if(!list.length) row.innerHTML='<div class="fs-empty">Add friends to see who\'s online and join their rooms.</div>';
-    else if(!online.length) row.innerHTML='<div class="fs-empty">None of your '+list.length+' friend'+(list.length>1?'s':'')+' are online right now.</div>';
-    else row.innerHTML=online.map(f=>'<button type="button" class="fs-chip" data-uid="'+esc(f.uid)+'"><div class="fr-av">'+esc(f.prof.avatar||'🎮')+'<i class="dot on"></i></div><span class="nm">'+esc(f.prof.name||'Friend')+'</span></button>').join('');
-  }
   const tb=$('frReqBadge'); if(tb){ tb.textContent=reqN; tb.style.display=reqN?'inline':'none'; }
   if($('friendsOverlay').classList.contains('on') && fTab!=='add') renderFriendsBody();
   if(pcUid){ renderPcActions(); const st=$('pcStatus'); const info=friendsData[pcUid]?friendStatus(pcUid):null; if(st){ st.textContent=info?info.text:''; st.classList.toggle('on',!!(info&&info.online)); } }
@@ -4676,9 +4183,6 @@ function joinFriendRoom(fid){
     if(item) showPlayerCard(item.dataset.uid, friendProfiles[item.dataset.uid]||(reqIn[item.dataset.uid]&&{name:reqIn[item.dataset.uid].name,avatar:reqIn[item.dataset.uid].avatar})||null);
   });
   ov.addEventListener('keydown',function(e){ if(e.key==='Enter'&&e.target.id==='frAddInput'){ e.preventDefault(); addFriendByUsername(); } });
-  $('fsRow').addEventListener('click',function(e){
-    const c=e.target.closest('.fs-chip'); if(c) showPlayerCard(c.dataset.uid, friendProfiles[c.dataset.uid]);
-  });
   // Friend actions on the profile card (works for room players and friends)
   $('pcActions').addEventListener('click',async function(e){
     const b=e.target.closest('[data-fa]'); if(!b||!pcUid) return;
@@ -4723,6 +4227,7 @@ function leaveRoom(){
   show('screen-lobby');
 }
 $('btnLeaveRoom').onclick=leaveRoom;
+$('btnGameLeave').onclick=()=>{ if(confirm('Leave this game? Your current round progress may be lost.')) leaveRoom(); };
 
 // --------- ROUND STATE & BOARD EFFECTS ---------
 const LAND_STEP=70;
