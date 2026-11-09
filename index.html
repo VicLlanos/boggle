@@ -1388,6 +1388,7 @@ input:focus-visible{outline:none}
       <div class="lbl">Your role</div>
       <div class="wrd" id="spyRoleText">—</div>
     </div>
+    <div class="spy-phase" id="spyCatChip" style="font-size:1rem;color:var(--violet-d);margin-bottom:2px"></div>
     <div class="spy-phase" id="spyPhaseLabel">Clue phase — give a one-word clue</div>
     <div class="spy-clue-list" id="spyClueList"></div>
     <div class="spy-clue-form" id="spyClueForm" style="display:none">
@@ -1400,7 +1401,7 @@ input:focus-visible{outline:none}
       <div id="spyGuessBox" style="display:none;margin-top:10px">
         <div style="font-weight:800;font-size:.85rem;color:#636E72;margin-bottom:6px;text-align:center" id="spyGuessTitle">Guess the secret word</div>
         <div class="spy-clue-form">
-          <input type="text" id="spyGuessInput" placeholder="Secret word…" maxlength="24" autocomplete="off" autocapitalize="off">
+          <input type="text" id="spyGuessInput" placeholder="Secret word…" maxlength="45" autocomplete="off" autocapitalize="off">
           <button class="btn btn-gold" id="btnSpyGuess" style="width:auto;min-width:90px;min-height:48px;padding:10px 14px">Guess</button>
         </div>
       </div>
@@ -1614,6 +1615,9 @@ const BASE_CATEGORIES = [
 
   // Culture & everyday life
   "A movie or TV show",
+  "A song title",
+  "A video game",
+  "A book or novel",
   "A sport or game",
   "A hobby",
   "A school subject",
@@ -1645,9 +1649,10 @@ const CATEGORY_FAMILY = {
   "Something soft":"prop","Something hard":"prop","Something cold":"prop","Something hot":"prop","Something round":"prop",
   "Something that makes a sound":"prop","Something that flies":"prop",
   "Something that makes you happy":"mood","Something scary":"mood","Something funny":"mood","A feeling or emotion":"mood",
-  "A famous person":"person","An actor or actress":"person","A singer or band":"person","An athlete":"person","A cartoon character":"person"
+  "A famous person":"person","An actor or actress":"person","A singer or band":"person","An athlete":"person","A cartoon character":"person",
+  "A movie or TV show":"media","A song title":"media","A video game":"media","A book or novel":"media"
 };
-const CATEGORY_FAMILY_CAP = { animal:1, food:2, wheels:1, place:2, scene:2, prop:2, mood:1, person:2 };
+const CATEGORY_FAMILY_CAP = { media:2, animal:1, food:2, wheels:1, place:2, scene:2, prop:2, mood:1, person:2 };
 
 function seededRandom(seed){
   let s = seed % 2147483647;
@@ -1702,6 +1707,24 @@ const HANG_BANKS = {
     ["FROZEN","Sisters Elsa and Anna and a snowman named Olaf"],["COCO","Boy visits the Land of the Dead on Day of the Dead"],["PARASITE","Poor family infiltrates a rich household; Korean Best Picture winner"],
     ["JOKER","Arthur Fleck becomes Batman's nemesis"],["ENCANTO","Madrigal family and a magical house in Colombia"],["MOANA","Polynesian teen sails to restore the heart of Te Fiti"],
     ["ROCKY","Philadelphia boxer who goes the distance"],["VERTIGO","Hitchcock film about a detective afraid of heights"],["GREASE","Danny and Sandy at Rydell High"]
+  ],
+  "Songs": [
+    ["HAPPY BIRTHDAY","Sung with a cake and candles"],["LET IT GO","Elsa's big song in Frozen"],["BABY SHARK","Doo doo doo doo doo doo catchy kids song"],
+    ["YELLOW SUBMARINE","Beatles song about a colorful vessel"],["BOHEMIAN RHAPSODY","Queen's six-minute rock opera"],["BILLIE JEAN","Michael Jackson hit: she is not my lover"],
+    ["SHAPE OF YOU","Ed Sheeran hit about a gym and a girl"],["BAD GUY","Billie Eilish whispery hit"],["DESPACITO","Luis Fonsi and Daddy Yankee mega hit"],
+    ["SHAKE IT OFF","Taylor Swift song about haters"],["UPTOWN FUNK","Bruno Mars and Mark Ronson funk hit"],["HOTEL CALIFORNIA","Eagles song about a place you can never leave"]
+  ],
+  "TV Shows": [
+    ["FRIENDS","Six pals in New York and a coffee shop called Central Perk"],["SPONGEBOB","Yellow sponge living in Bikini Bottom"],["THE SIMPSONS","Yellow cartoon family from Springfield"],
+    ["STRANGER THINGS","Kids, the Upside Down and Eleven"],["SQUID GAME","Deadly children's games for a cash prize"],["THE OFFICE","Mockumentary at Dunder Mifflin"],
+    ["BLUEY","Aussie blue heeler puppy and her family"],["PAW PATROL","Pups led by Ryder"],["BREAKING BAD","Chemistry teacher turns drug kingpin"],
+    ["GAME OF THRONES","Dragons, Westeros and the Iron Throne"],["WEDNESDAY","Addams Family daughter at Nevermore Academy"],["MONEY HEIST","Masked robbers in Dali masks"]
+  ],
+  "Actors": [
+    ["TOM HOLLAND","Actor who plays Spider-Man"],["ZENDAYA","Actress from Euphoria and Dune"],["WILL SMITH","Fresh Prince who became Hollywood star"],
+    ["KEANU REEVES","Neo in The Matrix and John Wick"],["EMMA WATSON","Hermione in Harry Potter"],["LEONARDO DICAPRIO","Jack in Titanic"],
+    ["MARGOT ROBBIE","Barbie in the 2023 movie"],["TOM CRUISE","Stars in Mission Impossible and Top Gun"],["SCARLETT JOHANSSON","Black Widow in the Avengers"],
+    ["ROBERT DOWNEY JR","Played Iron Man"],["JACKIE CHAN","Martial arts star of Rush Hour"],["ANGELINA JOLIE","Star of Maleficent and Tomb Raider"]
   ],
   "Animals": [
     ["ELEPHANT","Largest land animal, long trunk"],["GIRAFFE","Tallest animal, long neck"],["DOLPHIN","Smart sea mammal that clicks"],
@@ -1881,7 +1904,31 @@ const DRAW_CATS = [
    hard:'swiss army knife,camp stove,hatchet,fishing net,walking stick,trail sign,hot dog on a stick,campsite,telescope,rain poncho,water bottle,first aid kit,bear,tree stump,fire pit,tent stakes,ranger hat,hiking trail,mosquito,rock climbing,zip line,rope bridge,compass rose,sleeping mat,headlamp,fishing hook,rowboat,lake'},
   {id:'ocean',emoji:'🌊',name:'Ocean & Beach',
    easy:'sandcastle,beach ball,surfboard,seashell,starfish,crab,sailboat,lighthouse,pirate ship,treasure chest,anchor,life jacket,beach umbrella,flip flops,sunglasses,sunscreen,snorkel,scuba diver,dolphin,whale,shark,octopus,jellyfish,seahorse,turtle,fish,wave,island,palm tree,coconut,seagull,submarine,mermaid,seaweed',
-   hard:'hammock,lifeguard tower,coral reef,pier,fishing boat,swim ring,diving board,kite,pelican,lobster,stingray,clownfish,seal,iceberg,penguin,bucket and spade,fishing net,message in a bottle,shipwreck,diving mask,snow cone,boardwalk,sand dune,rowboat,surfer,beach towel,sea turtle,narwhal,swordfish,manta ray,oyster'}
+   hard:'hammock,lifeguard tower,coral reef,pier,fishing boat,swim ring,diving board,kite,pelican,lobster,stingray,clownfish,seal,iceberg,penguin,bucket and spade,fishing net,message in a bottle,shipwreck,diving mask,snow cone,boardwalk,sand dune,rowboat,surfer,beach towel,sea turtle,narwhal,swordfish,manta ray,oyster'},
+  {id:'movies',emoji:'🎬',name:'Movies',
+   easy:'frozen,shrek,titanic,jaws,moana,coco,cars,up,bambi,dumbo,aladdin,mulan,tarzan,pinocchio,cinderella,finding nemo,toy story,lion king,the incredibles,ratatouille,wall e,madagascar,kung fu panda,minions,despicable me,spiderman,batman,superman,ghostbusters,home alone',
+   hard:'inception,gladiator,avatar,jurassic park,the matrix,star wars,harry potter,the godfather,forrest gump,back to the future,pirates of the caribbean,lord of the rings,the hunger games,black panther,iron man,the avengers,top gun,mad max,free willy,beauty and the beast,the little mermaid,sleeping beauty,snow white,monsters inc,ice age,how to train your dragon,encanto,interstellar,the jungle book,mary poppins,wonka'},
+  {id:'songs',emoji:'🎵',name:'Song Titles',
+   easy:'happy birthday,baby shark,let it go,yellow submarine,twinkle twinkle little star,jingle bells,silent night,old macdonald,row row row your boat,itsy bitsy spider,hakuna matata,under the sea,heart of glass,umbrella,firework,shake it off,sunflower,thunder,riptide,photograph,halo,yellow,roar,royals,happy,believer,perfect,havana,stay,levitating',
+   hard:'bohemian rhapsody,billie jean,thriller,hotel california,imagine,hey jude,smells like teen spirit,rolling in the deep,someone like you,shape of you,blinding lights,bad guy,dynamite,despacito,uptown funk,single ladies,poker face,bad romance,call me maybe,counting stars,viva la vida,fix you,wonderwall,stairway to heaven,dancing queen,africa,take me home country roads,we will rock you,sweet caroline,i will survive,lose yourself,drivers license,as it was,anti hero,flowers,golden hour,blank space'},
+  {id:'tvshows',emoji:'📺',name:'TV Shows',
+   easy:'friends,spongebob,peppa pig,bluey,paw patrol,the simpsons,tom and jerry,scooby doo,pokemon,dora the explorer,sesame street,teletubbies,barney,thomas the tank engine,mickey mouse clubhouse,looney tunes,power rangers,adventure time,rugrats,arthur,wild kratts,masha and the bear,cocomelon,the flintstones,the muppets',
+   hard:'stranger things,game of thrones,breaking bad,the office,squid game,money heist,the crown,the mandalorian,wednesday,the big bang theory,how i met your mother,modern family,grays anatomy,the walking dead,black mirror,the witcher,lucifer,riverdale,sherlock,doctor who,the last of us,house of the dragon,avatar the last airbender,gravity falls,phineas and ferb,rick and morty,family guy,south park,peaky blinders,narcos'},
+  {id:'actors',emoji:'🎭',name:'Actors & Actresses',
+   easy:'tom holland,zendaya,will smith,dwayne johnson,tom cruise,jackie chan,johnny depp,robert downey jr,chris hemsworth,chris evans,scarlett johansson,emma watson,daniel radcliffe,rupert grint,ryan reynolds,jennifer lawrence,brad pitt,leonardo dicaprio,keanu reeves,angelina jolie,margot robbie,timothee chalamet,jim carrey,adam sandler,mr bean',
+   hard:'meryl streep,morgan freeman,denzel washington,anne hathaway,natalie portman,harrison ford,samuel l jackson,robert de niro,al pacino,tom hanks,sandra bullock,julia roberts,nicole kidman,cate blanchett,hugh jackman,christian bale,joaquin phoenix,anthony hopkins,jennifer aniston,emma stone,ryan gosling,gal gadot,jason momoa,pedro pascal,millie bobby brown,florence pugh,benedict cumberbatch,tom hiddleston,idris elba,chadwick boseman'},
+  {id:'singers',emoji:'🎤',name:'Singers & Bands',
+   easy:'taylor swift,justin bieber,ariana grande,billie eilish,ed sheeran,bruno mars,katy perry,lady gaga,beyonce,rihanna,adele,shakira,coldplay,maroon five,one direction,bts,blackpink,the beatles,queen,abba,michael jackson,elvis presley,eminem,drake,selena gomez',
+   hard:'dua lipa,the weeknd,harry styles,olivia rodrigo,post malone,sam smith,shawn mendes,imagine dragons,twenty one pilots,linkin park,green day,nirvana,metallica,ac dc,pink floyd,the rolling stones,bob marley,elton john,madonna,whitney houston,celine dion,mariah carey,sabrina carpenter,doja cat,bad bunny,twice,stray kids,nct,exo,red velvet'},
+  {id:'videogames',emoji:'🎮',name:'Video Games',
+   easy:'minecraft,mario,sonic,pacman,tetris,pokemon,roblox,fortnite,among us,angry birds,zelda,donkey kong,kirby,fruit ninja,candy crush,subway surfers,temple run,flappy bird,pong,space invaders,animal crossing,just dance,mario kart,pikachu,crossy road',
+   hard:'the sims,grand theft auto,call of duty,league of legends,genshin impact,fall guys,overwatch,apex legends,valorant,god of war,the last of us,red dead redemption,assassins creed,street fighter,mortal kombat,super smash bros,splatoon,stardew valley,terraria,hollow knight,cuphead,undertale,portal,half life,doom,halo,resident evil,fifa,mobile legends,clash of clans'},
+  {id:'cartoons',emoji:'🦸',name:'Cartoon & Anime Characters',
+   easy:'mickey mouse,donald duck,goofy,bugs bunny,tom,jerry,spongebob,patrick star,pikachu,doraemon,winnie the pooh,tweety,woody,buzz lightyear,olaf,elsa,simba,nemo,dory,minion,shrek,homer simpson,bart simpson,hello kitty,garfield',
+   hard:'naruto,goku,luffy,sailor moon,totoro,spirited away,astro boy,sakura,eren yeager,tanjiro,gojo,deku,ash ketchum,charizard,mewtwo,scooby doo,popeye,betty boop,pink panther,road runner,wile e coyote,woodstock,snoopy,charlie brown,tintin,asterix,rapunzel,mulan,stitch,baymax'},
+  {id:'books',emoji:'📚',name:'Books & Authors',
+   easy:'harry potter,the hobbit,matilda,charlie and the chocolate factory,the cat in the hat,green eggs and ham,winnie the pooh,peter pan,alice in wonderland,the very hungry caterpillar,where the wild things are,goodnight moon,charlottes web,pinocchio,cinderella,little red riding hood,hansel and gretel,the lion the witch and the wardrobe,diary of a wimpy kid,percy jackson',
+   hard:'the hunger games,twilight,the great gatsby,to kill a mockingbird,pride and prejudice,romeo and juliet,hamlet,moby dick,dracula,frankenstein,the alchemist,the little prince,les miserables,don quixote,the odyssey,animal farm,lord of the flies,the catcher in the rye,wuthering heights,jane eyre,sherlock holmes,dune,the lord of the rings,game of thrones,the fault in our stars,little women,the secret garden,treasure island,gulliver travels,robinson crusoe'}
 ].map(c => {
   const clean = s => Array.from(new Set(String(s).split(',').map(w => w.trim().toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim()).filter(w => w.length >= 2)));
   return {id:c.id, emoji:c.emoji, name:c.name, easy:clean(c.easy), hard:clean(c.hard)};
@@ -4077,7 +4124,11 @@ async function beginRound(){
     const gameNo = (roomData.spyGameNo || 0) + 1;
     const round = 1;
     const spyUid = playerIds[(gameNo - 1) % playerIds.length];
-    const word = pickDrawWord(roomId + '_spy_' + srvNow() + '_' + gameNo, Math.min(gameNo, 6));
+    // 1) shuffle/choose a category first (animated reel for everyone), 2) then pick the secret word FROM that category
+    const sCat = pickDrawCategory();
+    const word = pickDrawWordCat(((gameNo - 1) % 10) + 1, sCat);
+    drawRememberWord(word);
+    const SPY_SPIN_MS = DRAW_SPIN_MS;
     const order = playerIds.slice();
     // shuffle clue order lightly
     for(let i=order.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
@@ -4087,6 +4138,9 @@ async function beginRound(){
       spyGameNo: gameNo,
       spyEvicted: null,
       spyTally: null,
+      spyCategory: {id: sCat.id, name: sCat.name, emoji: sCat.emoji},
+      spySpinAt: srvNow(),
+      spySpinMs: SPY_SPIN_MS,
       spyMaxRounds: SPY_MAX_ROUNDS,
       spyWord: word,
       spyUid: spyUid,
@@ -4098,7 +4152,7 @@ async function beginRound(){
       spyTurnIdx: 0,
       board: null, letter: null, categories: null,
       hangWord: null, drawWord: null,
-      endsAt: srvNow() + SPY_CLUE_SECONDS * 1000,
+      endsAt: srvNow() + SPY_CLUE_SECONDS * 1000 + SPY_SPIN_MS,
       startedAt: srvNow(),
       endedAt: null
     };
@@ -4933,6 +4987,9 @@ const ScatVerify=(()=>{
     "Something that flies":{lex:'flies',via:['A bird'],assoc:['fly','flying']},
 
     "A movie or TV show":{t:['Q11424','Q5398426','Q15416']},
+    "A song title":{t:['Q7366','Q134556','Q482994']},
+    "A video game":{t:['Q7889']},
+    "A book or novel":{t:['Q571','Q7725634','Q8261']},
     "A sport or game":{lex:'sport',t:['Q349','Q11410']},
     "A hobby":{lex:'hobby',t:['Q47728']},
     "A school subject":{lex:'subject',t:['Q11862829','Q2465832']},
@@ -5266,6 +5323,17 @@ function startScatTimer(){
 
 /* ===== SKETCH RACE – animated category cycle (shown once at the start of every new game) ===== */
 let _drawSpinKey = '';
+let _spySpinKey = '';
+function maybeShowSpyCatSpin(){
+  if(!roomData || roomData.gameType !== 'spy' || !roomData.spySpinAt || !roomData.spyCategory) return;
+  const key = roomId + '|' + roomData.spySpinAt;
+  if(_spySpinKey === key) return;
+  _spySpinKey = key;
+  const total = roomData.spySpinMs || DRAW_SPIN_MS;
+  const left = total - (srvNow() - roomData.spySpinAt);
+  if(left < 700) return;
+  runDrawCatSpin(roomData.spyCategory, left);
+}
 function maybeShowDrawCatSpin(){
   if(!roomData || roomData.gameType !== 'draw' || !roomData.drawSpinAt || !roomData.drawCategory) return;
   const key = roomId + '|' + roomData.drawSpinAt;
@@ -5959,6 +6027,9 @@ function renderSpyUI(){
   const evicted = roomData.spyEvicted;
   const evName = evicted && players[evicted] ? players[evicted].name : 'A player';
 
+  maybeShowSpyCatSpin();
+  const sc0 = roomData.spyCategory;
+  if($('spyCatChip')) $('spyCatChip').textContent = sc0 ? ('Category: '+sc0.emoji+' '+sc0.name) : '';
   if($('spyRoundLabel')) $('spyRoundLabel').textContent = 'Round '+round+' / '+maxR;
   if($('spyScoreLabel')) $('spyScoreLabel').textContent = 'Your points: '+((players[user.uid]?.spyScore)||0);
 
@@ -6068,7 +6139,7 @@ async function submitSpyClue(){
   let clue = (input?.value || '').trim().toUpperCase().replace(/[^A-Z]/g,'');
   if(!clue || clue.length < 2){ toast('Enter a one-word clue'); return; }
   const secret = (roomData.spyWord||'').toUpperCase().replace(/[^A-Z]/g,'');
-  if(clue === secret){ toast('You cannot say the secret word!'); return; }
+  if(clue === secret || (roomData.spyWord||'').toUpperCase().split(/[^A-Z]+/).includes(clue)){ toast('You cannot say the secret word!'); return; }
   const used = Object.keys(all).some(k => all[k] && all[k][user.uid] && String(all[k][user.uid].word||'').toUpperCase() === clue);
   if(used){ toast('You already used that clue'); return; }
   try{
@@ -6191,6 +6262,7 @@ const CHAIN_VERIFY = {
   home:['Something you find in a house'], school:['Something you find at school'], sports:['A sport or game'],
   vehicles:['A type of transport'], nature:['A plant or flower','A type of weather','Something in a forest'],
   music:['A musical instrument'], fantasy:[], space:[], jobs:['A job or occupation'],
+  movies:['A movie or TV show'], songs:['A song title'], tvshows:['A movie or TV show'], actors:['An actor or actress'], singers:['A singer or band'], videogames:['A video game'], cartoons:['A cartoon character'], books:['A book or novel'],
   clothes:['Something you wear'], places:['A type of building','A city','A country'], toys:['A toy'],
   tools:['A tool'], body:['A body part'], party:['Things at a party','A holiday or celebration'],
   camping:['Something you take on a trip'], ocean:['Something in the ocean','A sea creature','Something you find at the beach']
