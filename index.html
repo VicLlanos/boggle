@@ -1320,6 +1320,26 @@ body[class*="theme-"] .game-card.selected{
   box-shadow:0 0 0 3px rgba(255,255,255,.25),0 10px 28px rgba(0,0,0,.35)!important;
 }
 
+
+/* Hide word-rain when any holiday theme is active */
+body[class*="theme-"] .word-rain{display:none!important}
+
+/* Falling theme particles */
+#themeDecor .td.fall{
+  animation: tdThemeFall linear infinite;
+  top: -10%;
+  opacity: 0;
+}
+@keyframes tdThemeFall{
+  0%{transform:translateY(0) rotate(var(--r,0deg)) scale(.85); opacity:0}
+  8%{opacity:.9}
+  85%{opacity:.85}
+  100%{transform:translateY(115vh) rotate(calc(var(--r,0deg) * 1.8)) scale(.9); opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  #themeDecor .td.fall{animation:none!important;display:none}
+}
+
 </style>
 </head>
 <body>
@@ -2926,15 +2946,29 @@ function renderThemeDecor(tid){
     el.style.left = x;
     el.style.top = y;
     if(delay) el.style.animationDelay = delay;
-    el.style.setProperty('--r', ((Math.random() * 20) - 10).toFixed(1) + 'deg');
+    el.style.setProperty('--r', ((Math.random() * 24) - 12).toFixed(1) + 'deg');
     host.appendChild(el);
+  }
+
+  // Continuous falling items (replaces the word-rain)
+  function spawnFallers(emojis, count){
+    for(let i = 0; i < count; i++){
+      const el = document.createElement('span');
+      el.className = 'td fall ' + (Math.random() > 0.6 ? 'sm' : (Math.random() > 0.7 ? 'lg' : ''));
+      el.textContent = emojis[i % emojis.length];
+      el.style.left = (4 + Math.random() * 92).toFixed(1) + '%';
+      el.style.animationDuration = (7 + Math.random() * 8).toFixed(1) + 's';
+      el.style.animationDelay = (Math.random() * 10).toFixed(1) + 's';
+      el.style.setProperty('--r', ((Math.random() * 40) - 20).toFixed(1) + 'deg');
+      el.style.fontSize = (1.1 + Math.random() * 1.2).toFixed(2) + 'rem';
+      host.appendChild(el);
+    }
   }
 
   function firework(xPct, riseVh, delaySec, colorEmojis){
     const group = document.createElement('div');
     group.style.cssText = 'position:absolute;left:' + xPct + ';bottom:2%;width:0;height:0;pointer-events:none';
     host.appendChild(group);
-
     const rocket = document.createElement('span');
     rocket.className = 'td fw-rocket';
     rocket.textContent = '🚀';
@@ -2942,10 +2976,9 @@ function renderThemeDecor(tid){
     rocket.style.setProperty('--dur', (2.1 + Math.random() * 0.6).toFixed(2) + 's');
     rocket.style.setProperty('--delay', delaySec + 's');
     group.appendChild(rocket);
-
     const peakY = -(riseVh * 0.92);
     const burstDelay = delaySec + 1.55 + Math.random() * 0.25;
-    const emojis = colorEmojis || ['✨','⭐','💥','🌟','💛','🧡'];
+    const emojis = colorEmojis || ['✨','⭐','💥','🌟'];
     for(let i = 0; i < 8; i++){
       const p = document.createElement('span');
       p.className = 'td fw-burst';
@@ -2963,22 +2996,11 @@ function renderThemeDecor(tid){
   }
 
   if(tid === 'pasko'){
+    spawnFallers(['🎄','⭐','🔴','🟡','🟢','❄','🎁','✨','🔔'], 18);
     place('🎄','3%','12%','float','lg','0s');
-    place('🎄','88%','18%','float','xl','1.2s');
-    place('🎄','6%','68%','float','lg','0.6s');
-    place('🎄','90%','72%','float','lg','1.8s');
-    place('⭐','18%','8%','twinkle','lg','0.3s');
-    place('⭐','72%','6%','twinkle','lg','1.1s');
+    place('🎄','88%','72%','float','lg','1.2s');
     place('🏮','12%','38%','swing','','0s');
     place('🏮','85%','42%','swing','','0.8s');
-    place('🏮','48%','4%','swing sm','','1.4s');
-    place('🔴','25%','22%','pulse sm','','0.2s');
-    place('🟡','70%','28%','pulse sm','','0.9s');
-    place('🟢','40%','15%','pulse sm','','1.5s');
-    place('❄','30%','45%','twinkle sm','','0s');
-    place('❄','60%','62%','twinkle sm','','1.3s');
-    place('🎁','82%','12%','float sm','','0.5s');
-    place('🎁','8%','82%','float sm','','1.6s');
   } else if(tid === 'bagong_taon'){
     firework('12%', 58, 0.0, ['💛','✨','⭐','💥','🌟']);
     firework('28%', 64, 1.8, ['🧡','✨','🌟','💥','⭐']);
@@ -2987,81 +3009,39 @@ function renderThemeDecor(tid){
     firework('85%', 66, 1.3, ['💙','✨','🌟','💥','⭐']);
     firework('38%', 52, 3.4, ['💛','✨','⭐','💥']);
     firework('75%', 55, 4.1, ['🧡','✨','🌟','💥']);
+    spawnFallers(['✨','⭐','🌟','💫','🎉'], 10);
     place('🥂','10%','70%','float','','0.3s');
-    place('🥂','88%','74%','float','','1.1s');
     place('🥳','50%','82%','pulse','','0.6s');
   } else if(tid === 'chinese_new_year'){
+    spawnFallers(['🧧','🏮','💰','🌸','✨','🧨','🐉'], 16);
     place('🧧','6%','12%','float','lg','0s');
-    place('🧧','90%','18%','float','lg','1.1s');
-    place('🏮','15%','35%','swing','','0.3s');
-    place('🏮','82%','40%','swing','','0.9s');
     place('🏮','48%','8%','swing','lg','1.4s');
     place('🐉','50%','75%','float','xl','0.5s');
-    place('💰','25%','55%','pulse sm','','0.2s');
-    place('💰','72%','60%','pulse sm','','1.0s');
-    place('🌸','35%','20%','twinkle sm','','0.6s');
-    place('🌸','68%','25%','twinkle sm','','1.3s');
   } else if(tid === 'semana_santa'){
+    spawnFallers(['✝️','🕊️','🕯️','🙏','🌿','✨'], 14);
     place('✝️','10%','15%','float','lg','0s');
-    place('✝️','85%','20%','float','lg','1.2s');
-    place('🕊️','50%','8%','float','','0.5s');
-    place('🕯️','18%','45%','pulse','','0.3s');
     place('🕯️','78%','50%','pulse','','1.0s');
-    place('🕯️','45%','70%','pulse','','1.5s');
-    place('🙏','30%','30%','float sm','','0.7s');
-    place('🙏','68%','35%','float sm','','1.4s');
   } else if(tid === 'independencia'){
+    spawnFallers(['🇵🇭','⭐','☀️','🎉','💙','❤️','💛'], 16);
     place('🇵🇭','8%','12%','float','lg','0s');
-    place('🇵🇭','88%','16%','float','lg','1.1s');
-    place('⭐','25%','8%','twinkle','','0.3s');
-    place('⭐','70%','10%','twinkle','','1.0s');
     place('☀️','50%','5%','pulse','xl','0.6s');
-    place('🎉','15%','55%','float','','0.4s');
-    place('🎉','82%','60%','float','','1.3s');
-    place('💙','30%','35%','pulse sm','','0.2s');
-    place('❤️','65%','40%','pulse sm','','0.9s');
-    place('💛','45%','50%','pulse sm','','1.5s');
   } else if(tid === 'undas'){
+    spawnFallers(['🕯️','🌸','🕊️','💜','✨','💮'], 14);
     place('🕯️','10%','18%','pulse','lg','0s');
     place('🕯️','88%','22%','pulse','lg','1.2s');
-    place('🕯️','25%','55%','pulse','','0.5s');
-    place('🕯️','72%','60%','pulse','','1.4s');
-    place('🕯️','48%','78%','pulse','','0.8s');
-    place('🌸','18%','40%','float sm','','0.3s');
-    place('🌸','80%','45%','float sm','','1.0s');
-    place('🕊️','50%','12%','float','','0.6s');
   } else if(tid === 'valentines'){
+    spawnFallers(['💕','❤️','💖','🌹','💌','💘','✨'], 16);
     place('💕','8%','12%','float','lg','0s');
-    place('💕','88%','18%','float','lg','1.1s');
-    place('❤️','20%','35%','pulse','','0.4s');
-    place('❤️','75%','40%','pulse','','1.0s');
     place('💖','50%','8%','twinkle','xl','0.6s');
-    place('🌹','15%','60%','float','','0.3s');
-    place('🌹','82%','65%','float','','1.3s');
-    place('💌','45%','75%','float','','0.8s');
   } else if(tid === 'halloween'){
+    spawnFallers(['🎃','👻','🦇','🕷️','🍬','🌙','🕸️'], 16);
     place('🎃','8%','14%','float','lg','0s');
     place('🎃','88%','20%','float','lg','1.2s');
-    place('🎃','48%','72%','float','xl','0.6s');
     place('👻','20%','40%','float','','0.4s');
-    place('👻','75%','45%','float','','1.1s');
-    place('🦇','15%','8%','float sm','','0.3s');
-    place('🦇','80%','10%','float sm','','0.9s');
-    place('🦇','50%','5%','float sm','','1.5s');
-    place('🍬','12%','75%','float sm','','0.7s');
-    place('🍬','85%','78%','float sm','','1.4s');
-    place('🌙','55%','18%','pulse','','0.5s');
   } else if(tid === 'fiesta'){
-    place('🎊','8%','12%','float','lg','0s');
-    place('🎊','88%','16%','float','lg','1.1s');
-    place('🎉','20%','30%','pulse','','0.4s');
-    place('🎉','75%','35%','pulse','','1.0s');
+    spawnFallers(['🎊','🎉','🪅','🌺','🥳','💃','🥁','✨'], 16);
     place('🪅','48%','8%','float','xl','0.6s');
-    place('💃','15%','60%','float','','0.3s');
-    place('🕺','82%','65%','float','','1.3s');
-    place('🌺','30%','45%','pulse sm','','0.2s');
-    place('🌺','68%','50%','pulse sm','','0.9s');
-    place('🥳','55%','55%','float sm','','1.2s');
+    place('🎊','8%','12%','float','lg','0s');
   }
 }
 
