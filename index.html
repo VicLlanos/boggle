@@ -1197,6 +1197,129 @@ body.theme-fiesta{
 }
 body.in-town #themeDecor{display:none}
 
+
+/* ===== THEMED GAME CARDS + ON-CARD DECOR ===== */
+body.theme-pasko .game-card{
+  background:linear-gradient(180deg,#2a0a0a,#4a1010)!important;
+  border-color:rgba(255,215,0,.45)!important;
+  box-shadow:0 6px 20px rgba(196,30,58,.35),inset 0 0 0 1px rgba(255,215,0,.15)!important;
+}
+body.theme-pasko .game-card .name{color:#FFD700!important}
+body.theme-pasko .game-card .desc{color:#FFB6C1!important}
+body.theme-pasko .game-card::after{
+  content:'🎄';position:absolute;top:6px;right:8px;font-size:1.1rem;
+  opacity:.9;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));
+}
+
+body.theme-bagong_taon .game-card{
+  background:linear-gradient(180deg,#0d0d1a,#1a1a2e)!important;
+  border-color:rgba(255,215,0,.5)!important;
+  box-shadow:0 6px 20px rgba(255,215,0,.2),inset 0 0 0 1px rgba(255,215,0,.12)!important;
+}
+body.theme-bagong_taon .game-card .name{color:#FFD700!important}
+body.theme-bagong_taon .game-card .desc{color:#FFEAA7!important}
+body.theme-bagong_taon .game-card::after{
+  content:'✨';position:absolute;top:6px;right:8px;font-size:1rem;
+  opacity:.9;pointer-events:none;animation:tdTwinkle 2s ease-in-out infinite;
+}
+
+body.theme-chinese_new_year .game-card{
+  background:linear-gradient(180deg,#2a0a0a,#5c1010)!important;
+  border-color:rgba(255,215,0,.55)!important;
+  box-shadow:0 6px 20px rgba(196,30,58,.4)!important;
+}
+body.theme-chinese_new_year .game-card .name{color:#FFD700!important}
+body.theme-chinese_new_year .game-card .desc{color:#FFCCCB!important}
+body.theme-chinese_new_year .game-card::after{
+  content:'🧧';position:absolute;top:6px;right:8px;font-size:1.05rem;
+  opacity:.95;pointer-events:none;
+}
+
+body.theme-semana_santa .game-card{
+  background:linear-gradient(180deg,#1a1225,#2e1f45)!important;
+  border-color:rgba(212,175,55,.4)!important;
+  box-shadow:0 6px 18px rgba(107,63,160,.3)!important;
+}
+body.theme-semana_santa .game-card .name{color:#E8D5A3!important}
+body.theme-semana_santa .game-card .desc{color:#C9A0DC!important}
+body.theme-semana_santa .game-card::after{
+  content:'✝️';position:absolute;top:6px;right:8px;font-size:1rem;
+  opacity:.85;pointer-events:none;
+}
+
+body.theme-independencia .game-card{
+  background:linear-gradient(180deg,#0a1628,#0d2a5c)!important;
+  border-color:rgba(252,209,22,.45)!important;
+  box-shadow:0 6px 18px rgba(0,56,168,.35)!important;
+}
+body.theme-independencia .game-card .name{color:#FCD116!important}
+body.theme-independencia .game-card .desc{color:#A8C5FF!important}
+body.theme-independencia .game-card::after{
+  content:'🇵🇭';position:absolute;top:6px;right:8px;font-size:1.05rem;
+  opacity:.95;pointer-events:none;
+}
+
+body.theme-undas .game-card{
+  background:linear-gradient(180deg,#1a1525,#2a2040)!important;
+  border-color:rgba(212,175,55,.35)!important;
+  box-shadow:0 6px 18px rgba(93,78,140,.3)!important;
+}
+body.theme-undas .game-card .name{color:#E8E0F0!important}
+body.theme-undas .game-card .desc{color:#B8A9C9!important}
+body.theme-undas .game-card::after{
+  content:'🕯️';position:absolute;top:6px;right:8px;font-size:1rem;
+  opacity:.9;pointer-events:none;animation:tdPulse 2.5s ease-in-out infinite;
+}
+
+body.theme-valentines .game-card{
+  background:linear-gradient(180deg,#2a0a15,#4a1528)!important;
+  border-color:rgba(255,128,171,.5)!important;
+  box-shadow:0 6px 20px rgba(233,30,99,.35)!important;
+}
+body.theme-valentines .game-card .name{color:#FF80AB!important}
+body.theme-valentines .game-card .desc{color:#F8BBD0!important}
+body.theme-valentines .game-card::after{
+  content:'💕';position:absolute;top:6px;right:8px;font-size:1rem;
+  opacity:.9;pointer-events:none;animation:tdPulse 2.2s ease-in-out infinite;
+}
+
+body.theme-halloween .game-card{
+  background:linear-gradient(180deg,#0d0d0d,#1a1000)!important;
+  border-color:rgba(255,109,0,.5)!important;
+  box-shadow:0 6px 20px rgba(255,109,0,.25),inset 0 0 0 1px rgba(123,31,162,.15)!important;
+}
+body.theme-halloween .game-card .name{color:#FF9100!important}
+body.theme-halloween .game-card .desc{color:#CE93D8!important}
+body.theme-halloween .game-card::before{
+  content:'🕸️';position:absolute;top:4px;left:6px;font-size:1.15rem;
+  opacity:.75;pointer-events:none;transform:rotate(-8deg);
+}
+body.theme-halloween .game-card::after{
+  content:'🕷️';position:absolute;top:6px;right:8px;font-size:.95rem;
+  opacity:.85;pointer-events:none;
+}
+
+body.theme-fiesta .game-card{
+  background:linear-gradient(180deg,#1a0a2e,#3a1050)!important;
+  border-color:rgba(255,64,129,.45)!important;
+  box-shadow:0 6px 20px rgba(233,30,99,.3)!important;
+}
+body.theme-fiesta .game-card .name{color:#FF80AB!important}
+body.theme-fiesta .game-card .desc{color:#80DEEA!important}
+body.theme-fiesta .game-card::after{
+  content:'🎊';position:absolute;top:6px;right:8px;font-size:1rem;
+  opacity:.9;pointer-events:none;
+}
+
+/* Ensure game cards can host the pseudo decorations */
+.game-card{position:relative;overflow:hidden}
+
+/* Slightly stronger selected state under themes */
+body[class*="theme-"] .game-card.selected{
+  transform:translateY(-3px);
+  box-shadow:0 0 0 3px rgba(255,255,255,.25),0 10px 28px rgba(0,0,0,.35)!important;
+}
+
 </style>
 </head>
 <body>
@@ -2755,9 +2878,27 @@ const THEME_PRESETS = {
 let currentThemeId = 'default';
 let themeListenerBound = false;
 
+// Restore last theme immediately so refresh keeps the look
+(function earlyThemeRestore(){
+  try{
+    var saved = localStorage.getItem('arenova_theme');
+    if(saved && THEME_PRESETS[saved]){
+      currentThemeId = saved;
+      if(saved !== 'default') document.body.classList.add('theme-' + saved);
+      // decorations need the #themeDecor node — run after DOM is ready
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', function(){ if(typeof renderThemeDecor === 'function') renderThemeDecor(saved); });
+      } else {
+        setTimeout(function(){ if(typeof renderThemeDecor === 'function') renderThemeDecor(saved); }, 0);
+      }
+    }
+  }catch(e){}
+})();
+
 function applyTheme(id){
   const tid = (THEME_PRESETS[id] ? id : 'default');
   currentThemeId = tid;
+  try{ localStorage.setItem('arenova_theme', tid); }catch(e){}
   const classes = Array.from(document.body.classList).filter(function(c){ return c.indexOf('theme-') === 0; });
   classes.forEach(function(c){ document.body.classList.remove(c); });
   if(tid !== 'default') document.body.classList.add('theme-' + tid);
@@ -2940,7 +3081,7 @@ async function setGlobalTheme(id){
       setAt: firebase.database.ServerValue.TIMESTAMP
     });
     applyTheme(id);
-    toast('Theme set to ' + THEME_PRESETS[id].label + ' for everyone');
+    toast('Theme saved to cloud · ' + THEME_PRESETS[id].label + ' for everyone');
     snd('ok');
   }catch(e){
     console.warn('setGlobalTheme failed', e);
@@ -2980,11 +3121,22 @@ function bindThemeListener(){
   if(themeListenerBound || !window.db) return;
   themeListenerBound = true;
   try{
+    // Live updates for all players
     db.ref('config/theme').on('value', function(snap){
       const val = snap.val();
-      const id = (val && typeof val === 'object' && val.id) ? val.id : (typeof val === 'string' ? val : 'default');
+      var id = 'default';
+      if(val && typeof val === 'object' && val.id) id = val.id;
+      else if(typeof val === 'string') id = val;
       applyTheme(id || 'default');
     });
+    // Force one-time fetch so refresh always restores from Firebase
+    // even if localStorage was cleared
+    db.ref('config/theme').once('value').then(function(snap){
+      const val = snap.val();
+      if(!val) return; // nothing in cloud yet — keep localStorage/default
+      var id = (typeof val === 'object' && val.id) ? val.id : (typeof val === 'string' ? val : null);
+      if(id) applyTheme(id);
+    }).catch(function(e){ console.warn('theme once() failed', e); });
   }catch(e){
     console.warn('theme listener failed', e);
   }
