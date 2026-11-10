@@ -1,0 +1,44 @@
+<!-- Arenova · Sketch Race screen. Loaded into #gameScreens by index.html -->
+<section id="screen-draw" class="screen">
+  <div class="leave-row"><button type="button" class="game-leave-btn" title="Leave this game" aria-label="Leave this game">↩ Leave game</button></div>
+  <div class="game-top">
+    <div class="timer" id="drawTimerRing"><span id="drawTimerText">75</span></div>
+    <div class="scores" id="drawScoreBoard"></div>
+    <button class="snd-btn" id="btnSoundDraw" title="Toggle sound">🔊</button>
+  </div>
+  <div class="card draw-card">
+    <div class="draw-level-bar">
+      <span id="drawLevelLabel">Level 1 / 10</span>
+      <span class="draw-cat-chip" id="drawCatChip"></span>
+      <span id="drawSeriesScore">Your wins: 0</span>
+    </div>
+    <div class="draw-role" id="drawRole">Waiting…</div>
+    <div class="draw-word-secret" id="drawWordBox" style="display:none">
+      <div class="lbl">Draw this</div>
+      <div class="wrd" id="drawSecretWord">—</div>
+    </div>
+    <div class="draw-canvas-wrap">
+      <canvas id="drawCanvas" width="600" height="450"></canvas>
+    </div>
+    <div class="draw-tools" id="drawTools" style="display:none">
+      <button type="button" class="tool-btn on" id="btnDrawPen" title="Pen">✏️</button>
+      <button type="button" class="tool-btn" id="btnDrawEraser" title="Eraser">🩹</button>
+      <button type="button" class="tool-btn" id="btnDrawClear" title="Clear">🗑️</button>
+      <span style="flex:1"></span>
+      <span style="font-size:.75rem;font-weight:800;color:#636E72" id="drawHint">Draw clearly!</span>
+      <div class="draw-pal" id="drawPal"></div>
+    </div>
+    <div class="draw-guess-area" id="drawGuessArea" style="display:none">
+      <input type="text" id="drawGuessInput" placeholder="Type your guess…" maxlength="32" autocomplete="off" autocapitalize="off">
+      <button class="btn btn-mint" id="btnDrawGuess" style="min-height:46px">GUESS</button>
+    </div>
+    <div class="draw-guesses-wrap" id="drawGuessesWrap">
+      <h4>Live guesses</h4>
+      <div class="draw-guesses" id="drawGuessList"><div class="none-words" style="font-size:.8rem">No guesses yet…</div></div>
+    </div>
+    <div class="draw-status" id="drawStatus">Get ready…</div>
+    <div class="hang-end-actions" style="margin-top:10px">
+      <button class="btn btn-mint" id="btnDrawNext" style="display:none">NEXT LEVEL →</button>
+    </div>
+  </div>
+</section>

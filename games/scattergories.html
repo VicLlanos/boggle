@@ -1,0 +1,29 @@
+<!-- Arenova · Scattergories screen. Loaded into #gameScreens by index.html -->
+<section id="screen-scatter" class="screen">
+  <div class="leave-row"><button type="button" class="game-leave-btn" title="Leave this game" aria-label="Leave this game">↩ Leave game</button></div>
+  <div class="game-top">
+    <div class="timer" id="scatTimerRing"><span id="scatTimerText">180</span></div>
+    <div class="scores" id="scatScoreBoard"></div>
+    <button class="snd-btn" id="btnSoundScat" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+  </div>
+
+  <!-- Dramatic letter hero -->
+  <div class="scat-hero">
+    <div class="scat-hero-label">Letter of the round</div>
+    <div class="scat-letter" id="scatLetter">?</div>
+    <div class="scat-progress-wrap">
+      <div class="scat-progress-bar"><i id="scatProgressFill"></i></div>
+      <div class="scat-progress-text" id="scatProgressText">0/12</div>
+    </div>
+  </div>
+
+  <!-- Lined-paper answer pad -->
+  <div class="scat-pad">
+    <div class="scat-pad-header">
+      <div class="scat-pad-title">Your answers</div>
+      <div class="scat-pad-hint">Auto-checked as you type</div>
+    </div>
+    <div class="scat-cats" id="scatCats"></div>
+    <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
+  </div>
+</section>

@@ -1,0 +1,91 @@
+<!-- Arenova · Hangman Race screen. Loaded into #gameScreens by index.html -->
+<section id="screen-hangman" class="screen">
+  <div class="leave-row"><button type="button" class="game-leave-btn" title="Leave this game" aria-label="Leave this game">↩ Leave game</button></div>
+  <div class="game-top">
+    <div class="timer" id="hangTimerRing"><span id="hangTimerText">45</span></div>
+    <div class="scores" id="hangScoreBoard"></div>
+    <button class="snd-btn" id="btnSoundHang" title="Toggle sound">🔊</button>
+  </div>
+  <div class="card hang-card">
+    <div class="hang-level-bar">
+      <span id="hangLevelLabel">Level 1 / 10</span>
+      <span id="hangSeriesScore">Series: 0</span>
+    </div>
+    <div class="hang-cat-label">CATEGORY</div>
+    <div id="hangCategory" class="hang-cat-name">—</div>
+    <div id="hangHint" class="hang-hint">Hint: —</div>
+    <div id="hangStage" class="hang-stage">
+      <div id="hangStatus" class="hang-status">Save him!</div>
+      <svg id="hangScene" class="hang-scene" viewBox="0 0 140 160" aria-hidden="true">
+        <defs>
+          <!-- keeps the falling man hidden below the front lip of the pit -->
+          <clipPath id="hangClip"><rect x="-20" y="-40" width="180" height="190"/></clipPath>
+        </defs>
+        <!-- Pit (back): hole + back row of balloons -->
+        <ellipse cx="78" cy="148" rx="50" ry="10" fill="#0a0a0a"/>
+        <ellipse cx="78" cy="146" rx="46" ry="8" fill="#1e272e"/>
+        <g id="hangBalloonsBack"></g>
+        <!-- Gallows post + beam -->
+        <rect x="18" y="12" width="10" height="120" rx="2" fill="#5D4037"/>
+        <rect x="14" y="8" width="18" height="12" rx="2" fill="#4E342E"/>
+        <rect x="18" y="12" width="78" height="10" rx="2" fill="#6D4C41"/>
+        <rect x="88" y="12" width="10" height="14" rx="1" fill="#5D4037"/>
+        <!-- Rope the man holds on to -->
+        <g id="hangRope">
+          <line x1="93" y1="26" x2="93" y2="78" stroke="#8D6E63" stroke-width="3" stroke-linecap="round"/>
+          <line x1="93" y1="26" x2="93" y2="78" stroke="#6D4C41" stroke-width="3" stroke-dasharray="1.6 2.4"/>
+          <circle cx="93" cy="78.5" r="2.4" fill="#6D4C41"/>
+        </g>
+        <!-- Rope climber (animated from JS) -->
+        <g clip-path="url(#hangClip)">
+          <g id="hangBody" transform="translate(0 0)">
+            <!-- legs (swing from the hips) -->
+            <g id="hLegL"><line x1="91.5" y1="80" x2="91.5" y2="97" stroke="#37474F" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="91" cy="99" rx="3.4" ry="1.9" fill="#E17055"/></g>
+            <g id="hLegR"><line x1="94.5" y1="80" x2="94.5" y2="97" stroke="#37474F" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="95" cy="99" rx="3.4" ry="1.9" fill="#E17055"/></g>
+            <!-- torso -->
+            <rect x="88" y="61" width="10" height="21" rx="4" fill="#6C5CE7"/>
+            <!-- arms -->
+            <path id="hArmL" d="M89.5 64.5 Q76 50 91.6 36" fill="none" stroke="#6C5CE7" stroke-width="3.4" stroke-linecap="round"/>
+            <path id="hArmR" d="M96.5 64.5 Q110 50 94.4 36" fill="none" stroke="#6C5CE7" stroke-width="3.4" stroke-linecap="round"/>
+            <!-- head -->
+            <circle cx="93" cy="52" r="8.5" fill="#FFE0B2" stroke="#5D4037" stroke-width="1.2"/>
+            <path d="M84.6 50 Q83.5 41.5 93 41.8 Q102.5 41.5 101.4 50 Q98 45 93 45.6 Q88 45 84.6 50Z" fill="#5D4037"/>
+            <line id="hBrowL" x1="85.8" y1="45.5" x2="91.2" y2="48" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <line id="hBrowR" x1="100.2" y1="45.5" x2="94.8" y2="48" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <circle id="hEyeWL" cx="89.5" cy="51.5" r="2.4" fill="#fff" stroke="#5D4037" stroke-width=".5"/>
+            <circle id="hEyeWR" cx="96.5" cy="51.5" r="2.4" fill="#fff" stroke="#5D4037" stroke-width=".5"/>
+            <circle cx="89.5" cy="50.9" r="1.2" fill="#2d3436"/>
+            <circle cx="96.5" cy="50.9" r="1.2" fill="#2d3436"/>
+            <path id="hMouth" d="M89.8 57 Q93 59.5 96.2 57" fill="none" stroke="#3E2723" stroke-width="1.3" stroke-linecap="round"/>
+            <ellipse id="hMouthO" cx="93" cy="57.4" rx="2.4" ry="0" fill="#5D1F1F" opacity="0"/>
+            <path id="hSweat" d="M101.5 46.5 Q103.7 49.8 101.5 51 Q99.3 49.8 101.5 46.5Z" fill="#74B9FF" opacity="0"/>
+            <!-- friction marks where the grip is slipping -->
+            <g id="hSlip" opacity="0" stroke="#E17055" stroke-width="1.2" stroke-linecap="round">
+              <line id="hSlip1" x1="98.2" y1="30" x2="98.2" y2="34"/>
+              <line id="hSlip2" x1="100.2" y1="28" x2="100.2" y2="33"/>
+            </g>
+            <!-- hands -->
+            <circle id="hHandL" cx="91.6" cy="36" r="2.7" fill="#FFE0B2" stroke="#5D4037" stroke-width="1"/>
+            <circle id="hHandR" cx="94.4" cy="36" r="2.7" fill="#FFE0B2" stroke="#5D4037" stroke-width="1"/>
+            <!-- happy stars -->
+            <g id="hStars" opacity="0">
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#FDCB6E">★</text>
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#FD79A8" transform="rotate(120 93 52)">★</text>
+              <text x="93" y="39" text-anchor="middle" font-size="7" fill="#55EFC4" transform="rotate(240 93 52)">★</text>
+            </g>
+          </g>
+        </g>
+        <!-- Pit (front): front balloons + lip -->
+        <g id="hangBalloonsFront"></g>
+        <path d="M28 148 A50 10 0 0 0 128 148" fill="none" stroke="#0d0d0d" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div id="hangSlots" class="hang-slots"></div>
+    <div id="hangTray" class="hang-tray"></div>
+    <div id="hangMsg" class="hang-msg">Tap letters to fill the blanks</div>
+    <div class="hang-end-actions">
+      <button class="btn btn-primary" id="btnHangSubmit">SUBMIT</button>
+      <button class="btn btn-mint" id="btnHangNext" style="display:none">NEXT LEVEL →</button>
+    </div>
+  </div>
+</section>
