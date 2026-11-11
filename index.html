@@ -8303,7 +8303,7 @@ const MAPS={
     gt:['12 people + a 🐪 Camel Ranch','30 people, 2 🛢️ pumpjack floors, 3 shop/restaurant floors','70 people, an ⛽ Offshore Rig + 2 🏭 factory floors'],
     th:{wd:'#3db4c0',wn:'#0a2a33',bed:'#3ba7b3',fogD:0xe6d3a8,fogN:0x14131f,hg:0xc9a46a,
       skyD:'linear-gradient(#7cc4e8,#f4e6c3 62%,#f0d6a0)',skyN:'linear-gradient(#0b1020,#1b2238 55%,#2a2a3a)',g:[.118,.55,.62],b:[.125,.5,.76],hl:-.035}},
-  forest:{n:'Evergreen Hills',e:'🌲',blurb:'Wild pine forest, rolling hills, lumber camps and a mountain lodge.',req:{map:'desert',era:2},
+  forest:{n:'Evergreen Hills',e:'🌲',blurb:'Endless pine forest, rolling hills, winding rivers, quiet lakes and lumber camps.',req:{map:'desert',era:2},
     eras:['Lumber Camp','Timber Town','Mill Town','Mountain City'],ic:['🪓','🪵','🏭','🏔️'],res:'🪵',top:'🏔️ Mountain City — keep building!',
     goals:[S=>S.pop>=12&&(S.by.logcamp||0)>=1,S=>S.pop>=30&&(S.by.sawmill||0)>=2&&S.am>=3,S=>S.pop>=70&&S.res>=8],
     gt:['12 people + a 🪓 Logging Camp','30 people, 2 🪚 Sawmill floors, 3 shop/restaurant floors','70 people + 8 floors of logging camps / sawmills'],
@@ -8323,12 +8323,18 @@ const GHt=(i,j)=>inB(i,j)?HGT[i*N+j]:0;
 const hs=(i,j,s)=>{let h=(Math.imul(i+101,73856093)^Math.imul(j+57,19349663)^Math.imul(s+13,83492791))>>>0;h=Math.imul(h^(h>>>13),1274126177)>>>0;return(((h^(h>>>16))>>>0)%1000)/1000};
 function genLand(id){
   LANDM.fill(0);HGT.fill(0);SCN.fill(0);
-  const IS=id==='isle'?[[-16,11,3.4],[15,-13,2.8],[16,14,2.3],[-15,-15,2.2],[3,19,2]]:id==='desert'?[[-18,13,3.6],[18,-15,3],[17,17,2.4]]:[[-19,-17,3],[19,15,2.8]];
+  const IS=id==='isle'?[[-16,11,3.4],[15,-13,2.8],[16,14,2.3],[-15,-15,2.2],[3,19,2]]:[];
+  const segD=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],t=cl(((px-a[0])*dx+(pz-a[1])*dz)/(dx*dx+dz*dz),0,1);return Math.hypot(px-a[0]-t*dx,pz-a[1]-t*dz)};
+  const RIVER=[[16,-26],[13,-16],[9,-9],[10,-1],[11,7],[12,15]];
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     const x=wx(i),z=wx(j),d=Math.hypot(x,z),a=Math.atan2(z,x);let on;
     if(id==='isle')on=d<10.5+2.4*Math.sin(a*3+1)+1.5*Math.sin(a*5+2)+1.1*Math.sin(a*2+.4);
-    else if(id==='desert'){on=d<15+2.6*Math.sin(a*3+1)+1.8*Math.sin(a*5+2)+1.2*Math.sin(a*2+.4);if(Math.hypot(x-10,z+12)<3.8)on=false}
-    else{on=d<16+2.2*Math.sin(a*3+.5)+1.6*Math.sin(a*4+1.3)+1.2*Math.sin(a*2+2);if(Math.hypot(x+5,z-6)<3.2+.7*Math.sin(Math.atan2(z-6,x+5)*3))on=false}
+    else if(id==='desert'){on=true;   // endless sand: only a sea along the north shore and a few oases
+      if(z<-17+1.1*Math.sin(.32*x+1)+.5*Math.sin(.7*x))on=false;
+      for(const o of [[11,6,3.4],[-13,8,2.7],[-4,15,2.1]])if(Math.hypot(x-o[0],z-o[1])<o[2]+.5*Math.sin(Math.atan2(z-o[1],x-o[0])*3+o[0]))on=false}
+    else{on=true;   // solid woodland: only lakes and a winding river
+      for(const o of [[-9,9,3.6],[12,15,3.1]])if(Math.hypot(x-o[0],z-o[1])<o[2]+.6*Math.sin(Math.atan2(z-o[1],x-o[0])*3+o[0]))on=false;
+      for(let s=0;s<RIVER.length-1&&on;s++)if(segD(x,z,RIVER[s],RIVER[s+1])<1.15+.35*Math.sin(z*.7+x*.3))on=false}
     if(!on)for(const s of IS){const dd=Math.hypot(x-s[0],z-s[1]);if(dd<s[2]+.7*Math.sin(Math.atan2(z-s[1],x-s[0])*3+s[0])){on=true;break}}
     LANDM[i*N+j]=on?1:0}
   if(id!=='isle'){
@@ -8336,7 +8342,7 @@ function genLand(id){
     for(let i=0;i<N;i++)for(let j=0;j<N;j++){
       if(LANDM[i*N+j]!==1)continue;
       const x=wx(i),z=wx(j),d=Math.hypot(x,z);
-      let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++){const p=i+a,q=j+b;if(!inB(p,q)||LANDM[p*N+q]!==1){beach=true;break}}
+      let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++){const p=i+a,q=j+b;if(inB(p,q)&&LANDM[p*N+q]!==1){beach=true;break}}
       let v=0;for(const b of BP){const sg=b[2]*.6;v+=Math.exp(-((x-b[0])*(x-b[0])+(z-b[1])*(z-b[1]))/(2*sg*sg))}
       const lv=beach?0:(v>.62?2:v>.3?1:0);HGT[i*N+j]=lv*step;
       if(beach)continue;
@@ -8345,7 +8351,7 @@ function genLand(id){
     const lvA=new Int8Array(N*N);for(let k=0;k<N*N;k++)lvA[k]=Math.round(HGT[k]/step);
     for(let pass=0;pass<6;pass++){let ch=0;
       for(let i=0;i<N;i++)for(let j=0;j<N;j++){const k=i*N+j;if(!lvA[k])continue;let mn=9;
-        for(const dv of DIRS){const a=i+dv[0],b=j+dv[1];const v=LAND(a,b)?lvA[a*N+b]:0;if(v<mn)mn=v}
+        for(const dv of DIRS){const a=i+dv[0],b=j+dv[1];if(!inB(a,b))continue;const v=LAND(a,b)?lvA[a*N+b]:0;if(v<mn)mn=v}
         if(lvA[k]>mn+1){lvA[k]=mn+1;ch=1}}
       if(!ch)break}
     for(let k=0;k<N*N;k++)HGT[k]=lvA[k]*step}
@@ -8509,8 +8515,12 @@ function loadTerrain(id){
   if(SG){root.remove(SG);Object.keys(SCH).forEach(k=>disp(SCH[k]))}
   SG=new THREE.Group();root.add(SG);SCH={};
   if(sun)setNight(night,true);
-  fixKind();
+  sanitize();fixKind();
 }
+function sanitize(){
+  Object.keys(cells).forEach(k=>{const p=k.split(','),i=+p[0],j=+p[1],c=cells[k],T=TY[c.t],land=LAND(i,j);let bad=!inB(i,j);
+    if(!bad){if(T&&T.cat==='b')bad=T.w?land:(!land&&!c.pl);else if(c.t==='grass')bad=!land}
+    if(bad)delete cells[k]})}
 function fixKind(){if(!TY[kind]||!okTy(kind)||TY[kind].u>G.era){cat='b';kind='home'}}
 function buildTerrain(){
   if(TG){root.remove(TG);TG.traverse(o=>{if(o.geometry&&o.geometry!==BOX)o.geometry.dispose()})}
@@ -8522,16 +8532,17 @@ function buildTerrain(){
   const m4=new THREE.Matrix4(),col=new THREE.Color(),q=new THREE.Quaternion();
   const gm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.88,metalness:.02}),lands.length);
   lands.forEach(([i,j],n)=>{
-    let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++)if(!LAND(i+a,j+b)){beach=true;break}
+    let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++)if(inB(i+a,j+b)&&!LAND(i+a,j+b)){beach=true;break}
     const h=((i*73856093)^(j*19349663))%100/100,hh=GHt(i,j),lv=hh>0?Math.round(hh/step):0;
     // flat tops sit at y=hh (hills are stepped terraces); every tile group is lifted by hh so roads / buildings stay level
     m4.compose(new THREE.Vector3(wx(i),(hh-1.3)/2,wx(j)),q,new THREE.Vector3(1,1.3+hh,1));gm.setMatrixAt(n,m4);
     if(beach)col.setHSL(th.b[0],th.b[1],th.b[2]+h*.07);else col.setHSL(th.g[0],th.g[1]-(lv>1&&MAPID==='forest'?.18:0),th.g[2]+h*.08+lv*th.hl);
     gm.setColorAt(n,col)});
-  gm.instanceMatrix.needsUpdate=true;if(gm.instanceColor)gm.instanceColor.needsUpdate=true;gm.receiveShadow=true;TG.add(gm);
+  gm.frustumCulled=false;gm.instanceMatrix.needsUpdate=true;if(gm.instanceColor)gm.instanceColor.needsUpdate=true;gm.receiveShadow=true;TG.add(gm);
   const sm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),shal.length);
   shal.forEach(([i,j],n)=>{const h=((i*83492791)^(j*2654435761))%100/100;m4.compose(new THREE.Vector3(wx(i),-.85,wx(j)),q,new THREE.Vector3(1,.1,1));sm.setMatrixAt(n,m4);col.setHSL(.5,.5,.6+h*.06);sm.setColorAt(n,col)});
-  sm.instanceMatrix.needsUpdate=true;if(sm.instanceColor)sm.instanceColor.needsUpdate=true;TG.add(sm);
+  sm.frustumCulled=false;sm.instanceMatrix.needsUpdate=true;if(sm.instanceColor)sm.instanceColor.needsUpdate=true;TG.add(sm);
+  outerGround(MAPID,th);
   /* tile grid: faint lines everywhere (so tiles on the sea are visible) + a gold map border */
   const pts=[],gy=(i,j)=>LAND(i,j)?GHt(i,j):0;
   for(let i=0;i<N;i++)for(let j=0;j<=N;j++){const y=Math.max(gy(i,j-1),gy(i,j))+.016;pts.push(i-HALF,y,j-HALF,i+1-HALF,y,j-HALF)}
@@ -8540,6 +8551,24 @@ function buildTerrain(){
   TG.add(new THREE.LineSegments(gg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.2,depthWrite:false})));
   const bp=[],bq=[[-HALF,-HALF],[HALF,-HALF],[HALF,HALF],[-HALF,HALF]];bq.forEach(c=>bp.push(c[0],.03,c[1]));const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(bp,3));
   TG.add(new THREE.LineLoop(bg,new THREE.LineBasicMaterial({color:0xffd166,transparent:true,opacity:.85})));
+}
+function outerGround(id,th){
+  if(id==='isle')return;
+  const mt=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(th.g[0],th.g[1],th.g[2]+.04),roughness:1}),R=340,zs=id==='desert'?-15:-R;
+  const sl=(x0,x1,z0,z1)=>{const m=new THREE.Mesh(BOX,mt);m.scale.set(x1-x0,1.3,z1-z0);m.position.set((x0+x1)/2,-.65,(z0+z1)/2);m.receiveShadow=true;TG.add(m)};
+  sl(-R,-HALF,zs,R);sl(HALF,R,zs,R);sl(-HALF,HALF,HALF,R);if(id==='forest'){sl(-HALF,13.2,-R,-HALF);sl(17.6,HALF,-R,-HALF)}   // gap lets the river flow on past the map edge
+  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),col=new THREE.Color();let k=0,s=0;
+  if(id==='forest'){const n=420,im=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,6),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
+    while(k<n&&s<5000){s++;const x=(hs(s,3,21)-.5)*190,z=(hs(s,4,22)-.5)*190;if(Math.max(Math.abs(x),Math.abs(z))<HALF+1||(z<-HALF&&x>13&&x<18))continue;
+      const h=2.2+hs(s,5,23)*2.6,r=.9+hs(s,6,24)*.7;m4.compose(new THREE.Vector3(x,h/2,z),q,new THREE.Vector3(r,h,r));im.setMatrixAt(k,m4);
+      col.setHSL(.33+hs(s,7,25)*.05,.4,.16+hs(s,8,26)*.1);im.setColorAt(k,col);k++}
+    im.count=k;im.frustumCulled=false;TG.add(im)}
+  else{const n=40,im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),n);
+    while(k<n&&s<5000){s++;const x=(hs(s,3,31)-.5)*240,z=(hs(s,4,32)-.5)*240,rx=7+hs(s,5,33)*8,h=1.4+hs(s,6,34)*1.9;
+      if(z<-14||Math.max(Math.abs(x),Math.abs(z))<HALF+rx+1)continue;
+      m4.compose(new THREE.Vector3(x,-.3,z),q,new THREE.Vector3(rx,h,rx*(.8+hs(s,7,35)*.5)));im.setMatrixAt(k,m4);
+      col.setHSL(th.g[0],th.g[1],th.g[2]+.01+hs(s,8,36)*.06);im.setColorAt(k,col);k++}
+    im.count=k;im.frustumCulled=false;TG.add(im)}
 }
 /* ---- wild scenery (forest trees, desert cacti & rocks): drawn per 8x8 chunk, hidden once a tile has been cleared / built on ---- */
 function sceneryItem(t,s,seed){
