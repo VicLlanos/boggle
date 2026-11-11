@@ -8295,19 +8295,19 @@ const MAPS={
     eras:['Fishing Village','Harbor Town','Industrial Town','Modern City'],ic:['🎣','⚓','🏭','🏙️'],res:'🐟',top:'🏙️ Modern City — keep building!',
     goals:[S=>S.pop>=12&&S.res>=1,S=>S.pop>=30&&S.res>=2&&S.am>=3,S=>S.pop>=70&&S.fac>=2],
     gt:['12 people + a 🎣 Fishery','30 people, 2 🎣 Fishery tanks, 3 shop/restaurant floors','70 people + 2 🏭 factory floors'],
-    th:{wd:'#2b7c8e',wn:'#0a1e2e',bed:'#277a8d',fogD:0xd8d3c2,fogN:0x0c1528,hg:0xa89478,
+    th:{base:'#17454f',wd:'#2b7c8e',wn:'#0a1e2e',bed:'#277a8d',fogD:0xd8d3c2,fogN:0x0c1528,hg:0xa89478,
       skyD:'linear-gradient(#86b6c8,#e3ddc9 62%,#f1ddbf)',skyN:'linear-gradient(#070e1c,#121f38 55%,#1a2740)',g:[.27,.45,.38],b:[.12,.48,.68],hl:0}},
   desert:{n:'Sunbaked Dunes',e:'🏜️',blurb:'Golden dunes, camel caravans, black gold and a shimmering coast.',req:{map:'isle',era:2},
     eras:['Nomad Camp','Caravan Town','Oil Boomtown','Desert Metropolis'],ic:['⛺','🐪','🛢️','🏙️'],res:'🛢️',top:'🏙️ Desert Metropolis — keep building!',
     goals:[S=>S.pop>=12&&(S.by.camel||0)>=1,S=>S.pop>=30&&(S.by.pump||0)>=2&&S.am>=3,S=>S.pop>=70&&(S.by.rig||0)>=1&&S.fac>=2],
     gt:['12 people + a 🐪 Camel Ranch','30 people, 2 🛢️ pumpjack floors, 3 shop/restaurant floors','70 people, an ⛽ Offshore Rig + 2 🏭 factory floors'],
-    th:{wd:'#3db4c0',wn:'#0a2a33',bed:'#3ba7b3',fogD:0xe6d3a8,fogN:0x14131f,hg:0xc9a46a,
+    th:{base:'#8a6f45',wd:'#3db4c0',wn:'#0a2a33',bed:'#3ba7b3',fogD:0xe6d3a8,fogN:0x14131f,hg:0xc9a46a,
       skyD:'linear-gradient(#7cc4e8,#f4e6c3 62%,#f0d6a0)',skyN:'linear-gradient(#0b1020,#1b2238 55%,#2a2a3a)',g:[.118,.55,.62],b:[.125,.5,.76],hl:-.035}},
   forest:{n:'Evergreen Hills',e:'🌲',blurb:'Endless pine forest, rolling hills, winding rivers, quiet lakes and lumber camps.',req:{map:'desert',era:2},
     eras:['Lumber Camp','Timber Town','Mill Town','Mountain City'],ic:['🪓','🪵','🏭','🏔️'],res:'🪵',top:'🏔️ Mountain City — keep building!',
     goals:[S=>S.pop>=12&&(S.by.logcamp||0)>=1,S=>S.pop>=30&&(S.by.sawmill||0)>=2&&S.am>=3,S=>S.pop>=70&&S.res>=8],
     gt:['12 people + a 🪓 Logging Camp','30 people, 2 🪚 Sawmill floors, 3 shop/restaurant floors','70 people + 8 floors of logging camps / sawmills'],
-    th:{wd:'#2c7b72',wn:'#0a2020',bed:'#276f68',fogD:0xcfdcc8,fogN:0x0a1512,hg:0x7a8a60,
+    th:{base:'#4a3a28',wd:'#2c7b72',wn:'#0a2020',bed:'#276f68',fogD:0xcfdcc8,fogN:0x0a1512,hg:0x7a8a60,
       skyD:'linear-gradient(#8fcfe0,#dfeacf 62%,#c9deb0)',skyN:'linear-gradient(#050d12,#0f2228 55%,#16302c)',g:[.3,.42,.3],b:[.14,.35,.56],hl:.045}}
 };
 const MM=()=>MAPS[MAPID]||MAPS.isle,TH=()=>MM().th,eraNames=()=>MM().eras;
@@ -8486,12 +8486,10 @@ function init(){
   root=new THREE.Group();scene.add(root);
   /* sea: flat, stable water — no vertex animation so roads / pavement / plazas built over water never get overflowed or clipped (critical on mobile) */
   const wm=new THREE.MeshStandardMaterial({color:'#2b7c8e',flatShading:true,transparent:true,opacity:.88,roughness:.35,metalness:.08});
-  water=new THREE.Mesh(new THREE.PlaneGeometry(400,400,32,32),wm); // fewer segments = better mobile performance + no wave mesh fighting tiles
-  water.rotation.x=-Math.PI/2;
-  water.position.y=-.18; // sit clearly below all slabs / decks
+  water=new THREE.Mesh(new THREE.BoxGeometry(N-.02,1.22,N-.02),wm); // a block of water that ends at the map border; top surface at y=-.18, clearly below all slabs / decks
+  water.position.y=-.79;
   water.receiveShadow=true;
   scene.add(water);
-  bedM=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshStandardMaterial({color:'#277a8d',roughness:1}));bedM.rotation.x=-Math.PI/2;bedM.position.y=-1.4;scene.add(bedM);
   hov=new THREE.Mesh(BOX,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.38,depthWrite:false}));hov.scale.set(.98,.06,.98);hov.visible=false;scene.add(hov);
   for(let i=0;i<9;i++){const c=new THREE.Group(),n=3+(i%2);for(let j=0;j<n;j++){const s=mk(SPH,'#ffffff',1.3+Math.random()*.8,.7,.9,j*1.3-n*.6,Math.random()*.3,Math.random()*.5,c,false);s.material=M('#ffffff',{transparent:true,opacity:.85})}
     c.position.set(-60+Math.random()*120,13+Math.random()*5,-50+Math.random()*100);c.userData.sp=.3+Math.random()*.35;scene.add(c);clouds.push(c)}
@@ -8525,7 +8523,8 @@ function fixKind(){if(!TY[kind]||!okTy(kind)||TY[kind].u>G.era){cat='b';kind='ho
 function buildTerrain(){
   if(TG){root.remove(TG);TG.traverse(o=>{if(o.geometry&&o.geometry!==BOX)o.geometry.dispose()})}
   TG=new THREE.Group();root.add(TG);
-  const th=TH(),step=MAPID==='forest'?.6:.25,lands=[],shal=[];
+  const th=TH();{const bm=new THREE.Mesh(BOX,new THREE.MeshStandardMaterial({color:th.base,roughness:1}));bm.scale.set(N+.2,1.4,N+.2);bm.position.y=-2.1;bm.receiveShadow=true;TG.add(bm)}
+  const step=MAPID==='forest'?.6:.25,lands=[],shal=[];
   for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     if(LAND(i,j))lands.push([i,j]);
     else{let near=false;for(let a=-2;a<=2&&!near;a++)for(let b=-2;b<=2;b++)if(LAND(i+a,j+b)){near=true;break}if(near)shal.push([i,j])}}
@@ -8535,14 +8534,13 @@ function buildTerrain(){
     let beach=false;for(let a=-1;a<=1&&!beach;a++)for(let b=-1;b<=1;b++)if(inB(i+a,j+b)&&!LAND(i+a,j+b)){beach=true;break}
     const h=((i*73856093)^(j*19349663))%100/100,hh=GHt(i,j),lv=hh>0?Math.round(hh/step):0;
     // flat tops sit at y=hh (hills are stepped terraces); every tile group is lifted by hh so roads / buildings stay level
-    m4.compose(new THREE.Vector3(wx(i),(hh-1.3)/2,wx(j)),q,new THREE.Vector3(1,1.3+hh,1));gm.setMatrixAt(n,m4);
+    m4.compose(new THREE.Vector3(wx(i),(hh-1.4)/2,wx(j)),q,new THREE.Vector3(1,1.4+hh,1));gm.setMatrixAt(n,m4);
     if(beach)col.setHSL(th.b[0],th.b[1],th.b[2]+h*.07);else col.setHSL(th.g[0],th.g[1]-(lv>1&&MAPID==='forest'?.18:0),th.g[2]+h*.08+lv*th.hl);
     gm.setColorAt(n,col)});
   gm.frustumCulled=false;gm.instanceMatrix.needsUpdate=true;if(gm.instanceColor)gm.instanceColor.needsUpdate=true;gm.receiveShadow=true;TG.add(gm);
   const sm=new THREE.InstancedMesh(BOX,new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),shal.length);
   shal.forEach(([i,j],n)=>{const h=((i*83492791)^(j*2654435761))%100/100;m4.compose(new THREE.Vector3(wx(i),-.85,wx(j)),q,new THREE.Vector3(1,.1,1));sm.setMatrixAt(n,m4);col.setHSL(.5,.5,.6+h*.06);sm.setColorAt(n,col)});
   sm.frustumCulled=false;sm.instanceMatrix.needsUpdate=true;if(sm.instanceColor)sm.instanceColor.needsUpdate=true;TG.add(sm);
-  outerGround(MAPID,th);
   /* tile grid: faint lines everywhere (so tiles on the sea are visible) + a gold map border */
   const pts=[],gy=(i,j)=>LAND(i,j)?GHt(i,j):0;
   for(let i=0;i<N;i++)for(let j=0;j<=N;j++){const y=Math.max(gy(i,j-1),gy(i,j))+.016;pts.push(i-HALF,y,j-HALF,i+1-HALF,y,j-HALF)}
@@ -8551,24 +8549,6 @@ function buildTerrain(){
   TG.add(new THREE.LineSegments(gg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.2,depthWrite:false})));
   const bp=[],bq=[[-HALF,-HALF],[HALF,-HALF],[HALF,HALF],[-HALF,HALF]];bq.forEach(c=>bp.push(c[0],.03,c[1]));const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(bp,3));
   TG.add(new THREE.LineLoop(bg,new THREE.LineBasicMaterial({color:0xffd166,transparent:true,opacity:.85})));
-}
-function outerGround(id,th){
-  if(id==='isle')return;
-  const mt=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(th.g[0],th.g[1],th.g[2]+.04),roughness:1}),R=340,zs=id==='desert'?-15:-R;
-  const sl=(x0,x1,z0,z1)=>{const m=new THREE.Mesh(BOX,mt);m.scale.set(x1-x0,1.3,z1-z0);m.position.set((x0+x1)/2,-.65,(z0+z1)/2);m.receiveShadow=true;TG.add(m)};
-  sl(-R,-HALF,zs,R);sl(HALF,R,zs,R);sl(-HALF,HALF,HALF,R);if(id==='forest'){sl(-HALF,13.2,-R,-HALF);sl(17.6,HALF,-R,-HALF)}   // gap lets the river flow on past the map edge
-  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),col=new THREE.Color();let k=0,s=0;
-  if(id==='forest'){const n=420,im=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,6),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),n);
-    while(k<n&&s<5000){s++;const x=(hs(s,3,21)-.5)*190,z=(hs(s,4,22)-.5)*190;if(Math.max(Math.abs(x),Math.abs(z))<HALF+1||(z<-HALF&&x>13&&x<18))continue;
-      const h=2.2+hs(s,5,23)*2.6,r=.9+hs(s,6,24)*.7;m4.compose(new THREE.Vector3(x,h/2,z),q,new THREE.Vector3(r,h,r));im.setMatrixAt(k,m4);
-      col.setHSL(.33+hs(s,7,25)*.05,.4,.16+hs(s,8,26)*.1);im.setColorAt(k,col);k++}
-    im.count=k;im.frustumCulled=false;TG.add(im)}
-  else{const n=40,im=new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,7),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),n);
-    while(k<n&&s<5000){s++;const x=(hs(s,3,31)-.5)*240,z=(hs(s,4,32)-.5)*240,rx=7+hs(s,5,33)*8,h=1.4+hs(s,6,34)*1.9;
-      if(z<-14||Math.max(Math.abs(x),Math.abs(z))<HALF+rx+1)continue;
-      m4.compose(new THREE.Vector3(x,-.3,z),q,new THREE.Vector3(rx,h,rx*(.8+hs(s,7,35)*.5)));im.setMatrixAt(k,m4);
-      col.setHSL(th.g[0],th.g[1],th.g[2]+.01+hs(s,8,36)*.06);im.setColorAt(k,col);k++}
-    im.count=k;im.frustumCulled=false;TG.add(im)}
 }
 /* ---- wild scenery (forest trees, desert cacti & rocks): drawn per 8x8 chunk, hidden once a tile has been cleared / built on ---- */
 function sceneryItem(t,s,seed){
