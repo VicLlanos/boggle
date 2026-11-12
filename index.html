@@ -1602,7 +1602,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
       <div class="wrd" id="drawSecretWord">—</div>
     </div>
     <div class="draw-canvas-wrap">
-      <canvas id="drawCanvas" width="600" height="450"></canvas>
+      <canvas id="drawCanvas" width="800" height="600"></canvas>
     </div>
     <div class="draw-tools" id="drawTools" style="display:none">
       <button type="button" class="tool-btn on" id="btnDrawPen" title="Pen">✏️</button>
@@ -5953,10 +5953,37 @@ let drawLocalSolved = false;
 let drawStrokeUnsub = null;
 
 /* ---- Sketch Race canvas: one fixed logical canvas (800x600, 4:3) shared by every device.
-   Strokes are stored in logical coordinates, so a drawing looks identical (and fully visible) on phones, tablets and desktops.
-   Every applied point is also logged so the picture is re-painted losslessly whenever the canvas is resized. ---- */
+   Strokes are stored in logical coordinates, so a drawing looks identical on phones, tablets and desktops.
+   The logical area is letterboxed inside each device's bitmap so aspect ratio stays 4:3 and
+   "center of my canvas" is always center for every player (no left/right drift from different screen sizes).
+   Every applied point is logged so the picture is re-painted losslessly whenever the canvas is resized. ---- */
 const DRAW_LW = 800, DRAW_LH = 600;
 let drawLog = [], drawSent = 0, drawPushing = false;
+
+/** Firebase may return sequential keys as an array OR as an object — always produce a dense array of points. */
+function normalizeDrawStrokes(raw){
+  if(!raw) return [];
+  if(Array.isArray(raw)) return raw.filter(Boolean);
+  return Object.keys(raw).map(Number).filter(n => !isNaN(n)).sort((a,b)=>a-b).map(k => raw[k]).filter(Boolean);
+}
+
+/** Map the fixed 800×600 logical canvas into the current bitmap with letterboxing (uniform scale). */
+function drawFit(bw, bh){
+  const s = Math.min(bw / DRAW_LW, bh / DRAW_LH);
+  return { s, ox: (bw - DRAW_LW * s) / 2, oy: (bh - DRAW_LH * s) / 2 };
+}
+
+/** Always re-apply the shared transform before drawing — prevents remote strokes from landing in the wrong place
+    when a canvas was resized, a context was recreated, or devices differ in size/DPR. */
+function ensureDrawTransform(){
+  const c = $('drawCanvas');
+  if(!c || !drawCtx) return null;
+  const { s, ox, oy } = drawFit(c.width, c.height);
+  drawCtx.setTransform(s, 0, 0, s, ox, oy);
+  drawCtx.lineCap = 'round';
+  drawCtx.lineJoin = 'round';
+  return { s, ox, oy };
+}
 
 function drawRepaint(){
   const c = $('drawCanvas');
@@ -5965,9 +5992,14 @@ function drawRepaint(){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle = '#fff';
   ctx.fillRect(0,0,c.width,c.height);
-  ctx.setTransform(c.width/DRAW_LW,0,0,c.height/DRAW_LH,0,0);
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  // soft letterbox margins so the playable area is obvious on non-4:3 screens
+  const fit = drawFit(c.width, c.height);
+  if(fit.ox > 0.5 || fit.oy > 0.5){
+    ctx.fillStyle = '#F4F6F8';
+    if(fit.oy > 0.5){ ctx.fillRect(0, 0, c.width, fit.oy); ctx.fillRect(0, c.height - fit.oy, c.width, fit.oy); }
+    if(fit.ox > 0.5){ ctx.fillRect(0, 0, fit.ox, c.height); ctx.fillRect(c.width - fit.ox, 0, fit.ox, c.height); }
+  }
+  ensureDrawTransform();
   const log = drawLog;
   drawLog = [];
   log.forEach(p => applyStrokePoint(p, p.tool || 'pen'));
@@ -5980,6 +6012,7 @@ function getDrawCanvas(){
   const w = wrap ? wrap.clientWidth : 0, h = wrap ? wrap.clientHeight : 0;
   if(w < 20 || h < 20){          // screen hidden: keep the current bitmap, just make sure a context exists
     if(!drawCtx) drawCtx = c.getContext('2d');
+    ensureDrawTransform();
     return c;
   }
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -5988,6 +6021,8 @@ function getDrawCanvas(){
     c.width = tw; c.height = th;
     drawCtx = c.getContext('2d');
     drawRepaint();
+  } else {
+    ensureDrawTransform();
   }
   return c;
 }
@@ -6006,13 +6041,23 @@ function canvasPos(e){
   if(!c) return null;
   const r = c.getBoundingClientRect();
   if(!r.width || !r.height) return null;
-  const x = (e.clientX - r.left) / r.width * DRAW_LW;
-  const y = (e.clientY - r.top) / r.height * DRAW_LH;
-  return { x: Math.round(Math.max(0, Math.min(DRAW_LW, x))*10)/10, y: Math.round(Math.max(0, Math.min(DRAW_LH, y))*10)/10 };
+  // Inverse of the same letterbox used when painting, so pointer position maps to logical coords identically on every device
+  const { s, ox, oy } = drawFit(r.width, r.height);
+  if(s <= 0) return null;
+  const x = (e.clientX - r.left - ox) / s;
+  const y = (e.clientY - r.top - oy) / s;
+  return {
+    x: Math.round(Math.max(0, Math.min(DRAW_LW, x)) * 10) / 10,
+    y: Math.round(Math.max(0, Math.min(DRAW_LH, y)) * 10) / 10
+  };
 }
 
 function applyStrokePoint(pt, tool){
-  if(!drawCtx || !pt) return;
+  if(!pt) return;
+  // Guarantee context + shared transform so remote strokes align with the drawer's canvas
+  if(!drawCtx) getDrawCanvas();
+  if(!drawCtx) return;
+  ensureDrawTransform();
   tool = tool || pt.tool || 'pen';
   const ctx = drawCtx;
   if(pt.type === 'start'){
@@ -6145,7 +6190,7 @@ function enterDraw(force){
   const btnN = $('btnDrawNext'); if(btnN) btnN.style.display = 'none';
 
   // Replay existing strokes only if this level already has some (late join mid-round)
-  const existingStrokes = Array.isArray(roomData.drawStrokes) ? roomData.drawStrokes : [];
+  const existingStrokes = normalizeDrawStrokes(roomData.drawStrokes);
   if(existingStrokes.length){
     replayDrawStrokes(existingStrokes);
   } else {
@@ -6157,8 +6202,7 @@ function enterDraw(force){
     let lastLen = existingStrokes.length;
     db.ref('rooms/'+roomId+'/drawStrokes').off();
     db.ref('rooms/'+roomId+'/drawStrokes').on('value', snap => {
-      const strokes = snap.val();
-      const arr = Array.isArray(strokes) ? strokes : [];
+      const arr = normalizeDrawStrokes(snap.val());
       // Empty / cleared → blank canvas for everyone who isn't actively drawing this stroke
       if(!arr.length){
         if(!isDrawer()) clearDrawCanvas();   // the drawer is the source of truth for their own picture
@@ -6171,8 +6215,9 @@ function enterDraw(force){
         lastLen = 0;
       }
       if(arr.length > lastLen){
+        getDrawCanvas(); // ensure bitmap + transform match this device before applying remote points
         for(let i = lastLen; i < arr.length; i++){
-          applyStrokePoint(arr[i], arr[i].tool || 'pen');
+          if(arr[i]) applyStrokePoint(arr[i], arr[i].tool || 'pen');
         }
         lastLen = arr.length;
       }
