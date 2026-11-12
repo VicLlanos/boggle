@@ -1754,10 +1754,18 @@ const FALLBACK_WORDS = "ace act add age ago aid aim air ale all and ant any ape 
 
 FALLBACK_WORDS.split(' ').forEach(w=>{if(w.length>=3)DICT.add(w)});
 
+// everyday / modern words that older word lists miss (plurals are added automatically)
+const EXTRA_NOUNS="app blog blogger vlog vlogger podcast emoji selfie hashtag meme email website webpage username password login online offline wifi bluetooth smartphone laptop desktop touchscreen download upload software hardware database algorithm startup influencer streamer gamer esports cybersecurity cryptocurrency bitcoin hacker spam phishing emoticon texting screenshot playlist livestream unboxing cosplay anime manga karaoke sushi ramen tofu kimchi taco burrito latte espresso cappuccino smoothie quinoa kale hummus falafel avocado sriracha wasabi yoga pilates zumba crossfit jogger skateboard snowboard trampoline paintball hoverboard drone gadget gizmo ebook audiobook webcam hotspot broadband router touchpad keyboard joystick gamepad console headset earbuds charger powerbank tablet ipad iphone android tweet retweet unfriend upvote downvote subreddit thread chatbot robot cyborg hologram jetpack spaceship supernova exoplanet microchip nanotech biotech vaccine antibody pandemic lockdown quarantine sanitizer facemask rideshare carpool hashbrown cupcake brownie bagel donut croissant panini gelato tiramisu boba pandesal adobo sinigang lechon halo jeepney tricycle barangay barong sampaguita kare";
+const EXTRA_OTHER="okay ok yay yeah yep nope wow oops ouch hmm shh ugh aww bling ginormous textable googled googling emailed emailing texted texting tweeted tweeting blogged blogging vlogged streamed streaming gamed gaming downloaded downloading uploaded uploading unfriended hashtagged selfied photobomb photobombed";
+function addPluralsOf(list){list.forEach(w=>{if(w.length<3)return;DICT.add(w);
+  if(/(?:s|x|z|ch|sh)$/.test(w))DICT.add(w+'es');else if(/[^aeiou]y$/.test(w)){DICT.add(w.slice(0,-1)+'ies')}else DICT.add(w+'s')})}
+function addEnglishExtras(){addPluralsOf(EXTRA_NOUNS.split(' '));EXTRA_OTHER.split(' ').forEach(w=>{if(w.length>=3)DICT.add(w)})}
+function addChunked(arr){return new Promise(res=>{let i=0;(function step(){const e=Math.min(arr.length,i+30000);for(;i<e;i++)DICT.add(arr[i]);if(i<arr.length)setTimeout(step,0);else res()})()})}
 async function loadDictionary(){
+  const finish=()=>{addEnglishExtras();dictReady=true};
   try{localStorage.removeItem('boggle_dict_v1')}catch(e){}
-  try{const c=localStorage.getItem('boggle_dict_v2');if(c&&c.length>200000){c.split(',').forEach(w=>DICT.add(w));dictReady=true;return}}catch(e){}
-  const SRC=['https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt','https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt'];
+  try{const c=localStorage.getItem('boggle_dict_v2');if(c&&c.length>200000){await addChunked(c.split(','));finish();return}}catch(e){}
+  const SRC=['https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt','https://cdn.jsdelivr.net/gh/dolph/dictionary@master/enable1.txt','https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt','https://cdn.jsdelivr.net/gh/dwyl/english-words@master/words_alpha.txt'];
   for(const url of SRC){
     try{
       const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),15000);
@@ -1765,18 +1773,32 @@ async function loadDictionary(){
       if(!res.ok)continue;
       const words=(await res.text()).split(/\r?\n/).map(w=>w.trim().toLowerCase()).filter(w=>w.length>=3&&w.length<=17&&/^[a-z]+$/.test(w));
       if(words.length<50000)continue;
-      words.forEach(w=>DICT.add(w));
+      await addChunked(words);
       try{localStorage.setItem('boggle_dict_v2',words.join(','))}catch(e){}
-      dictReady=true;return;
+      finish();return;
     }catch(e){}
   }
-  console.warn('Using fallback dictionary');dictReady=true;
+  console.warn('Using fallback dictionary');
+  addPluralsOf(FALLBACK_WORDS.split(' '));   // offline: at least accept plurals of the built-in words
+  finish();
 }
 // ---- Family-friendly + common-sense helpers ----
 const RUDE_RE=/^(?:fuck|shit|bitch|bastard|cunt|pussy|whore|slut|nigg\w*|fagg?\w*|retard\w*|porn\w*|dildo|rapist)(?:s|es|ed|ing|er|ers|y)?$/;
 function isRude(s){const t=String(s||'').toLowerCase();return t.split(/[^a-z]+/).some(x=>RUDE_RE.test(x))||/fuck|nigg|cunt/.test(t.replace(/[^a-z]/g,''))}
 function scatCore(s){return String(s||'').trim().toLowerCase().replace(/^(?:the|a|an)\s+(?=\S)/,'')}
-function scatNorm(s){let t=scatCore(s).replace(/[^a-z]/g,'');if(t.length>3){if(/ies$/.test(t))t=t.slice(0,-3)+'y';else if(/s$/.test(t)&&!/(ss|us|is)$/.test(t))t=t.slice(0,-1)}return t}
+const SCAT_IRR={mice:'mouse',men:'man',women:'woman',children:'child',feet:'foot',teeth:'tooth',geese:'goose',people:'person',oxen:'ox',lice:'louse',wolves:'wolf',knives:'knife',leaves:'leaf',loaves:'loaf',shelves:'shelf',calves:'calf',halves:'half',thieves:'thief',lives:'life',wives:'wife',elves:'elf',scarves:'scarf',dice:'die',fish:'fish',sheep:'sheep',deer:'deer',moose:'moose',series:'series',species:'species',bison:'bison'};
+function scatNorm(s){
+  let t=scatCore(s).replace(/[^a-z]/g,'');
+  if(SCAT_IRR[t])t=SCAT_IRR[t];
+  else if(t.length>3){
+    if(/ies$/.test(t))t=t.slice(0,-3)+'y';
+    else if(/(?:ss|x|z|ch|sh)es$/.test(t))t=t.slice(0,-2);
+    else if(/(?:tomat|potat|her|ech|mang|volcan|mosquit|tornad|buffal|torped)oes$/.test(t))t=t.slice(0,-2);
+    else if(/s$/.test(t)&&!/(ss|us|is)$/.test(t))t=t.slice(0,-1);
+  }
+  if(t.length>3&&/fe$/.test(t))t=t.slice(0,-2)+'f';
+  return t;
+}
 loadDictionary();
 
 function isValidWord(w){
@@ -1874,7 +1896,11 @@ const BASE_CATEGORIES = [
   "Something that makes you happy",
   "Something scary",
   "Something funny",
-  "A feeling or emotion"
+  "A feeling or emotion",
+  // --- added: more everyday categories (each is verified offline by a built-in word list) ---
+  "A type of fish","A type of tree","A dinosaur","A planet or space object","A superhero or villain","A Disney character",
+  "A dance","A language","A currency","A type of music","A gem or jewel","Something you wear on your feet","Something you wear on your head",
+  "A fast food chain","A US state","A capital city","A mountain or volcano","A river or lake","A website or app"
 ];
 
 // Categories that overlap each other (e.g. "An animal" and "Something at the zoo") are grouped into
@@ -1894,9 +1920,12 @@ const CATEGORY_FAMILY = {
   "Something that makes a sound":"prop","Something that flies":"prop",
   "Something that makes you happy":"mood","Something scary":"mood","Something funny":"mood","A feeling or emotion":"mood",
   "A famous person":"person","An actor or actress":"person","A singer or band":"person","An athlete":"person","A cartoon character":"person",
-  "A movie or TV show":"media","A song title":"media","A video game":"media","A book or novel":"media"
+  "A movie or TV show":"media","A song title":"media","A video game":"media","A book or novel":"media",
+  "A type of fish":"animal","A dinosaur":"animal","A type of tree":"nature","A planet or space object":"nature","A gem or jewel":"nature","A mountain or volcano":"nature","A river or lake":"nature",
+  "A superhero or villain":"person","A Disney character":"person","Something you wear on your feet":"wear","Something you wear on your head":"wear","Something you wear":"wear",
+  "A capital city":"place","A US state":"place","A fast food chain":"food","A language":"lang","A currency":"lang","A website or app":"tech","A dance":"art","A type of music":"art"
 };
-const CATEGORY_FAMILY_CAP = { media:2, animal:1, food:2, wheels:1, place:2, scene:2, prop:2, mood:1, person:2 };
+const CATEGORY_FAMILY_CAP = { media:2, animal:1, food:2, wheels:1, place:2, scene:2, prop:2, mood:1, person:2, nature:1, wear:1, lang:1, tech:1, art:1 };
 
 function seededRandom(seed){
   let s = seed % 2147483647;
@@ -2022,6 +2051,22 @@ const HANG_BANKS = {
     ["WIKIPEDIA","Free online encyclopedia anyone can edit"],["ALEXA","Amazon's voice assistant"],["PLAYSTATION","Sony's gaming console"]
   ]
 };
+(function(){
+  const X={
+    "Movies":[["TANGLED","Rapunzel and Flynn Rider with very long hair"],["ZOOTOPIA","Rabbit cop and a fox in an animal city"],["RATATOUILLE","A rat who dreams of cooking in Paris"],["CARS","Lightning McQueen races at the Piston Cup"],["WALL-E","Lonely robot cleaning an abandoned Earth"],["MATRIX","Neo takes the red pill"],["GHOSTBUSTERS","Who you gonna call?"],["JURASSIC PARK","Dinosaurs escape on a theme park island"],["BACK TO THE FUTURE","Marty McFly and a DeLorean time machine"],["FINDING NEMO","Clownfish father searches the ocean for his son"],["TOY STORY","Woody and Buzz Lightyear come to life"],["HARRY POTTER","Boy wizard who attends Hogwarts"],["BLACK PANTHER","King of Wakanda"],["MINIONS","Yellow capsule-shaped helpers of Gru"],["MATILDA","Gifted girl with telekinesis and a terrible headmistress"],["KUNG FU PANDA","Po becomes the Dragon Warrior"]],
+    "Songs":[["IMAGINE","John Lennon song about a world without borders"],["THRILLER","Michael Jackson hit with zombies dancing"],["ROLLING IN THE DEEP","Adele hit about a heartbreak"],["SHAKE IT OFF","Taylor Swift anthem about haters"],["PERFECT","Ed Sheeran slow dance ballad"],["COUNTING STARS","OneRepublic hit about lying in bed at night"],["DANCING QUEEN","ABBA disco classic"],["SMELLS LIKE TEEN SPIRIT","Nirvana grunge anthem"],["WAKE ME UP","Avicii dance-folk hit that opens with a banjo"],["HAPPY","Pharrell Williams hit that makes you clap along"],["DYNAMITE","BTS bright disco-pop hit"],["BLINDING LIGHTS","The Weeknd synth hit"]],
+    "TV Shows":[["FRIENDS","Six pals in New York and a coffee shop called Central Perk"],["SEINFELD","Show about nothing"],["THE OFFICE","Mockumentary about Dunder Mifflin paper company"],["STRANGER THINGS","Kids in Hawkins face the Upside Down"],["SQUID GAME","Deadly children's games for money; Korean hit"],["THE SIMPSONS","Yellow cartoon family from Springfield"],["SPONGEBOB","Square pants under the sea in Bikini Bottom"],["BREAKING BAD","Chemistry teacher turns drug maker"],["SHERLOCK","Detective of Baker Street"],["WEDNESDAY","Addams Family daughter at Nevermore Academy"]],
+    "Actors":[["TOM HANKS","Forrest Gump and Woody's voice"],["MERYL STREEP","Actress with the most Oscar nominations"],["WILL SMITH","Fresh Prince who became Men in Black agent"],["ZENDAYA","Actress from Euphoria and Spider-Man"],["KEANU REEVES","Neo and John Wick"],["EMMA WATSON","Hermione Granger actress"],["ROBERT DOWNEY","Played Iron Man"],["LEONARDO DICAPRIO","Jack in Titanic who finally won an Oscar for The Revenant"],["DWAYNE JOHNSON","Wrestler nicknamed The Rock"],["SCARLETT JOHANSSON","Black Widow actress"]],
+    "Animals":[["PLATYPUS","Egg-laying mammal with a duck bill"],["AXOLOTL","Mexican salamander that regrows limbs"],["PANGOLIN","Scaly anteater that curls into a ball"],["NARWHAL","Whale with a long tusk"],["TARSIER","Tiny big-eyed primate found in Bohol"],["CHAMELEON","Lizard that changes color"],["FLAMINGO","Pink bird that stands on one leg"],["HIPPOPOTAMUS","Huge river horse of Africa"],["OCTOPUS","Eight arms and three hearts"],["KOMODO DRAGON","World's largest lizard"],["MEERKAT","Small desert mammal that stands guard on hind legs"],["PORCUPINE","Rodent with sharp quills"]],
+    "Science":[["GRAVITY","Force that keeps us on the ground"],["PHOTOSYNTHESIS","How plants turn sunlight into food"],["ECLIPSE","Moon hides the sun"],["VOLCANO","Mountain that erupts lava"],["MOLECULE","Group of atoms bonded together"],["ELECTRON","Negatively charged particle in an atom"],["GALAXY","Billions of stars held together by gravity"],["EVOLUTION","Darwin's theory of change over generations"],["ORBIT","Path of a planet around the sun"],["MAGNET","Attracts iron and has two poles"],["OXYGEN","Gas we breathe in"],["DNA","Molecule that carries genetic information"]],
+    "Geography":[["AMAZON","Largest rainforest on Earth"],["SAHARA","Largest hot desert in the world"],["PHILIPPINES","Archipelago of over 7,000 islands"],["NILE","Long river that flows through Egypt"],["EVEREST","Tallest mountain above sea level"],["ANTARCTICA","Icy continent at the South Pole"],["PACIFIC","Largest ocean"],["MANILA","Capital of the Philippines"],["CANADA","Country known for maple syrup and the second largest area"],["AUSTRALIA","Country and continent with kangaroos"],["TOKYO","Capital of Japan"],["ICELAND","Island nation of geysers and volcanoes"]],
+    "Mythology":[["ZEUS","King of the Greek gods"],["ODIN","Allfather of Norse mythology"],["MEDUSA","Gorgon with snakes for hair"],["PEGASUS","Winged horse"],["PHOENIX","Bird reborn from its ashes"],["ATHENA","Greek goddess of wisdom"],["THOR","Norse god of thunder with a hammer"],["MINOTAUR","Half man half bull in a labyrinth"],["POSEIDON","Greek god of the sea"],["ANUBIS","Jackal-headed Egyptian god"],["MALAKAS","The strong one who emerged from a bamboo in the Filipino creation myth"],["BATHALA","Supreme god in Tagalog mythology"]],
+    "Music":[["GUITAR","Six-stringed instrument"],["PIANO","88 keys"],["VIOLIN","Bowed string instrument played under the chin"],["TRUMPET","Brass instrument with three valves"],["UKULELE","Small four-string Hawaiian instrument"],["SAXOPHONE","Jazz instrument invented by Adolphe Sax"],["ORCHESTRA","Large group of classical musicians"],["MELODY","The tune of a song"],["HARMONY","Notes played together"],["CONCERT","Live music show"],["TEMPO","Speed of the music"],["CHOIR","Group of singers"]],
+    "Literature":[["HAMLET","Danish prince who says to be or not to be"],["DRACULA","Bram Stoker's vampire"],["MATILDA","Roald Dahl heroine with special powers"],["CINDERELLA","Girl who loses a glass slipper"],["PINOCCHIO","Wooden puppet whose nose grows"],["ILIAD","Homer's epic of the Trojan War"],["ODYSSEY","Homer's epic of Odysseus' journey home"],["HOBBIT","Bilbo Baggins' adventure"],["FRANKENSTEIN","Mary Shelley's creature and creator"],["NARNIA","Land through a wardrobe"],["WONDERLAND","Alice follows a white rabbit here"],["NOLI ME TANGERE","Jose Rizal's first novel"]],
+    "Technology":[["KEYBOARD","You type on it"],["INTERNET","Global network of networks"],["ROUTER","Device that shares your wifi"],["PIXEL","Smallest dot on a screen"],["ALGORITHM","Step-by-step instructions for a computer"],["BROWSER","Chrome, Safari and Firefox are these"],["EMAIL","Electronic mail"],["HASHTAG","Number sign that groups posts"],["DOWNLOAD","Copy a file from the internet to your device"],["PASSWORD","Secret word that unlocks an account"],["BITCOIN","First popular cryptocurrency"],["SMARTPHONE","Pocket computer that also makes calls"]]
+  };
+  Object.keys(X).forEach(k=>{if(HANG_BANKS[k]){const have=new Set(HANG_BANKS[k].map(e=>e[0]));X[k].forEach(e=>{if(!have.has(e[0]))HANG_BANKS[k].push(e)})}});
+})();
 const HANG_USED = {};
 
 const HANG_MAX_LEVELS = 5;
@@ -2177,6 +2222,33 @@ const DRAW_CATS = [
   const clean = s => Array.from(new Set(String(s).split(',').map(w => w.trim().toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim()).filter(w => w.length >= 2)));
   return {id:c.id, emoji:c.emoji, name:c.name, easy:clean(c.easy), hard:clean(c.hard)};
 });
+(function(){
+  const clean = s => Array.from(new Set(String(s).split(',').map(w => w.trim().toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim()).filter(w => w.length >= 2)));
+  const addCat = c => { if(!DRAW_CATS.some(x => x.id === c.id)) DRAW_CATS.push({id:c.id, emoji:c.emoji, name:c.name, easy:clean(c.easy), hard:clean(c.hard)}); };
+  const extend = (id, easy, hard) => { const c = DRAW_CATS.find(x => x.id === id); if(!c) return; c.easy = Array.from(new Set(c.easy.concat(clean(easy)))); c.hard = Array.from(new Set(c.hard.concat(clean(hard)))); };
+  addCat({id:'dinos',emoji:'🦖',name:'Dinosaurs & Prehistoric',
+    easy:'dinosaur,t rex,triceratops,stegosaurus,fossil,bone,egg,volcano,cave,footprint,meteor,mammoth,skeleton,tail,claw,tooth,nest,jungle',
+    hard:'velociraptor,pterodactyl,brachiosaurus,ankylosaurus,spinosaurus,saber tooth tiger,woolly mammoth,archaeologist,dig site,amber,ice age,caveman,diplodocus,paleontologist,cave painting'});
+  addCat({id:'bugs',emoji:'🐛',name:'Bugs & Creepy Crawlies',
+    easy:'ant,bee,butterfly,ladybug,spider,worm,snail,fly,mosquito,caterpillar,beetle,cricket,web,cocoon,honey,wasp',
+    hard:'dragonfly,grasshopper,praying mantis,firefly,centipede,scorpion,cockroach,termite,beehive,anthill,tarantula,cicada,earwig,stag beetle,silkworm'});
+  addCat({id:'sweets',emoji:'🍰',name:'Sweets & Desserts',
+    easy:'ice cream,cake,cupcake,donut,cookie,candy,lollipop,chocolate,popsicle,pie,pudding,jelly,gummy bear,cotton candy,brownie,pancake,sundae',
+    hard:'cheesecake,macaron,tiramisu,eclair,churro,fudge,mochi,halo halo,caramel apple,candy cane,gingerbread man,milkshake,waffle cone,crepe,cannoli,leche flan'});
+  addCat({id:'landmarks',emoji:'🗽',name:'Landmarks & Countries',
+    easy:'eiffel tower,pyramid,great wall,statue of liberty,big ben,leaning tower,taj mahal,igloo,castle,windmill,lighthouse,volcano,waterfall,bridge,globe,map,flag,passport',
+    hard:'colosseum,sphinx,stonehenge,opera house,golden gate bridge,mount rushmore,machu picchu,sagrada familia,christ the redeemer,mayon volcano,chocolate hills,rice terraces,burj khalifa,tokyo tower,niagara falls,angkor wat'});
+  addCat({id:'phil',emoji:'🇵🇭',name:'Filipino Favorites',
+    easy:'jeepney,tricycle,mango,banana,coconut,carabao,rice,balut,pandesal,halo halo,sari sari store,fiesta,basketball,flag,sun,star,palm tree,bahay kubo,kalabaw',
+    hard:'adobo,sinigang,lechon,lumpia,sampaguita,tarsier,barong,mayon volcano,bangka,parol,banig,sinulog,tinikling,filipino flag,bahay na bato,pancit,turon,chocolate hills,whale shark,philippine eagle'});
+  addCat({id:'emotions',emoji:'😊',name:'Faces & Feelings',
+    easy:'happy,sad,angry,sleepy,surprised,scared,laughing,crying,smile,wink,kiss,heart,love,hug,cool,sick,hungry,silly',
+    hard:'embarrassed,jealous,confused,nervous,excited,bored,proud,shy,lonely,worried,grumpy,dizzy,thinking,shocked,disgusted'});
+  extend('animals','raccoon,hedgehog,parrot,peacock,swan,seal,crocodile,gorilla,kitten,puppy,bat,camel,donkey,rooster,turkey,jellyfish,eel,bear cub,cow,lamb','capybara,pangolin,flamingo,narwhal,axolotl,red panda,tarsier,komodo dragon,hummingbird,orca,manta ray,sea turtle,king cobra,woodpecker,mandrill,gecko,hyena,wolverine,mongoose,lemur');
+  extend('food','hot chocolate,nachos,burrito,omelet,fried rice,spring roll,dumpling,pizza slice,cheeseburger,ice cream cone,sub sandwich,cereal bowl,corn dog,sausage roll','pad thai,bibimbap,shawarma,pho,tamale,gnocchi,pierogi,sisig,pancit,siopao,bulalo,tapsilog,kare kare,tacos al pastor,lasagne,tempura,dim sum,poke bowl');
+  extend('home','bookshelf,dining table,coffee table,doorbell,mailbox,garage,fence,lawn mower,garden hose,slippers,trash can,laundry basket,ceiling fan,bunk bed,alarm clock','air fryer,rice cooker,water heater,fuse box,welcome mat,mosquito net,electric fan,laundry rack,spice rack,wine rack,room divider,coat hanger,wall clock,dish rack,bath mat');
+  extend('vehicles','scooter,pickup truck,tow truck,garbage truck,ice cream truck,tractor,sailboat,rowboat,hot air balloon,police car,fire truck,ambulance,school bus,taxi','jeepney,tricycle,pedicab,cable car,monorail,zeppelin,hovercraft,snowmobile,paddle boat,bulldozer,steam engine,gondola,rickshaw,tuk tuk,space shuttle');
+})();
 function drawCatById(id){ return DRAW_CATS.find(c => c.id === id) || null; }
 
 // Words / categories this device has already seen (also recorded when you only GUESS), so they don't keep coming back
@@ -2505,7 +2577,7 @@ async function pickHangmanPuzzle(seedStr){
 
 /* ===== STATE ===== */
 const AVATARS=['🦊','🐸','🐯','🐼','🦉','🐙','🦄','🐲','🐰','🐨','🦁','🐶','🐱','🐭','🐹','🐻','🐷','🐔','🐧','🐦','🦋','🐝','🐢','🐬','🐳','🌸','🔥','⚡','🌟','💎','🎮','🎯','🚀','🎨','🕵️','🎲'];
-let user=null,profile=null,roomId=null,roomData=null,isHost=false,localWords=new Set(),path=[],selecting=false,timerInterval=null,roundEnded=false,authMode='login';
+let user=null,profile=null,roomId=null,roomData=null,isHost=false,localWords=new Set(),localWordPts={},path=[],selecting=false,timerInterval=null,roundEnded=false,authMode='login';
 let resultsAwarded=false,resultsSig='',boardReady=false,scrambleInt=null,shakeCd=null,shakeTimeout=null,settleTimers=[];
 let combo=0,comboTimer=null,soundOn=true,ac=null,seenWords={};
 let prevScores={};
@@ -2573,7 +2645,7 @@ function setWordRain(on){
   // seed a few immediately
   for(let i=0;i<8;i++) spawnFallingWord(true);
   wordRainTimer = setInterval(() => {
-    if(!wordRainOn) return;
+    if(!wordRainOn||document.hidden) return;
     spawnFallingWord(false);
     while(host.children.length > 22) host.removeChild(host.firstChild);
   }, 550);
@@ -3838,7 +3910,14 @@ db.ref('.info/connected').on('value',async s=>{ // after a network blip, come ba
   }catch(e){}
   armDisconnect(true);
 });
-function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;db.ref('rooms/'+code).on('value',onRoom);socialAttach(code);show('screen-room')}
+let roomSnapT=0,roomPendT=0,roomPend=null;
+function onRoomThrottled(snap){
+  const st=snap.child('status').val(),now=Date.now();
+  if(!roomData||st!==roomData.status||now-roomSnapT>=100){clearTimeout(roomPendT);roomPendT=0;roomPend=null;roomSnapT=now;onRoom(snap);return}
+  roomPend=snap;
+  if(!roomPendT)roomPendT=setTimeout(()=>{roomPendT=0;const s=roomPend;roomPend=null;if(s&&roomId){roomSnapT=Date.now();onRoom(s)}},110)
+}
+function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;roomSnapT=0;clearTimeout(roomPendT);roomPendT=0;roomPend=null;db.ref('rooms/'+code).on('value',onRoomThrottled);socialAttach(code);show('screen-room')}
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
@@ -4260,7 +4339,7 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 function randLetter(not){let l;do{l=LETTER_POOL[Math.floor(Math.random()*LETTER_POOL.length)]}while(l===not);return l}
 function canPlay(){return !!roomData&&roomData.status==='playing'&&boardReady&&!roundEnded}
 function setWordBar(msg,hint,cls){const w=$('currentWord');w.textContent=msg;w.classList.toggle('hint',!!hint);w.classList.remove('pulse','go');if(cls)w.classList.add(cls)}
-function resetRoundState(){roundEnded=false;localWords=new Set();path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};possSel=null;resetCombo();scatAnswers={}}
+function resetRoundState(){roundEnded=false;localWords=new Set();localWordPts={};path=[];selecting=false;resultsAwarded=false;resultsSig='';boardReady=false;seenWords={};prevScores={};possSel=null;resetCombo();scatAnswers={}}
 function stopLetterScramble(){clearInterval(scrambleInt);scrambleInt=null}
 function stopShakeCountdown(){clearInterval(shakeCd);shakeCd=null;const r=$('timerRing');if(r)r.classList.remove('prep')}
 function clearSettleTimers(){settleTimers.forEach(clearTimeout);settleTimers=[]}
@@ -4391,6 +4470,7 @@ async function beginRound(){
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
       updates['players/'+uid+'/hangSolved']=false;
+      updates.hangWinner=null;
       updates['players/'+uid+'/hangWrong']=0;
     });
     if(level === 1) updates.hangHistory = [];
@@ -4544,6 +4624,7 @@ async function beginRound(){
       updates['players/'+uid+'/words'] = {};
       updates['players/'+uid+'/answers'] = {};
       updates['players/'+uid+'/drawSolved'] = false;
+      updates.drawWinner = null;
     });
     if(level === 1) updates.drawHistory = [];
     resetRoundState();
@@ -4804,7 +4885,7 @@ function hangFrame(now){
     for(const k in tw.to){ HS[k] = tw.from[k] + (tw.to[k] - tw.from[k]) * e; }
     if(p >= 1){ hangTween = null; if(tw.done) tw.done(); }
   }
-  renderHangFigure(now / 1000);
+  if(hangTween || !hangFrame._t || now - hangFrame._t >= 33){ hangFrame._t = now; renderHangFigure(now / 1000); }
   hangRaf = requestAnimationFrame(hangFrame);
 }
 
@@ -5141,6 +5222,13 @@ document.addEventListener('click', async e => {
     return;
   }
   if(guess === answer){
+    // Two players can solve in the same instant: a transaction decides the single winner of this level
+    let wuid = user.uid;
+    try{
+      const r = await db.ref('rooms/'+roomId+'/hangWinner').transaction(cur => cur ? undefined : {uid:user.uid, t:srvNow()});
+      const v = r && r.snapshot && r.snapshot.val(); if(v && v.uid) wuid = v.uid;
+    }catch(err){}
+    if(wuid !== user.uid){ finishHangRound(wuid); return; }
     $('hangMsg').textContent = 'Saved! ✓ You won the level!';
     $('hangMsg').style.color = '#00B894';
     hangSaved();
@@ -5246,6 +5334,73 @@ const ScatVerify=(()=>{
     subject:'math mathematics science english history geography art music pe physicaleducation biology chemistry physics algebra geometry calculus literature language spanish french filipino drama computer technology economics civics reading writing spelling grammar health socialstudies psychology sociology philosophy statistics trigonometry',
     holiday:'christmas easter halloween thanksgiving newyear newyears valentines valentine independenceday birthday wedding anniversary graduation eid diwali hanukkah ramadan lent carnival fiesta festival mothersday fathersday laborday memorialday patriotday holiday party reunion'
   });
+  // ---- v2 expansion: more words for existing lists + new lists (compact form, lowercase) ----
+  const ADD=(k,s)=>{LEX[k]=(LEX[k]||'')+' '+s};
+  ADD('boyname','abel abraham ace adan ahmed ajay akira alden alec alejandro alessandro alfonso alvin amir anders angelo anton ariel armando arnold arvin asher ashton austin axel barry basil beau bennett bernard bert blaine boris brad braden bradley brady brent brett brendan bryce bryson byron cain calvin cameron carlo carter cedric cesar chad chandler chase chester clarence clark claude clay clayton clifford clint clyde cody cole conrad cooper corey cory curtis cyrus dale dallas damian damon dante darius darren darwin dean declan dexter dino dion dirk dominick drake drew duane dustin dwayne dwight earl easton eddy edgar edmund edwin eliot ellis elmer elton emilio emmett enrique ernest ernesto errol esteban eugene everett ezekiel ezra fabian felipe fernando finn fletcher floyd forrest franco franklin freddie gael garrett gavin gene geoffrey gideon gino giovanni graham gregory griffin guillermo gus guy hank harold harvey hector hendrix herbert herman homer horace hudson hugh humberto hunter ignacio irvin jace jackson jaden jaime jamal jared jasper javier jax jaxon jean jefferson jerome jett joaquin jonas jorge josiah judah jules julio junior kai kane karl kasper keanu kelvin kendrick kent kieran kirk knox kobe kurt lamar lance landon lars lazaro lennon leonardo leroy lester levi lewis liam lincoln lionel lloyd logan lorenzo louis lucas lucian luciano luis luke luther magnus malcolm manuel marc marco marcus mario mark marshall martin marvin mason mateo matthew maurice max maxwell melvin micah michael miguel miles milo mitchell morgan morris moses nash nathan nathaniel neil nelson nestor nicholas nico noah noel nolan norman oliver omar orlando oscar otis owen pablo patrick paul pedro percy perry peter philip pierce pietro porter preston quentin quincy rafael ralph ramon randall randy raphael raul ray raymond reed reggie reid remy rene rex ricardo richard rick ricky riley rob robert roberto rocco rodney rodrigo rogelio roger roland roman ronald ronnie rory ross roy ruben rudy russell ryan salvador sam samuel santiago saul scott sean sebastian sergio seth shane shawn sidney silas simon spencer stanley stefan stephen steve steven stuart sylvester tadeo tanner ted teddy terrence terry theo theodore thomas tim timothy tobias toby todd tom tommy tony travis trent trevor tristan troy tucker tyler tyrone ulysses valentin vaughn vernon victor vincent virgil wade wallace walter warren wayne wesley wilbur will william willie wilson winston wyatt xavier yusuf zachary zack zane zeke zion jun jojo bong ferdinand manny dodong nonoy boyet jayson kiko lito macky migs paolo rommel jerald jericho jomar jhon marlon reynaldo renato rolando rodel romeo rey ramil cris wilfredo efren elmer ernie ador arnel');
+  ADD('girlname','abril adela adelaide adele adelina agnes aileen aimee alana alba alexa alexis alyssa amara amira anastasia angel angeline anita annabel annabelle antonia april arabella ariel arlene astrid aubrey aurora ayesha bailey beatriz belinda bernadette bethany betty bianca blanche bonnie brianna brooke camille candice cara carissa carol carolyn cassandra cassie celeste celia charlene cheryl chelsea christine ciara cleo colleen connie constance cynthia dahlia daisy dalia danica danielle daphne darlene dawn deborah delia denise desiree diane dionne dolores dominique dorothy edith edna eliana elise elisa ella eloise elsa elvira emelia emerald esme esmeralda estelle esther eugenia eunice evangeline felicia felicity fern flora francesca freya gail genevieve georgina geraldine gillian giselle gladys gloria greta guadalupe harriet hazel helena heloise hilary hope imelda ines ingrid irma isabelle isla jacqueline jamie janice jasmin jayla jeanette jemima jessie joanne jocelyn josephine joy joyce judith julia juliana julie juliet june justine kai kaitlyn kara karen karina kate katelyn katherine kathleen kathryn katie katrina kayla kelly kendra kerry kiara kim kimberly kira krista kristen kristina kylie lara larissa laura lauren layla leah leila lena leona leslie lila lilian lillian lily linda lindsay lisa liza lola lorena loretta lori lorraine lourdes louise lucia lucille lucy luna lydia lynn mabel madeline madison mae maggie maia mara marcela margaret margarita maria mariah marian marianne marie marilyn marina marissa marjorie marlene marsha martha mary matilda maureen maxine maya megan melanie melissa mercedes meredith mia michelle mila mildred mimi mina miranda miriam molly mona monica morgan muriel myra nadia nancy naomi natalia natalie natasha nell nicole nina noelle nora norma octavia olga olive olivia opal paige pamela paola patricia paula pauline pearl penelope petra phoebe phyllis piper polly priscilla queen rachel rebecca regina renee rhea rhonda rita roberta robin rosa rosalie rosario rose rosemary rosie roxanne ruby ruth sabrina sadie sally samantha sandra sandy sara sarah savannah selena serena shania sharon sheila shelby shirley sienna silvia simone sofia sonia sophia sophie stacy stella stephanie sue susan susana suzanne sylvia tabitha tamara tammy tania tara teresa tess tessa thelma tiffany tina tracy trinity trisha valentina valerie vanessa vera veronica vicky victoria viola violet virginia vivian wanda wendy whitney wilma winnie xena yasmin yolanda yvette yvonne zara zelda zoe zoey maricel marites lovely angelita cherry rizza jhoanna dolly mayette nenita lorna rosalinda merly jenalyn jessa jona lyka kristel kathy shiela charmaine joan mercy gina');
+  ADD('animal','aardvark addax adder albatross alligator anaconda angelfish anole antlion aphid axolotl baboon bandicoot barracuda basilisk bass beetle bighorn bluefish boa bobcat bonobo bream bullfrog bulldog butterfly buzzard capybara caracal cardinal caribou carp cassowary catfish centipede chickadee chinchilla chipmunk clam cobra cockatoo cod condor copperhead cormorant coyote crayfish cricket crocodile cuttlefish dachshund dalmatian dingo dormouse dragonfly dugong eland elk ermine falcon fennec firefly flounder fly flycatcher fossa gannet gar gazelle gecko gerbil gharial gibbon gnat gnu goldfish grasshopper grizzly grouse guanaco guppy haddock halibut hammerhead hare harrier hartebeest hawk hedgehog heron herring hippopotamus hornet hummingbird husky hyena ibex ibis iguana impala jackal jackrabbit jaguar jay jellyfish kestrel kingfisher kinkajou kite koala kookaburra krill kudu ladybug lamb lamprey langur lark leech lemming leopard limpet lionfish lizard llama lobster locust loon lorikeet lynx macaw mackerel magpie mallard mamba manatee mandrill manta mantis marlin marmot marten meerkat mink minnow mockingbird mongoose monitor moorhen moose mudskipper muskox narwhal newt nighthawk nightingale numbat nuthatch octopus okapi opossum orangutan oriole oryx osprey ostrich otter owl oyster panda pangolin parrot partridge peacock pelican penguin perch pheasant piranha platypus plover polecat pollock porpoise possum prawn pronghorn ptarmigan puffin python quokka quoll raccoon ram rattlesnake raven reindeer rhinoceros roadrunner robin rooster salamander salmon sandpiper sardine scallop seahorse seal serval shark shrew shrimp siamang skink skunk sloth slug snail snapper sparrow spider spoonbill squid squirrel stag starling stingray stoat sturgeon swallow swan swordfish tamarin tapir tarantula tarsier tern terrapin thrush tick tiger toad tortoise toucan trout tuna turkey turtle viper vole vulture wallaby walrus warthog wasp waterbuck weasel whippet wildebeest wolverine woodpecker worm wren yak zebra zebu carabao tamaraw bangus tilapia lapu maya agila kalabaw baboy aso pusa manok');
+  ADD('bird','avocet bittern bobolink booby bulbul bushtit canvasback catbird chough coot corncrake curlew dipper dotterel dunlin eider fantail firecrest fulmar gadwall godwit goldeneye goldfinch goshawk grackle grebe greenfinch gyrfalcon harrier hoopoe hornbill jackdaw junco kakapo kea killdeer kittiwake knot lapwing linnet loon lorikeet lovebird merganser merlin mynah nightjar oriole osprey ovenbird oystercatcher parakeet peafowl petrel phalarope pintail pipit plover pochard ptarmigan quetzal rail redpoll redstart rhea roller ruff sanderling shearwater shelduck shoveler shrike siskin skua skylark snipe spoonbill starling stilt stonechat swift takahe teal thrasher titmouse towhee treecreeper turnstone vireo wagtail warbler waxwing weaver whimbrel whydah wigeon woodcock yellowhammer maya eagle owl');
+  ADD('sea','abalone anchovy angelfish anglerfish barracuda blobfish bluefin bonito clownfish cod conch cowfish cuttlefish dolphin dory dugong flounder garfish grouper grunion haddock hake halibut herring humpback jellyfish kelpfish krill lionfish lobster mackerel mahi manatee marlin monkfish moray mullet nautilus nudibranch octopus oyster parrotfish perch pilchard pipefish plankton pollock pompano porpoise prawn puffer pufferfish ray remora salmon sardine sawfish scallop scorpionfish seacucumber seal seasnake shark skate snapper sole squid stonefish sturgeon sunfish swordfish tarpon trout tuna turbot urchin walrus whale whiting wrasse');
+  ADD('insect','aphid backswimmer bedbug bumblebee cicada cockroach cricket damselfly earwig firefly flea gnat grasshopper hornet housefly katydid lacewing ladybug leafhopper locust louse maggot mantis mayfly midge mosquito moth sawfly silverfish stickinsect termite thrips tick wasp weevil whitefly woodlouse yellowjacket beetle bee ant fly butterfly dragonfly caterpillar spider scorpion centipede millipede');
+  ADD('produce','acai alfalfa apple apricot arugula avocado banana basil beet bokchoy breadfruit broccoli brusselssprouts cabbage calamansi cantaloupe carrot cassava cauliflower celeriac celery chard cherry chickpea chive cilantro clementine coconut collard corn courgette cress cucumber currant daikon date dragonfruit durian edamame eggplant endive fennel fig garlic ginger gooseberry gourd grape grapefruit greenbean guava honeydew horseradish jackfruit jalapeno jicama kale kiwi kohlrabi kumquat leek lemon lentil lettuce lime longan loquat lychee mandarin mango mangosteen melon mint mulberry mushroom mustard nectarine okra olive onion orange papaya parsley parsnip passionfruit pea peach pear pepper persimmon pineapple plantain plum pomegranate pomelo potato pumpkin quince radicchio radish raisin rambutan raspberry rhubarb rutabaga saba shallot soursop spinach squash starfruit strawberry sweetpotato tamarind tangerine taro tomato turnip ube watercress watermelon yam zucchini ampalaya kangkong talong sitaw kalabasa labanos pechay singkamas sayote upo patola gabi camote santol atis chico guyabano lanzones pomelo duhat bayabas');
+  ADD('food','adobo arrozcaldo bagel baguette bibimbap biryani bologna brisket burrito calzone casserole ceviche chili chowder churro congee couscous crepe croissant croquette curry dimsum dumpling empanada enchilada falafel fajita fettuccine fondue frittata gnocchi goulash gyro gyoza hotdog hummus jambalaya kabob kebab kimchi lasagna lechon lumpia macaroni meatball meatloaf mochi moussaka nachos noodles omelet paella pancake pancit pasta pastry pho pierogi pizza polenta porridge poutine pretzel quesadilla quiche ramen ravioli risotto salad sandwich sashimi schnitzel shawarma sinigang soup souvlaki spaghetti steak stew stirfry sushi taco tamale tempura teriyaki tofu tortilla tostada waffle wonton yakitori sisig kare kaldereta bulalo tapa longganisa tocino bangus pandesal puto kutsinta bibingka suman halo lugaw arroz mami siopao siomai balut isaw betamax kwekkwek fishball tokneneng');
+  ADD('drink','americano amaretto ale beer bourbon brandy cappuccino champagne chai chocolate cider cocktail cocoa coffee cognac cola cordial daiquiri eggnog espresso frappe gin ginger gingerale gatorade guarana horchata juice kombucha lager latte lemonade liquor macchiato malt margarita martini matcha mead milk milkshake mimosa mocha mojito mojo nectar oolong pepsi pilsner port punch rum sake sangria sarsaparilla scotch seltzer sherry shake slushie smoothie soda sprite stout tea tequila tonic vermouth vodka water whiskey whisky wine yerba zinfandel buko calamansi sago gulaman tuba lambanog tanduay');
+  ADD('dessert','affogato baklava beignet biscotti blondie bonbon bread brownie buttertart cake cannoli caramel cheesecake cobbler cookie crepe cupcake custard donut doughnut eclair flan fondant froyo fudge gelato halo halohalo ice icecream jello jelly kulfi leche lechera macaron marshmallow meringue mochi mousse muffin pastry pavlova pie popsicle pralines pudding rolls sherbet shortcake sorbet souffle sundae tart tiramisu toffee torte trifle truffle turon waffle yema ube bibingka puto leche flan sans rival brazo mercedes polvoron');
+  ADD('snack','biscuit bar brittle candy cheetos chicharron chips cracker crisps dorito dip fries gummies jerky kettlecorn lollipop mixednuts muffin nachos nuts oreo peanuts popcorn pretzel pringles raisins rice cake sunflower seeds trailmix twinkie wafer yogurt boiledegg banana cue camote kwek fishball kropek chichacorn piattos nova mani');
+  ADD('clothing','anorak apron bandana beanie bikini blazer blouse bodysuit boots bowtie boxers bra breeches cap cape cardigan cargo chinos cloak coat corset costume coveralls cravat denim dress dungarees fedora fleece flipflops gown gloves hat headband hoodie jacket jeans jersey jumper jumpsuit kimono knickers leggings leotard loafers mittens muffler nightgown overalls pajamas pants parka poncho pullover raincoat robe sandals sari sarong scarf shawl shirt shoes shorts skirt slacks slippers sneakers socks stockings suit sunhat suspenders sweater sweatpants swimsuit tanktop tights toga trousers trunks tshirt tunic turban tux tuxedo underwear uniform vest waistcoat windbreaker barong baro saya');
+  ADD('furniture','armchair armoire bar barstool bassinet bed bedframe beanbag bench bookcase bookshelf bunkbed cabinet chair chaise chest chesterfield couch credenza crib cupboard daybed desk divan dresser easel footstool futon hammock hatstand highchair hutch loveseat lowboy mattress nightstand ottoman pew pouf rocker rockingchair screen secretary settee shelf sideboard sofa stool table tallboy tvstand vanity wardrobe workbench');
+  ADD('tool','adze anvil auger awl axe backsaw bandsaw bevel bolt brace bradawl brush caliper caulkgun chainsaw chisel clamp crowbar cutter dolly drill file flashlight forceps forklift gauge grinder hacksaw hammer hatchet hoe jackhammer jigsaw knife ladder lathe level lever machete mallet mattock micrometer mop nailgun needle nippers paintbrush pickaxe pincers pitchfork plane pliers plow plunger punch rake ratchet razor router ruler sander saw scalpel scissors scraper screwdriver scythe shears shovel sickle sledgehammer snips socket spade spanner square stapler tapemeasure tongs torch towtruck trowel tweezers vise welder wheelbarrow whisk winch wrench');
+  ADD('toy','action ball balloon barbie blocks bouncy boomerang bubble buzzer cardgame carousel checkers chess clay crayon dollhouse domino drone duplo etchasketch fidget figurine frisbee gameboy gokart hoop hotwheels jackinthebox jacks jenga jigsaw kaleidoscope kazoo kite knex lego legos marbles monopoly nerf pinwheel playdough plushie pogo pogostick puppet puzzle rattle rubik rubikscube scooter seesaw slime slinky spinner stuffedanimal swing tamagotchi teddy tetris top trampoline trike tricycle trompo whistle xylophone yoyo patintero luksong tumbang sipa piko');
+  ADD('job','accountant actor actuary administrator agent alderman ambassador analyst anesthesiologist anthropologist appraiser archaeologist architect archivist artist assistant astronaut astronomer attendant auctioneer author babysitter baker banker barber barista bartender beautician biologist blacksmith bodyguard bookkeeper botanist bouncer boxer brewer bricklayer broker builder busdriver butcher butler cameraman captain carpenter cartographer cashier caterer chauffeur chef chemist chiropractor choreographer cleaner clerk coach cobbler composer conductor consultant contractor cook coroner counselor courier cowboy curator custodian dancer dentist deputy dermatologist designer detective dietitian diplomat director dispatcher diver doctor doorman driver drummer economist editor electrician engineer entrepreneur estheticist farmer fashiondesigner firefighter fisherman florist forester gardener geologist glazier goldsmith golfer governor guard guide gymnast hairdresser handyman historian hostess housekeeper hunter illustrator inspector instructor interpreter inventor investigator janitor jeweler jockey journalist judge karateka lawyer lecturer librarian lifeguard linguist locksmith machinist magician mailman maid manager mason masseuse mathematician mayor mechanic medic meteorologist midwife miner minister model monk musician nanny navigator neurologist notary novelist nurse nutritionist officer oncologist optician orthodontist painter paramedic pastor pathologist pediatrician pharmacist photographer physician physicist pianist pilot pipefitter plumber poet policeman politician porter postman potter priest principal producer professor programmer psychiatrist psychologist publisher rabbi radiologist ranger realtor receptionist referee reporter researcher roofer sailor salesman scientist sculptor secretary senator sheriff shepherd singer soldier solicitor soldier stuntman surgeon surveyor tailor tattooist taxidermist teacher technician therapist tutor umpire undertaker usher veterinarian vet waiter waitress weaver welder writer youtuber zookeeper seaman cabdriver tricycledriver jeepneydriver vendor sarisari ofw overseas callcenter agent nursingaide');
+  ADD('transport','airship barge bicycle biplane bobsled bulldozer bus cab caravan carriage cart chariot coach convertible crane cruiser cycle dinghy dogsled dumptruck ferry forklift galleon glider gondola hearse hovercraft hydrofoil jalopy jet jetpack jetski kayak ketch lifeboat limousine liner locomotive minibus minivan monorail moped motorbike motorboat motorhome paddleboat pedicab pickup raft rickshaw rowboat sailboat sedan segway skiff sled sleigh snowmobile speedboat steamship stroller submarine suv tank tanker taxi tractor trailer tram trawler tricycle trolley truck tugboat unicycle van wagon yacht zeppelin habalhabal bangka banca tricycle jeepney');
+  ADD('wheels','bike bicycle bus cart car carriage chariot dolly forklift gokart hoverboard jeepney kart limo minivan moped motorbike motorcycle pedicab pickup rickshaw rollerblades rollerskates scooter sedan segway skateboard skates stroller suv tank taxi tractor tram tricycle trike trolley truck unicycle van wagon wheelbarrow wheelchair roulette ferriswheel');
+  ADD('sport','aikido archery badminton baseball basketball billiards biathlon bobsled bocce bowling boxing canoeing cheerleading chess climbing cricket croquet curling cycling darts decathlon diving dodgeball dressage equestrian fencing fishing football frisbee golf gymnastics handball hiking hockey hurdles judo jujitsu karate kayaking kickboxing lacrosse luge marathon motocross netball paddleboarding paintball parkour pelota pentathlon pickleball polo powerlifting racquetball rafting rodeo rowing rugby running sailing scuba shooting skateboarding skating skiing skydiving snooker snowboarding soccer softball sprinting squash sumo surfing swimming taekwondo tennis tetherball track triathlon trampoline volleyball wakeboarding waterpolo weightlifting wrestling yoga arnis sipa sepak takraw patintero piko luksong tumbang tagutaganan taguan agawan');
+  ADD('hobby','acting antiquing astronomy baking beekeeping birdwatching blogging bodybuilding bookbinding bowling calligraphy camping candlemaking chess collecting coding cooking crafting crochet cycling dancing decorating diy drawing embroidery fishing flowerarranging foraging gaming gardening genealogy geocaching golf graffiti hiking homebrewing journaling juggling karaoke kayaking knitting lego magic meditation modeling origami painting photography podcasting poetry pottery puzzles quilting reading rockclimbing running sailing scrapbooking sculpting sewing singing skating skiing stargazing surfing swimming thrifting traveling vlogging volunteering weaving whittling woodworking writing yoga zumba');
+  ADD('subject','accounting algebra anatomy anthropology arithmetic art astronomy biology botany calculus chemistry civics coding computing dance drama earthscience ecology economics engineering english ethics filipino french geography geology geometry german grammar health history humanities journalism language latin law linguistics literature math mathematics music nutrition pe philosophy physics politics psychology reading religion robotics science sociology spanish statistics technology theater trigonometry values writing zoology mapeh hekasi epp tle araling panlipunan edukasyon');
+  ADD('holiday','advent anniversary ashwednesday assumption baptism birthday blackfriday boxingday carnival chinesenewyear christmas christmaseve cincodemayo columbusday diwali earthday easter eid eidalfitr epiphany fathersday flagday goodfriday graduation groundhogday halloween hanukkah heroesday independenceday kwanzaa laborday lent maundythursday memorialday mothersday newyear newyearseve oktoberfest passover patricksday pentecost purim ramadan reunion sinulog allsaintsday allsoulsday rosh thanksgiving valentines veteransday wedding yomkippur undas pasko noche buena simbanggabi flores de mayo santacruzan ati atihan pahiyas panagbenga moriones');
+  ADD('color','alabaster almond amaranth amethyst apricot aquamarine auburn azure banana beige bisque black blond blue blush bronze brown buff burgundy burntorange camel caramel cardinal carmine carnation celadon cerise cerulean champagne charcoal chartreuse cherry chestnut chocolate cinnamon citrine claret cobalt copper coral cornflower cream crimson cyan daffodil denim ebony ecru eggplant emerald fawn firebrick flax forest fuchsia gainsboro garnet gold goldenrod gray green grey harlequin heliotrope honeydew hotpink indigo ivory jade jasmine jet khaki lavender lemon lilac lime linen magenta mahogany maize malachite maroon mauve mint mocha moss mustard navy ochre olive onyx orange orchid peach pearl periwinkle pewter pink platinum plum powderblue puce pumpkin purple quartz raspberry red rose rosewood ruby russet rust saffron salmon sand sapphire scarlet sepia shamrock sienna silver sky slate smoke snow tan tangerine taupe teal terracotta thistle tomato topaz turquoise ultramarine umber vanilla vermilion violet viridian wheat white wine wisteria yellow zaffre');
+  ADD('part','abdomen achilles ankle anus aorta appendix arm armpit artery back backbone belly bicep bladder blood bone brain breast brow buttock calf cartilage cheek chest chin collarbone colon cornea diaphragm ear earlobe elbow esophagus eye eyebrow eyelash eyelid face finger fingernail fingertip foot forearm forehead gland groin gum hair hand head heart heel hip intestine iris jaw joint kidney knee kneecap knuckle larynx leg ligament lip liver lung muscle nail navel neck nerve nose nostril organ palm pancreas pelvis pinky pupil rectum retina rib scalp shin shoulder skeleton skin skull sole spine spleen sternum stomach temple tendon thigh throat thumb toe toenail tongue tonsil torso trachea vein vertebra waist windpipe wrist');
+  ADD('inst','accordion bagpipes bandurria banjo bass bassoon bell bongo bugle castanets celesta cello clarinet clavichord concertina conga cornet cymbals didgeridoo djembe drum dulcimer euphonium fiddle fife flute flugelhorn gong guitar gusli harmonica harp harpsichord horn kalimba keyboard kettledrum kazoo lute lyre mandolin maracas marimba melodica oboe ocarina organ panflute piano piccolo recorder sackbut saxophone shaker sitar snaredrum synthesizer tabla tambourine theremin timpani triangle trombone trumpet tuba ukulele vibraphone viola violin whistle xylophone zither kulintang kubing bandola octavina rondalla');
+  ADD('plant','acacia agave aloe amaryllis anthurium aster azalea bamboo banyan baobab basil begonia bluebell bonsai bougainvillea buttercup cactus camellia carnation catnip chrysanthemum clover cosmos crocus cypress daffodil dahlia daisy dandelion delphinium dogwood elm eucalyptus fern fir forsythia foxglove freesia fuchsia gardenia geranium ginkgo gladiolus hawthorn hibiscus holly hollyhock honeysuckle hyacinth hydrangea iris ivy jasmine juniper lantana larch lavender lilac lily lotus magnolia maple marigold mistletoe moss narcissus oak oleander orchid palm pansy peony petunia pine poinsettia poppy primrose redwood rhododendron rose rosemary sage sampaguita snapdragon spruce sunflower thistle thyme tulip venus verbena violet wisteria yarrow yew zinnia gumamela santan waling ilangilang kalachuchi rosal');
+  ADD('weather','blizzard breeze cloudy cyclone downpour drizzle drought dusty fair flurry fog foggy frost frosty gale gust gusty hail haze hazy heatwave humid hurricane icy lightning mist monsoon overcast rain rainbow rainy sandstorm scorching shower sleet smog snow snowy squall storm stormy sunny thunder thunderstorm tornado tropical twister typhoon whirlwind wind windy bagyo ulan hangin kidlat');
+  ADD('emotion','admiration affection amazement amused anger angry annoyed anxiety anxious apathy awe awkward bitter bliss bored calm cheerful confident confused content cranky curious delighted depressed despair disgust eager ecstatic elated embarrassed empathy envy euphoric excited exhausted fearful frustrated furious glad gloomy grateful grief grumpy guilt happy hateful helpless hopeful horrified hostile hurt hysterical impatient insecure inspired irritated jealous jolly joy joyful lazy lonely loving mad melancholy miserable moody nervous nostalgic numb optimistic overwhelmed panic passion peaceful pity pleased proud puzzled regret relaxed relieved remorse resentful sad satisfied scared serene shame shocked shy sorrow stressed surprised suspicious sympathy tense terrified thankful thrilled tired troubled uneasy upset vulnerable worried wonder');
+  ADD('building','abbey airport apartment aquarium arena armory auditorium bakery bank barn barracks basilica bazaar bungalow cabin capitol casino castle cathedral chalet chapel church cinema clinic clubhouse college condo convent cottage courthouse dojo dormitory embassy factory farmhouse fort fortress garage gazebo gym hangar hospital hostel hotel hut igloo inn jail laboratory library lighthouse lodge mall mansion market monastery mosque motel museum observatory office orphanage pagoda palace parliament pavilion penthouse pharmacy pizzeria playhouse prison pub restaurant sanctuary school shack shed shrine silo skyscraper stable stadium station studio supermarket synagogue temple tent theater tower townhouse villa warehouse windmill workshop bahaykubo barangayhall munisipyo');
+  ADD('store','antiquestore apothecary bakery barbershop bodega bookstore bookshop boutique butcher candystore cafe chemist convenience deli dollarstore drugstore dutyfree electronics fishmonger florist furniturestore gasstation giftshop grocery hardware hobbyshop jeweler kiosk laundromat liquorstore market minimart newsstand optician outlet pawnshop petstore pharmacy pizzeria realty salon shoestore sarisari supermarket tailor thriftstore tobacconist toystore videostore watsons wetmarket bakery tindahan palengke botika panaderia');
+  ADD('vacation','acapulco alps amalfi amsterdam antarctica athens bali bangkok barcelona beach berlin boracay budapest cancun caribbean cebu dubai florence hawaii hongkong ibiza istanbul jamaica kyoto lasvegas lisbon london maldives marrakech miami monaco mykonos nepal newyork orlando palawan paris phuket prague rome santorini seychelles singapore sydney tahiti tokyo tuscany venice vienna yellowstone zanzibar baguio bohol siargao vigan banaue donsol coron elnido tagaytay batanes camiguin davao pagudpud sagada');
+  ADD('sky','aircraft airplane airship aurora balloon bat bird blimp butterfly cloud comet constellation contrail drone eagle eclipse falcon firework fog galaxy glider halo helicopter hotairballoon jet kite lightning meteor milkyway mist moon nebula owl parachute planet plane rainbow rocket satellite shootingstar sky skylark star storm sun sunset supernova thunder ufo venus zeppelin');
+  ADD('forest','acorn antler badger bark bear beaver birch bobcat branch bush cabin campfire cedar chipmunk deer elk fern firewood fox hedgehog hollow hunter ivy lichen log lumberjack moose moss mushroom oak owl pinecone raccoon ranger root sap skunk sparrow squirrel stump timber toadstool trail tree trunk twig vine wolf woodpecker');
+  ADD('country','afghanistan albania algeria andorra angola argentina armenia australia austria azerbaijan bahamas bahrain bangladesh barbados belarus belgium belize benin bhutan bolivia bosnia botswana brazil brunei bulgaria burkinafaso burundi cambodia cameroon canada capeverde chad chile china colombia comoros congo costarica croatia cuba cyprus czechrepublic denmark djibouti dominica dominicanrepublic ecuador egypt elsalvador england eritrea estonia eswatini ethiopia fiji finland france gabon gambia georgia germany ghana greece grenada guatemala guinea guyana haiti honduras hungary iceland india indonesia iran iraq ireland israel italy ivorycoast jamaica japan jordan kazakhstan kenya kiribati kosovo kuwait kyrgyzstan laos latvia lebanon lesotho liberia libya liechtenstein lithuania luxembourg madagascar malawi malaysia maldives mali malta mauritania mauritius mexico micronesia moldova monaco mongolia montenegro morocco mozambique myanmar burma namibia nauru nepal netherlands holland newzealand nicaragua niger nigeria northkorea northmacedonia norway oman pakistan palau palestine panama papuanewguinea paraguay peru philippines poland portugal qatar romania russia rwanda samoa sanmarino saudiarabia scotland senegal serbia seychelles sierraleone singapore slovakia slovenia somalia southafrica southkorea southsudan spain srilanka sudan suriname sweden switzerland syria taiwan tajikistan tanzania thailand timorleste togo tonga trinidad tunisia turkey turkmenistan tuvalu uganda ukraine unitedkingdom uk unitedstates usa uruguay uzbekistan vanuatu vatican venezuela vietnam wales yemen zambia zimbabwe');
+  // brand new lists
+  LEX.city='abidjan abuja accra addisababa adelaide agra albuquerque alexandria algiers amman amsterdam anaheim ankara antwerp athens atlanta auckland austin baghdad baguio baku baltimore bangkok barcelona basel beijing beirut belfast belgrade bergen berlin bern bilbao birmingham bogota boise bologna bombay bordeaux boston brasilia bratislava brisbane bristol brussels bucharest budapest buenosaires buffalo cagayandeoro cairo calcutta calgary cali cambridge canberra cancun capetown caracas cardiff casablanca cebu cebucity chengdu chennai chicago chongqing cincinnati cleveland cologne colombo copenhagen cordoba cork dakar dallas damascus danang davao delhi denver detroit dhaka doha dortmund dresden dubai dublin dubrovnik durban dusseldorf edinburgh edmonton essen firenze florence frankfurt fukuoka geneva genoa glasgow gothenburg guadalajara guangzhou hamburg hanoi harare havana helsinki honolulu houston hyderabad ibadan iloilo indianapolis islamabad istanbul jakarta jeddah jerusalem johannesburg kabul kampala kansascity karachi kathmandu khartoum kiev kyiv kingston kinshasa kolkata krakow kualalumpur kuwaitcity kyoto lagos lahore lasvegas leeds leipzig lima lisbon liverpool ljubljana london losangeles luanda lusaka lyon madrid makati malaga manchester manila marseille mecca medellin melbourne memphis mexicocity miami milan milwaukee minneapolis minsk mogadishu monaco monterrey montevideo montreal moscow mumbai munich nagoya nairobi nanjing naples nashville nassau newdelhi neworleans newyork newcastle nice nottingham oakland odessa orlando osaka oslo ottawa oxford palermo panamacity paris perth philadelphia phnompenh phoenix pittsburgh portland porto prague pretoria pyongyang quebec quezoncity quito rabat reykjavik richmond riga rio riodejaneiro riyadh rome rotterdam sacramento saigon saintlouis salzburg sanantonio sandiego sanfrancisco sanjose sanjuan santiago saopaulo sapporo sarajevo seattle seoul seville shanghai shenzhen singapore skopje sofia stockholm strasbourg stuttgart surabaya suva sydney taipei tallinn tampa tashkent tbilisi tegucigalpa tehran telaviv tijuana tokyo toronto toulouse tripoli tunis turin utrecht valencia vancouver venice verona vienna vientiane vilnius warsaw washington wellington winnipeg wuhan yangon yokohama zagreb zurich angeles antipolo bacolod batangas butuan cabanatuan caloocan cotabato dagupan dumaguete generalsantos laoag legazpi lipa lucena marikina mandaluyong muntinlupa naga olongapo ormoc pasay pasig puertoprincesa quezon sanfernando tacloban tagaytay taguig tarlac tuguegarao valenzuela vigan zamboanga';
+  LEX.capital='abuja accra addisababa algiers amman amsterdam ankara antananarivo apia ashgabat asmara astana asuncion athens baghdad baku bamako bangkok banjul beijing beirut belgrade berlin bern bishkek bogota brasilia bratislava brazzaville brussels bucharest budapest buenosaires bujumbura cairo canberra caracas chisinau colombo conakry copenhagen dakar damascus dhaka dili djibouti dodoma doha dublin dushanbe freetown gaborone georgetown guatemalacity hanoi harare havana helsinki islamabad jakarta jerusalem juba kabul kampala kathmandu khartoum kigali kingston kinshasa kualalumpur kyiv kiev lapaz lilongwe lima lisbon ljubljana lome london luanda lusaka luxembourg madrid majuro malabo male managua manama manila maputo maseru mbabane mexicocity minsk mogadishu monaco monrovia montevideo moroni moscow muscat nairobi nassau ndjamena newdelhi niamey nicosia nouakchott nuuk oslo ottawa ouagadougou panamacity paramaribo paris phnompenh podgorica portauprince portmoresby prague praia pretoria pyongyang quito rabat reykjavik riga riyadh rome roseau sanjose sansalvador sanaa santiago santodomingo sarajevo seoul singapore skopje sofia stockholm suva taipei tallinn tashkent tbilisi tegucigalpa tehran thimphu tirana tokyo tripoli tunis ulaanbaatar vaduz valletta victoria vienna vientiane vilnius warsaw washington wellington windhoek yaounde yerevan zagreb';
+  LEX.dinosaur='allosaurus ankylosaurus apatosaurus archaeopteryx baryonyx brachiosaurus brontosaurus carnotaurus ceratosaurus compsognathus deinonychus diplodocus dilophosaurus gallimimus giganotosaurus iguanodon indominus kentrosaurus mamenchisaurus megalosaurus microraptor oviraptor pachycephalosaurus parasaurolophus plesiosaur pteranodon pterodactyl spinosaurus stegosaurus triceratops troodon tyrannosaurus trex utahraptor velociraptor';
+  LEX.space='asteroid astronaut aurora blackhole callisto ceres comet constellation cosmos earth eclipse europa galaxy ganymede io jupiter mars mercury meteor meteorite milkyway moon nebula neptune orbit orion pluto pulsar quasar rocket saturn satellite shuttle sirius sun supernova titan universe uranus venus voyager andromeda polaris betelgeuse vega';
+  LEX.superhero='antman aquaman batgirl batman blackpanther blackwidow blade captainamerica captainmarvel catwoman cyborg daredevil darkseid deadpool doctorstrange flash gambit greenarrow greenlantern groot hawkeye hellboy hulk ironman joker lex loki magneto mystique nightwing penguin poisonivy raven riddler robin rocketraccoon scarletwitch shazam spawn spiderman starlord storm superboy supergirl superman thanos thor ultron venom vision wolverine wonderwoman x-men zatanna darna captainbarbell panday lastikman';
+  LEX.disney='aladdin alice anna ariel aurora baloo bambi bashful beast belle bernard bianca bolt buzz cinderella dale dopey donald dory dumbo elsa eric esmeralda flynn flounder genie goofy gus hades hercules jafar jasmine jiminy kenai kristoff kuzco lumiere mad mickey minnie moana mulan nala nemo olaf pascal peterpan pinocchio pluto pocahontas pumbaa rapunzel rajah scar sebastian simba sleepy snowwhite stitch tarzan thumper tiana timon tinkerbell ursula wall-e woody zazu maui miguel mirabel luisa bruno';
+  LEX.fish='anchovy angelfish barracuda bass betta bluegill bonito bream carp catfish chub clownfish cod crappie dace eel flounder goby goldfish grouper guppy haddock hake halibut herring koi lionfish mackerel mahi marlin minnow mullet perch pike piranha pollock pompano puffer ray rockfish salmon sardine shark snapper sole stingray sturgeon sunfish swordfish tetra tilapia trout tuna walleye whiting wrasse zander bangus tilapia dalag hito tamban galunggong lapulapu tulingan labahita maya dilis tawilis';
+  LEX.tree='acacia alder almond apple ash aspen balsa banyan baobab beech birch boxwood buckeye cashew cedar cherry chestnut coconut cottonwood cypress dogwood ebony elder elm eucalyptus fig fir ginkgo hawthorn hazel hemlock hickory holly hornbeam ironwood jacaranda juniper larch laurel lemon linden locust mahogany mango mangrove maple mesquite mulberry oak olive orange palm papaya peach pear pecan pine plane plum poplar redwood rosewood rubber sandalwood sequoia spruce sycamore tamarind teak walnut willow yew narra molave acacia bamboo banaba balete agoho calamansi';
+  LEX.dance='ballet ballroom belly bhangra bolero breakdance cancan capoeira chacha charleston conga contemporary cumbia disco flamenco foxtrot freestyle gavotte hiphop hula jazz jig jitterbug jive kuduro lambada limbo lindyhop macarena mambo mazurka merengue minuet moonwalk pasodoble polka quickstep rumba salsa samba swing tango tap twerk twist twostep waltz zumba tinikling carinosa singkil pandanggo maglalatik itik banga sayaw';
+  LEX.language='afrikaans albanian amharic arabic armenian bengali bosnian bulgarian burmese cantonese catalan cebuano chinese croatian czech danish dutch english esperanto estonian farsi filipino finnish flemish french gaelic georgian german greek gujarati haitian hausa hawaiian hebrew hindi hmong hungarian icelandic igbo ilocano ilokano indonesian irish italian japanese javanese kannada kazakh khmer korean kurdish lao latin latvian lithuanian macedonian malay malayalam mandarin maori marathi mongolian nepali norwegian pashto persian polish portuguese punjabi romanian russian samoan sanskrit scottish serbian sinhala slovak slovenian somali spanish swahili swedish tagalog tamil telugu thai tibetan turkish ukrainian urdu uzbek vietnamese welsh xhosa yiddish yoruba zulu hiligaynon bikol kapampangan pangasinan waray tausug';
+  LEX.currency='baht birr cedi colon crown dinar dirham dollar dong drachma escudo euro florin forint franc gourd guarani gulden hryvnia kina kip koruna krona krone kuna kwacha kwanza kyat lari lek lempira leone leu lev lira loti metical naira nakfa ngultrum ouguiya paanga pataca peseta peso pound pula quetzal rand real rial riel ringgit riyal ruble rufiyaa rupee rupiah schilling shekel shilling sol som somoni taka tala tenge tugrik vatu won yen yuan zloty bitcoin ethereum';
+  LEX.musicgenre='acoustic afrobeat alternative ambient bachata ballad bebop bluegrass blues bossanova breakbeat celtic chillout classical country dancehall disco dnb dubstep edm electro emo folk funk garage gospel grunge hardcore hiphop house indie industrial jazz jpop kpop latin lofi mariachi merengue metal motown opera orchestral polka pop postrock punk rap reggae reggaeton rnb rock salsa samba shoegaze ska soul swing synthpop techno trance trap trip-hop opm opmpop novelty kundiman harana';
+  LEX.gem='agate alexandrite amber amethyst aquamarine beryl bloodstone carnelian chalcedony citrine coral crystal diamond emerald garnet heliotrope jade jasper jet lapis lapislazuli malachite moonstone morganite obsidian onyx opal pearl peridot quartz rhodonite ruby sapphire sardonyx spinel sunstone tanzanite tigerseye topaz tourmaline turquoise zircon';
+  LEX.footwear='ballerinas boots brogues cleats clogs crocs espadrilles flats flipflops galoshes heels hightops hikingboots kicks loafers moccasins mules oxfords platform pumps rainboots sandals slides slippers sneakers snowshoes socks spikes stilettos tennisshoes trainers waders wedges wellies wellingtons chinelas bakya tsinelas';
+  LEX.headwear='balaclava bandana beanie beret bonnet bowler boater cap cowboyhat crown derby deerstalker fedora fez headband helmet hijab hood kippah mitre newsboy panama sombrero sunhat tiara toque top-hat tophat trilby turban veil visor yarmulke salakot';
+  LEX.fastfood='arbys burgerking carls chickfila chipotle dairyqueen dominos dunkin fiveguys hardees jack-in-the-box jollibee kfc krispykreme mcdonalds panda papajohns pizzahut popeyes quiznos sbarro shakeshack starbucks subway tacobell wendys whataburger greenwich chowking manginasal goldilocks max minutoburger tokyotokyo yellowcab zagu';
+  LEX.state='alabama alaska arizona arkansas california colorado connecticut delaware florida georgia hawaii idaho illinois indiana iowa kansas kentucky louisiana maine maryland massachusetts michigan minnesota mississippi missouri montana nebraska nevada newhampshire newjersey newmexico newyork northcarolina northdakota ohio oklahoma oregon pennsylvania rhodeisland southcarolina southdakota tennessee texas utah vermont virginia washington westvirginia wisconsin wyoming';
+  LEX.mountain='mountain volcano annapurna aconcagua ararat denali elbrus etna everest fuji giluwe himalaya kailash kangchenjunga kilimanjaro kosciuszko krakatoa lhotse makalu manaslu matterhorn mayon montblanc mount mountfuji olympus pinatubo popocatepetl rainier rushmore sinai snowdon taal tambora vesuvius vinson yosemite apo arayat banahaw pulag mayon kanlaon bulusan hibok';
+  LEX.river='river lake amazon amur arno brahmaputra congo danube dnieper don elbe euphrates ganges hudson indus irrawaddy jordan lena loire mackenzie mekong mississippi missouri murray niger nile ob ohio orinoco po potomac rhine rhone rio seine shannon tagus thames tiber tigris tyne ural vistula volga yangtze yellow yenisei yukon zambezi pasig cagayan agno pampanga abra lake victoria superior michigan huron erie ontario titicaca baikal tanganyika geneva como garda taal laguna';
+  LEX.app='airbnb amazon bing discord dropbox duolingo facebook fb gmail google grab instagram line lazada linkedin maps messenger netflix pinterest reddit shopee skype slack snapchat spotify telegram tiktok tinder twitch twitter uber viber vimeo waze whatsapp wechat youtube zoom canva capcut gcash maya notion trello';
+  LEX.cartoon='ash astroboy bartsimpson betty bluey bugsbunny charliebrown daffy doraemon dora fred garfield goku homer jerry kirby luffy lisa marge mickey naruto nobita pikachu pooh popeye porky rick road-runner roadrunner scoobydoo shaggy shinchan sonic spongebob squidward stewie tom tweety velma wile yogi zoro patrick plankton sandy mrkrabs gary peppa elmo kermit bigbird grover snoopy woodstock linus lucy tintin asterix obelix mario luigi yoshi bowser peach toad link zelda bluey bingo arthur caillou franklin pingu';
+  LEX.singer='abba adele aerosmith akon alanis alicia ariana avicii beatles beck beyonce bjork blackpink bono brandy britney bruno bts calvinharris camila carlyraejepsen celine cher chris coldplay dojacat dolly drake dua eagles ed eminem enrique eric lizzo ellie elton elvis enya eurythmics fergie fleetwood gaga gwen halsey harry imagine rodrigo jay jlo jonasbrothers justin kanye katy kesha khalid lady lorde madonna maroon5 mariah metallica michael miley nirvana oasis olivia pink pitbull prince queen rihanna rolling shakira shawn sia sinatra snoopdogg spice sting tate taylor usher u2 weeknd whitney zayn zedd ariana billie sabrina sza lizzo regine lea sarah gary moira ben zild up dharma eraserheads parokya freddie apo';
+  LEX.athlete='ali beckham bolt brady curry federer jordan kobe lebron messi nadal ronaldo serena tiger woods phelps pacquiao pele maradona neymar mbappe haaland salah serena venus simone biles nadia comaneci kareem shaq magic tyson mayweather ohtani djokovic murray sharapova osaka zidane cruyff ibrahimovic rooney gerrard lampard owen henry kaka ronaldinho iniesta xavi pirlo buffon maldini kane vinicius ronaldo gretzky ovechkin brees mahomes rodgers manning kelce phelps ledecky usain carlslewis jeter ruth aaron mantle bonds trout judge duncan durant harden giannis jokic luka embiid tatum';
+  LEX.movie='aladdin alien aliens amelie annie avatar avengers babe barbie batman beetlejuice bolt brave cars cats coco coraline creed dune dumbo elf encanto frozen ghostbusters gladiator godzilla goodfellas grease gravity hercules inception inside interstellar jaws joker jumanji jurassic kungfupanda lalaland lion lucy madagascar matilda matrix memento minions moana mulan nemo oppenheimer paddington parasite pinocchio pixels psycho ratatouille rocky shrek sing skyfall soul spiderman starwars superman tangled taxi titanic toystory up wall-e wicked wonka zootopia dune ghost hook rio rango ted thor tron us whiplash';
+  LEX.tvshow='arcane arrested bluey bonanza bones breakingbad bridgerton cheers community dallas dark dexter doctorwho downton euphoria fargo fargo flash friends frasier fringe gleek glee gossipgirl grimm hannibal heroes house jeopardy lost lucifer mandalorian mash monk narcos nashville oz parks peaky popeye riverdale scrubs seinfeld sherlock shield simpsons smallville sopranos spongebob squid stranger succession suits supernatural survivor teen the1 theoffice thewire twin veep vikings westworld wednesday yellowstone zoey';
+  LEX.videogame='amongus angrybirds animalcrossing apex arkham battlefield bioshock bloons braid brawlstars candycrush celeste clashroyale crossyroad cuphead cyberpunk dota diablo doom dyinglight eldenring fallout fifa fortnite genshin gta halo hades hearthstone injustice kirby leagueoflegends limbo mario metroid minecraft mortal nba2k overwatch pacman pokemon portal pubg rainbow residentevil roblox rocketleague sims skyrim sonic splatoon starcraft streetfighter subway sims tekken terraria tetris tomb undertale valorant warcraft witcher zelda codm mobilelegends ragnarok dragonnest';
+  LEX.brand='adidas adobe airbnb amazon apple asus audi bmw boeing cartier casio chanel cocacola colgate dell dior disney dove ebay fedex ferrari fila ford gap gillette gucci hermes honda hyundai ikea intel jollibee kia lego levis lexus loreal lg louisvuitton lufthansa mazda mcdonalds mercedes microsoft nescafe nestle netflix nike nintendo nissan nokia oreo oppo panasonic pepsi philips pizzahut porsche prada puma ralphlauren realme reebok rolex samsung sanrio sega sharp shell sony spotify starbucks subaru suzuki tesla toshiba toyota uber uniqlo vans visa vivo volkswagen volvo walmart xiaomi yamaha zara zoom';
+  LEX.book='alice anne beloved bible carrie catcher charlottesweb cinderella coraline dracula dune emma ender frankenstein gatsby gone grapes hamlet harrypotter heidi holes hobbit illiad inferno it jaws lolita macbeth matilda middlemarch moby narnia odyssey oliver outsiders pinocchio pride rebecca ulysses wonder walden wicked twilight hungergames divergent percyjackson maze gonegirl themartian bible quran';
+  LEX.actor='affleck bale bardem bateman blanchett bridges brosnan bullock cage caine carrey clooney connery cooper cranston crowe cruise cumberbatch damon day-lewis depp diaz dicaprio downey eastwood efron fassbender firth foster fox freeman garfield gibson gosling grant hanks hardy harrelson hathaway hemsworth hepburn hoffman holland hopkins jackman johansson jolie kidman knightley lawrence ledger leto lively mckellen mcconaughey murphy neeson nicholson nolte norton oldman pacino paltrow pattinson penn pitt portman pratt radcliffe reeves reynolds roberts robbie rock ruffalo ryan sandler schwarzenegger smith stallone stone streep swank theron thompson travolta washington watson wayne weaving williams willis winslet witherspoon wood zendaya zellweger';
+  LEX.famous='aristotle armstrong beethoven bell churchill cleopatra columbus curie darwin davinci disney earhart edison einstein elon federer freud galileo gandhi gates hawking hitchcock jobs jolie kennedy king lincoln mandela mozart napoleon newton obama oprah picasso plato rizal shakespeare socrates tesla teresa trump washington wright zuckerberg bonifacio aguinaldo magellan lapulapu mabini luna quezon marcos aquino duterte pacquiao';
   // category text -> how it is verified.
   //   t = Wikidata classes · lex = built-in word list(s) · via = ANY answer that is OK for these categories is OK here too
   //   viaSoft = answers OK for those categories are only "maybe" here · viaStrict = reject if the answer is clearly not any via-category
@@ -5331,9 +5486,48 @@ const ScatVerify=(()=>{
     "Something that makes you happy":{lex:'happy',head:1},
     "Something scary":{lex:'scary',head:1},
     "Something funny":{lex:'funny',head:1},
-    "A feeling or emotion":{lex:'emotion',t:['Q9415']}
+    "A feeling or emotion":{lex:'emotion',t:['Q9415']},
+    "A type of fish":{lex:'fish',viaSoft:['An animal'],t:['Q152'],closed:1},
+    "A type of tree":{lex:'tree',t:['Q10884'],closed:1},
+    "A dinosaur":{lex:'dinosaur',t:['Q430'],closed:1},
+    "A planet or space object":{lex:'space',t:['Q634','Q523','Q318','Q1115911'],closed:1},
+    "A superhero or villain":{lex:'superhero',t:['Q188784','Q6498903']},
+    "A Disney character":{lex:'disney',t:['Q95074']},
+    "A dance":{lex:'dance',t:['Q11639','Q1572605']},
+    "A language":{lex:'language',t:['Q34770'],closed:1},
+    "A currency":{lex:'currency',t:['Q8142'],closed:1},
+    "A type of music":{lex:'musicgenre',t:['Q188451'],closed:1},
+    "A gem or jewel":{lex:'gem',t:['Q83437','Q11344']},
+    "Something you wear on your feet":{lex:'footwear',t:['Q22676']},
+    "Something you wear on your head":{lex:'headwear',t:['Q60058'],head:1},
+    "A fast food chain":{lex:'fastfood',t:['Q1070750']},
+    "A US state":{lex:'state',t:['Q35657'],closed:1},
+    "A capital city":{lex:'capital',t:['Q5119'],closed:1},
+    "A mountain or volcano":{lex:'mountain',t:['Q8502','Q8072'],head:1},
+    "A river or lake":{lex:'river',t:['Q4022','Q23397'],head:1},
+    "A website or app":{lex:'app',t:['Q35127','Q166142']}
   };
+  // closed-set categories: an answer that clearly belongs to a DIFFERENT closed set is rejected (common sense), never guessed
+  [["A country",['country']],["A city",['city']],["A bird",['bird']],["An animal",['animal','bird','sea','insect','fish','dinosaur']],["A wild animal",['animal','bird','sea','insect','fish','dinosaur']],
+   ["A fruit or vegetable",['produce']],["A color",['color']],["A body part",['part']],["A musical instrument",['inst']]].forEach(([c,k])=>{if(R[c]){R[c].closed=1}});
+  R["A city"].lex='city';R["A cartoon character"].lex='cartoon';R["A singer or band"].lex='singer';R["An athlete"].lex='athlete';
+  R["An actor or actress"].lex='actor';R["A famous person"].lex='famous';R["A video game"].lex='videogame';R["A brand or company"].lex='brand';R["A book or novel"].lex='book';
+  R["A movie or TV show"].lex=['movie','tvshow'];
   const SETS={};
+  // which closed word-list (if any) a single-word answer belongs to -> used to reject category mix-ups
+  const TYPEK=[['country','a country'],['city','a city'],['color','a color'],['inst','a musical instrument'],['part','a body part'],['produce','a fruit or vegetable'],['animal','an animal'],['bird','a bird'],['sea','a sea creature'],['insect','an insect'],['clothing','something you wear'],['furniture','a piece of furniture'],['tool','a tool'],['drink','a drink'],['dessert','a dessert'],['language','a language'],['currency','a currency']];
+  const GROUP={animal:'A',bird:'A',sea:'A',insect:'A',fish:'A',dinosaur:'A',pet:'A',domestic:'A',city:'C',capital:'C'};
+  function otherType(norm,rule){
+    const compact=norm.replace(/[\s\-']+/g,'');if(!compact||compact.length<3)return null;
+    const own=keysOf(rule.lex),mine=new Set(own.map(k=>GROUP[k]||k)),ex=new Set(['color:produce','color:plant']);
+    for(const [k,label] of TYPEK){
+      if(!LEX[k]||own.includes(k))continue;
+      if(GROUP[k]&&mine.has(GROUP[k]))continue;
+      if(own.some(o=>ex.has(o+':'+k)))continue;
+      if(has(k,compact)||has(k,norm))return label;
+    }
+    return null;
+  }
   const has=(k,w)=>{if(!w||!LEX[k])return false;(SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));return SETS[k].has(w)||SETS[k].has(w.replace(/(es|s)$/,''))||SETS[k].has(w.replace(/ies$/,'y'))};
   const keysOf=k=>k?[].concat(k):[];
   // Lexicon match: whole answer, joined form (sand castle -> sandcastle), head noun (beach TOWEL), or any word for verb-ish categories
@@ -5435,6 +5629,7 @@ const ScatVerify=(()=>{
     if(lexHit(rule,norm))return{v:'ok',note:'Confirmed: '+val+' fits “'+short+'”'};
     // Real answer, but not a great fit (e.g. a dog is not really a "wild animal")
     if(rule&&rule.maybeLex&&lexHitKeys(rule.maybeLex,rule,norm))return{v:'maybe',note:'“'+val+'” '+(rule.maybeNote||'is real, but may not fit')+'. Others may challenge.'};
+    if(rule&&rule.closed&&rule.lex){const o=otherType(norm,rule);if(o)return{v:'no',note:'“'+val+'” is '+o+', not '+art+'.'}}
     const ck=cat+'|'+norm;if(cache[ck])return cache[ck];
     let offline=false,softNote='';
     try{
@@ -5485,6 +5680,14 @@ const ScatVerify=(()=>{
   return{check,warm};
 })();
 
+const SCAT_JUNK=new Set(['none','na','nan','idk','dunno','nothing','pass','skip','noidea','null','nil','test','testing','abc','blah','lol','lmao','hmm','hm','ok','okay','yes','no','sample','anything','something','whatever','same','dontknow','unknown','random','stuff','thing','things','xxx','zzz','aaa','sdf','asd','qwe','wala','ewan','basta','wlaako','wlakoalam']);
+function scatGibberish(flat){
+  if(flat.length>=5&&new Set(flat).size<=2)return true;                       // aaaaa, ababab
+  if(/(.{2,3})\1{2,}/.test(flat)&&flat.length<=12)return true;               // lalala, hahaha, nananana
+  if(/[^aeiouy]{6,}/.test(flat))return true;                                  // sdfghjk
+  if(flat.length>=7&&!/[aeiou]/.test(flat.replace(/y/g,'')))return true;
+  return false;
+}
 function validateScatAnswer(val, letter){
   // Returns: 'empty' | 'invalid' | 'valid'
   // Names, multi-word answers, and proper nouns are allowed.
@@ -5496,6 +5699,7 @@ function validateScatAnswer(val, letter){
   if(letter && !scatCore(cleaned).startsWith(letter.toLowerCase())) return 'invalid';
   const flat=scatCore(cleaned).replace(/[^a-z]/g,'');
   if(isRude(cleaned)) return 'invalid';
+  if(SCAT_JUNK.has(flat)||scatGibberish(flat)) return 'invalid';
   if(/(.)\1{3,}/.test(flat)) return 'invalid';
   if(/^(asdf|qwer|zxcv|sdfg|dfgh|hjkl|qaz|wsx)/.test(flat)) return 'invalid';
   if(scatCore(cleaned).split(/[\s\-]+/).some(t=>t.replace(/[^a-z]/g,'').length>=3&&!/[aeiouy]/.test(t))) return 'invalid';
@@ -6116,6 +6320,17 @@ async function submitDrawGuess(){
   }catch(e){ toast('Could not send guess'); return; }
 
   if(correct){
+    let wuid = user.uid;
+    try{
+      const r = await db.ref('rooms/'+roomId+'/drawWinner').transaction(cur => cur ? undefined : {uid:user.uid, t:srvNow()});
+      const v = r && r.snapshot && r.snapshot.val(); if(v && v.uid) wuid = v.uid;
+    }catch(err){}
+    if(wuid !== user.uid){
+      drawLocalSolved = true;
+      const inp = $('drawGuessInput'); if(inp) inp.disabled = true;
+      const bg2 = $('btnDrawGuess'); if(bg2) bg2.disabled = true;
+      finishDrawRound(wuid); return;
+    }
     drawLocalSolved = true;
     $('drawStatus').textContent = 'Correct! You got it!';
     $('drawStatus').style.color = '#00B894';
@@ -7366,7 +7581,7 @@ async function submitPath(){
     snd('bad');
     tiles.forEach(t=>t&&t.classList.add('bad'));
     setTimeout(clearPath,400);
-    await saveProfile({attempts:profile.attempts});
+    saveProfile({attempts:profile.attempts}).catch(()=>{});
     setWordBar('Drag letters to spell',true);
     return;
   }
@@ -7377,7 +7592,7 @@ async function submitPath(){
     resetCombo();
     tiles.forEach(t=>t&&t.classList.add('bad'));
     setTimeout(clearPath,400);
-    await saveProfile({attempts:profile.attempts});
+    saveProfile({attempts:profile.attempts}).catch(()=>{});
     setWordBar('Drag letters to spell',true);
     return;
   }
@@ -7391,13 +7606,12 @@ async function submitPath(){
   profile.correct=(profile.correct||0)+1;
   profile.wordsFound=(profile.wordsFound||0)+1;
   profile.xp=(profile.xp||0)+pts*3+2+(mult>1?5:0);
-  await saveProfile({attempts:profile.attempts,correct:profile.correct,wordsFound:profile.wordsFound,xp:profile.xp});
+  saveProfile({attempts:profile.attempts,correct:profile.correct,wordsFound:profile.wordsFound,xp:profile.xp}).catch(()=>{});
   const myRef=db.ref('rooms/'+roomId+'/players/'+user.uid);
-  const me=(await myRef.once('value')).val()||{};
-  const words=me.words||{};
-  words[w]=pts;
+  localWordPts[w]=pts;
+  const words=Object.assign({},((roomData.players||{})[user.uid]||{}).words||{},localWordPts);
   const score=Object.values(words).reduce((a,b)=>a+b,0);
-  await myRef.update({words,score});
+  myRef.update({words,score}).catch(()=>{});
   tiles.forEach(t=>t&&t.classList.add('ok'));
   setTimeout(clearPath,400);
   
