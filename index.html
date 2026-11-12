@@ -698,6 +698,13 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 /* ===== SKETCH RACE (Draw & Guess) ===== */
 #screen-draw .timer{background:conic-gradient(#00B894 var(--pct,100%),rgba(255,255,255,.22) 0)}
 #screen-draw .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0)}
+#screen-sketchchain .timer{background:conic-gradient(#FF8AD8 var(--pct,100%),rgba(255,255,255,.22) 0)}
+#screen-sketchchain .timer.low{background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0)}
+.sc-chain-preview{background:#F8F6FF;border:2px solid #E8E0FF;border-radius:14px;padding:10px;max-height:200px;overflow-y:auto}
+.sc-chain-preview .sc-step{display:flex;gap:8px;align-items:flex-start;padding:8px;border-radius:10px;background:#fff;margin-bottom:6px;border:1px solid #EEF0F2}
+.sc-chain-preview .sc-step b{color:var(--violet-d)}
+.sc-chain-preview .sc-step .tag{font-size:.68rem;font-weight:900;text-transform:uppercase;color:#7C6F9A}
+
 .draw-card{padding:12px 14px}
 .draw-level-bar{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;font-weight:800;color:#636E72;margin-bottom:8px}
 .draw-level-bar span{background:#E8FFF6;padding:4px 10px;border-radius:99px;color:#00695C}
@@ -1088,6 +1095,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .game-card[data-game=chain]{--a:#FF7A59;--t:#3F1D17}
 .game-card[data-game=board]{--a:#7DFF6B;--t:#1B3A17}
 .game-card[data-game=town]{--a:#4DE1FF;--t:#0F3441}
+.game-card[data-game=sketchchain]{--a:#FF8AD8;--t:#3A1540}
 @media(hover:hover){.game-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.3)}}
 
 /* room + shared bits */
@@ -1375,6 +1383,11 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="name">Sketch Race</div>
         <div class="desc">Draw &amp; guess</div>
       </div>
+      <div class="game-card" data-game="sketchchain" id="pickSketchChain" style="cursor:pointer">
+        <div class="icon">🖼️</div>
+        <div class="name">Sketch Chain</div>
+        <div class="desc">Draw → guess → draw. Team of 3–8</div>
+      </div>
       <div class="game-card" data-game="spy" id="pickSpy" style="cursor:pointer">
         <div class="thumb t-spy" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B2A7A"/><stop offset="1" stop-color="#130C33"/></linearGradient><linearGradient id="spB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF3B0" stop-opacity=".6"/><stop offset="1" stop-color="#FFF3B0" stop-opacity=".05"/></linearGradient></defs><rect width="160" height="100" fill="url(#spA)"/><polygon class="beam" points="52,0 92,0 124,100 20,100" fill="url(#spB)"/><g class="px1"><circle cx="140" cy="14" r="8" fill="#F3EEFF" opacity=".9"/><circle cx="132" cy="11" r="7" fill="#3B2A7A"/><rect x="0" y="72" width="16" height="30" fill="#1c1148"/><rect x="18" y="60" width="12" height="42" fill="#190F40"/><rect x="132" y="66" width="14" height="36" fill="#1c1148"/><rect x="146" y="76" width="16" height="26" fill="#190F40"/><rect x="4" y="78" width="3" height="3" fill="#FFD84D"/><rect x="10" y="86" width="3" height="3" fill="#FFD84D" opacity=".6"/><rect x="22" y="68" width="3" height="3" fill="#FFD84D" opacity=".7"/><rect x="136" y="74" width="3" height="3" fill="#FFD84D"/></g><g class="px2"><path d="M20 100 Q22 72 46 68 L74 68 Q98 72 100 100 Z" fill="#0E0A22"/><path d="M46 66 L58 90 L52 98 L38 74 Z" fill="#251B55" stroke="#4B3E96" stroke-width=".8"/><path d="M74 66 L62 90 L68 98 L82 74 Z" fill="#251B55" stroke="#4B3E96" stroke-width=".8"/><rect x="54" y="60" width="12" height="12" fill="#120C2B"/><ellipse cx="60" cy="52" rx="13" ry="15" fill="#171034"/><g class="shades"><rect x="46" y="49" width="12" height="8" rx="3.5" fill="#000"/><rect x="62" y="49" width="12" height="8" rx="3.5" fill="#000"/><rect x="57" y="51" width="6" height="2" fill="#000"/><path class="glint" d="M48.5 51.5 l4 0 M64.5 51.5 l4 0" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/></g><path d="M54 63 Q60 65.5 66 63" stroke="#4B3E96" stroke-width="1.4" fill="none" stroke-linecap="round"/><ellipse cx="60" cy="40" rx="28" ry="6.5" fill="#0A0719" stroke="#6D5BD0" stroke-width=".8"/><path d="M44 40 Q44 21 60 21 Q76 21 76 40 Z" fill="#0A0719" stroke="#6D5BD0" stroke-width=".8"/><rect x="44" y="33" width="32" height="5" fill="#E0485F"/></g><g class="px3"><g class="mag a"><line x1="129" y1="52" x2="143" y2="68" stroke="#A1887F" stroke-width="6" stroke-linecap="round"/><circle cx="118" cy="40" r="15" fill="#fff" fill-opacity=".16" stroke="#FFD84D" stroke-width="4"/><text x="118" y="47" text-anchor="middle" font-family="Arial Black,Helvetica,Arial,sans-serif" font-weight="900" font-size="20" fill="#FFD84D">?</text><path d="M108 33 Q112 28 118 27" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/></g></g></svg></div>
         <div class="name">Spy Word</div>
@@ -1629,6 +1642,43 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 
 
 <div class="bg-modal" id="bgModal"><div class="bg-q"><div id="bgQHead"></div><div id="bgQMeta"></div><div class="bg-bar"><i id="bgQBar"></i></div><div id="bgQText"></div><div id="bgQOpts"></div><div id="bgQFb"></div></div></div>
+<section id="screen-sketchchain" class="screen">
+  <div class="game-top">
+    <div class="timer" id="scTimerRing"><span id="scTimerText">50</span></div>
+    <div class="scores" id="scScoreBoard"></div>
+  </div>
+  <div class="card draw-card">
+    <div class="draw-level-bar">
+      <span id="scPhaseLabel">Sketch Chain</span>
+      <span id="scTeamScore">Team: 0</span>
+    </div>
+    <div class="draw-role" id="scRole">Get ready…</div>
+    <div class="draw-word-secret" id="scPromptBox" style="display:none">
+      <div class="lbl" id="scPromptLbl">Draw this</div>
+      <div class="wrd" id="scPromptWord">—</div>
+    </div>
+    <div class="draw-canvas-wrap">
+      <canvas id="scCanvas" width="800" height="600"></canvas>
+    </div>
+    <div class="draw-tools" id="scTools" style="display:none">
+      <button type="button" class="tool-btn on" id="btnScPen" title="Pen">✏️</button>
+      <button type="button" class="tool-btn" id="btnScEraser" title="Eraser">🩹</button>
+      <button type="button" class="tool-btn" id="btnScClear" title="Clear">🗑️</button>
+      <span style="flex:1"></span>
+      <button class="btn btn-mint" id="btnScDone" style="width:auto;min-height:42px;padding:10px 16px">DONE ✓</button>
+    </div>
+    <div class="draw-guess-area" id="scGuessArea" style="display:none">
+      <input type="text" id="scGuessInput" placeholder="Type your guess…" maxlength="32" autocomplete="off" autocapitalize="off">
+      <button class="btn btn-mint" id="btnScGuess" style="min-height:46px">SUBMIT GUESS</button>
+    </div>
+    <div class="sc-chain-preview" id="scChainPreview" style="display:none;margin-top:10px"></div>
+    <div class="draw-status" id="scStatus">Waiting…</div>
+    <div class="hang-end-actions" style="margin-top:10px">
+      <button class="btn btn-mint" id="btnScNext" style="display:none">NEXT ROUND →</button>
+    </div>
+  </div>
+</section>
+
 <section id="screen-board" class="screen">
   <div class="card bg-top"><div id="bgTurn"></div><div id="bgChips"></div></div>
   <div class="bg-wrap"><div class="bg-grid" id="bgGrid"></div><div class="bg-start"><span>🏁 START</span></div><svg class="bg-svg" id="bgSvg" viewBox="0 0 800 780"></svg><div class="bg-toks" id="bgToks"></div></div>
@@ -1761,7 +1811,7 @@ const auth=firebase.auth(),db=firebase.database();
 let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
 db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
 const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='chain')return 6;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='sketchchain')return 8;if(g==='chain')return 6;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -2622,7 +2672,7 @@ function liveToast(msg){
 function show(id){
   document.body.classList.toggle('in-town',id==='screen-town');
   const leaveControl=$('btnGameLeave');
-  if(leaveControl) leaveControl.classList.toggle('on',['screen-game','screen-scatter','screen-hangman','screen-draw','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id));
+  if(leaveControl) leaveControl.classList.toggle('on',['screen-game','screen-scatter','screen-hangman','screen-draw','screen-sketchchain','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id));
   document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -3669,7 +3719,8 @@ const GAME_META = {
   draw:    { title:'🎨 Sketch Race', sub:'One draws, everyone guesses.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Roll, answer, dodge the snakes.' },
   spy:     { title:'🕵️ Spy Word', sub:'Find the spy in 5 rounds.' },
-  chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' }
+  chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' },
+  sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' }
 };
 
 function openMatchmaking(game){
@@ -3774,6 +3825,13 @@ const HOWTO = {
     'Land on a tile and you may face a <b>trivia question</b>. Answer wrong and you get sent back!',
     'Ladders help you climb and 🐍 snakes slide you down. First to the finish tile wins.'],
     tip:'Take your time on the trivia — one wrong answer can undo a great roll.' },
+  sketchchain:{ steps:[
+    'A <b>category</b> and secret <b>word</b> are chosen. Players form <b>one team</b> (3–8 people).',
+    'Player 1 <b>draws</b> the secret word (they are the only one who sees it at the start).',
+    'Player 2 only sees the drawing and <b>types a guess</b>.',
+    'Player 2 then <b>draws their guess</b> on a blank canvas. Player 3 guesses from that new drawing — and so on.',
+    'When the <b>last player</b> submits a guess, the full chain is revealed. If that final guess matches the original word, the <b>team scores 1 point</b>.'],
+    tip:'Draw the big idea, not tiny details — the chain corrupts fast, and that is half the fun.' },
   town:{ steps:[
     'Build your own island town. Pick a category (Build, Roads or Decor) and a piece, then tap the map to place it.',
     'Use <b>Paint</b> to recolor, <b>Rotate</b> to turn pieces, and <b>Erase</b> to remove them. Undo is always available.',
@@ -3942,7 +4000,7 @@ function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=co
 
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
@@ -4657,8 +4715,56 @@ async function beginRound(){
     return;
   }
 
+  if(gameType === 'sketchchain'){
+    const playerIds = Object.keys(roomData.players || {});
+    if(playerIds.length < 3){ toast('Sketch Chain needs at least 3 players'); return; }
+    if(playerIds.length > 8){ toast('Sketch Chain supports up to 8 players'); return; }
+    // Shuffle order
+    const order = playerIds.slice();
+    for(let i=order.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+    const sCat = pickDrawCategory();
+    const word = pickDrawWordCat(1 + Math.floor(Math.random()*6), sCat);
+    try{ drawRememberWord(word); }catch(e){}
+    const teamScore = roomData.scTeamScore || 0;
+    const roundNo = (roomData.scRoundNo || 0) + 1;
+    const SC_DRAW_SEC = 50;
+    const updates = {
+      status: 'playing',
+      scRoundNo: roundNo,
+      scTeamScore: teamScore,
+      sc: {
+        gid: srvNow().toString(36)+Math.random().toString(36).slice(2,6),
+        word: word,
+        category: {id:sCat.id, name:sCat.name, emoji:sCat.emoji},
+        order: order,
+        phase: 'draw',
+        activeUid: order[0],
+        prompt: word,
+        step: 0,
+        strokes: [],
+        chain: [],
+        endsAt: srvNow() + SC_DRAW_SEC * 1000
+      },
+      board: null, letter: null, categories: null,
+      hangWord: null, drawWord: null,
+      endsAt: srvNow() + SC_DRAW_SEC * 1000,
+      startedAt: srvNow(),
+      endedAt: null
+    };
+    Object.keys(roomData.players||{}).forEach(uid => {
+      updates['players/'+uid+'/score'] = teamScore;
+      updates['players/'+uid+'/words'] = {};
+      updates['players/'+uid+'/answers'] = {};
+    });
+    resetRoundState();
+    try{ await db.ref('rooms/'+roomId).update(updates); }
+    catch(e){ toast('Could not start: '+e.message); }
+    return;
+  }
+
   // Original Boggle path
   const board=scrambleBoard();
+
   const updates={status:'shaking',board,endsAt:null,startedAt:null,endedAt:null,letter:null,categories:null};
   Object.keys(roomData.players||{}).forEach(uid=>{updates['players/'+uid+'/score']=0;updates['players/'+uid+'/words']={};updates['players/'+uid+'/answers']={}});
   resetRoundState();
@@ -5975,8 +6081,13 @@ function drawFit(bw, bh){
 
 /** Always re-apply the shared transform before drawing — prevents remote strokes from landing in the wrong place
     when a canvas was resized, a context was recreated, or devices differ in size/DPR. */
+function activeDrawCanvasId(){
+  const sc = $('screen-sketchchain');
+  if(sc && sc.classList.contains('active') && $('scCanvas')) return 'scCanvas';
+  return 'drawCanvas';
+}
 function ensureDrawTransform(){
-  const c = $('drawCanvas');
+  const c = $(activeDrawCanvasId());
   if(!c || !drawCtx) return null;
   const { s, ox, oy } = drawFit(c.width, c.height);
   drawCtx.setTransform(s, 0, 0, s, ox, oy);
@@ -5986,7 +6097,7 @@ function ensureDrawTransform(){
 }
 
 function drawRepaint(){
-  const c = $('drawCanvas');
+  const c = $(activeDrawCanvasId());
   if(!c || !drawCtx) return;
   const ctx = drawCtx;
   ctx.setTransform(1,0,0,1,0,0);
@@ -6006,7 +6117,7 @@ function drawRepaint(){
 }
 
 function getDrawCanvas(){
-  const c = $('drawCanvas');
+  const c = $(activeDrawCanvasId());
   if(!c) return null;
   const wrap = c.parentElement;
   const w = wrap ? wrap.clientWidth : 0, h = wrap ? wrap.clientHeight : 0;
@@ -6037,7 +6148,7 @@ function clearDrawCanvas(){
 }
 
 function canvasPos(e){
-  const c = $('drawCanvas');
+  const c = $(activeDrawCanvasId());
   if(!c) return null;
   const r = c.getBoundingClientRect();
   if(!r.width || !r.height) return null;
@@ -6093,9 +6204,11 @@ async function pushStrokeBatch(){
 
 // keep the bitmap crisp and complete when the window / keyboard / orientation changes
 (function(){
-  const c = $('drawCanvas'); if(!c) return;
   const refit = () => { try{ getDrawCanvas(); }catch(e){} };
-  if(window.ResizeObserver && c.parentElement) new ResizeObserver(refit).observe(c.parentElement);
+  ['drawCanvas','scCanvas'].forEach(id => {
+    const c = $(id); if(!c) return;
+    if(window.ResizeObserver && c.parentElement) new ResizeObserver(refit).observe(c.parentElement);
+  });
   window.addEventListener('resize', refit);
   window.addEventListener('orientationchange', () => setTimeout(refit, 250));
 })();
@@ -6103,6 +6216,327 @@ async function pushStrokeBatch(){
 function isDrawer(){
   return !!(roomData && user && roomData.drawDrawerUid === user.uid);
 }
+
+
+/* ===== SKETCH CHAIN (cooperative Drawphone) =====
+   3–8 players, one team. P1 draws the secret word → next guesses → that guesser
+   draws their guess → next guesses … until the last player guesses.
+   Team scores 1 point if the final guess matches the original word. */
+const SC_DRAW_SEC = 50, SC_GUESS_SEC = 30;
+let scStrokeUnsub = null, scLocalDone = false;
+
+function scNorm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+}
+function scPlayer(uid){
+  return (roomData && roomData.players && roomData.players[uid]) || {};
+}
+function scIsActive(){
+  return !!(roomData && roomData.sc && user && roomData.sc.activeUid === user.uid);
+}
+function scIsHost(){
+  return !!(roomData && user && roomData.hostUid === user.uid);
+}
+
+function enterSketchChain(force){
+  if(!force && $('screen-sketchchain') && $('screen-sketchchain').classList.contains('active') && roomData && roomData.sc){
+    renderSketchChain();
+    return;
+  }
+  show('screen-sketchchain');
+  scLocalDone = false;
+  clearDrawCanvas();
+  unbindScCanvas();
+  renderSketchChain();
+  startScTimer();
+  snd('go');
+}
+
+function renderSketchChain(){
+  const sc = roomData && roomData.sc;
+  if(!sc){ $('scStatus').textContent = 'Waiting for round…'; return; }
+
+  const team = roomData.scTeamScore || 0;
+  if($('scTeamScore')) $('scTeamScore').textContent = 'Team: ' + team;
+  if($('scPhaseLabel')){
+    const cat = sc.category ? (sc.category.emoji + ' ' + sc.category.name) : 'Sketch Chain';
+    $('scPhaseLabel').textContent = cat + ' · Round ' + (roomData.scRoundNo || 1);
+  }
+
+  // Roster chips
+  const host = $('scScoreBoard');
+  if(host){
+    host.innerHTML = (sc.order || []).map(uid => {
+      const p = scPlayer(uid);
+      const on = uid === sc.activeUid;
+      return '<div class="sc'+(uid===user.uid?' me':'')+(on?' pulse':'')+'"><div class="n">'+esc(p.avatar||'🎮')+' '+esc(p.name||'?')+'</div><div class="s">'+(on?'👉':'')+'</div></div>';
+    }).join('');
+  }
+
+  const amActive = scIsActive();
+  const phase = sc.phase;
+  const promptBox = $('scPromptBox');
+  const tools = $('scTools');
+  const guessArea = $('scGuessArea');
+  const btnNext = $('btnScNext');
+  const role = $('scRole');
+  const status = $('scStatus');
+
+  if(btnNext) btnNext.style.display = (phase === 'reveal' && scIsHost()) ? 'flex' : 'none';
+
+  if(phase === 'reveal'){
+    unbindScCanvas();
+    if(promptBox) promptBox.style.display = 'block';
+    if($('scPromptLbl')) $('scPromptLbl').textContent = 'Original word';
+    if($('scPromptWord')) $('scPromptWord').textContent = (sc.word || '').toUpperCase();
+    if(tools) tools.style.display = 'none';
+    if(guessArea) guessArea.style.display = 'none';
+    if(role) role.textContent = '📜 Chain complete!';
+    renderScChainPreview(sc);
+    const last = (sc.chain || []).filter(x => x.kind === 'guess').pop();
+    const ok = last && scNorm(last.text) === scNorm(sc.word);
+    if(status){
+      status.textContent = ok ? 'Final guess matched — team +1 point! 🎉' : 'Final guess missed — no point this round.';
+      status.style.color = ok ? '#00B894' : '#E17055';
+    }
+    // Replay last drawing if any
+    const draws = (sc.chain || []).filter(x => x.kind === 'draw');
+    if(draws.length){
+      replayDrawStrokes(draws[draws.length-1].strokes || []);
+    }
+    return;
+  }
+
+  $('scChainPreview') && ($('scChainPreview').style.display = 'none');
+
+  if(phase === 'draw'){
+    if(guessArea) guessArea.style.display = 'none';
+    if(amActive){
+      if(role) role.textContent = '🎨 Your turn to draw!';
+      if(promptBox) promptBox.style.display = 'block';
+      if($('scPromptLbl')) $('scPromptLbl').textContent = (sc.step === 0 ? 'Draw this word' : 'Draw your guess');
+      if($('scPromptWord')) $('scPromptWord').textContent = String(sc.prompt || '').toUpperCase();
+      if(tools) tools.style.display = 'flex';
+      if(status){ status.textContent = 'Draw clearly, then hit DONE'; status.style.color = '#636E72'; }
+      if(!scLocalDone) bindScCanvas();
+      // restore in-progress strokes
+      if(Array.isArray(sc.strokes) && sc.strokes.length){
+        // only repaint if log empty or shorter
+        if(drawLog.length < sc.strokes.length) replayDrawStrokes(sc.strokes);
+      }
+    } else {
+      unbindScCanvas();
+      if(role){
+        const p = scPlayer(sc.activeUid);
+        role.textContent = '👀 ' + (p.name || 'Someone') + ' is drawing…';
+      }
+      if(promptBox) promptBox.style.display = 'none';
+      if(tools) tools.style.display = 'none';
+      if(status){ status.textContent = 'Watch the canvas'; status.style.color = '#636E72'; }
+      // live strokes for spectators
+      liveScStrokes(sc);
+    }
+  } else if(phase === 'guess'){
+    unbindScCanvas();
+    if(tools) tools.style.display = 'none';
+    // show current drawing
+    replayDrawStrokes(sc.strokes || []);
+    if(amActive){
+      if(role) role.textContent = '📝 Your turn to guess!';
+      if(promptBox) promptBox.style.display = 'none';
+      if(guessArea) guessArea.style.display = 'block';
+      const gi = $('scGuessInput'); if(gi && !scLocalDone){ gi.disabled = false; gi.value = gi.value || ''; }
+      if(status){ status.textContent = 'What is this drawing?'; status.style.color = '#636E72'; }
+    } else {
+      if(role){
+        const p = scPlayer(sc.activeUid);
+        role.textContent = '⏳ ' + (p.name || 'Someone') + ' is guessing…';
+      }
+      if(promptBox) promptBox.style.display = 'none';
+      if(guessArea) guessArea.style.display = 'none';
+      if(status){ status.textContent = 'Waiting for the guess'; status.style.color = '#636E72'; }
+    }
+  }
+}
+
+function liveScStrokes(sc){
+  // lightweight: whenever room updates with more strokes, replay
+  const arr = normalizeDrawStrokes(sc.strokes);
+  if(arr.length) replayDrawStrokes(arr);
+}
+
+function renderScChainPreview(sc){
+  const el = $('scChainPreview'); if(!el) return;
+  el.style.display = 'block';
+  const chain = sc.chain || [];
+  let html = '<div style="font-weight:900;font-size:.78rem;color:#7C6F9A;margin-bottom:6px;text-transform:uppercase">The chain</div>';
+  html += '<div class="sc-step"><span class="tag">Secret</span><b>'+esc((sc.word||'').toUpperCase())+'</b></div>';
+  chain.forEach((step,i) => {
+    if(step.kind === 'draw'){
+      html += '<div class="sc-step"><span class="tag">Draw</span><span>'+esc(step.avatar||'')+' '+esc(step.name||'')+' drew'+(step.prompt?(' “'+esc(step.prompt)+'”'):'')+'</span></div>';
+    } else {
+      const match = scNorm(step.text) === scNorm(sc.word);
+      html += '<div class="sc-step"><span class="tag">Guess</span><span>'+esc(step.avatar||'')+' '+esc(step.name||'')+' → <b>'+esc((step.text||'').toUpperCase())+'</b>'+(match?' ✓':'')+'</span></div>';
+    }
+  });
+  el.innerHTML = html;
+}
+
+function startScTimer(){
+  clearInterval(timerInterval);
+  const tick = () => {
+    const sc = roomData && roomData.sc;
+    if(!sc || !sc.endsAt) return;
+    const left = Math.max(0, Math.ceil((sc.endsAt - srvNow())/1000));
+    const el = $('scTimerText'); if(el) el.textContent = left;
+    const ring = $('scTimerRing');
+    if(ring){
+      const max = sc.phase === 'guess' ? SC_GUESS_SEC : SC_DRAW_SEC;
+      ring.style.setProperty('--pct', Math.max(0, left/max*100) + '%');
+      ring.classList.toggle('low', left <= 10);
+    }
+    if(left <= 0 && scIsActive() && !scLocalDone){
+      // auto-advance if still active
+      if(sc.phase === 'draw') scSubmitDraw(true);
+      else if(sc.phase === 'guess') scSubmitGuess(true);
+    }
+  };
+  tick();
+  timerInterval = setInterval(tick, 250);
+}
+
+function bindScCanvas(){
+  // Reuse Sketch Race binding but ensure tools work for SC
+  bindDrawCanvas();
+  const pen = $('btnScPen'), er = $('btnScEraser'), cl = $('btnScClear'), done = $('btnScDone');
+  if(pen) pen.onclick = () => { drawTool = 'pen'; pen.classList.add('on'); if(er) er.classList.remove('on'); };
+  if(er) er.onclick = () => { drawTool = 'eraser'; er.classList.add('on'); if(pen) pen.classList.remove('on'); };
+  if(cl) cl.onclick = () => { clearDrawCanvas(); pushScStrokes(true); };
+  if(done) done.onclick = () => scSubmitDraw(false);
+  // palette: reuse drawPal colors via existing drawColor if present
+}
+
+function unbindScCanvas(){
+  unbindDrawCanvas();
+}
+
+async function pushScStrokes(force){
+  if(!roomId || !scIsActive() || !roomData.sc || roomData.sc.phase !== 'draw') return;
+  if(!force && (!drawStrokeBuf.length && drawLog.length === 0)) return;
+  // Flush buffer into log already done by applyStrokePoint; publish full log snapshot
+  const strokes = drawLog.map(p => ({type:p.type, x:p.x, y:p.y, tool:p.tool, col:p.col, w:p.w}));
+  try{
+    await db.ref('rooms/'+roomId+'/sc/strokes').set(strokes);
+  }catch(e){}
+}
+
+async function scSubmitDraw(auto){
+  if(scLocalDone || !scIsActive() || !roomData.sc || roomData.sc.phase !== 'draw') return;
+  scLocalDone = true;
+  unbindScCanvas();
+  await pushScStrokes(true);
+  const sc = roomData.sc;
+  const strokes = drawLog.map(p => ({type:p.type, x:p.x, y:p.y, tool:p.tool, col:p.col, w:p.w}));
+  const me = scPlayer(user.uid);
+  const entry = {kind:'draw', uid:user.uid, name:me.name||'Player', avatar:me.avatar||'🎮', prompt:sc.prompt, strokes, at:srvNow()};
+  const chain = (sc.chain || []).concat([entry]);
+  const order = sc.order || [];
+  const idx = order.indexOf(user.uid);
+  // Next is always a guess by the next player in order (wrapping only if needed — but we don't wrap; last drawer is second-to-last)
+  const nextUid = order[idx + 1];
+  if(!nextUid){
+    // Shouldn't happen: last player only guesses
+    await scFinishReveal(chain, strokes);
+    return;
+  }
+  const updates = {
+    'sc/chain': chain,
+    'sc/strokes': strokes,
+    'sc/phase': 'guess',
+    'sc/activeUid': nextUid,
+    'sc/step': (sc.step || 0) + 1,
+    'sc/endsAt': srvNow() + SC_GUESS_SEC * 1000,
+    endsAt: srvNow() + SC_GUESS_SEC * 1000
+  };
+  try{
+    await db.ref('rooms/'+roomId).update(updates);
+  }catch(e){ toast('Could not submit drawing'); scLocalDone = false; }
+}
+
+async function scSubmitGuess(auto){
+  if(scLocalDone || !scIsActive() || !roomData.sc || roomData.sc.phase !== 'guess') return;
+  const input = $('scGuessInput');
+  let guess = input ? input.value.trim() : '';
+  if(!guess && auto) guess = '???';
+  if(!guess){ toast('Type a guess first'); return; }
+  scLocalDone = true;
+  if(input) input.disabled = true;
+  const sc = roomData.sc;
+  const me = scPlayer(user.uid);
+  const entry = {kind:'guess', uid:user.uid, name:me.name||'Player', avatar:me.avatar||'🎮', text:guess, at:srvNow()};
+  const chain = (sc.chain || []).concat([entry]);
+  const order = sc.order || [];
+  const idx = order.indexOf(user.uid);
+  const isLast = idx >= order.length - 1;
+
+  if(isLast){
+    await scFinishReveal(chain, sc.strokes || []);
+    return;
+  }
+
+  // This guesser now draws their guess
+  const updates = {
+    'sc/chain': chain,
+    'sc/strokes': [],
+    'sc/phase': 'draw',
+    'sc/activeUid': user.uid,
+    'sc/prompt': guess,
+    'sc/step': (sc.step || 0) + 1,
+    'sc/endsAt': srvNow() + SC_DRAW_SEC * 1000,
+    endsAt: srvNow() + SC_DRAW_SEC * 1000
+  };
+  try{
+    await db.ref('rooms/'+roomId).update(updates);
+    scLocalDone = false; // they will draw next
+    clearDrawCanvas();
+  }catch(e){ toast('Could not submit guess'); scLocalDone = false; if(input) input.disabled = false; }
+}
+
+async function scFinishReveal(chain, strokes){
+  const sc = roomData.sc;
+  const last = chain.filter(x => x.kind === 'guess').pop();
+  const ok = last && scNorm(last.text) === scNorm(sc.word);
+  let team = roomData.scTeamScore || 0;
+  if(ok) team += 1;
+  const updates = {
+    'sc/chain': chain,
+    'sc/phase': 'reveal',
+    'sc/activeUid': null,
+    'sc/strokes': strokes,
+    scTeamScore: team,
+    endsAt: null
+  };
+  Object.keys(roomData.players||{}).forEach(uid => {
+    updates['players/'+uid+'/score'] = team;
+  });
+  try{
+    await db.ref('rooms/'+roomId).update(updates);
+    if(ok) snd('win'); else snd('bad');
+  }catch(e){ toast('Could not finish round'); }
+}
+
+async function scNextRound(){
+  if(!scIsHost()) return;
+  beginRound();
+}
+
+// Wire SC buttons once
+(function(){
+  const on = (id, ev, fn) => { const el = $(id); if(el) el.addEventListener(ev, fn); };
+  on('btnScGuess','click', () => scSubmitGuess(false));
+  on('scGuessInput','keydown', e => { if(e.key==='Enter'){ e.preventDefault(); scSubmitGuess(false); } });
+  on('btnScNext','click', () => scNextRound());
+})();
 
 function enterDraw(force){
   if(!force && $('screen-draw').classList.contains('active') && !roundEnded){
@@ -6251,6 +6685,14 @@ function renderDrawScores(){
   }).join('');
 }
 
+function canDrawOnCanvas(){
+  // Sketch Race drawer OR Sketch Chain active drawer in draw phase
+  if(roomData && roomData.gameType === 'sketchchain'){
+    return !!(roomData.sc && user && roomData.sc.phase === 'draw' && roomData.sc.activeUid === user.uid && !scLocalDone);
+  }
+  return isDrawer() && !roundEnded;
+}
+
 function bindDrawCanvas(){
   const c = getDrawCanvas();
   if(!c) return;
@@ -6265,7 +6707,7 @@ function bindDrawCanvas(){
     lx = p.x; ly = p.y;
   };
   c.onpointerdown = e => {
-    if(!isDrawer() || roundEnded) return;
+    if(!canDrawOnCanvas()) return;
     if(e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
     getDrawCanvas();
@@ -6277,7 +6719,7 @@ function bindDrawCanvas(){
     add('start', p);
   };
   c.onpointermove = e => {
-    if(!drawIsDrawing || e.pointerId !== pid || !isDrawer() || roundEnded) return;
+    if(!drawIsDrawing || e.pointerId !== pid || !canDrawOnCanvas()) return;
     e.preventDefault();
     const list = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
     (list.length ? list : [e]).forEach(ev => {
@@ -6285,23 +6727,30 @@ function bindDrawCanvas(){
       if(!p || Math.hypot(p.x-lx, p.y-ly) < .8) return;
       add('move', p);
     });
-    if(srvNow() - drawLastPush > 80){ drawLastPush = srvNow(); pushStrokeBatch(); }
+    if(srvNow() - drawLastPush > 80){
+      drawLastPush = srvNow();
+      pushStrokeBatch();
+      try{ pushScStrokes(false); }catch(err){}
+    }
   };
   const end = e => {
     if(e.pointerId !== pid) return;
     pid = null; drawIsDrawing = false;
     try{ c.releasePointerCapture(e.pointerId); }catch(_){}
     pushStrokeBatch();
+    try{ pushScStrokes(false); }catch(err){}
   };
   c.onpointerup = end;
   c.onpointercancel = end;
 }
 
 function unbindDrawCanvas(){
-  const c = $('drawCanvas');
-  if(!c) return;
-  c.onpointerdown = c.onpointermove = c.onpointerup = c.onpointercancel = null;
-  c.onmousedown = c.onmousemove = c.ontouchstart = c.ontouchmove = c.ontouchend = null;
+  ['drawCanvas','scCanvas'].forEach(id => {
+    const c = $(id);
+    if(!c) return;
+    c.onpointerdown = c.onpointermove = c.onpointerup = c.onpointercancel = null;
+    c.onmousedown = c.onmousemove = c.ontouchstart = c.ontouchmove = c.ontouchend = null;
+  });
   drawIsDrawing = false;
 }
 
@@ -7487,6 +7936,17 @@ function onRoom(snap){
         checkDrawRaceWinner();
         renderDrawScores();
         updateDrawLevelBar();
+      }
+    } else if(gt==='sketchchain'){
+      const sc = roomData.sc || {};
+      const strokeN = Array.isArray(sc.strokes) ? sc.strokes.length : (sc.strokes ? Object.keys(sc.strokes).length : 0);
+      const scSig = (sc.gid||'')+'|'+(sc.phase||'')+'|'+(sc.activeUid||'')+'|'+(sc.step||0)+'|'+strokeN+'|'+(sc.chain?sc.chain.length:0);
+      if(scSig !== window._lastScSig || prevStatus==='results' || prevStatus==='lobby' || prevStatus===null){
+        window._lastScSig = scSig;
+        roundEnded = false;
+        enterSketchChain(true);
+      } else {
+        renderSketchChain();
       }
     } else if(gt==='board'){
       bgEnter();
@@ -9696,7 +10156,7 @@ $('tnSnd').onclick=()=>{toggleSound();$('tnSnd').textContent=soundOn?'🔊':'�
 <script>
 /* ===== Interactive thumbnails: tilt, ripple, tap reaction, battery-friendly pausing ===== */
 (function(){
-  var LABELS = {"boggle": "Boggle", "scatter": "Scattergories", "hangman": "Hangman Race", "draw": "Sketch Race", "spy": "Spy Word", "chain": "Word Chain", "board": "Snakes and Trivia", "town": "Island Mayor"};
+  var LABELS = {"boggle": "Boggle", "scatter": "Scattergories", "hangman": "Hangman Race", "draw": "Sketch Race", "sketchchain": "Sketch Chain", "spy": "Spy Word", "chain": "Word Chain", "board": "Snakes and Trivia", "town": "Island Mayor"};
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cards = Array.prototype.slice.call(document.querySelectorAll('.game-card'));
 
