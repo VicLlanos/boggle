@@ -9378,23 +9378,91 @@ if(document.getElementById('screen-auth')?.classList.contains('active') ||
   setTimeout(() => setWordRain(true), 200);
 }
 
-if ('serviceWorker' in navigator) {
-  // When a new version takes over an already-open game, reload it (right away on the menu screens,
-  // otherwise just tell the player, so nobody gets kicked out in the middle of a round).
-  const hadController = !!navigator.serviceWorker.controller;
-  let swReloading = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if(!hadController || swReloading) return;
-    const idle = ['screen-auth','screen-lobby'].some(id => { const el = document.getElementById(id); return el && el.classList.contains('active'); });
-    if(idle){ swReloading = true; location.reload(); }
-    else { try{ toast('New version ready — refresh the page to update'); }catch(e){} }
-  });
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => { reg.update(); })
-      .catch(err => console.warn('SW register failed', err));
-  });
-}
+/* ===== AUTO-UPDATE (so nobody has to refresh by hand after you deploy) =====
+   1) The page asks the server whether index.html changed (a tiny HEAD request, no download) when the app is opened/returned to,
+      when the phone comes back online, and every minute while visible. No version number to bump.
+   2) On the menu screens it reloads by itself; during a game it shows a one-tap "Update ready" bar so nobody loses a round.
+   3) Dev switch for when you are changing things all day: open the game once with ?dev=1 and the service worker + its caches are
+      removed on that device (every normal refresh then loads the newest files). Use ?dev=0 to turn it back on. */
+(function(){
+  const DEV_KEY = 'arenova_dev_nosw';
+  let dev = false;
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get('dev') === '1') localStorage.setItem(DEV_KEY, '1');
+    if(q.get('dev') === '0') localStorage.removeItem(DEV_KEY);
+    dev = localStorage.getItem(DEV_KEY) === '1';
+  }catch(e){}
+
+  const idleScreen = () => ['screen-auth','screen-lobby'].some(id => { const el = document.getElementById(id); return el && el.classList.contains('active'); });
+  let reloading = false;
+  function reloadNow(){ if(reloading) return; reloading = true; location.reload(); }
+  function showUpdateBar(){
+    if(document.getElementById('updateBar')) return;
+    const bar = document.createElement('button');
+    bar.id = 'updateBar'; bar.type = 'button';
+    bar.textContent = '🔄 New version ready — tap to update';
+    bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99999;'
+      + 'background:#7C5CFF;color:#fff;border:0;border-radius:999px;padding:12px 18px;font:800 .85rem DM Sans,system-ui,sans-serif;box-shadow:0 8px 24px rgba(20,10,50,.4);cursor:pointer;max-width:92vw';
+    bar.onclick = reloadNow;
+    document.body.appendChild(bar);
+  }
+  function updateFound(){ if(idleScreen()) reloadNow(); else showUpdateBar(); }
+
+  if(dev){
+    // Development mode: no service worker, no saved copies on this device.
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        const had = regs.length > 0;
+        return Promise.all(regs.map(r => r.unregister())).then(() => had);
+      }).then(had => {
+        if(window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k)));
+        let done = false; try{ done = sessionStorage.getItem('dev_sw_cleared') === '1'; }catch(e){}
+        if(had && !done){ try{ sessionStorage.setItem('dev_sw_cleared','1'); }catch(e){} reloadNow(); }
+      }).catch(()=>{});
+    }
+    window.addEventListener('load', () => { try{ toast('Dev mode: always loading the newest files'); }catch(e){} });
+    return;
+  }
+
+  /* ---- normal mode ---- */
+  if('serviceWorker' in navigator){
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if(hadController) updateFound(); });
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
+        .then(reg => { reg.update(); })
+        .catch(err => console.warn('SW register failed', err));
+    });
+  }
+
+  // Has index.html changed on the server since this page was loaded? (ETag / Last-Modified / size, via HEAD)
+  let baseSig = null, lastCheck = 0, busy = false;
+  async function serverSig(){
+    const r = await fetch(location.pathname + location.search.replace(/[?&]dev=\d/,''), { method:'HEAD', cache:'no-store' });
+    if(!r.ok) return null;
+    const sig = [r.headers.get('etag'), r.headers.get('last-modified'), r.headers.get('content-length')].join('|');
+    return sig === '||' ? null : sig;                  // host sends no validators -> cannot compare
+  }
+  async function checkForUpdate(force){
+    const now = Date.now();
+    if(busy || reloading || (!force && now - lastCheck < 10000)) return;
+    busy = true; lastCheck = now;
+    try{
+      const sig = await serverSig();
+      if(sig){
+        if(baseSig === null) baseSig = sig;
+        else if(sig !== baseSig) updateFound();
+      }
+      if('serviceWorker' in navigator) navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(()=>{});
+    }catch(e){}
+    busy = false;
+  }
+  window.addEventListener('load', () => setTimeout(() => checkForUpdate(true), 1500));
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') checkForUpdate(); });
+  window.addEventListener('online', () => checkForUpdate(true));
+  setInterval(() => { if(document.visibilityState === 'visible') checkForUpdate(); }, 60000);
+})();
 /* ===== ISLAND MAYOR v4 (solo city builder · square tiles · full-map · roads, pavements, decor) ===== */
 (function(){
 const N=48,HALF=N/2,STORE='town_v4',OLDSTORE='town_v3',WIPE=4,FH=1.1;
