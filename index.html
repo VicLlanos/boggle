@@ -4574,7 +4574,7 @@ async function beginRound(){
   if(gameType === 'scatter'){
     const seed = roomId + '_' + srvNow();
     const {letter, categories} = scatPickLetterAndCategories(seed, 12);
-    const updates={status:'playing',letter,categories,board:null,endsAt:srvNow()+ROUND_SECONDS*1000,startedAt:srvNow(),endedAt:null,rejected:null,challenges:null,forgiven:null};
+    const updates={status:'playing',letter,categories,scatFair:SCAT_MIN_ANSWERS,board:null,endsAt:srvNow()+ROUND_SECONDS*1000,startedAt:srvNow(),endedAt:null,rejected:null,challenges:null,forgiven:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
       updates['players/'+uid+'/verdicts']=null;
       updates['players/'+uid+'/score']=0;
@@ -8904,7 +8904,9 @@ function renderResults(rows){
     if(!window.__scatGapSig || window.__scatGapSig !== (roomData.startedAt||'')+'|'+letter){ window.__scatGapSig = (roomData.startedAt||'')+'|'+letter; scatRememberGaps(gapRep, letter); }
     window.__scatGapText = gapRep.text;
     const nGap = covInfo.filter(c=>c.level==='gap').length, nThin = covInfo.filter(c=>c.level==='thin').length;
+    const staleRound = !roomData.scatFair;
     detailHtml += '<div class="cov"><h4>🧠 How much does the system know for “'+esc(String(letter).toUpperCase())+'”?</h4>'
+      + (staleRound ? '<p style="color:#C0392B;margin-bottom:6px">⚠️ This round was created by an <b>older version of the game</b> that does not filter categories by known answers. The host’s device creates each round, so it needs the latest version (refresh or reinstall the app) to get fair rounds.</p>' : '')
       + '<p>'+(nGap||nThin
           ? (nGap?nGap+' categor'+(nGap===1?'y has':'ies have')+' <b>no known words</b>':'')+(nGap&&nThin?' and ':'')+(nThin?nThin+' '+(nThin===1?'has':'have')+' only <b>1–2</b>':'')+' for this letter. These are the places where the system’s vocabulary and common sense are too narrow.'
           : 'Every category has at least 3 known words for this letter. Nice coverage — but keep an eye on the answers below it could not confirm.')+'</p>'
@@ -9377,6 +9379,16 @@ if(document.getElementById('screen-auth')?.classList.contains('active') ||
 }
 
 if ('serviceWorker' in navigator) {
+  // When a new version takes over an already-open game, reload it (right away on the menu screens,
+  // otherwise just tell the player, so nobody gets kicked out in the middle of a round).
+  const hadController = !!navigator.serviceWorker.controller;
+  let swReloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(!hadController || swReloading) return;
+    const idle = ['screen-auth','screen-lobby'].some(id => { const el = document.getElementById(id); return el && el.classList.contains('active'); });
+    if(idle){ swReloading = true; location.reload(); }
+    else { try{ toast('New version ready — refresh the page to update'); }catch(e){} }
+  });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => { reg.update(); })
