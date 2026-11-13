@@ -2036,14 +2036,14 @@ function seededRandom(seed){
   return function(){s = s*16807 % 2147483647; return (s-1)/2147483646};
 }
 
-function generateCategories(seedStr, count=12){
+function generateCategories(seedStr, count=12, allowedPool=null, strictCaps=false){
   // Pick unique categories from the broad list, shuffled with a seeded random,
   // while limiting how many overlapping (same-family) categories can appear in one round.
   let seed = 0;
   for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i)) >>> 0;
   const rand = seededRandom(seed || srvNow());
 
-  const pool = [...BASE_CATEGORIES];
+  const pool = allowedPool ? [...allowedPool] : [...BASE_CATEGORIES];
   // Fisher-Yates shuffle with seeded random
   for(let i=pool.length-1;i>0;i--){
     const j = Math.floor(rand()*(i+1));
@@ -2061,9 +2061,43 @@ function generateCategories(seedStr, count=12){
     }
     picked.push(c);
   }
-  // Safety net: should never be needed, but guarantees `count` categories
-  for(const c of pool){ if(picked.length >= want) break; if(!picked.includes(c)) picked.push(c); }
+  // Safety net: should never be needed, but guarantees `count` categories (skipped when strictCaps: the caller wants the caps honoured)
+  if(!strictCaps) for(const c of pool){ if(picked.length >= want) break; if(!picked.includes(c)) picked.push(c); }
   return picked;
+}
+
+/* ===== FAIR ROUNDS: only use a letter/category pair when the system knows enough answers for it =====
+   A category is only eligible for a letter if the system's own word lists hold at least SCAT_MIN_ANSWERS confirmed answers for it
+   (so with 3 players a round can never contain a category that is practically impossible or has just one valid answer).
+   The letter is then chosen only among letters that leave enough eligible categories for a full sheet. Categories with no word
+   list at all count as 0, so they stay out until a list exists. Growing the word lists automatically widens the pool. */
+const SCAT_MIN_ANSWERS = 6;
+const SCAT_LETTERS = "ABCDEFGHIJKLMNOPRSTW";
+const _scatEligCache = {};
+function scatEligibleCategories(letter, min=SCAT_MIN_ANSWERS){
+  const L = String(letter).toUpperCase(), key = L+'|'+min;
+  if(_scatEligCache[key]) return _scatEligCache[key];
+  const out = BASE_CATEGORIES.filter(c => { try{ return ScatVerify.suggest(c, L).sure >= min; }catch(e){ return false; } });
+  return _scatEligCache[key] = out;
+}
+function scatPickLetterAndCategories(seed, count=12){
+  const full = [];                                    // letters that give a full sheet that also respects the overlap limits
+  let best = {L:null, n:-1};
+  for(const L of SCAT_LETTERS){
+    const pool = scatEligibleCategories(L);
+    const sheet = generateCategories(seed, count, pool, true);
+    if(sheet.length >= count) full.push({L, sheet});
+    if(pool.length > best.n) best = {L, n:pool.length};
+  }
+  if(best.n <= 0){                                    // word lists unavailable: behave like before
+    const letter = randomLetter(false);
+    return {letter, categories: generateCategories(seed, count)};
+  }
+  if(full.length){
+    const pick = full[Math.floor(Math.random()*full.length)];
+    return {letter: pick.L, categories: pick.sheet};
+  }
+  return {letter: best.L, categories: generateCategories(seed, count, scatEligibleCategories(best.L))};
 }
 
 function randomLetter(hard=false){
@@ -4538,9 +4572,8 @@ async function beginRound(){
   db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
 
   if(gameType === 'scatter'){
-    const letter = randomLetter(false);
     const seed = roomId + '_' + srvNow();
-    const categories = generateCategories(seed, 12);
+    const {letter, categories} = scatPickLetterAndCategories(seed, 12);
     const updates={status:'playing',letter,categories,board:null,endsAt:srvNow()+ROUND_SECONDS*1000,startedAt:srvNow(),endedAt:null,rejected:null,challenges:null,forgiven:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
       updates['players/'+uid+'/verdicts']=null;
@@ -5891,7 +5924,7 @@ const ScatVerify=(()=>{
     visit(cat,'sure',0);
     const words=[...best.entries()].map(([n,o])=>({norm:n,w:prettyWord(o.w),tier:o.tier}))
       .sort((a,b)=>(a.tier===b.tier?0:a.tier==='sure'?-1:1)||a.w.localeCompare(b.w));
-    return{words,total:words.length,hasList,listSize};
+    return{words,total:words.length,sure:words.filter(w=>w.tier==='sure').length,hasList,listSize};
   }
   return{check,warm,suggest};
 })();
