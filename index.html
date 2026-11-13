@@ -780,6 +780,29 @@ input:focus-visible{outline:none}
 .scat-row.invalid .scat-note{color:#C0392B}
 .scat-row input{padding-right:40px}
 
+
+/* ===== Scattergories review: system suggestions + knowledge coverage ===== */
+.sug{margin-top:10px;padding:9px 10px;border-radius:12px;background:linear-gradient(135deg,#F3F0FF,#FAF8FF);border:2px dashed rgba(124,92,255,.28);text-align:left}
+.sug-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.76rem;font-weight:900;color:var(--violet-d)}
+.sug-badge{font-size:.68rem;font-weight:900;padding:2px 8px;border-radius:99px;border:2px solid transparent}
+.sug-badge.good{background:#E6FBF4;color:#00896A;border-color:#9BE8D0}
+.sug-badge.fair{background:#EEF7FF;color:#0B6FBF;border-color:#B8DBF7}
+.sug-badge.thin{background:#FFF6E0;color:#B7791F;border-color:#F6D38C}
+.sug-badge.gap{background:#FFECEC;color:#C0392B;border-color:#F5B7B1}
+.sug-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sug-chip{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:800;padding:4px 10px;border-radius:99px;background:#fff;color:var(--violet-d);border:2px solid #D9CFFF}
+.sug-chip.maybe{border-style:dashed;color:#6B5B95;background:#FBFAFF}
+.sug-chip.maybe::after{content:'?';font-size:.7rem;opacity:.7}
+.sug-more{font-size:.74rem;font-weight:900;padding:4px 10px;border-radius:99px;border:2px solid var(--violet);background:#fff;color:var(--violet-d);cursor:pointer}
+.sug-note{font-size:.74rem;font-weight:700;line-height:1.35;margin-top:7px;color:#636E72}
+.sug-note.warn{color:#B7791F}
+.sug-note.bad{color:#C0392B}
+.cov{margin:0 0 12px;padding:11px 12px;border-radius:14px;background:#FFFBF0;border:2px solid #F6E2A8;text-align:left}
+.cov h4{font-family:'Bricolage Grotesque',sans-serif;font-size:.95rem;color:#8A5A00;margin-bottom:4px}
+.cov p{font-size:.78rem;font-weight:700;color:#6B5B2E;line-height:1.4}
+.cov ul{margin:6px 0 0 18px;font-size:.76rem;font-weight:700;color:#6B5B2E;line-height:1.5}
+.cov .cov-btn{margin-top:8px;font-size:.74rem;font-weight:900;padding:5px 12px;border-radius:99px;border:2px solid #E0A526;background:#fff;color:#8A5A00;cursor:pointer}
+
 /* ===== PROFILE EDITOR ===== */
 .profile-overlay{position:fixed;inset:0;background:rgba(15,8,40,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9500;display:none;align-items:flex-end;justify-content:center;padding:12px;padding-bottom:max(12px,var(--safe-b))}
 .profile-overlay.on{display:flex;animation:popIn .28s cubic-bezier(.34,1.4,.64,1)}
@@ -5819,7 +5842,47 @@ const ScatVerify=(()=>{
       return cache[ck]={v:'no',note:'Not recognised as a real word or name.'};
     }catch(e){return{v:'maybe',note:(dictHas(norm)?'Real word, but the':'The')+' online fact-checker isn’t reachable right now, so this is unverified. Others can challenge it.',offline:1}}
   }
-  return{check,warm};
+
+  // ---- Suggestions (review screen): what the system itself knows for a category + letter ----
+  // Reads ONLY the built-in word lists (LEX) through the same rules the checker uses (own list, "via" and "viaSoft" parents),
+  // so what you see here is exactly how much (or how little) the system can recognise. Empty = a vocabulary gap.
+  const PRETTY={icecream:'ice cream',guineapig:'guinea pig',sleepingbag:'sleeping bag',firstaid:'first aid kit',cuttingboard:'cutting board',ironingboard:'ironing board',hotchocolate:'hot chocolate',mineralwater:'mineral water',sparklingwater:'sparkling water',coconutwater:'coconut water',icedtea:'iced tea',trailmix:'trail mix',toiletpaper:'toilet paper',teddybear:'teddy bear',actionfigure:'action figure',rubikscube:'rubik\u2019s cube',hotairballoon:'hot air balloon',cablecar:'cable car',shoppingcart:'shopping cart',golfcart:'golf cart',gokart:'go-kart',firetruck:'fire truck',polarbear:'polar bear',seaotter:'sea otter',seaurchin:'sea urchin',sealion:'sea lion',lightningbug:'lightning bug',halohalo:'halo-halo',garlicrice:'garlic rice',jumprope:'jump rope',dollhouse:'dollhouse',watergun:'water gun',bluejay:'blue jay',cottoncandy:'cotton candy',cocacola:'coca-cola',charlottesweb:'charlotte\u2019s web',harrypotter:'harry potter',breakingbad:'breaking bad',bartsimpson:'bart simpson',bugsbunny:'bugs bunny',charliebrown:'charlie brown',amongus:'among us',angrybirds:'angry birds',animalcrossing:'animal crossing',candycrush:'candy crush',clashroyale:'clash royale',brawlstars:'brawl stars',doctorwho:'doctor who',gossipgirl:'gossip girl',davinci:'da vinci',measuringcup:'measuring cup',pinecone:'pine cone',seaweed:'seaweed',goldfish:'goldfish',wateringcan:'watering can',toolbox:'toolbox',tapemeasure:'tape measure',sandcastle:'sand castle',bubblegum:'bubble gum',policeofficer:'police officer',mailman:'mailman',hairdryer:'hair dryer',mouthwash:'mouthwash',cottonswab:'cotton swab',alarmclock:'alarm clock',reportcard:'report card'};
+  const prettyWord=w=>{const t=PRETTY[w]||w;return t.replace(/(^|[\s\-])([a-z])/g,(m,a,b)=>a+b.toUpperCase())};
+  function suggest(cat,letter){
+    const L=String(letter||'').toLowerCase().charAt(0);
+    const best=new Map();               // normalised form -> {w, tier}
+    const seenRule=new Set();
+    let hasList=false,listSize=0;
+    const visit=(c,tier,depth)=>{
+      const r=R[c];if(!r)return;
+      const sig=c+'|'+tier;if(seenRule.has(sig))return;seenRule.add(sig);
+      keysOf(r.lex).forEach(k=>{
+        if(!LEX[k])return;
+        hasList=true;
+        (SETS[k]=SETS[k]||new Set(LEX[k].split(' ')));
+        listSize+=SETS[k].size;
+        SETS[k].forEach(w=>{
+          if(!w||w.length<2||w.charAt(0)!==L)return;
+          const n=scatNorm(w);if(n.length<2)return;
+          const cur=best.get(n);
+          if(!cur)best.set(n,{w,tier});
+          else{
+            if(cur.tier==='maybe'&&tier==='sure')cur.tier='sure';
+            if(w.length<cur.w.length)cur.w=w;          // prefer the singular spelling
+          }
+        });
+      });
+      if(depth<2){
+        (r.via||[]).forEach(v=>visit(v,tier,depth+1));
+        (r.viaSoft||[]).forEach(v=>visit(v,'maybe',depth+1));
+      }
+    };
+    visit(cat,'sure',0);
+    const words=[...best.entries()].map(([n,o])=>({norm:n,w:prettyWord(o.w),tier:o.tier}))
+      .sort((a,b)=>(a.tier===b.tier?0:a.tier==='sure'?-1:1)||a.w.localeCompare(b.w));
+    return{words,total:words.length,hasList,listSize};
+  }
+  return{check,warm,suggest};
 })();
 
 const SCAT_JUNK=new Set(['none','na','nan','idk','dunno','nothing','pass','skip','noidea','null','nil','test','testing','abc','blah','lol','lmao','hmm','hm','ok','okay','yes','no','sample','anything','something','whatever','same','dontknow','unknown','random','stuff','thing','things','xxx','zzz','aaa','sdf','asd','qwe','wala','ewan','basta','wlaako','wlakoalam']);
@@ -8540,6 +8603,81 @@ function animateScore(el,from,to,delay){
   },delay);
 }
 
+
+/* ===== Scattergories review: suggestions & vocabulary-gap tracking ===== */
+const scatSugOpen = new Set();          // categories whose full suggestion list is expanded (survives re-renders)
+const SCAT_SUG_SHOW = 8;
+function scatSuggestHtml(cat, ci, letter, players){
+  let sg = {words:[],total:0,hasList:false,listSize:0};
+  try{ sg = ScatVerify.suggest(cat, letter); }catch(e){}
+  const used = new Set();
+  players.forEach(p => { const a=(p.answers||{})[ci]; if(a && a.trim()) used.add(scatNorm(a)); });
+  const unused = sg.words.filter(x => !used.has(x.norm));
+  const usedKnown = sg.total - unused.length;
+  let level, label;
+  if(sg.total === 0){ level='gap';  label='0 known'; }
+  else if(sg.total <= 2){ level='thin'; label=sg.total+' known'; }
+  else if(sg.total <= 5){ level='fair'; label=sg.total+' known'; }
+  else { level='good'; label=sg.total+' known'; }
+  const open = scatSugOpen.has(ci);
+  const shown = open ? unused : unused.slice(0, SCAT_SUG_SHOW);
+  let h = '<div class="sug" data-sug="'+ci+'">';
+  h += '<div class="sug-h">💡 System suggestions for <span style="color:var(--pink)">'+esc(String(letter).toUpperCase())+'</span>'
+     + '<span class="sug-badge '+level+'">'+label+'</span></div>';
+  if(shown.length){
+    h += '<div class="sug-chips">'+shown.map(x=>'<span class="sug-chip'+(x.tier==='maybe'?' maybe':'')+'">'+esc(x.w)+'</span>').join('');
+    if(unused.length > SCAT_SUG_SHOW) h += '<button type="button" class="sug-more" data-sugmore="'+ci+'">'+(open?'Show less':'+'+(unused.length-SCAT_SUG_SHOW)+' more')+'</button>';
+    h += '</div>';
+  }
+  if(sg.total === 0){
+    h += '<div class="sug-note bad">'+(sg.hasList
+      ? 'The system knows no “'+esc(String(letter).toUpperCase())+'” words for this category yet — that is a gap in its vocabulary.'
+      : 'The system has no built-in word list for this category at all — it can only guess through the online lookup.')+'</div>';
+  } else if(!unused.length){
+    h += '<div class="sug-note">Everything the system knows for this letter was already used by the players.</div>';
+  } else {
+    const extra = [];
+    if(usedKnown) extra.push(usedKnown+' of the '+sg.total+' known words '+(usedKnown===1?'was':'were')+' used this round');
+    if(level==='thin') extra.push('very narrow — this list needs expanding');
+    h += '<div class="sug-note'+(level==='thin'?' warn':'')+'">'+extra.join(' · ')+(extra.length?'.':'')+'</div>';
+  }
+  h += '</div>';
+  return {html:h, total:sg.total, level, hasList:sg.hasList};
+}
+
+// Collects what the system could NOT confirm this round, remembers it on this device and builds a copy-able report
+function scatBuildGapReport(cats, letter, players, covInfo){
+  const unknown = [];
+  cats.forEach((cat,ci)=>{
+    players.forEach(p=>{
+      const a=(p.answers||{})[ci]; if(!a||!a.trim())return;
+      const v=(p.verdicts||{})[ci];
+      if(v==='maybe'||v==='no') unknown.push({cat, word:a.trim(), v});
+    });
+  });
+  const L=String(letter).toUpperCase();
+  const lines = ['Scattergories vocabulary gap report — letter '+L, ''];
+  const weak = covInfo.filter(c=>c.level==='gap'||c.level==='thin');
+  lines.push('Categories where the system knows ≤2 words for '+L+':');
+  if(weak.length) weak.forEach(c=>lines.push('- '+c.cat+': '+c.total+(c.hasList?'':' (no word list at all)')));
+  else lines.push('- none');
+  lines.push('', 'Players’ answers the system could not confirm:');
+  if(unknown.length) unknown.forEach(u=>lines.push('- '+u.cat+': “'+u.word+'” ('+(u.v==='no'?'rejected':'unconfirmed')+')'));
+  else lines.push('- none');
+  return {text:lines.join('\n'), unknown, weak};
+}
+function scatRememberGaps(rep, letter){
+  // one entry per letter|category|word, kept on this device so gaps add up across games
+  try{
+    const key='wa_scat_gaps_v1', log=JSON.parse(localStorage.getItem(key)||'{}');
+    const now=Date.now();
+    rep.unknown.forEach(u=>{ log['W|'+u.cat+'|'+u.word.toLowerCase()]={t:now,cat:u.cat,word:u.word,v:u.v}; });
+    rep.weak.forEach(c=>{ log['C|'+String(letter).toUpperCase()+'|'+c.cat]={t:now,cat:c.cat,letter:String(letter).toUpperCase(),total:c.total}; });
+    const ks=Object.keys(log); if(ks.length>400) ks.sort((a,b)=>log[a].t-log[b].t).slice(0,ks.length-400).forEach(k=>delete log[k]);
+    localStorage.setItem(key, JSON.stringify(log));
+  }catch(e){}
+}
+
 function renderResults(rows){
   const gt = roomData?.gameType || 'boggle';
   const top=rows[0]?.final ?? 0;
@@ -8715,6 +8853,20 @@ function renderResults(rows){
     detailHtml += '<h3>📝 Letter <span style="color:var(--violet-d)">'+esc(letter)+'</span> · Review & Challenge</h3>';
     detailHtml += '<div class="psub" style="margin-bottom:12px">Challenge an answer if it does not fit the category. An answer <b>keeps its point unless it is challenged and rejected</b>. To reject, every other player must vote Reject (in 1v1 the owner must concede). Any Keep vote ends the challenge. Scoring: +1 per answer nobody else wrote; identical answers score 0 for everyone who wrote them.</div>';
 
+    // ---- system suggestions + vocabulary coverage for this letter ----
+    const sugParts = cats.map((cat, ci) => scatSuggestHtml(cat, ci, letter, players));
+    const covInfo = cats.map((cat, ci) => ({cat, total: sugParts[ci].total, level: sugParts[ci].level, hasList: sugParts[ci].hasList}));
+    const gapRep = scatBuildGapReport(cats, letter, players, covInfo);
+    if(!window.__scatGapSig || window.__scatGapSig !== (roomData.startedAt||'')+'|'+letter){ window.__scatGapSig = (roomData.startedAt||'')+'|'+letter; scatRememberGaps(gapRep, letter); }
+    window.__scatGapText = gapRep.text;
+    const nGap = covInfo.filter(c=>c.level==='gap').length, nThin = covInfo.filter(c=>c.level==='thin').length;
+    detailHtml += '<div class="cov"><h4>🧠 How much does the system know for “'+esc(String(letter).toUpperCase())+'”?</h4>'
+      + '<p>'+(nGap||nThin
+          ? (nGap?nGap+' categor'+(nGap===1?'y has':'ies have')+' <b>no known words</b>':'')+(nGap&&nThin?' and ':'')+(nThin?nThin+' '+(nThin===1?'has':'have')+' only <b>1–2</b>':'')+' for this letter. These are the places where the system’s vocabulary and common sense are too narrow.'
+          : 'Every category has at least 3 known words for this letter. Nice coverage — but keep an eye on the answers below it could not confirm.')+'</p>'
+      + (gapRep.unknown.length ? '<ul>'+gapRep.unknown.slice(0,6).map(u=>'<li>“'+esc(u.word)+'” in <i>'+esc(u.cat)+'</i> — system couldn’t '+(u.v==='no'?'accept it':'confirm it')+'</li>').join('')+(gapRep.unknown.length>6?'<li>+'+(gapRep.unknown.length-6)+' more</li>':'')+'</ul>' : '')
+      + '<button type="button" class="cov-btn" id="btnCopyGaps">📋 Copy gap report</button></div>';
+
     cats.forEach((cat, ci) => {
       detailHtml += '<div style="background:#F8F9FA;border-radius:14px;padding:12px;margin-bottom:10px;border:2px solid #EEF0F2">';
       detailHtml += '<div style="font-weight:900;font-size:.9rem;color:var(--violet-d);margin-bottom:8px">'+(ci+1)+'. '+esc(cat)+'</div>';
@@ -8773,6 +8925,7 @@ function renderResults(rows){
       });
 
       if(!hasAny) detailHtml += '<div class="none-words">No answers</div>';
+      detailHtml += sugParts[ci].html;
       detailHtml += '</div>';
     });
 
@@ -8780,6 +8933,17 @@ function renderResults(rows){
 
     $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+title+'</div><div class="s">'+sub+'</div></div>'+cards;
     $('possibleWrap').innerHTML = detailHtml;
+
+    // --- Suggestion list expand/collapse + gap report ---
+    $('possibleWrap').querySelectorAll('.sug-more').forEach(btn => {
+      btn.onclick = () => { const k=+btn.dataset.sugmore; scatSugOpen.has(k) ? scatSugOpen.delete(k) : scatSugOpen.add(k); renderResults(rows); };
+    });
+    const gapBtn = $('btnCopyGaps');
+    if(gapBtn) gapBtn.onclick = async () => {
+      const txt = window.__scatGapText || '';
+      try{ await navigator.clipboard.writeText(txt); toast('Gap report copied'); }
+      catch(e){ try{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Gap report copied'); }catch(e2){ toast('Could not copy'); } }
+    };
 
     // --- Wire buttons ---
     // Start a challenge
