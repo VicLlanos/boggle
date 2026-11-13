@@ -5591,23 +5591,23 @@ const ScatVerify=(()=>{
     "Something on a farm":{lex:'farm',via:['A fruit or vegetable'],viaSoft:['An animal'],assoc:['farm'],where:'on a farm'},
     "A fruit or vegetable":{t:['Q3314483','Q11004'],lex:'produce',strict:1},
     "A plant or flower":{t:['Q756','Q506','Q10884'],lex:'plant'},
-    "A type of weather":{lex:'weather',assoc:['weather'],where:'in the weather'},
+    "A type of weather":{lex:'weather',assoc:['weather'],where:'in the weather',tl:['weather', 'precipitation', 'meteorological phenomenon', 'storm']},
 
     "A country":{t:['Q6256'],lex:'country',strict:1},
     "A city":{t:['Q515','Q1549591'],strict:1},
     "A type of building":{lex:'building',t:['Q41176']},
     "A type of store":{lex:'store',t:['Q213441'],assoc:['shop','store']},
     "A place to visit on vacation":{lex:'vacation',via:['A country','A city'],t:['Q570116','Q23442','Q40080']},
-    "Something you find in a house":{lex:'house',assoc:['house','home'],where:'in a house'},
-    "Something you find in a kitchen":{lex:'kitchen',assoc:['kitchen','cooking'],where:'in a kitchen'},
-    "Something you find at school":{lex:'school',head:1,assoc:['school','classroom'],where:'at school'},
-    "Something you find at the beach":{lex:'beach',head:1,assoc:['beach','seaside'],where:'at the beach'},
-    "Something you find in a park":{lex:'park',head:1,assoc:['park','playground'],where:'in a park'},
-    "Something in a bathroom":{lex:'bath',assoc:['bathroom'],where:'in a bathroom'},
-    "Something in a bedroom":{lex:'bed',assoc:['bedroom','sleep'],where:'in a bedroom'},
-    "Something in a garden":{lex:'garden',via:['A plant or flower'],assoc:['garden'],where:'in a garden'},
-    "Something in the sky":{lex:'sky',via:['A bird'],assoc:['sky'],where:'in the sky'},
-    "Something in the ocean":{lex:'ocean',via:['A sea creature'],assoc:['ocean','sea'],where:'in the ocean'},
+    "Something you find in a house":{lex:'house',assoc:['house','home'],where:'in a house',tl:['household appliance', 'home appliance', 'furniture', 'household goods']},
+    "Something you find in a kitchen":{lex:'kitchen',assoc:['kitchen','cooking'],where:'in a kitchen',tl:['kitchen utensil', 'kitchen appliance', 'cookware and bakeware', 'tableware', 'kitchenware']},
+    "Something you find at school":{lex:'school',head:1,assoc:['school','classroom'],where:'at school',tl:['stationery', 'writing implement', 'office supplies']},
+    "Something you find at the beach":{lex:'beach',head:1,assoc:['beach','seaside'],where:'at the beach',tl:['swimwear', 'sunscreen', 'seashell']},
+    "Something you find in a park":{lex:'park',head:1,assoc:['park','playground'],where:'in a park',tl:['playground equipment', 'bench', 'fountain']},
+    "Something in a bathroom":{lex:'bath',assoc:['bathroom'],where:'in a bathroom',tl:['toiletry', 'sanitary ware', 'bathroom fixture']},
+    "Something in a bedroom":{lex:'bed',assoc:['bedroom','sleep'],where:'in a bedroom',tl:['bedding', 'bed', 'furniture']},
+    "Something in a garden":{lex:'garden',via:['A plant or flower'],assoc:['garden'],where:'in a garden',tl:['garden tool', 'garden ornament', 'garden furniture']},
+    "Something in the sky":{lex:'sky',via:['A bird'],assoc:['sky'],where:'in the sky',tl:['astronomical object', 'atmospheric phenomenon', 'aircraft']},
+    "Something in the ocean":{lex:'ocean',via:['A sea creature'],assoc:['ocean','sea'],where:'in the ocean',tl:['marine animal', 'marine organism', 'watercraft']},
     "Something in a forest":{lex:'forest',via:['A plant or flower'],assoc:['forest','woods'],viaSoft:['An animal'],where:'in a forest'},
 
     "A food":{t:['Q2095','Q746549'],lex:'food',via:['A fruit or vegetable']},
@@ -5623,8 +5623,8 @@ const ScatVerify=(()=>{
     "A tool":{lex:'tool',t:['Q39546']},
     "A toy":{lex:'toy',t:['Q11422']},
     "A musical instrument":{t:['Q34379'],lex:'inst',strict:1},
-    "Something you can hold in your hand":{lex:'hand',head:1},
-    "Something you take on a trip":{lex:'travel',assoc:['travel','trip','vacation'],where:'on a trip'},
+    "Something you can hold in your hand":{lex:'hand',head:1,tl:['hand tool', 'writing implement', 'handheld device']},
+    "Something you take on a trip":{lex:'travel',assoc:['travel','trip','vacation'],where:'on a trip',tl:['luggage', 'bag', 'travel accessory']},
 
     "Something soft":{lex:'soft',adj:['soft']},
     "Something hard":{lex:'hard',adj:['hard']},
@@ -5633,7 +5633,7 @@ const ScatVerify=(()=>{
     "Something round":{lex:'round',head:1,adj:['round']},
     "Something sweet":{lex:'sweet',via:['A dessert or sweet'],adj:['sweet']},
     "Something that makes a sound":{lex:'sound',head:1,assoc:['sound','noise']},
-    "Something that flies":{lex:'flies',via:['A bird'],assoc:['fly','flying']},
+    "Something that flies":{lex:'flies',via:['A bird'],assoc:['fly','flying'],tl:['aircraft', 'bat']},
 
     "A movie or TV show":{t:['Q11424','Q5398426','Q15416']},
     "A song title":{t:['Q7366','Q134556','Q482994']},
@@ -5647,7 +5647,7 @@ const ScatVerify=(()=>{
     "A body part":{t:['Q4936952'],lex:'part'},
     "A brand or company":{t:['Q431289','Q4830453','Q783794']},
     "Something you do every day":{lex:'daily',any:1},
-    "Things at a party":{lex:'party',head:1,assoc:['party','celebration'],where:'at a party'},
+    "Things at a party":{lex:'party',head:1,assoc:['party','celebration'],where:'at a party',tl:['balloon', 'party game', 'cake']},
     "Something that makes you happy":{lex:'happy',head:1},
     "Something scary":{lex:'scary',head:1},
     "Something funny":{lex:'funny',head:1},
@@ -5730,7 +5730,7 @@ const ScatVerify=(()=>{
     return sets.some(S=>[...cand].some(c=>c&&S.has(c)));
   }
   // Pre-load association data for this round's categories so answers are confirmed instantly
-  function warm(cats){(cats||[]).forEach(c=>{const r=R[c];if(!r)return;(r.assoc||[]).forEach(s=>assocSet('t',s));(r.adj||[]).forEach(s=>assocSet('a',s))})}
+  function warm(cats){(cats||[]).forEach(c=>{const r=R[c];if(!r)return;if(r.tl){try{resolveClasses(r.tl)}catch(e){}}(r.assoc||[]).forEach(s=>assocSet('t',s));(r.adj||[]).forEach(s=>assocSet('a',s))})}
   const dictHas=w=>{const t=w.split(/[\s\-']+/).filter(x=>x.length>=3);return dictReady&&DICT.size>50000&&t.length>0&&t.every(x=>DICT.has(x)||DICT.has(x.replace(/(es|s)$/,'')))};
   const cache={};
   const lbl=h=>h.label+(h.description?' ('+h.description+')':'');
@@ -5752,6 +5752,16 @@ const ScatVerify=(()=>{
       .then(d=>{const h=d.search||[];SC[k]=[srvNow(),h.map(x=>({id:x.id,label:x.label,description:x.description}))];persist();return SC[k][1]})
       .finally(()=>{delete inflightS[k]});
   };
+  // Wikidata classes written as plain English labels (rule.tl). Each label is resolved to its item id with the same cached search,
+  // accepting ONLY an exact label match, so a vague search hit can never become a wrong class. Unresolved labels are simply skipped.
+  const RC={};
+  function resolveClasses(labels){
+    const key=labels.join('|');
+    if(RC[key])return RC[key];
+    return RC[key]=Promise.all(labels.map(async l=>{
+      try{const hits=await search(l);const h=(hits||[]).find(x=>String(x.label||'').toLowerCase()===l.toLowerCase());return h?h.id:null}catch(e){return null}
+    })).then(ids=>{ids=ids.filter(Boolean);if(!ids.length)delete RC[key];return ids});
+  }
   // Walk "instance of / subclass of / parent taxon / occupation" upwards. Only uncached ids hit the network, in parallel batches of 50.
   async function parents(ids){
     const need=ids.filter(i=>!PC[i]);
@@ -5810,7 +5820,7 @@ const ScatVerify=(()=>{
         const soft=(rule.viaSoft||[]).find(n=>byName[n].v==='ok');
         if(soft){
           softNote='“'+val+'” is '+lcFirst(soft)+', but we couldn’t confirm it fits “'+short+'”. Others may challenge.';
-          if(!(rule.assoc||rule.adj||(rule.t&&rule.t.length)))return cache[ck]={v:'maybe',note:softNote};
+          if(!(rule.assoc||rule.adj||rule.tl||(rule.t&&rule.t.length)))return cache[ck]={v:'maybe',note:softNote};
         }
         // Clearly none of the parent categories (e.g. "table" is not an animal) -> reject for strict inheritance categories
         if(rule.viaStrict&&!offline&&names.every(n=>byName[n].v==='no'))return cache[ck]={v:'no',note:'“'+val+'” isn’t '+art+'.'};
@@ -5822,12 +5832,13 @@ const ScatVerify=(()=>{
       }
       // 4) Wikidata classes
       let hits=null;
-      if(rule&&rule.t&&rule.t.length){
+      const TT=rule?[...(rule.t||[]),...(rule.tl?await resolveClasses(rule.tl):[])]:[];
+      if(rule&&TT.length){
         hits=await search(val);
         if(!hits.length){
           if(rule.strict&&!dictHas(norm))return cache[ck]={v:'no',note:'Not recognised as a real word or name.'};
         }else{
-          const mr=await match(hits.map(h=>h.id),rule.t),id=mr.id,h0=hits.find(h=>h.id===id);
+          const mr=await match(hits.map(h=>h.id),TT),id=mr.id,h0=hits.find(h=>h.id===id);
           if(id)return cache[ck]={v:'ok',note:'Confirmed: '+lbl(h0)};
           if(rule.strict&&mr.complete)return cache[ck]={v:'no',note:'“'+lbl(hits[0])+'” isn’t '+art+'.'};
           return cache[ck]={v:'maybe',note:'Found “'+lbl(hits[0])+'” but couldn’t confirm it’s '+art+'. Others may challenge.'};
