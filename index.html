@@ -11006,8 +11006,8 @@ let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,h
 let PM,GM,DM,MKG,MKO,MKN,HG,HM,SUN;const GC={},MC={},RC={};
 /* ===== Farm Valley v3: tractor, conveyors, truck, 3D item icons (no emoji) ===== */
 const MKX=-53,MKZ=28;let later=[],clouds=[],WM=null,WORLD,mv_=[],arcs=[],jobQ=[],busyT=0,truck=null,ts=null,belts=[],barnTiles=[],claimedPlots=new Set();
-const GWc=COLS*PP,GHc=ROWS*PP,RZ=r=>r*PP-GHc/2,BZ=RZ(7),BX=-32.5,DOOR={x:BX-2.7,z:BZ},OUT_Z=BZ,DOCK={x:-47.7,z:OUT_Z},TPARK={x:-48.6,z:OUT_Z+.2},XW=PP-GWc/2,
- UNLD=[{road:RZ(6),hx:BX,hz:RZ(6)+1.5,ez:BZ-2},{road:RZ(8),hx:BX,hz:RZ(8)-1.5,ez:BZ+2}],usedSl=new Set(),MAXT=2,CAP=12,BV=.9;
+const GWc=COLS*PP,GHc=ROWS*PP,RZ=r=>r*PP-GHc/2,BZ=RZ(6),BX=-32.5,XW=PP-GWc/2,XE=4*PP-GWc/2,WRD=-48.6,DOOR={x:BX,z:BZ+2},DOCK={x:BX,z:RZ(8)-1.8},TRK={x:BX+.6,z:RZ(8)},
+ UNLD=[{road:RZ(7),hx:BX-3.5,hz:RZ(7)-1.5,ez:BZ+2,x0:XW,dir:1},{road:RZ(7),hx:BX+3.5,hz:RZ(7)-1.5,ez:BZ+2,x0:XE,dir:-1}],usedSl=new Set(),MAXT=2,CAP=12,BV=.9;
 function mkWheel(r,w,hub){const g=new THREE.Group(),t=M3('y',0x1c1c1c,r,w,r,0,0,0,g);t.rotation.z=PI/2;const h=M3('y',hub,r*.55,w*1.06,r*.55,0,0,0,g);h.rotation.z=PI/2;
  for(let i=0;i<14;i++){const a=i*PI/7,l=M3('b',0x141414,w*1.02,.05,.1,0,sn(a)*r,cs(a)*r,g);l.rotation.x=-a}g.r=r;return g}
 function mkTractor(){const g=new THREE.Group(),GR=0x3a7d1e,Y=0xf2c200,tw=[],GL={transparent:true,opacity:.45};
@@ -11067,7 +11067,7 @@ function buildWorld(){WORLD=new THREE.Group();SC.add(WORLD);const GW=COLS*PP,GH=
  
  scenery();buildBelt()}
 function scenery(){const GW=COLS*PP,GH=ROWS*PP,HX=GW/2,HZ=GH/2,O=new THREE.Object3D();let sd=11;const rn=()=>(sd=sd*16807%2147483647)/2147483647;
- for(let c=0;c<=COLS;c++){const x=(c-COLS/2)*PP;M3('b',0x8d8577,GAP-.1,.04,GH+GAP,x,.02,0,WORLD);M3('b',0xe8d9a0,.05,.01,GH+GAP,x,.045,0,WORLD)}for(let r=0;r<=ROWS;r++){const z=(r-ROWS/2)*PP;M3('b',0x8d8577,GW+GAP,.04,GAP-.1,0,.021,z,WORLD);M3('b',0xe8d9a0,GW+GAP,.01,.05,0,.046,z,WORLD)}
+ 
  const post=[];for(let c=0;c<=COLS*2;c++){const x=-HX+c*PP/2;post.push([x,-HZ-.3],[x,HZ+.3])}for(let r=0;r<=ROWS*2;r++){const z=-HZ+r*PP/2;post.push([HX+.3,z]);if(z<-17||z>6)post.push([-HX-.3,z])}
  const im=new THREE.InstancedMesh(geo('b'),mat(0x8a5f33),post.length);post.forEach((p,i)=>{O.position.set(p[0],.35,p[1]);O.scale.set(.12,.7,.12);O.updateMatrix();im.setMatrixAt(i,O.matrix)});im.frustumCulled=false;WORLD.add(im);
  [.5,.28].forEach(y=>{[-HZ-.3,HZ+.3].forEach(z=>M3('b',0xb98a52,GW+.6,.06,.06,0,y,z,WORLD));M3('b',0xb98a52,.06,.06,GH+.6,HX+.3,y,0,WORLD);M3('b',0xb98a52,.06,.06,HZ-17,-HX-.3,y,(-HZ-17)/2,WORLD);M3('b',0xb98a52,.06,.06,HZ-6,-HX-.3,y,(HZ+6)/2,WORLD)});
@@ -11084,7 +11084,7 @@ function market(){const g=new THREE.Group();g.position.set(MKX,0,MKZ);WORLD.add(
 function hopper(X,Z){const hp=new THREE.Group();hp.position.set(X,0,Z);WORLD.add(hp);[-.5,.5].forEach(x=>[-.5,.5].forEach(z=>M3('b',0x6a747c,.06,.7,.06,x,.35,z,hp)));
  [[0,-.4,.9],[0,.4,-.9],[-.4,0,0],[.4,0,0]].forEach((a,i)=>{const m=M3('b',0x7d8791,i<2?1.0:.04,i<2?.04:.5,i<2?.5:1.0,a[0]*1.1,.95,a[1]*(i<2?1.1:0),hp);if(i<2)m.rotation.x=a[2]*.45;else m.rotation.z=(i===2?-1:1)*.45});M3('b',0x5a636b,.7,.05,.7,0,.68,0,hp)}
 /* 3 conveyors: LEFT (north) + RIGHT (south) are for tractors, MIDDLE (west door) is for the market truck */
-function buildBelt(){mkBelt(DOCK.x,DOOR.x+.2,OUT_Z,.5,-1);UNLD.forEach(u=>{hopper(u.hx,u.hz);const L=Math.abs(u.ez-u.hz),g=mkBelt(-L/2,L/2,0,.5,1);g.position.set(u.hx,0,(u.hz+u.ez)/2);g.rotation.y=u.ez>u.hz?-PI/2:PI/2})}
+function buildBelt(){{const L=DOCK.z-DOOR.z,g=mkBelt(-L/2,L/2,0,.5,1);g.position.set(BX,0,(DOOR.z+DOCK.z)/2);g.rotation.y=-PI/2}UNLD.forEach(u=>{hopper(u.hx,u.hz);const L=Math.abs(u.ez-u.hz),g=mkBelt(-L/2,L/2,0,.5,1);g.position.set(u.hx,0,(u.hz+u.ez)/2);g.rotation.y=u.ez>u.hz?-PI/2:PI/2})}
 const BELT_TOP=.66;
 function drive(g,pts,spd,done,o){const m=Object.assign({g,pts:pts.slice(),i:0,spd,done},o||{});mv_.push(m);return m}
 function arc(m,a,b,dur,done){arcs.push({m,a:{x:a.x,y:a.y,z:a.z},b:{x:b.x,y:b.y,z:b.z},d:dur,t:0,done})}
@@ -11122,28 +11122,28 @@ function workerRun(t,q,kind,mine,zs,fin){const w=mkWorker(),tp=new THREE.Vector3
     const n=mine.length,lx=(n%3-1)*.3,lz=(Math.floor(n/3)%4-1.5)*.38,to=t.ld.localToWorld(new THREE.Vector3(lx,.15,lz));mine.push({m,j});arc(m,p,to,.5,()=>{WORLD.remove(m);t.ld.add(m);m.position.set(lx,.12,lz)});setTimeout(next,350)})}}],2.4)};next()}
 function trip(b,kind){const slot=usedSl.has(0)?1:0;usedSl.add(slot);busyT++;const U=UNLD[slot],t=mkTractor(),mine=[];t.isTractor=1;t.slot=slot;
  const myPlots=new Set(b.map(j=>j.p));myPlots.forEach(p=>claimedPlots.add(p));
- t.position.set(XW,0,U.road);t.rotation.y=PI/2;WORLD.add(t);
+ t.position.set(U.x0,0,U.road);t.rotation.y=U.dir>0?PI/2:-PI/2;WORLD.add(t);
  if(kind==='feed')for(let i=0;i<4;i++)M3('b',0xd9b44a,.34,.22,.3,(i%2-.5)*.45,.12+Math.floor(i/2)*.2,i%2?.3:-.3,t.ld);
  const G2={};b.forEach(j=>(G2[j.p]=G2[j.p]||[]).push(j));
- const ps=Object.keys(G2).map(Number).sort((a,c)=>Math.hypot(pc(a).x-XW,pc(a).z-U.road)-Math.hypot(pc(c).x-XW,pc(c).z-U.road));
- let cur={x:XW,z:U.road};const pts=[{x:XW,z:U.road}];
- ps.forEach(p=>{const q=G2[p].slice(),zs=pc(p).z+PP/2,xv=(p%COLS)*PP-GWc/2,st={x:pc(p).x,z:zs};let wk=0;
-  pts.push({x:xv,z:cur.z},{x:xv,z:zs});
+ const ps=Object.keys(G2).map(Number).sort((a,c)=>(pc(a).z-pc(c).z)||(pc(a).x-pc(c).x));
+ let cur={x:U.x0,z:U.road};const pts=[{x:U.x0,z:U.road}];
+ ps.forEach(p=>{const q=G2[p].slice(),zs=pc(p).z+PP/2,st={x:pc(p).x,z:zs};let wk=0;
+  if(Math.abs(cur.z-zs)>.01)pts.push({x:U.x0,z:cur.z},{x:U.x0,z:zs});
   pts.push({x:st.x,z:st.z,fn:()=>{const n=Math.min(3,q.length);wk=n;for(let i=0;i<n;i++)setTimeout(()=>workerRun(t,q,kind,mine,zs,()=>wk--),i*500)},hold:()=>wk>0});cur=st});
- pts.push({x:XW,z:cur.z},{x:XW,z:U.road});
- const ul={x:U.hx+2.15,z:U.road};
+ pts.push({x:U.x0,z:cur.z},{x:U.x0,z:U.road});
+ const ul={x:U.hx+2.15*U.dir,z:U.road};
  pts.push({x:ul.x,z:ul.z,wait:kind==='feed'?.3:b.length*.45+1.6,fn:()=>{mine.forEach((o,i)=>setTimeout(()=>{const p=new THREE.Vector3();o.m.getWorldPosition(p);t.ld.remove(o.m);WORLD.add(o.m);o.m.position.copy(p);
   arc(o.m,p,{x:U.hx,y:1.0,z:U.hz},.55,()=>{WORLD.remove(o.m);const c=mkCrate(o.j.key);WORLD.add(c);c.position.set(U.hx,BELT_TOP,U.hz);drive(c,[{x:U.hx,z:U.ez}],BV,()=>{WORLD.remove(c);pop('+1 '+(IT[o.j.key]?IT[o.j.key].n:''),'gain')},{turn:false})})},i*450))}});
- pts.push({x:XW,z:U.road});drive(t,pts,3.6,()=>{WORLD.remove(t);myPlots.forEach(p=>claimedPlots.delete(p));usedSl.delete(slot);busyT--;pump()})}
+ pts.push({x:U.x0,z:U.road});drive(t,pts,3.6,()=>{WORLD.remove(t);myPlots.forEach(p=>claimedPlots.delete(p));usedSl.delete(slot);busyT--;pump()})}
 function shipOut(keys,done){if(!ready||!WORLD){done&&done();return}
  if(ts&&ts.leaving){later.push(...keys);return}
- if(!truck){truck=mkTruck();truck.position.set(TPARK.x,0,TPARK.z-36);WORLD.add(truck);ts={arrived:false,pend:0,q:[],gap:0,leaving:false,t:0};drive(truck,[{x:TPARK.x,z:TPARK.z}],6,()=>{ts.arrived=true})}
+ if(!truck){truck=mkTruck();truck.position.set(WRD,0,-36);WORLD.add(truck);ts={arrived:false,pend:0,q:[],gap:0,leaving:false,t:0};drive(truck,[{x:WRD,z:TRK.z},{x:TRK.x,z:TRK.z}],6,()=>{ts.arrived=true})}
  ts.q.push(...keys);ts.pend+=keys.length;ts.done=done||ts.done}
 function updateTruck(dt){if(!ts||!truck)return;ts.gap-=dt;
- if(ts.arrived&&ts.q.length&&ts.gap<=0){ts.gap=.75;const k=ts.q.shift(),c=mkCrate(k);WORLD.add(c);c.position.set(DOOR.x,BELT_TOP,OUT_Z);
-  drive(c,[{x:DOCK.x+.1,z:OUT_Z}],BV,()=>{const n=truck.bed.children.length,lx=(n%2-.5)*.45,lz=(Math.floor(n/2)%4-1.5)*.26;truck.updateMatrixWorld(true);const to=truck.bed.localToWorld(new THREE.Vector3(lx,.15,lz));
-   arc(c,{x:DOCK.x+.1,y:BELT_TOP,z:OUT_Z},to,.45,()=>{WORLD.remove(c);if(!truck)return;truck.bed.add(c);c.position.set(lx,.1,lz);ts.pend--})},{turn:false})}
- if(ts.arrived&&!ts.q.length&&ts.pend<=0&&!ts.leaving){ts.t+=dt;if(ts.t>1.3){ts.leaving=true;const cb=ts.done;const tk=truck;drive(tk,[{x:TPARK.x,z:MKZ,wait:2.8,fn:()=>{tk.updateMatrixWorld(true);tk.bed.children.slice().forEach((c,i)=>setTimeout(()=>{const p=new THREE.Vector3();c.getWorldPosition(p);tk.bed.remove(c);WORLD.add(c);c.position.copy(p);arc(c,p,{x:MKX+.9,y:1.0,z:MKZ+(i%3-1)*2.2},.6,()=>WORLD.remove(c))},i*160))}},{x:TPARK.x,z:MKZ+34}],6,()=>{WORLD.remove(tk);truck=null;ts=null;cb&&cb();const L=later.splice(0);if(L.length)shipOut(L)})}}}
+ if(ts.arrived&&ts.q.length&&ts.gap<=0){ts.gap=.75;const k=ts.q.shift(),c=mkCrate(k);WORLD.add(c);c.position.set(DOOR.x,BELT_TOP,DOOR.z);
+  drive(c,[{x:DOCK.x,z:DOCK.z}],BV,()=>{const n=truck.bed.children.length,lx=(n%2-.5)*.45,lz=(Math.floor(n/2)%4-1.5)*.26;truck.updateMatrixWorld(true);const to=truck.bed.localToWorld(new THREE.Vector3(lx,.15,lz));
+   arc(c,{x:DOCK.x,y:BELT_TOP,z:DOCK.z},to,.45,()=>{WORLD.remove(c);if(!truck)return;truck.bed.add(c);c.position.set(lx,.1,lz);ts.pend--})},{turn:false})}
+ if(ts.arrived&&!ts.q.length&&ts.pend<=0&&!ts.leaving){ts.t+=dt;if(ts.t>1.3){ts.leaving=true;const cb=ts.done;const tk=truck;drive(tk,[{x:TRK.x,z:TRK.z},{x:WRD,z:TRK.z},{x:WRD,z:MKZ,wait:2.8,fn:()=>{tk.updateMatrixWorld(true);tk.bed.children.slice().forEach((c,i)=>setTimeout(()=>{const p=new THREE.Vector3();c.getWorldPosition(p);tk.bed.remove(c);WORLD.add(c);c.position.copy(p);arc(c,p,{x:MKX+.9,y:1.0,z:MKZ+(i%3-1)*2.2},.6,()=>WORLD.remove(c))},i*160))}},{x:WRD,z:MKZ+34}],6,()=>{WORLD.remove(tk);truck=null;ts=null;cb&&cb();const L=later.splice(0);if(L.length)shipOut(L)})}}}
 
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
@@ -11333,7 +11333,7 @@ function animal(id){const g=new THREE.Group(),F={chicken:.85,duck:.9,sheep:.85,p
  return g}
 function fence(x,z){const h=(PP-GAP)/2;[[0,-h,2*h,.07],[0,h,2*h,.07],[-h,0,.07,2*h],[h,0,.07,2*h]].forEach(a=>M3('b',0xb98a52,a[2],.07,a[3],x+a[0],.34,z+a[1],root));
  [-h,0,h].forEach(a=>[-h,h].forEach(b=>{M3('b',0x8a5f33,.12,.5,.12,x+a,.25,z+b,root);M3('b',0x8a5f33,.12,.5,.12,x+b,.25,z+a,root)}))}
-function barn(){const B=new THREE.Group();B.position.set(BX,0,BZ);B.rotation.y=-PI/2;WORLD.add(B);const R=0xb7312c,W=0xf4efe6,DR=0x8f241f;
+function barn(){const B=new THREE.Group();B.position.set(BX,0,BZ);B.rotation.y=0;B.scale.x=2.1;WORLD.add(B);const R=0xb7312c,W=0xf4efe6,DR=0x8f241f;
  const m=(k,c,sx,sy,sz,x,y,z,rz,t)=>{const o=M3(k,c,sx,sy,sz,x,y,z,B);if(rz)o.rotation.z=rz;if(t){o.userData={k:'barn'};barnTiles.push(o)}return o};
  m('b',0x9a9fa6,4.3,.3,5.3,0,.1,0,0,1);m('b',R,4,2.2,5,0,1.35,0,0,1);
  const pr=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,3),mat(R));pr.scale.set(2.31,5,1.07);pr.rotation.x=-PI/2;pr.position.set(0,2.98,0);pr.userData={k:'barn'};barnTiles.push(pr);B.add(pr);
@@ -11342,10 +11342,13 @@ function barn(){const B=new THREE.Group();B.position.set(BX,0,BZ);B.rotation.y=-
  m('b',W,2,1.78,.06,0,1.14,2.52);[-.46,.46].forEach(x=>{m('b',DR,.9,1.62,.07,x,1.14,2.55);m('b',W,.07,1.8,.08,x,1.14,2.6,.5);m('b',W,.07,1.8,.08,x,1.14,2.6,-.5)});
  m('b',W,1.05,.85,.06,0,2.95,2.52);m('b',DR,.88,.7,.07,0,2.95,2.55);m('b',W,.07,.85,.08,0,2.95,2.6,.7);m('b',W,.07,.85,.08,0,2.95,2.6,-.7);
  [-1.1,.7].forEach(z=>{m('b',W,.06,.7,.7,2.02,1.5,z);m('b',0x2b3a4a,.07,.5,.5,2.03,1.5,z)});
- m('y',0xaeb4bd,.85,4,.85,-3.3,2,-1.4,0,1);m('y',0x8d939c,.9,.1,.9,-3.3,1,-1.4);m('y',0x8d939c,.9,.1,.9,-3.3,2.6,-1.4);m('s',0x7d838c,.85,.6,.85,-3.3,4,-1.4);
- const sg=label('Barn',1);sg.position.set(0,4.9,2.6);B.add(sg)}
+ m('y',0xaeb4bd,.4,4,.4,-2.2,2,-1.4,0,1);m('y',0x8d939c,.43,.1,.43,-2.2,1,-1.4);m('y',0x8d939c,.43,.1,.43,-2.2,2.6,-1.4);m('s',0x7d838c,.4,.6,.4,-2.2,4,-1.4);
+ const sg=label('Barn',1);sg.position.set(0,4.9,2.6);sg.scale.set(1,.79,1);B.add(sg)}
+function roads(){const C=0x8d8577,R=(x0,x1,z)=>{M3('b',C,Math.abs(x1-x0)+GAP,.04,GAP-.1,(x0+x1)/2,.02,z,root);M3('b',0xe8d9a0,Math.abs(x1-x0)+GAP,.01,.05,(x0+x1)/2,.045,z,root)},V=(x,z0,z1)=>{M3('b',C,GAP-.1,.04,Math.abs(z1-z0)+GAP,x,.02,(z0+z1)/2,root);M3('b',0xe8d9a0,.05,.01,Math.abs(z1-z0)+GAP,x,.045,(z0+z1)/2,root)};
+ const rows={};let zmin=RZ(7),zmax=RZ(7);G.land.forEach((l,p)=>{if(!l||!l.u)return;const z=pc(p).z+PP/2,x=pc(p).x+PP/2;rows[z]=Math.max(rows[z]==null?-1e9:rows[z],x);zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)});
+ Object.keys(rows).forEach(z=>R(XW,Math.max(XE,rows[z]),+z));R(XW,XE,RZ(7));V(XW,zmin,zmax);V(XE,zmin,zmax);R(WRD,TRK.x+.6,TRK.z)}
 function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.slice();hov=-1;
- halo=M3('b',0xfff2a8,PP-GAP+.25,.02,PP-GAP+.25,0,-.1,0,root);halo.visible=false;
+ halo=M3('b',0xfff2a8,PP-GAP+.25,.02,PP-GAP+.25,0,-.1,0,root);halo.visible=false;roads();
  if(G.land.some(Boolean))for(let p=0;p<N;p++)if(canBuy(p)){const{x,z}=pc(p);M3('b',0xe6d27a,PP-GAP-.2,.03,PP-GAP-.2,x,.01,z,root,{transparent:true,opacity:.17})}
  for(let p=0;p<N;p++){const l=G.land[p];if(!l)continue;const{x,z}=pc(p);
   if(!l.u){const t=M3('b',0xc9a46a,PP-GAP-.2,.14,PP-GAP-.2,x,-.05,z,root);t.userData={k:'parcel',p};tiles.push(t);const sp=label('Tap to build',1);sp.position.set(x,.9,z);root.add(sp);continue}
