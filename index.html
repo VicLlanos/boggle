@@ -1338,6 +1338,38 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .fm-new{top:calc(max(8px,env(safe-area-inset-top)) + 66px);left:10px;bottom:auto;text-align:center}
 #screen-farm.nogl #fmBottom{top:72px;overflow:auto;background:#8fd14f}#screen-farm.nogl #fmBody{max-height:none}
 #fmToast{position:fixed;top:max(16px,var(--safe-t));left:50%;transform:translate(-50%,-150%);background:rgba(45,52,54,.94);color:#fff;padding:10px 16px;border-radius:99px;font-weight:800;font-size:.85rem;z-index:9000;opacity:0;transition:.3s;max-width:90vw;text-align:center;pointer-events:none}#fmToast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ===== Farm Valley: planting indicator, guided tutorial, pop-ups ===== */
+.fm-bar{position:relative}
+.fm-hint{display:flex;align-items:center;justify-content:center;gap:6px;align-self:center;max-width:100%;padding:7px 14px;border-radius:16px;font:800 .8rem/1.25 'DM Sans',sans-serif;text-align:center;border:2px solid #2f8a2f;background:linear-gradient(#C6F79E,#6CCB4F);color:#12361A;box-shadow:0 3px 0 #2f6f2a;animation:fmHintIn .25s ease-out}
+#fmBottom>.fm-hint{pointer-events:none}
+.fm-hint.warn{background:linear-gradient(#FFD9D2,#FF9C8F);border-color:#c0392b;color:#5a1208;box-shadow:0 3px 0 #8e2a1d}
+.fm-hint.ready{background:linear-gradient(#FFF3B8,#FFD166);border-color:#C98F3F;color:#5a3d00;box-shadow:0 3px 0 #9a6a2a;animation:fmHintIn .25s ease-out,fmHintPulse 1.2s ease-in-out infinite}
+.fm-hint.info{background:linear-gradient(#FFF8E4,#F6DDA0);border-color:#C98F3F;color:#6b4a1d;box-shadow:0 3px 0 #9a6a2a}
+@keyframes fmHintIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fmHintPulse{50%{transform:scale(1.04)}}
+.fm-pop{position:fixed;z-index:9100;pointer-events:none;transform:translate(-50%,-50%);font:800 1rem 'DM Sans',sans-serif;color:#fff;white-space:nowrap;padding:4px 10px;border-radius:99px;background:rgba(40,110,40,.92);border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);animation:fmPop 1s ease-out forwards}
+.fm-pop.gain{background:rgba(184,134,11,.95)}.fm-pop.bad{background:rgba(192,57,43,.95)}.fm-pop.wait{background:rgba(70,80,95,.92)}
+@keyframes fmPop{0%{opacity:0;transform:translate(-50%,-20%) scale(.6)}15%{opacity:1;transform:translate(-50%,-70%) scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-220%) scale(1)}}
+.fm-c.e{background:#8a5b34;outline:3px dashed rgba(255,255,255,.9);outline-offset:-6px;animation:fmGlow 1.4s ease-in-out infinite}
+.fm-c.e i{opacity:1;font-size:1.6rem;font-weight:800}
+@keyframes fmGlow{50%{box-shadow:inset 0 -4px 0 rgba(0,0,0,.25),0 0 0 4px rgba(170,255,120,.8)}}
+#fmTut{position:fixed;z-index:6;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 70px);transform:translateX(-50%);width:min(92vw,430px);display:none;background:#FFFDF5;color:#4a3412;border:3px solid #C98F3F;border-radius:18px;padding:12px 14px;box-shadow:0 5px 0 #9a6a2a,0 14px 34px rgba(0,0,0,.35);font-family:'DM Sans',sans-serif}
+#fmTut.mid{top:34%}
+#screen-farm.nogl #fmTut,#screen-farm.nogl #fmTut.mid{top:auto;bottom:max(8px,env(safe-area-inset-bottom))}
+#fmTut .tt{font:800 1.05rem 'Bricolage Grotesque','DM Sans',sans-serif;color:#2f6f2a;margin-bottom:4px}
+#fmTut .tx{font-size:.88rem;line-height:1.4;font-weight:600}
+#fmTut .tw{margin-top:6px;font-size:.8rem;font-weight:800;color:#b34a00;background:#FFF0D6;border-radius:10px;padding:5px 8px}
+#fmTut .tok{margin-top:6px;font-size:.85rem;font-weight:800;color:#1f7a2a}
+#fmTut .tf{display:flex;align-items:center;gap:8px;margin-top:10px}
+#fmTut .td{flex:1;display:flex;gap:4px;flex-wrap:wrap}
+#fmTut .td i{width:7px;height:7px;border-radius:50%;background:#e6d2a6}#fmTut .td i.dn{background:#8bc34a}#fmTut .td i.on{background:#2f8a2f;transform:scale(1.35)}
+#fmTut button{font:800 .8rem 'DM Sans',sans-serif;border-radius:12px;padding:8px 12px;cursor:pointer;border:2px solid #C98F3F}
+#fmTut .tb1{background:linear-gradient(#9BE86A,#47B042);color:#fff;border-color:#2f8a2f;box-shadow:0 3px 0 #2a7a2a}
+#fmTut .tb2{background:#FFF8E4;color:#6b4a1d}
+#fmSpot{position:fixed;z-index:5;pointer-events:none;display:none;border-radius:16px;border:3px solid #FFD166;box-shadow:0 0 0 4px rgba(255,209,102,.35),0 0 22px 6px rgba(255,209,102,.65);animation:fmSpot 1.1s ease-in-out infinite}
+@keyframes fmSpot{50%{transform:scale(1.04);box-shadow:0 0 0 7px rgba(255,209,102,.25),0 0 30px 10px rgba(255,209,102,.8)}}
+@media (prefers-reduced-motion:reduce){.fm-hint,.fm-c.e,#fmSpot,.fm-hint.ready{animation:none}}
 </style>
 </head>
 <body>
@@ -1870,10 +1902,11 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 
 <section id="screen-farm" class="screen">
   <div id="fmStage"></div>
-  <div class="fm-top"><div class="fm-badge" id="fmLv">1</div><div class="fm-coins" id="fmCoins">🪙 0</div><div class="fm-xp"><div id="fmXp"></div><span id="fmXpT"></span></div><button class="rn" data-a="back" aria-label="Back">⮌</button></div>
+  <div class="fm-top"><div class="fm-badge" id="fmLv">1</div><div class="fm-coins" id="fmCoins">🪙 0</div><div class="fm-xp"><div id="fmXp"></div><span id="fmXpT"></span></div><button class="rn" data-a="help" aria-label="How to play" title="How to play">?</button><button class="rn" data-a="back" aria-label="Back">⮌</button></div>
   <button class="fm-new" id="fmNew" data-a="expand"></button>
-  <div id="fmBottom"><div id="fmTabs"><button data-a="tab" data-t="farm">🌱 Farm</button><button data-a="tab" data-t="pond">🐟 Pond</button><button data-a="tab" data-t="barn">🧺 Barn</button><button data-a="tab" data-t="ach">🏆 Awards</button></div><div id="fmBody"></div></div>
+  <div id="fmBottom"><div class="fm-hint" id="fmHint" role="status" aria-live="polite" style="display:none"></div><div id="fmTabs"><button data-a="tab" data-t="farm">🌱 Farm</button><button data-a="tab" data-t="pond">🐟 Pond</button><button data-a="tab" data-t="barn">🧺 Barn</button><button data-a="tab" data-t="ach">🏆 Awards</button></div><div id="fmBody"></div></div>
   <div id="fmToast"></div>
+  <div id="fmTut" role="dialog" aria-live="polite"></div><div id="fmSpot"></div>
 </section>
 
 <section id="screen-results" class="screen">
@@ -3958,11 +3991,11 @@ const HOWTO = {
     'When the <b>last player</b> submits a guess, the full chain is revealed. If that final guess matches the original word, the <b>team scores 1 point</b>.'],
     tip:'Draw the big idea, not tiny details — the chain corrupts fast, and that is half the fun.' },
   farm:{ steps:[
-    '<b>Drag</b> to look around the map and <b>pinch</b> to zoom. Pick a seed, then tap an empty plot to <b>plant</b> it. Crops keep growing even when you close the game.',
-    'When a plot shows <b>Ready!</b>, tap it to harvest — or use <b>Harvest all</b>. Harvests go to your 🧺 Barn and earn XP.',
-    'Open the <b>Barn</b> to sell crops for coins. Level up to unlock pricier vegetables and fruits.',
-    'Spend coins to <b>expand your farm</b> up to 6×6. Check 🏆 Awards for bonus coins.',
-    'At <b>level 8</b> you can build a 🐟 fish pond, buy new fish species as you level, and catch them to sell for big coins.'],
+    '<b>Pick a seed</b> from the seed bar. Empty plots <b>glow with a green ＋</b> — that’s your planting indicator (a red ✕ means you can’t afford it yet). Tap a glowing plot to plant.',
+    'Crops grow in real time, even when the game is closed: <b>sprout → leafy plant → fruit</b>. A plot with a <b>golden ring</b> is ready — tap it to harvest, or use <b>Harvest all</b>.',
+    'Open the <b>Barn</b> to sell crops for coins. Every harvest earns XP — level up to unlock pricier vegetables and fruits.',
+    '<b>Drag</b> to look around and <b>pinch</b> or scroll to zoom. Spend coins to <b>expand your farm</b> up to 6×6, and collect 🏆 Awards for bonus coins.',
+    'At <b>level 8</b> you can build a 🐟 fish pond. A short <b>guided tutorial</b> starts the first time you play — tap the <b>?</b> button any time to replay it.'],
     tip:'Slow crops pay far more per plot — plant long-growing ones before you log off.' },
   town:{ steps:[
     'Build your own island town. Pick a category (Build, Roads or Decor) and a piece, then tap the map to place it.',
@@ -10787,24 +10820,34 @@ const FS=[['carp','🐟','Carp','Fish',8,40,60,90,12],['clown','🐠','Clownfish
 const IT={};CR.concat(FS).forEach(x=>IT[x.id]=x);
 const EXP={3:[150,3],4:[500,5],5:[1500,8]},POND=[1000,8],SLOTS=6,KEY='farmValley_v1';
 const AC=[['First Harvest','Harvest your first crop',g=>g.st.h>=1,20],['Green Thumb','Harvest 50 crops',g=>g.st.h>=50,100],['Harvest King','Harvest 250 crops',g=>g.st.h>=250,500],['Crop Collector','Harvest 6 different crops',g=>CR.filter(c=>g.st.seen[c.id]).length>=6,250],['Pocket Change','Earn 500 coins',g=>g.st.earned>=500,50],['Rich Farmer','Earn 5,000 coins',g=>g.st.earned>=5000,300],['Tycoon','Earn 50,000 coins',g=>g.st.earned>=50000,2000],['Rising Star','Reach level 5',g=>g.lvl>=5,100],['Veteran','Reach level 10',g=>g.lvl>=10,500],['Landowner','Expand your farm',g=>g.size>3,100],['Big Farm','Reach a 6×6 farm',g=>g.size>=6,600],['Fishery','Build the fish pond',g=>g.pond,300],['Angler','Catch 10 fish',g=>g.st.fish>=10,400],['Aquarium','Catch every fish species',g=>FS.every(f=>g.st.seen[f.id]),1500]];
-let G,tab='farm',selC='carrot',selF='carp',tm;
+let G,tab='farm',selC='carrot',selF='carp',tm,lastTab='',PT=null,camMoved=0;
 const xpNeed=l=>40+l*30,fmt=s=>s>=60?Math.floor(s/60)+'m '+Math.floor(s%60)+'s':Math.ceil(s)+'s';
-function load(){try{G=JSON.parse(localStorage.getItem(KEY))}catch(e){G=null}if(!G||!G.plots)G={coins:60,xp:0,lvl:1,size:3,plots:Array(9).fill(null),inv:{},ach:{},pond:false,fish:Array(SLOTS).fill(null),st:{h:0,fish:0,earned:0,seen:{}}}}
+const isRdy=c=>!!c&&Date.now()-c.t>=IT[c.id].t;
+const tsnd=()=>{try{snd('tap')}catch(e){}};
+function load(){try{G=JSON.parse(localStorage.getItem(KEY))}catch(e){G=null}
+ if(!G||!G.plots)G={coins:60,xp:0,lvl:1,size:3,plots:Array(9).fill(null),inv:{},ach:{},pond:false,fish:Array(SLOTS).fill(null),st:{h:0,fish:0,earned:0,seen:{}},tut:0};
+ else if(G.tut===undefined)G.tut=(G.lvl>1||(G.st&&G.st.h>0))?1:0;
+ if(!G.st)G.st={h:0,fish:0,earned:0,seen:{}};if(!G.inv)G.inv={};if(!G.ach)G.ach={};if(!G.fish)G.fish=Array(SLOTS).fill(null)}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(G))}catch(e){}};
 function say(m){const t=$('fmToast');t.textContent=m;t.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>t.classList.remove('on'),1800)}
+function pt(){return PT||{x:window.innerWidth/2,y:window.innerHeight*.35}}
+function pop(txt,cls){const p=pt(),el=document.createElement('div');el.className='fm-pop'+(cls?' '+cls:'');el.textContent=txt;el.style.left=p.x+'px';el.style.top=p.y+'px';$('screen-farm').appendChild(el);setTimeout(()=>el.remove(),1000)}
 function gain(n){G.coins+=n;G.st.earned+=n}
 function addXp(n){G.xp+=n;while(G.xp>=xpNeed(G.lvl)){G.xp-=xpNeed(G.lvl);G.lvl++;say('⭐ Level '+G.lvl+'!')}}
 function chk(){AC.forEach((a,i)=>{if(!G.ach[i]&&a[2](G)){G.ach[i]=1;G.coins+=a[3];say('🏆 '+a[0]+' · +'+a[3]+' 🪙')}})}
 const done=()=>{chk();save();render()};
 function harvest(arr,i){const it=IT[arr[i].id];arr[i]=null;G.inv[it.id]=(G.inv[it.id]||0)+1;it.k==='Fish'?G.st.fish++:G.st.h++;G.st.seen[it.id]=1;addXp(it.xp)}
 function tap(k,i){const arr=k==='farm'?G.plots:G.fish,c=arr[i];
- if(c){const it=IT[c.id],left=it.t-(Date.now()-c.t);if(left>0){say('⏳ '+it.n+' · '+fmt(left/1000)+' left');return}harvest(arr,i)}
- else{const it=IT[k==='farm'?selC:selF];if(G.coins<it.cost){say('Not enough coins 🪙');return}G.coins-=it.cost;arr[i]={id:it.id,t:Date.now()}}done()}
-function all(k){const arr=k==='farm'?G.plots:G.fish;let n=0;arr.forEach((c,i)=>{if(c&&Date.now()-c.t>=IT[c.id].t){harvest(arr,i);n++}});say(n?'🧺 Collected '+n:'Nothing ready yet');done()}
-function sell(id){const n=G.inv[id]||0;if(!n)return;gain(n*IT[id].sell);G.inv[id]=0;say('Sold '+n+' '+IT[id].e+' · +'+n*IT[id].sell+' 🪙');done()}
-function sellAll(){let t=0;for(const id in G.inv){t+=G.inv[id]*IT[id].sell;G.inv[id]=0}if(t){gain(t);say('Sold everything · +'+t+' 🪙')}done()}
+ if(c){const it=IT[c.id],left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}harvest(arr,i);pop('+1 '+it.e+' · +'+it.xp+' XP','gain');tsnd()}
+ else{const it=IT[k==='farm'?selC:selF];if(G.coins<it.cost){pop('Need 🪙'+(it.cost-G.coins)+' more','bad');say('Not enough coins 🪙 — sell crops in the Barn');return}
+  G.coins-=it.cost;arr[i]={id:it.id,t:Date.now()};pop((k==='farm'?'🌱 Planted ':'🐟 Stocked ')+it.n+' · −🪙'+it.cost,'plant');tsnd()}
+ done()}
+function all(k){const arr=k==='farm'?G.plots:G.fish;let n=0;arr.forEach((c,i)=>{if(isRdy(c)){harvest(arr,i);n++}});pop(n?'🧺 Collected '+n:'Nothing ready yet',n?'gain':'wait');if(n)tsnd();done()}
+function sell(id){const n=G.inv[id]||0;if(!n)return;gain(n*IT[id].sell);G.inv[id]=0;pop('+🪙'+n*IT[id].sell,'gain');say('Sold '+n+' '+IT[id].e+' · +'+n*IT[id].sell+' 🪙');done()}
+function sellAll(){let t=0;for(const id in G.inv){t+=G.inv[id]*IT[id].sell;G.inv[id]=0}if(t){gain(t);pop('+🪙'+t,'gain');say('Sold everything · +'+t+' 🪙')}done()}
+const fcx=()=>((G.size-1)/2-2.5)*1.2;
 function expand(){const x=EXP[G.size];if(!x)return;if(G.lvl<x[1]){say('🔒 Reach level '+x[1]);return}if(G.coins<x[0]){say('Not enough coins 🪙');return}
- G.coins-=x[0];const s=G.size,n=s+1,np=Array(n*n).fill(null);for(let r=0;r<s;r++)for(let c=0;c<s;c++)np[r*n+c]=G.plots[r*s+c];G.plots=np;G.size=n;say('🗺️ Farm is now '+n+'×'+n+'!');done()}
+ G.coins-=x[0];const s=G.size,n=s+1,np=Array(n*n).fill(null);for(let r=0;r<s;r++)for(let c=0;c<s;c++)np[r*n+c]=G.plots[r*s+c];G.plots=np;G.size=n;gx=gz=fcx();foc=1;say('🗺️ Farm is now '+n+'×'+n+'!');done()}
 function build(){if(G.lvl<POND[1]){say('🔒 Reach level '+POND[1]);return}if(G.coins<POND[0]){say('Not enough coins 🪙');return}G.coins-=POND[0];G.pond=true;say('🐟 Fish pond built!');done()}
 const bar=(list,sel,k)=>'<div class="fm-bar">'+list.map(x=>{const lk=G.lvl<x.lvl;return '<button class="fm-sd'+(sel===x.id?' sel':'')+(lk?' lk':'')+'" data-a="sel" data-k="'+k+'" data-id="'+x.id+'"><i>'+x.e+'</i><b>'+(lk?'🔒 L'+x.lvl:'🪙'+x.cost)+'</b></button>'}).join('')+'</div>';
 const info=id=>{const x=IT[id];return '<div class="fm-info">'+x.e+' <b>'+x.n+'</b> · '+x.k+' · grows '+fmt(x.t/1000)+' · sells 🪙'+x.sell+' · +'+x.xp+' XP</div>'};
@@ -10814,52 +10857,192 @@ function vPond(){if(!G.pond)return '<div class="fm-empty"><p>'+(G.lvl<POND[1]?'R
 function vBarn(){const ids=Object.keys(G.inv).filter(i=>G.inv[i]>0);if(!ids.length)return '<div class="fm-empty"><div style="font-size:3rem">🧺</div><p>Your barn is empty. Harvest crops or catch fish, then sell them here.</p></div>';
  const tot=ids.reduce((s,i)=>s+G.inv[i]*IT[i].sell,0);return ids.map(i=>{const x=IT[i];return '<div class="fm-r"><i>'+x.e+'</i><span><b>'+x.n+'</b> ×'+G.inv[i]+'<small>🪙'+x.sell+' each</small></span><button class="btn btn-mint" data-a="sell" data-id="'+i+'">Sell 🪙'+G.inv[i]*x.sell+'</button></div>'}).join('')+'<button class="btn btn-gold" style="width:100%;margin-top:8px" data-a="sellall">💰 Sell everything · 🪙'+tot+'</button>'}
 const vAch=()=>AC.map((a,i)=>'<div class="fm-r'+(G.ach[i]?' ok':'')+'"><i>'+(G.ach[i]?'🏆':'🔒')+'</i><span><b>'+a[0]+'</b><small>'+a[1]+'</small></span><em>+'+a[3]+' 🪙</em></div>').join('');
-function render(){$('fmCoins').textContent='🪙 '+G.coins.toLocaleString();$('fmLv').textContent=G.lvl;$('fmXpT').textContent=G.xp+'/'+xpNeed(G.lvl);$('fmXp').style.width=Math.min(100,100*G.xp/xpNeed(G.lvl))+'%';
- document.querySelectorAll('#fmTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
- $('screen-farm').classList.toggle('nogl',!ready);{const nf=$('fmNew'),x=EXP[G.size];nf.style.display=x?'':'none';if(x)nf.innerHTML='New Field<b>🪙 '+x[0]+(G.lvl<x[1]?' · L'+x[1]:'')+'</b>'}
- $('fmBody').innerHTML=tab==='farm'?vFarm():tab==='pond'?vPond():tab==='barn'?vBarn():vAch();mount3();paint()}
-function paint(){sync3();document.querySelectorAll('#fmBody .fm-c').forEach(el=>{const f=el.dataset.k==='farm',c=(f?G.plots:G.fish)[+el.dataset.i];
- if(!c){el.className='fm-c e';el.innerHTML='<i>＋</i>';return}const it=IT[c.id],p=Math.min(1,(Date.now()-c.t)/it.t);
- if(p>=1){el.className='fm-c r';el.innerHTML='<i>'+it.e+'</i><small>Ready!</small>'}
- else{el.className='fm-c g';el.innerHTML='<i style="transform:scale('+(.55+.45*p).toFixed(2)+')">'+(f?(p<.5?'🌱':'🌿'):it.e)+'</i><small>'+fmt(it.t*(1-p)/1000)+'</small>'}})}
-$('screen-farm').addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,id=t.dataset.id,k=t.dataset.k;
- if(a==='back'){show('screen-lobby');return}if(a==='tab'){tab=t.dataset.t;if(tab==='pond'){gx=PX;gz=0;foc=1}else if(tab==='farm'){gx=0;gz=0;foc=1}render();return}
+
+/* ---- planting indicator (banner above the tabs) ---- */
+function hint(){const h=$('fmHint');if(!h)return;const pond=tab==='pond'&&G.pond;if(tab!=='farm'&&!pond){h.style.display='none';return}
+ const arr=pond?G.fish:G.plots,it=IT[pond?selF:selC],empty=arr.filter(c=>!c).length,rd=arr.filter(isRdy).length;let cls='plant',html;
+ if(empty&&G.coins<it.cost){cls='warn';html='🪙 Need <b>'+(it.cost-G.coins)+'</b> more to '+(pond?'stock ':'plant ')+it.e+' '+it.n+' — sell things in the 🧺 Barn'}
+ else if(empty){html=it.e+' '+(pond?'Stocking':'Planting')+' <b>'+it.n+'</b> · tap a glowing <b>＋</b> '+(pond?'pool':'plot')+' · 🪙'+it.cost+(rd?' · <b>'+rd+' ready!</b>':'')}
+ else if(rd){cls='ready';html='✨ <b>'+rd+' ready!</b> Tap the golden-ringed '+(pond?'pool':'plot')+' to collect it'}
+ else{cls='info';html='⏳ Everything is growing'+(pond?'':' · expand your farm for more room')}
+ const k=cls+html;if(h._k!==k){h._k=k;h.className='fm-hint '+cls;h.innerHTML=html}h.style.display=''}
+
+/* ---- guided tutorial ---- */
+let tI=-1,tBase={pl:0,h:0,e:0},tBusy=0,tOk=0,tLast='';
+const farmRdy=()=>G.plots.some(isRdy),hasInv=()=>Object.keys(G.inv).some(i=>G.inv[i]>0);
+const TUT=[
+ {t:'Welcome to Farm Valley! 🌾',x:'Let’s learn how farming works in about a minute. You’ll try every step for real — and get a <b>bonus</b> at the end.',b:'Let’s go!'},
+ {t:'Look around 👀',x:'<b>Drag</b> to move across the farm and <b>pinch</b> (or scroll) to zoom. Give it a try!',wait:()=>camMoved,skipIf:()=>!ready,enter:()=>{camMoved=0}},
+ {t:'Pick your seeds 🌰',x:'Your <b>seed bar</b> sits at the bottom. Each seed shows its 🪙 price, and 🔒 seeds unlock as you level up. 🥕 <b>Carrot</b> is selected — it’s cheap and quick!',sp:'#fmBody .fm-bar',tab:'farm',b:'Next',enter:()=>{selC='carrot';render()}},
+ {t:'Plant a seed 🌱',x:'Empty plots <b>glow with a ＋</b>. Tap one to plant your carrot — it costs 🪙'+IT.carrot.cost+'. (A red ✕ means you can’t afford it.)',tab:'farm',wait:()=>G.plots.filter(Boolean).length>tBase.pl,skipIf:()=>!G.plots.some(c=>!c),enter:()=>{if(G.coins<IT.carrot.cost)G.coins=IT.carrot.cost;selC='carrot';render()}},
+ {t:'Watch it grow ⏳',x:'Crops go from <b>sprout → leafy plant → fruit</b>, in real time — even while the game is closed. To save time, we sped this carrot up: ready in <b id="tCd">…</b>',tab:'farm',wait:farmRdy,skipIf:()=>!G.plots.some(c=>c)||farmRdy(),
+  enter:()=>{let b=-1;G.plots.forEach((c,i)=>{if(c&&(b<0||c.t>G.plots[b].t))b=i});if(b>=0){const c=G.plots[b];c.t=Date.now()-IT[c.id].t+9000;save()}render()}},
+ {t:'Harvest time! 🧺',x:'It’s ready! A <b>golden ring</b> floats above ripe crops. <b>Tap the plant</b> to harvest it — or press <b>Harvest all</b>.',sp:'#fmBody [data-a=harvest]',tab:'farm',wait:()=>G.st.h>tBase.h,skipIf:()=>!farmRdy()},
+ {t:'Open the Barn 🏠',x:'Everything you harvest is stored in the <b>Barn</b>. Tap the <b>Barn</b> tab.',sp:'#fmTabs [data-t=barn]',wait:()=>tab==='barn',skipIf:()=>!hasInv()},
+ {t:'Sell for coins 💰',x:'Tap <b>Sell</b> to turn your harvest into coins. Coins buy more seeds — that’s the farming loop!',sp:'#fmBody [data-a=sell],#fmBody [data-a=sellall]',tab:'barn',wait:()=>G.st.earned>tBase.e,skipIf:()=>!hasInv()},
+ {t:'Level up ⭐',x:'Every harvest earns <b>XP</b>. Level up to unlock pricier crops like 🍓 strawberries, 🍉 watermelons and 🥭 mangoes.',sp:'.fm-top',b:'Next',pos:'mid'},
+ {t:'Grow your farm 🗺️',x:'Spend coins on <b>New Field</b> to expand up to 6×6. At <b>level 8</b> you can build a 🐟 fish pond, and 🏆 Awards pay bonus coins.',sp:'#fmNew',sp2:'#fmTabs',b:'Next',pos:'mid'},
+ {t:'You’re ready, farmer! 🎉',x:'Slow crops pay the most, so plant long-growing ones before you leave. Tap the <b>?</b> button any time to replay this guide.',b:'Start farming!',fin:1}
+];
+function tutGo(i){tI=i;while(tI<TUT.length&&TUT[tI].skipIf&&TUT[tI].skipIf())tI++;tOk=0;tLast='';
+ if(tI>=TUT.length){tutEnd(false);return}
+ tBase={pl:G.plots.filter(Boolean).length,h:G.st.h,e:G.st.earned};const s=TUT[tI];if(s.enter)s.enter();tutRender()}
+function tutNext(){if(tI<0)return;if(TUT[tI].fin)tutEnd(false);else tutGo(tI+1)}
+function startTut(){tab='farm';foc=1;gx=gz=fcx();tutGo(0)}
+function tutEnd(skipped){const first=!G.tut;tI=-1;G.tut=1;if(!skipped&&first&&!G.tutBonus){G.tutBonus=1;G.coins+=25;say('🎉 Tutorial complete · +25 🪙')}save();tutRender();render()}
+function tutCheck(){if(tI<0||tBusy)return;const s=TUT[tI];if(s&&s.wait&&s.wait()){tBusy=1;tOk=1;tutRender();setTimeout(()=>{tBusy=0;if(tI>=0&&TUT[tI]===s)tutGo(tI+1)},800)}}
+function tutRender(){const c=$('fmTut'),sp=$('fmSpot');if(!c)return;
+ if(tI<0||tI>=TUT.length){c.style.display='none';sp.style.display='none';tLast='';return}
+ const s=TUT[tI],off=s.tab&&tab!==s.tab,n=TUT.length;let dots='';for(let j=0;j<n;j++)dots+='<i class="'+(j===tI?'on':j<tI?'dn':'')+'"></i>';
+ const html=(s.pos==='mid'?'m':'t')+tI+'|'+(off?1:0)+'|'+tOk+'|'+tab;
+ if(html!==tLast){tLast=html;c.className=s.pos==='mid'?'mid':'';
+  c.innerHTML='<div class="tt">'+s.t+'</div><div class="tx">'+s.x+'</div>'
+   +(off?'<div class="tw">👉 Switch to the <b>'+(s.tab==='farm'?'🌱 Farm':'🧺 Barn')+'</b> tab first.</div>':'')
+   +(tOk?'<div class="tok">✅ Nice work!</div>':'')
+   +'<div class="tf"><div class="td">'+dots+'</div><button type="button" class="tb2" data-a="tskip">Skip tutorial</button>'
+   +(s.b?'<button type="button" class="tb1" data-a="tnext">'+s.b+'</button>':(tOk?'':'<button type="button" class="tb2" data-a="tnext">Skip step</button>'))+'</div>'}
+ c.style.display='block';tutTick()}
+function tutTick(){if(tI<0)return;const s=TUT[tI];if(!s)return;
+ const cd=$('tCd');if(cd){let left=9;G.plots.forEach(c=>{if(c){const l=(IT[c.id].t-(Date.now()-c.t))/1000;if(l>0&&l<left)left=l}});cd.textContent=Math.ceil(left)+'s'}
+ const sp=$('fmSpot');let sel=s.sp;if(s.tab&&tab!==s.tab)sel='#fmTabs [data-t='+s.tab+']';
+ let el=sel?document.querySelector(sel):null,r=el&&el.getBoundingClientRect();if((!r||!r.width)&&s.sp2){el=document.querySelector(s.sp2);r=el&&el.getBoundingClientRect()}
+ if(!r||!r.width){sp.style.display='none';return}
+ sp.style.cssText='display:block;left:'+(r.left-6)+'px;top:'+(r.top-6)+'px;width:'+(r.width+12)+'px;height:'+(r.height+12)+'px'}
+
+function setTab(t){tab=t;if(t==='pond'){gx=PX;gz=0;foc=1}else if(t==='farm'){gx=gz=fcx();foc=1}render()}
+$('screen-farm').addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,id=t.dataset.id,k=t.dataset.k,r=t.getBoundingClientRect();PT={x:r.left+r.width/2,y:r.top+r.height/2};
+ if(a==='back'){tI=-1;tutRender();show('screen-lobby');return}
+ if(a==='tab'){setTab(t.dataset.t);return}
+ if(a==='help'){startTut();return}
+ if(a==='tnext'){tutNext();return}
+ if(a==='tskip'){tutEnd(true);return}
  if(a==='sel'){if(G.lvl<IT[id].lvl){say('🔒 Reach level '+IT[id].lvl+' to unlock '+IT[id].n);return}k==='farm'?selC=id:selF=id;render()}
  else if(a==='cell')tap(k,+t.dataset.i);else if(a==='harvest')all(k);else if(a==='sell')sell(id);else if(a==='sellall')sellAll();else if(a==='expand')expand();else if(a==='pond')build()});
+
 /* ---- 3D view (three.js, lightweight) ---- */
-let ready=0,R3,SC,CAM,root,cvs,cells=[],ck='',pick=[],raf3=0,last=0,T=0,clouds=[];const GC={},MC={};
+let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
+let PM,GM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
 const mat=(c,o)=>{const k=c+(o?JSON.stringify(o):'');return MC[k]||(MC[k]=new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{})))};
 function M3(k,c,sx,sy,sz,x,y,z,par,o){const m=new THREE.Mesh(geo(k),mat(c,o));m.scale.set(sx,sy,sz);m.position.set(x,y,z);par&&par.add(m);return m}
-function produce(id,g){const f=new THREE.Group();g.add(f),S=(k,c,sx,sy,sz,x,y,z)=>M3(k,c,sx,sy,sz,x,y,z,f);
- if(id==='carrot')S('c',0xff8a1f,.13,.4,.13,0,.2,0).rotation.x=Math.PI;
- else if(id==='tomato'){S('s',0xe53935,.2,.2,.2,.14,.3,0);S('s',0xe53935,.18,.18,.18,-.14,.22,.08)}
- else if(id==='sunflower'){S('y',0x3f8f3a,.04,.45,.04,0,.45,0);S('y',0xffc107,.27,.03,.27,0,.95,0).rotation.x=.5;S('y',0x6b3d1b,.12,.04,.12,0,.96,.02).rotation.x=.5}
- else if(id==='corn'){S('y',0xf4d03f,.09,.28,.09,0,.4,0);S('y',0xf4d03f,.09,.26,.09,.18,.3,.05);S('c',0x4caf50,.12,.3,.05,0,.7,0)}
- else if(id==='potato'){S('s',0xb08a5a,.17,.12,.13,.12,.1,0);S('s',0xa07a4a,.15,.11,.12,-.14,.1,.1)}
- else if(id==='strawberry')[[.14,.1],[-.12,.1],[0,-.14]].forEach(p=>S('c',0xff2d55,.1,.2,.1,p[0],.16,p[1]).rotation.x=Math.PI);
- else if(id==='pumpkin'){S('s',0xff7a1a,.3,.22,.3,0,.2,0);S('y',0x3b7d2c,.04,.1,.04,0,.44,0)}
- else if(id==='eggplant'){S('s',0x6a2c91,.12,.24,.12,.12,.28,0);S('s',0x6a2c91,.12,.24,.12,-.12,.24,.06)}
- else if(id==='watermelon'){S('s',0x2e9e4f,.32,.24,.24,0,.22,0);S('s',0x1b6e34,.33,.05,.1,0,.3,0)}
- else if(id==='grapes')[[0,.5],[.1,.38],[-.1,.38],[0,.26],[.1,.5],[-.1,.5]].forEach(p=>S('s',0x7b3fb3,.08,.08,.08,p[0],p[1],0));
- else if(id==='pineapple'){S('s',0xf2b705,.17,.25,.17,0,.28,0);S('c',0x3b8f3a,.14,.25,.14,0,.65,0)}
- else{S('s',0xffa726,.16,.2,.14,.12,.3,0);S('s',0xff8f1f,.15,.18,.13,-.12,.24,.06)}
- return f}
-function crop(id){const g=new THREE.Group();for(let i=0;i<3;i++){const a=i*2.1,m=M3('c',0x4caf50,Math.cos(a)*.1,.18,Math.sin(a)*.1,g);m.scale.set(.07,.36,.07);m.rotation.z=Math.cos(a)*.35;m.rotation.x=-Math.sin(a)*.35}g.userData.f=produce(id,g);return g}
+
+/* ---- realistic crop models: built once per crop, merged into 3 vertex-coloured meshes (sprout / plant / fruit) ---- */
+const sn=Math.sin,cs=Math.cos,PI=Math.PI;
+const LP={car:[[.001,0],[.16,.12],[.4,.35],[.7,.62],[.92,.86],[1,.96],[.7,1],[.001,1]],
+ egg:[[.001,0],[.5,.03],[.82,.16],[.96,.4],[.88,.66],[.62,.86],[.46,.96],[.001,1]],
+ berry:[[.001,0],[.32,.14],[.75,.42],[1,.72],[.9,.94],[.001,1]]};
+const PGC={};
+function prim(k){if(PGC[k])return PGC[k];let g;
+ if(k==='s')g=new THREE.SphereGeometry(1,10,8);else if(k==='l')g=new THREE.SphereGeometry(1,6,5);else if(k==='W')g=new THREE.SphereGeometry(1,24,12);
+ else if(k==='c'){g=new THREE.ConeGeometry(1,1,7,1);g.translate(0,.5,0)}
+ else if(k==='y'){g=new THREE.CylinderGeometry(1,1,1,8,1);g.translate(0,.5,0)}
+ else if(LP[k])g=new THREE.LatheGeometry(LP[k].map(p=>new THREE.Vector2(p[0],p[1])),12);
+ else g=new THREE.BoxGeometry(1,1,1);
+ if(g.index)g=g.toNonIndexed();return PGC[k]=g}
+function Mk(){const P=[],N=[],C=[],M=new THREE.Matrix4(),Gm=new THREE.Matrix4(),F=new THREE.Matrix4(),Q=new THREE.Quaternion(),E=new THREE.Euler(),V=new THREE.Vector3(),S=new THREE.Vector3(),NM=new THREE.Matrix3(),K=new THREE.Color();
+ return{
+  add(k,c,sx,sy,sz,x,y,z,rx,ry,rz){const g=prim(k),pa=g.attributes.position.array,na=g.attributes.normal.array,n=pa.length/3,fn=typeof c==='function';
+   E.set(rx||0,ry||0,rz||0,'YXZ');Q.setFromEuler(E);M.compose(V.set(x,y,z),Q,S.set(sx,sy,sz));M.premultiply(Gm);NM.getNormalMatrix(M);if(!fn)K.set(c);
+   for(let i=0;i<n;i++){V.set(pa[i*3],pa[i*3+1],pa[i*3+2]);if(fn)K.set(c(V.x,V.y,V.z));V.applyMatrix4(M);P.push(V.x,V.y,V.z);
+    V.set(na[i*3],na[i*3+1],na[i*3+2]).applyMatrix3(NM).normalize();N.push(V.x,V.y,V.z);C.push(K.r,K.g,K.b)}},
+  T(x,y,z,rx,ry,rz,fn){const prev=Gm.clone();E.set(rx||0,ry||0,rz||0,'YXZ');Q.setFromEuler(E);F.compose(V.set(x,y,z),Q,S.set(1,1,1));Gm.multiply(F);fn();Gm.copy(prev)},
+  build(){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.computeBoundingSphere();return g}}}
+/* leaf attached at (x,y,z) reaching outward (yaw a); t>0 droops, t<0 rises */
+function lfo(b,c,sx,sz,x,y,z,a,t){b.add('l',c,sx,.028,sz,x+sx*cs(t)*cs(a),y-sx*sn(t),z-sx*cs(t)*sn(a),0,a,-t)}
+/* stem leaning t rad towards yaw a; returns the tip */
+function lean(b,c,r,h,x,y,z,a,t){b.add('y',c,r,h,r,x,y,z,0,a,-t);return[x+sn(t)*cs(a)*h,y+cs(t)*h,z-sn(t)*sn(a)*h]}
+/* long pointed blade (corn / pineapple / carrot-top style); returns the tip */
+function blade(b,c,len,wid,x,y,z,a,t){b.add('c',c,wid*.3,len,wid,x,y,z,0,a,-t);return[x+sn(t)*cs(a)*len,y+cs(t)*len,z-sn(t)*sn(a)*len]}
+function sprout(b,c){b.add('s',0x6b4423,.17,.05,.17,0,0,0);b.add('y',0x8bc34a,.014,.12,.014,0,0,0);lfo(b,c,.07,.04,0,.12,0,0,-.35);lfo(b,c,.07,.04,0,.12,0,PI,-.35)}
+function vine(L,a,leafC1,leafC2){for(let j=0;j<5;j++){const d=.08+j*.1,aa=a+sn(j*1.2)*.28;L.add('s',0x58872f,.075,.016,.016,cs(aa)*d,.045,-sn(aa)*d,0,aa,0)}
+ [.26,.44].forEach((d,j)=>{const aa=a+sn((j+1)*1.2)*.28,x=cs(aa)*d,z=-sn(aa)*d,s=j?-1:1;lfo(L,leafC1,.14,.12,x,.06,z,aa+s*1.2,-.1);lfo(L,leafC2,.09,.075,x,.075,z,aa+s*1.2+.7,-.1)})}
+const MODEL={
+ carrot:(S,L,F)=>{sprout(S,0x7cb342);
+  for(let i=0;i<9;i++){const a=i*2.4,t=.22+.09*(i%3),h=.25+.05*(i%2),tp=lean(L,0x5a9a3a,.011,h,cs(a)*.02,0,-sn(a)*.02,a,t);
+   lfo(L,0x66bb6a,.09,.035,tp[0],tp[1],tp[2],a+.6,-.5);lfo(L,0x66bb6a,.09,.035,tp[0],tp[1],tp[2],a-.6,-.5);lfo(L,0x4caf50,.07,.03,tp[0],tp[1]+.02,tp[2],a,-.9)}
+  F.add('car',0xff8c1a,.088,.46,.088,0,-.4,0);F.add('car',0xff9a2e,.072,.4,.072,.1,-.35,.05);F.add('car',0xf57f17,.07,.38,.07,-.09,-.33,-.06);F.add('l',0x2e7d32,.06,.02,.06,0,.065,0)},
+ tomato:(S,L,F)=>{sprout(S,0x66bb6a);
+  L.add('y',0xb78a52,.012,.8,.012,.1,0,-.06);L.add('y',0x5c9a3a,.022,.7,.022,0,0,0,0,0,.04);
+  for(let i=0;i<8;i++){const y=.1+i*.075,a=i*2.4,tp=lean(L,0x4c8c3a,.01,.12,0,y,0,a,.9);
+   lfo(L,0x3d8b37,.11,.06,tp[0],tp[1],tp[2],a,.25);lfo(L,0x4a9d41,.08,.045,tp[0],tp[1],tp[2],a+.7,.35);lfo(L,0x4a9d41,.08,.045,tp[0],tp[1],tp[2],a-.7,.35)}
+  L.add('l',0x4a9d41,.09,.03,.06,0,.75,0);
+  [[.16,.3,.06],[-.15,.42,-.05],[.1,.55,-.12],[-.09,.2,.13],[.05,.36,.15]].forEach((p,i)=>{F.add('s',i%2?0xe53935:0xd32f2f,.085,.078,.085,p[0],p[1],p[2]);F.add('l',0x2e7d32,.045,.012,.045,p[0],p[1]+.075,p[2])})},
+ sunflower:(S,L,F)=>{sprout(S,0x7cb342);
+  L.add('y',0x5a9a3a,.032,.95,.032,0,0,0);
+  for(let i=0;i<6;i++){const y=.14+i*.12,a=i*2.4;lfo(L,0x3f8f3a,.2-i*.015,.12-i*.008,cs(a)*.03,y,-sn(a)*.03,a,.45)}
+  L.add('s',0x5a9a3a,.07,.05,.07,0,.97,0);
+  F.T(0,.97,0,0,-.785,-.95,()=>{F.add('y',0x4e2f14,.15,.045,.15,0,0,0);F.add('s',0x3b210d,.11,.035,.11,0,.04,0);F.add('y',0x6b3d1b,.11,.01,.11,0,.05,0);
+   for(let i=0;i<14;i++){const f=i*2*PI/14;F.add('l',0xffc107,.085,.012,.04,cs(f)*.22,.012,sn(f)*.22,0,-f,0)}
+   for(let i=0;i<14;i++){const f=(i+.5)*2*PI/14;F.add('l',0xffb300,.075,.012,.036,cs(f)*.17,.02,sn(f)*.17,0,-f,0)}})},
+ corn:(S,L,F)=>{sprout(S,0x8bc34a);
+  L.add('y',0x7cb342,.032,.95,.028,0,0,0);
+  for(let i=0;i<9;i++){const y=.12+i*.085,a=i*2.4,len=.32-i*.012,tp=blade(L,0x4caf50,len,.075,cs(a)*.02,y,-sn(a)*.02,a,.8);blade(L,0x43a047,len*.8,.07,tp[0],tp[1],tp[2],a,1.5)}
+  for(let i=0;i<6;i++)blade(L,0xe6c86a,.2,.02,0,.93,0,i*1.05,.35);
+  [[.55,.9],[.38,-1.6]].forEach(p=>{const y=p[0],a=p[1];F.T(cs(a)*.04,y,-sn(a)*.04,0,a,-.35,()=>{F.add('y',0x7cb342,.07,.22,.07,0,0,0);F.add('s',0xf5c518,.06,.1,.06,0,.22,0);F.add('c',0xb8895a,.022,.12,.022,0,.29,0)})})},
+ potato:(S,L,F)=>{sprout(S,0x6aa84f);
+  for(let i=0;i<10;i++){const a=i*2.4,t=.45+.1*(i%3),tp=lean(L,0x558b2f,.013,.22+.03*(i%3),cs(a)*.04,0,-sn(a)*.04,a,t);
+   lfo(L,0x43a047,.1,.06,tp[0],tp[1],tp[2],a,.2);lfo(L,0x4caf50,.07,.045,tp[0],tp[1],tp[2],a+.9,.3);lfo(L,0x4caf50,.07,.045,tp[0],tp[1],tp[2],a-.9,.3)}
+  [[.02,.34,-.02],[.15,.3,.08],[-.13,.28,.07]].forEach(p=>{for(let j=0;j<5;j++){const f=j*1.256;L.add('l',0xf8f4ff,.028,.01,.02,p[0]+cs(f)*.03,p[1],p[2]-sn(f)*.03,0,-f,0)}L.add('s',0xffd54f,.014,.014,.014,p[0],p[1]+.008,p[2])});
+  [[.2,.03,.04,.1],[-.17,.03,.12,.09],[.04,.03,.22,.09],[-.1,.03,-.2,.085],[.12,.03,-.16,.075]].forEach((p,i)=>{F.add('s',i%2?0xc9a063:0xb98e55,p[3],p[3]*.72,p[3]*.85,p[0],p[1],p[2],0,i,0);F.add('l',0x8b6a3a,.012,.012,.012,p[0]+.03,p[1]+.05,p[2])})},
+ strawberry:(S,L,F)=>{sprout(S,0x66bb6a);
+  for(let i=0;i<8;i++){const a=i*.785+.2,tp=lean(L,0x6a9a3a,.01,.12,cs(a)*.04,0,-sn(a)*.04,a,.7);[-.5,0,.5].forEach(d=>lfo(L,i%2?0x3f9a3c:0x4caf50,.09,.065,tp[0],tp[1],tp[2],a+d,.1))}
+  [[.05,.2,.1],[-.12,.17,-.14]].forEach(p=>{for(let j=0;j<5;j++){const f=j*1.256;L.add('l',0xffffff,.03,.01,.02,p[0]+cs(f)*.035,p[1],p[2]-sn(f)*.035,0,-f,0)}L.add('s',0xffd54f,.014,.014,.014,p[0],p[1]+.008,p[2])});
+  for(let i=0;i<5;i++){const a=i*1.26+.4,r=.22+.03*(i%2),x=cs(a)*r,z=-sn(a)*r;F.add('berry',0xe3112f,.08,.12,.08,x,.06,z);
+   for(let j=0;j<5;j++){const f=j*1.256;F.add('l',0x2e7d32,.042,.01,.024,x+cs(f)*.035,.185,z-sn(f)*.035,0,-f,0)}
+   for(let j=0;j<4;j++){const f=j*1.57+i;F.add('l',0xffe082,.009,.009,.009,x+cs(f)*.075,.12,z+sn(f)*.075)}}},
+ pumpkin:(S,L,F)=>{sprout(S,0x7cb342);
+  for(let k=0;k<3;k++)vine(L,k*2.1+.4,0x3b8a35,0x4f9a45);
+  for(let i=0;i<8;i++){const f=i*PI/4;F.add('s',i%2?0xff8f00:0xf57c00,.11,.19,.11,cs(f)*.1,.2,sn(f)*.1,0,-f,0)}
+  F.add('s',0xef6c00,.13,.18,.13,0,.2,0);F.add('y',0x4e7a2a,.03,.1,.03,0,.36,0,0,0,.25)},
+ eggplant:(S,L,F)=>{sprout(S,0x7cb342);
+  L.add('y',0x5a8a3a,.03,.5,.03,0,0,0);
+  for(let i=0;i<7;i++){const y=.12+i*.07,a=i*2.4,tp=lean(L,0x5a8a3a,.012,.1,0,y,0,a,.8);lfo(L,0x4a8f3f,.15,.09,tp[0],tp[1],tp[2],a,.35)}
+  [[.1,.55,.05],[-.08,.5,-.08]].forEach(p=>{for(let j=0;j<5;j++){const f=j*1.256;L.add('l',0x9575cd,.03,.01,.02,p[0]+cs(f)*.03,p[1],p[2]-sn(f)*.03,0,-f,0)}L.add('s',0xffd54f,.012,.012,.012,p[0],p[1]+.008,p[2])});
+  [[.2,.46,.03,.2],[-.21,.42,-.05,-.22],[.02,.4,.22,.12]].forEach(p=>{F.T(p[0],p[1],p[2],0,0,p[3],()=>{F.add('egg',0x5b2a86,.088,.3,.088,0,-.3,0);F.add('s',0x3f8f3a,.06,.028,.06,0,0,0);for(let j=0;j<5;j++){const f=j*1.256;F.add('c',0x3f8f3a,.012,.05,.012,cs(f)*.045,-.012,sn(f)*.045,0,0,0)}})})},
+ watermelon:(S,L,F)=>{sprout(S,0x7cb342);
+  for(let k=0;k<3;k++)vine(L,k*2.1+1,0x4a9a48,0x6bb36a);
+  F.add('W',(x,y,z)=>Math.sin(Math.atan2(z,y)*7)>.25?0x1f6b35:0x58b868,.3,.21,.21,0,.21,0);F.add('y',0x6b7f2a,.015,.05,.015,0,.4,0)},
+ grapes:(S,L,F)=>{sprout(S,0x8bc34a);
+  L.add('y',0x8d6e63,.03,.85,.03,-.3,0,0);L.add('y',0x8d6e63,.03,.85,.03,.3,0,0);L.add('y',0x8d6e63,.015,.6,.015,-.3,.82,0,0,0,-PI/2);
+  L.add('y',0x6d4c41,.035,.5,.035,0,0,0,0,0,.1);L.add('y',0x6d4c41,.028,.4,.028,.05,.46,0,0,0,-.55);L.add('y',0x6d4c41,.02,.4,.02,-.05,.4,0,0,0,.6);
+  [[-.22,.62],[.05,.8],[.24,.6],[-.1,.45],[.16,.38],[-.28,.78],[.28,.8]].forEach((p,i)=>lfo(L,i%2?0x4caf50:0x388e3c,.13,.11,p[0],p[1],(i%3-1)*.07,i*2.1,.2));
+  [[-.15,.8,0],[.12,.8,.04],[0,.74,-.1]].forEach(p=>{F.add('y',0x4e7a2a,.01,.08,.01,p[0],p[1],p[2]);const rows=[5,4,3,2];
+   rows.forEach((n,j)=>{for(let k=0;k<n;k++){const an=k*2*PI/n+j;F.add('l',(k+j)%2?0x5e2a8f:0x6a35a0,.045,.045,.045,p[0]+cs(an)*.06*(1-j*.16),p[1]-.01-j*.055,p[2]+sn(an)*.06*(1-j*.16))}});F.add('l',0x5e2a8f,.042,.042,.042,p[0],p[1]-.25,p[2])})},
+ pineapple:(S,L,F)=>{sprout(S,0x7a9f45);
+  for(let i=0;i<12;i++){const a=i*2.4,t=.55+.12*(i%3),len=.42-.03*(i%3);blade(L,i%2?0x6b9f4a:0x5f9440,len,.055,cs(a)*.03,0,-sn(a)*.03,a,t)}
+  F.add('W',(x,y,z)=>{const u=Math.atan2(z,x),a=Math.floor((u+PI)*2.6),b=Math.floor((y+1)*3.2);return (a+b)&1?0xf2b705:0xd99a00},.15,.21,.15,0,.27,0);
+  F.add('c',0x5fa043,.055,.24,.05,0,.46,0);for(let i=0;i<9;i++)blade(F,i%2?0x5aa03f:0x6bb04a,.2,.045,0,.46,0,i*.698,.5)},
+ mango:(S,L,F)=>{sprout(S,0x558b2f);
+  L.add('y',0x6d4c41,.06,.6,.05,0,0,0);L.add('y',0x6d4c41,.03,.25,.03,.04,.5,0,0,0,-.7);L.add('y',0x6d4c41,.03,.25,.03,-.04,.5,0,0,0,.7);
+  [[0,.84,0,.24],[.15,.74,.05,.16],[-.15,.76,-.05,.17],[.03,.74,.15,.16],[-.04,.78,-.15,.15],[0,1.02,0,.16]].forEach((p,i)=>L.add('s',[0x2e7d32,0x388e3c,0x43a047][i%3],p[3],p[3]*.8,p[3],p[0],p[1],p[2]));
+  [[.24,.68,.06],[-.25,.64,-.02],[.04,.62,.27],[-.1,.64,-.26],[.17,.62,-.22]].forEach((p,i)=>{F.add('y',0x6b8e23,.008,.08,.008,p[0],p[1]-.02,p[2]);F.T(p[0],p[1]-.02,p[2],0,i,.3*(i%2?1:-1),()=>F.add('s',(x,y,z)=>x+y*.4>.35?0xe0502b:(y<-.3?0xf2b01e:0xf6a21f),.085,.12,.074,0,-.12,0))})}
+};
+const HH={carrot:.22,tomato:.8,sunflower:1.1,corn:1,potato:.4,strawberry:.3,pumpkin:.45,eggplant:.6,watermelon:.4,grapes:.9,pineapple:.7,mango:1.15};
+const CGc={};
+function cropGeo(id){if(CGc[id])return CGc[id];const S=Mk(),L=Mk(),F=Mk();(MODEL[id]||MODEL.carrot)(S,L,F);return CGc[id]={s:S.build(),l:L.build(),f:F.build()}}
+function crop(id,ghostMode){const g=new THREE.Group(),c=cropGeo(id),m=ghostMode?GM:PM,s=new THREE.Mesh(c.s,m),l=new THREE.Mesh(c.l,m),f=new THREE.Mesh(c.f,m);g.add(s);g.add(l);g.add(f);g.userData={s,l,f};return g}
+function stage(g,p){const u=g.userData;
+ if(p<.22){u.s.visible=true;u.l.visible=false;u.f.visible=false}
+ else{u.s.visible=false;u.l.visible=true;u.l.scale.setScalar(.32+.68*Math.min(1,(p-.22)/.5));const fv=p>=.58;u.f.visible=fv;if(fv)u.f.scale.setScalar(.45+.55*Math.min(1,(p-.58)/.4))}}
 const FC={carp:0xf29a2e,clown:0xff6f1d,puffer:0xe3cf6f,crab:0xe5402a,squid:0xd9739a,octo:0x9b59d0,shark:0x7e93a8};
 function fish(id){const g=new THREE.Group(),c=FC[id],z=id==='shark'?1.5:id==='octo'||id==='squid'?1.2:1;
  M3('s',c,id==='puffer'?.2:.22*z,id==='puffer'?.2:id==='crab'?.08:.13*z,id==='crab'?.15:.12*z,0,0,0,g);
  M3('c',c,.1*z,.14*z,.04,-.24*z,0,0,g).rotation.z=Math.PI/2;if(id==='shark')M3('c',c,.07,.16,.03,0,.16,0,g);return g}
-let tx=0,tz=0,gx=0,gz=0,dist=22,foc=0,drag=0,fc=[];const PX=12;
+let tx=0,tz=0,gx=0,gz=0,dist=22,foc=0,drag=0;const PX=12;
 const setCam=()=>{CAM.position.set(tx+dist*.527,dist*.679,tz+dist*.527);CAM.lookAt(tx,0,tz)};
-function setScene(){const key=G.size+(G.pond?'p':'');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];fc=[];pick=[];
+function mkTex(ok){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),r=10,a=3,b=61;x.beginPath();x.moveTo(a+r,a);x.arcTo(b,a,b,b,r);x.arcTo(b,b,a,b,r);x.arcTo(a,b,a,a,r);x.arcTo(a,a,b,a,r);x.closePath();
+ x.fillStyle=ok?'rgba(150,255,110,.5)':'rgba(255,90,80,.5)';x.fill();x.lineWidth=4;x.setLineDash([9,6]);x.strokeStyle=ok?'#ffffff':'#ffe3df';x.stroke();x.setLineDash([]);x.fillStyle='#fff';
+ if(ok){x.fillRect(29,18,6,28);x.fillRect(18,29,28,6)}else{x.save();x.translate(32,32);x.rotate(.785);x.fillRect(-3,-15,6,30);x.fillRect(-15,-3,30,6);x.restore()}
+ return new THREE.CanvasTexture(c)}
+function marker(x,z){const m=new THREE.Mesh(MKG,MKO);m.rotation.x=-PI/2;m.position.set(x,.075,z);m.scale.setScalar(.9);m.visible=false;root.add(m);return m}
+function setScene(){const key=G.size+(G.pond?'p':'');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];fc=[];tiles=[];ghost=null;ghostId='';hov=-1;
  const sp=1.2,n=G.size,D=new THREE.Group();SC.background.set(0x8fd14f);M3('b',0x8fd14f,200,.6,200,0,-.4,0,root);
- for(let r=0;r<n;r++)for(let c=0;c<n;c++){const x=(c-2.5)*sp,z=(r-2.5)*sp,t=M3('b',0x7b4a2d,1.19,.2,1.19,x,-.05,z,root);t.userData={k:'farm',i:r*n+c};pick.push(t);cells[r*n+c]={x,z,id:null}}
- const p=[];for(let i=0;i<=6;i++){const o=(i-3)*sp;p.push(o,0,-3*sp,o,0,3*sp,-3*sp,0,o,3*sp,0,o)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));const ln=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x8b5a2b,transparent:true,opacity:.5}));ln.position.y=.03;root.add(ln);
+ for(let r=0;r<n;r++)for(let c=0;c<n;c++){const x=(c-2.5)*sp,z=(r-2.5)*sp,t=M3('b',0x7b4a2d,1.19,.2,1.19,x,-.05,z,root);t.userData={k:'farm',i:r*n+c};tiles.push(t);cells[r*n+c]={x,z,id:null,mk:marker(x,z)}}
+ {const p=[];for(let i=0;i<=6;i++){const o=(i-3)*sp;p.push(o,0,-3*sp,o,0,3*sp,-3*sp,0,o,3*sp,0,o)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));const ln=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x8b5a2b,transparent:true,opacity:.5}));ln.position.y=.03;root.add(ln)}
  M3('b',0xa9aeb5,3*sp+.5,.14,2*sp+.5,PX,-.13,0,root);
- if(G.pond)for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=r*3+c,x=PX+(c-1)*sp,z=(r-.5)*sp,t=M3('b',0x2f8fd0,1.19,.2,1.19,x,-.05,z,root);t.userData={k:'fish',i};pick.push(t);fc[i]={x,z,id:null}}
- else{const b=M3('b',0xe8d9a0,3*sp,.2,2*sp,PX,-.05,0,root);b.userData={k:'buy'};pick.push(b);M3('b',0x7a4b25,.1,.8,.1,PX,.4,0,root);M3('b',0xffe9a8,.9,.45,.08,PX,.9,0,root)}
+ if(G.pond)for(let r=0;r<2;r++)for(let c=0;c<3;c++){const i=r*3+c,x=PX+(c-1)*sp,z=(r-.5)*sp,t=M3('b',0x2f8fd0,1.19,.2,1.19,x,-.05,z,root);t.userData={k:'fish',i};tiles.push(t);fc[i]={x,z,id:null,mk:marker(x,z)}}
+ else{const b=M3('b',0xe8d9a0,3*sp,.2,2*sp,PX,-.05,0,root);b.userData={k:'buy'};tiles.push(b);M3('b',0x7a4b25,.1,.8,.1,PX,.4,0,root);M3('b',0xffe9a8,.9,.45,.08,PX,.9,0,root)}
  let sd=7;const rn=()=>(sd=sd*16807%2147483647)/2147483647,L={tr:[],c1:[],c2:[],cr:[],rk:[]};
  for(let j=0;j<230;j++){const x=(rn()-.5)*70,z=(rn()-.5)*70,t=rn(),s=.8+rn()*.6;if(Math.abs(x)<5&&Math.abs(z)<5||Math.abs(x-PX)<3.5&&Math.abs(z)<3||Math.abs(z+5.4)<1.7&&x<11||Math.abs(x+6.8)<1.8&&Math.abs(z+1.5)<1.8||Math.abs(x-9)<2.4&&Math.abs(z+5.4)<2.4)continue;
   if(t<.55){L.tr.push([x,.15*s,z,.12*s,.3*s,.12*s]);L.c1.push([x,s,z,.55*s,1.1*s,.55*s]);L.c2.push([x,1.6*s,z,.42*s,.9*s,.42*s])}
@@ -10871,31 +11054,69 @@ function setScene(){const key=G.size+(G.pond?'p':'');if(key===ck)return;ck=key;r
  [[-.4,.35],[.4,.35],[-.4,-.35],[.4,-.35]].forEach(w=>M3('y',0x222222,.22,.12,.22,w[0],.22,w[1],tr).rotation.x=Math.PI/2);D.add(tr);
  M3('b',0xc0392b,1.6,1.2,1.4,-6.8,.6,-1.5,D);M3('c',0x7b241c,1.3,.8,1.2,-6.8,1.6,-1.5,D).rotation.y=.8;
  root.add(D);D.traverse(o=>{o.matrixAutoUpdate=false;o.updateMatrix()})}
-const sync3=safe(()=>{if(!ready)return;[[G.plots,cells,0],[G.fish,fc,1]].forEach(a=>a[0].forEach((c,i)=>{const e=a[1][i];if(!e)return;const id=c&&c.id;
- if(e.id!==id){if(e.g){root.remove(e.g);e.g=null}if(e.ring){root.remove(e.ring);e.ring=null}e.id=id;
-  if(id){e.g=a[2]?fish(id):crop(id);e.g.position.set(e.x,.05,e.z);root.add(e.g);e.ring=M3('t',0xffd166,1,1,1,e.x,.6,e.z,root,{emissive:0xaa7700});e.ring.rotation.x=Math.PI/2}}
- if(id){const p=Math.min(1,(Date.now()-c.t)/IT[id].t);e.rdy=p>=1;if(a[2])e.g.scale.setScalar(.5+.5*p);else{e.g.scale.setScalar(.4+.6*p);e.g.userData.f.visible=p>=.55}e.ring.visible=e.rdy}}))});
+const sync3=safe(()=>{if(!ready)return;const it0=IT[selC],it1=IT[selF];
+ if(ghost&&ghostId!==selC){ghost.visible=false;hov=-1}
+ [[G.plots,cells,0],[G.fish,fc,1]].forEach(a=>a[0].forEach((c,i)=>{const e=a[1][i];if(!e)return;const id=c&&c.id;
+  if(e.id!==id){if(e.g){root.remove(e.g);e.g=null}if(e.ring){root.remove(e.ring);e.ring=null}if(e.hit){root.remove(e.hit);e.hit=null}e.id=id;
+   if(id){e.g=a[2]?fish(id):crop(id);e.g.position.set(e.x,.05,e.z);root.add(e.g);e.ring=M3('t',0xffd166,1,1,1,e.x,.6,e.z,root,{emissive:0xaa7700});e.ring.rotation.x=PI/2;
+    if(!a[2]){e.born=T;const h=HH[id]||.5;e.hit=new THREE.Mesh(HG,HM);e.hit.scale.set(.62,h,.62);e.hit.position.set(e.x,h/2,e.z);e.hit.userData={k:'farm',i};root.add(e.hit)}}}
+  if(id){const p=Math.min(1,(Date.now()-c.t)/IT[id].t);e.rdy=p>=1;if(a[2])e.g.scale.setScalar(.5+.5*p);else stage(e.g,p);e.ring.visible=e.rdy}else e.rdy=false;
+  if(e.mk){const act=a[2]?tab==='pond':tab==='farm';e.mk.visible=!id&&act;if(!id)e.mk.material=G.coins>=(a[2]?it1:it0).cost?MKO:MKN}}))});
 const frame=safe(t=>{if(!ready||document.hidden||!$('screen-farm').classList.contains('active')){raf3=0;return}raf3=requestAnimationFrame(frame);if(t-last<(drag?16:33))return;const dt=Math.min(.1,(t-last)/1000);last=t;T+=dt;
  if(foc){tx+=(gx-tx)*.12;tz+=(gz-tz)*.12;if(Math.abs(gx-tx)+Math.abs(gz-tz)<.05)foc=0}setCam();
- cells.forEach((e,i)=>{if(e&&e.g&&e.rdy){e.g.position.y=.05+Math.abs(Math.sin(T*4+i))*.08;e.ring.position.y=.7+Math.sin(T*3+i)*.07}});
- fc.forEach((e,i)=>{if(!e||!e.g)return;const a=T*(.6+i*.13)+i*2,x=e.x+Math.cos(a)*.3,z=e.z+Math.sin(a)*.3;e.g.position.set(x,.2+Math.sin(T*2+i)*.03,z);e.g.rotation.y=-a-Math.PI/2;if(e.rdy)e.ring.position.set(x,.8+Math.sin(T*3)*.07,z)});R3.render(SC,CAM)});
+ const pu=.5+.5*Math.sin(T*3.2);MKO.opacity=.5+.4*pu;MKN.opacity=.5+.3*pu;
+ cells.forEach((e,i)=>{if(!e)return;if(e.mk&&e.mk.visible)e.mk.scale.setScalar(i===hov?1.02:.88+.05*pu);if(!e.g)return;
+  if(e.born!=null){const k=(T-e.born)/.45;if(k>=1){e.born=null;e.g.scale.setScalar(1)}else{const x=k-1;e.g.scale.setScalar(Math.max(.02,1+2.70158*x*x*x+1.70158*x*x))}}
+  if(e.rdy){e.g.position.y=.05+Math.abs(Math.sin(T*4+i))*.05;e.ring.position.y=.75+Math.sin(T*3+i)*.07}});
+ fc.forEach((e,i)=>{if(!e||!e.g)return;const a=T*(.6+i*.13)+i*2,x=e.x+Math.cos(a)*.3,z=e.z+Math.sin(a)*.3;e.g.position.set(x,.2+Math.sin(T*2+i)*.03,z);e.g.rotation.y=-a-Math.PI/2;if(e.rdy)e.ring.position.set(x,.8+Math.sin(T*3)*.07,z)});
+ R3.render(SC,CAM)});
 const mount3=safe(()=>{if(!ready)return;setScene();const st=$('fmStage'),w=st.clientWidth||window.innerWidth,h=st.clientHeight||window.innerHeight;
- if(cvs._w!==w||cvs._h!==h){cvs._w=w;cvs._h=h;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix()}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
-const onTap=safe(e=>{const r=cvs.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),CAM);const h=rc.intersectObjects(pick,false)[0];if(!h)return;const u=h.object.userData;u.k==='buy'?build():tap(u.k,u.i)});
+ if(cvs._w!==w||cvs._h!==h){cvs._w=w;cvs._h=h;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.setViewOffset(w,h,0,Math.round(h*.09),w,h)}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
+function hit(e){const r=cvs.getBoundingClientRect();if(!RC.r)RC.r=new THREE.Raycaster();RC.r.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),CAM);
+ const l=tiles.slice();cells.concat(fc).forEach(x=>{if(x&&x.hit)l.push(x.hit)});const h=RC.r.intersectObjects(l,false)[0];return h?h.object.userData:null}
+function setHover(i){if(i===hov)return;hov=i;if(i<0||tab!=='farm'){if(ghost)ghost.visible=false;return}const e=cells[i];if(!e)return;
+ if(!ghost||ghostId!==selC){if(ghost)root.remove(ghost);ghost=crop(selC,true);ghost.userData.s.visible=false;ghost.userData.l.visible=true;ghost.userData.f.visible=true;ghost.scale.setScalar(.9);ghostId=selC;root.add(ghost)}
+ ghost.position.set(e.x,.06,e.z);ghost.visible=true}
+const hoverAt=safe(e=>{const n=performance.now();if(n-hovT<45)return;hovT=n;const h=hit(e);let i=-1;
+ if(h&&h.k==='farm'&&tab==='farm'&&cells[h.i]&&!cells[h.i].id&&G.coins>=IT[selC].cost)i=h.i;setHover(i);cvs.style.cursor=h?'pointer':'grab'});
+const onTap=safe(e=>{const u=hit(e);PT={x:e.clientX,y:e.clientY};if(!u)return;
+ if(u.k==='buy'){if(tab!=='pond')setTab('pond');return}
+ if(u.k==='fish'&&tab!=='pond'){setTab('pond');return}
+ if(u.k==='farm'&&tab!=='farm'){setTab('farm');return}
+ tap(u.k,u.i)});
 function ctl(){const P=new Map();let pd=0,mv=0;const cl=v=>Math.max(-30,Math.min(30,v)),zm=v=>dist=Math.max(8,Math.min(34,v));
  cvs.addEventListener('pointerdown',e=>{try{cvs.setPointerCapture(e.pointerId)}catch(x){}P.set(e.pointerId,[e.clientX,e.clientY]);mv=0;foc=0;drag=1;if(P.size===2){const a=[...P.values()];pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])}});
- cvs.addEventListener('pointermove',e=>{const p=P.get(e.pointerId);if(!p)return;const dx=e.clientX-p[0],dy=e.clientY-p[1];P.set(e.pointerId,[e.clientX,e.clientY]);
-  if(P.size===1){mv+=Math.abs(dx)+Math.abs(dy);if(mv>10){const k=2*dist*Math.tan(13*Math.PI/180)/(cvs.clientHeight||600)*1.3;tx=cl(tx-.707*k*(dx+dy));tz=cl(tz+.707*k*(dx-dy))}}
-  else if(P.size===2){const a=[...P.values()],nd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);if(pd&&nd)zm(dist*pd/nd);pd=nd;mv=99}});
- const up=e=>{if(e.type==='pointerup'&&P.size===1&&mv<10)onTap(e);P.delete(e.pointerId);if(!P.size)drag=0;pd=0};cvs.addEventListener('pointerup',up);cvs.addEventListener('pointercancel',up);
- cvs.addEventListener('wheel',e=>{e.preventDefault();zm(dist*(1+Math.sign(e.deltaY)*.1))},{passive:false})}
-function init3(){try{const d=Math.min(window.devicePixelRatio||1,1.5);R3=new THREE.WebGLRenderer({antialias:d<1.5});R3.setPixelRatio(d);cvs=R3.domElement;cvs.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';$('fmStage').appendChild(cvs);cvs.addEventListener('webglcontextlost',e=>e.preventDefault());ctl();
- SC=new THREE.Scene();SC.background=new THREE.Color(0x8fd14f);CAM=new THREE.PerspectiveCamera(26,1,.1,140);SC.add(new THREE.HemisphereLight(0xffffff,0x6b8f5a,.95));const l=new THREE.DirectionalLight(0xfff1cc,.8);l.position.set(4,8,5);SC.add(l);root=new THREE.Group();SC.add(root);ready=1}catch(e){console.warn(e);ready=0}if(ready)render()}
+ cvs.addEventListener('pointermove',e=>{const p=P.get(e.pointerId);if(!p){if(e.pointerType==='mouse')hoverAt(e);return}const dx=e.clientX-p[0],dy=e.clientY-p[1];P.set(e.pointerId,[e.clientX,e.clientY]);
+  if(P.size===1){mv+=Math.abs(dx)+Math.abs(dy);if(mv>10){camMoved=1;const k=2*dist*Math.tan(13*Math.PI/180)/(cvs.clientHeight||600)*1.3;tx=cl(tx-.707*k*(dx+dy));tz=cl(tz+.707*k*(dx-dy))}}
+  else if(P.size===2){camMoved=1;const a=[...P.values()],nd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);if(pd&&nd)zm(dist*pd/nd);pd=nd;mv=99}});
+ const up=e=>{if(e.type==='pointerup'&&P.size===1&&mv<10)onTap(e);P.delete(e.pointerId);if(!P.size){drag=0;if(camMoved)tutCheck()}pd=0};cvs.addEventListener('pointerup',up);cvs.addEventListener('pointercancel',up);
+ cvs.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')setHover(-1)});
+ cvs.addEventListener('wheel',e=>{e.preventDefault();camMoved=1;zm(dist*(1+Math.sign(e.deltaY)*.1));tutCheck()},{passive:false})}
+function init3(){try{const d=Math.min(window.devicePixelRatio||1,1.5);R3=new THREE.WebGLRenderer({antialias:d<1.5});R3.setPixelRatio(d);cvs=R3.domElement;cvs.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none';$('fmStage').appendChild(cvs);
+  cvs.addEventListener('webglcontextlost',e=>e.preventDefault());cvs.addEventListener('webglcontextrestored',()=>{if(raf3===0)mount3()});ctl();
+  SC=new THREE.Scene();SC.background=new THREE.Color(0x8fd14f);CAM=new THREE.PerspectiveCamera(26,1,.1,140);SC.add(new THREE.HemisphereLight(0xffffff,0x6b8f5a,.95));const l=new THREE.DirectionalLight(0xfff1cc,.8);l.position.set(4,8,5);SC.add(l);root=new THREE.Group();SC.add(root);
+  PM=new THREE.MeshLambertMaterial({vertexColors:true});GM=new THREE.MeshLambertMaterial({vertexColors:true,transparent:true,opacity:.5,depthWrite:false});
+  MKG=new THREE.PlaneGeometry(1,1);HG=new THREE.BoxGeometry(1,1,1);HM=new THREE.MeshBasicMaterial({visible:false});
+  MKO=new THREE.MeshBasicMaterial({map:mkTex(1),transparent:true,depthWrite:false});MKN=new THREE.MeshBasicMaterial({map:mkTex(0),transparent:true,depthWrite:false});ready=1}catch(e){console.warn(e);ready=0}if(ready)render()}
 function boot3(){if(ready||boot3.b)return;boot3.b=1;if(window.THREE)return init3();let i=0;const S=['three.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'];
  const nx=()=>{if(i>=S.length){boot3.b=0;return}const e=document.createElement('script');let d=0;const to=setTimeout(()=>f(0),9000),f=ok=>{if(d)return;d=1;clearTimeout(to);if(ok&&window.THREE)init3();else{e.remove();nx()}};e.onload=()=>f(1);e.onerror=()=>f(0);e.src=S[i++];document.head.appendChild(e)};nx()}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)mount3()});window.addEventListener('resize',()=>{if(cvs)delete cvs._w;mount3()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)mount3()});window.addEventListener('resize',()=>{if(cvs)delete cvs._w;mount3();if(tI>=0)tutTick()});
 const grid=k=>ready?'':'<div class="fm-grid'+(k==='fish'?' pond':'')+'" style="grid-template-columns:repeat('+(k==='farm'?G.size:3)+',1fr)">'+(k==='farm'?G.plots:G.fish).map((_,i)=>cell(k,i)).join('')+'</div>';
-window.openFarm=function(){load();chk();boot3();tab='farm';tx=tz=gx=gz=0;dist=22;foc=0;show('screen-farm');render();clearInterval(tm);tm=setInterval(()=>{if($('screen-farm').classList.contains('active'))paint();else clearInterval(tm)},1000)};
+
+function paint(){sync3();document.querySelectorAll('#fmBody .fm-c').forEach(el=>{const f=el.dataset.k==='farm',c=(f?G.plots:G.fish)[+el.dataset.i];
+ if(!c){el.className='fm-c e';el.innerHTML='<i>＋</i>';return}const it=IT[c.id],p=Math.min(1,(Date.now()-c.t)/it.t);
+ if(p>=1){el.className='fm-c r';el.innerHTML='<i>'+it.e+'</i><small>Ready!</small>'}
+ else{el.className='fm-c g';el.innerHTML='<i style="transform:scale('+(.55+.45*p).toFixed(2)+')">'+(f?(p<.5?'🌱':'🌿'):it.e)+'</i><small>'+fmt(it.t*(1-p)/1000)+'</small>'}})}
+function render(){
+ $('fmCoins').textContent='🪙 '+G.coins.toLocaleString();$('fmLv').textContent=G.lvl;$('fmXpT').textContent=G.xp+'/'+xpNeed(G.lvl);$('fmXp').style.width=Math.min(100,100*G.xp/xpNeed(G.lvl))+'%';
+ document.querySelectorAll('#fmTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+ $('screen-farm').classList.toggle('nogl',!ready);{const nf=$('fmNew'),x=EXP[G.size];nf.style.display=x?'':'none';if(x)nf.innerHTML='New Field<b>🪙 '+x[0]+(G.lvl<x[1]?' · L'+x[1]:'')+'</b>'}
+ const body=$('fmBody'),ob=body.querySelector('.fm-bar'),sl=ob?ob.scrollLeft:0,st=body.scrollTop,same=lastTab===tab;
+ body.innerHTML=tab==='farm'?vFarm():tab==='pond'?vPond():tab==='barn'?vBarn():vAch();
+ const nb=body.querySelector('.fm-bar');if(nb){if(same)nb.scrollLeft=sl;else{const s=nb.querySelector('.sel');if(s)nb.scrollLeft=Math.max(0,s.offsetLeft-nb.clientWidth/2+s.offsetWidth/2)}}
+ if(same)body.scrollTop=st;lastTab=tab;hint();mount3();paint();tutCheck();if(tI>=0)tutRender()}
+window.openFarm=function(){load();chk();boot3();tab='farm';lastTab='';tI=-1;tx=tz=gx=gz=fcx();dist=22;foc=0;hov=-1;show('screen-farm');render();clearInterval(tm);
+ tm=setInterval(()=>{if($('screen-farm').classList.contains('active')){paint();hint();tutCheck();tutTick()}else{clearInterval(tm);tI=-1}},1000);if(!G.tut)setTimeout(()=>{if($('screen-farm').classList.contains('active')&&tI<0)startTut()},500)};
 })();
 </script>
 </body>
