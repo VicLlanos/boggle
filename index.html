@@ -11178,7 +11178,7 @@ function buildBelt(){
   const dx=b.x-a.x, dz=b.z-a.z, len=Math.hypot(dx,dz)||1;
   const midX=(a.x+b.x)/2, midZ=(a.z+b.z)/2, ang=-Math.atan2(dz,dx);
   const rail=M3('b',0x5a4a3a,len+.25,.05,.42,midX,.07,midZ,beltGroup);rail.rotation.y=ang;
-  const belt=M3('b',0x333333,len,.03,.28,midX,.12,midZ,beltGroup);belt.rotation.y=ang;
+  const belt=M3('b',0x333333,len,.03,.36,midX,.12,midZ,beltGroup);belt.rotation.y=ang;
   for(let k=0;k<3;k++){
     const t=(k+.5)/3;
     const roll=M3('y',0xffd166,.11,.035,.11,a.x+dx*t,.15,a.z+dz*t,beltGroup);roll.rotation.z=Math.PI/2;
@@ -11219,18 +11219,27 @@ function updateTruck(dt){
     if(u>=1){
       s.phase='load';s.t=0;s.loadLeft=5;
       say('📦 Loading goods from the barn…');
-      const loadPath=[BARN_DOOR,{x:(BARN_DOOR.x+TRUCK_PARK.x)/2,z:BARN_DOOR.z},TRUCK_PARK];
+      /* path sits exactly on the dock belt (same line as buildBelt) */
+      const ax=BARN_DOOR.x, az=BARN_DOOR.z, bx=TRUCK_PARK.x, bz=TRUCK_PARK.z;
+      const loadPath=[
+        {x:ax, z:az},
+        {x:ax+(bx-ax)*.25, z:az+(bz-az)*.25},
+        {x:ax+(bx-ax)*.5,  z:az+(bz-az)*.5},
+        {x:ax+(bx-ax)*.75, z:az+(bz-az)*.75},
+        {x:bx, z:bz}
+      ];
       const ems=['📦','🥕','🥚','🐟','🌽','🥛','🧶'];
       for(let k=0;k<5;k++){
         setTimeout(()=>{
           if(!truckState||truckState.phase!=='load')return;
-          const item=emojiSprite(ems[k%ems.length],.48);
-          item.position.set(BARN_DOOR.x,.6,BARN_DOOR.z);root.add(item);
-          convItems.push({g:item, path:loadPath, t:0, speed:.65, baseY:.55, bob:.03, onArrive:()=>{
+          const item=emojiSprite(ems[k%ems.length],.45);
+          item.position.set(ax, .32, az);root.add(item);
+          /* baseY matches belt top (~0.12 + item height) so goods ride on the conveyor */
+          convItems.push({g:item, path:loadPath, t:0, speed:.55, baseY:.32, bob:.015, onArrive:()=>{
             try{root.remove(item)}catch(e){}
             s.loadLeft=Math.max(0,(s.loadLeft||1)-1);
           }});
-        }, 280+k*520);
+        }, 300+k*580);
       }
     }
   }else if(s.phase==='load'){
