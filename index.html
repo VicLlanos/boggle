@@ -10868,7 +10868,11 @@ const isHungry=c=>{if(!c||c._feeding||isCrop(c))return false;const fed=c.fed!=nu
 const tsnd=()=>{try{snd('tap')}catch(e){}};
 const E9=()=>Array(9).fill(null);
 const P=()=>[].concat(...G.land.filter(p=>p&&p.u==='crop').map(p=>p.s));
-function load(){try{G=JSON.parse(localStorage.getItem(KEY))}catch(e){G=null}
+let farmSavedAt=0,farmCloudReady=false,farmCloudTimer=null;
+function load(){
+ let stored=null;try{stored=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ if(stored&&stored.game&&stored.game.land){G=stored.game;farmSavedAt=Number(stored.savedAt)||0}
+ else{G=stored;farmSavedAt=0}
  if(G&&G.land&&G.land.length===20){const nl=Array(N).fill(null);G.land.forEach((l,p)=>{if(l)nl[(Math.floor(p/5)+6)*COLS+(p%5+6)]=l});G.land=nl}
  if(!G||!G.land){let v=null;try{v=JSON.parse(localStorage.getItem('farmValley_v1'))}catch(e){}
   G={coins:60,xp:0,lvl:1,inv:{},ach:{},st:{h:0,fish:0,prod:0,earned:0,seen:{}},tut:0,land:Array(N).fill(null)};G.land[START]={u:'crop',s:E9()};
@@ -10877,8 +10881,41 @@ function load(){try{G=JSON.parse(localStorage.getItem(KEY))}catch(e){G=null}
    if(s>3){G.land[START-1]={u:'crop',s:E9().map((_,i)=>ex[i]||null)}}
    if(v.pond){G.land[START+1]={u:'pond',s:E9().map((_,i)=>(v.fish||[])[i]||null)}}
    AC.forEach(a=>{if(a[2](G))G.ach[a[0]]=1})}}
- if(!G.st)G.st={};['h','fish','prod','earned'].forEach(k=>{if(!G.st[k])G.st[k]=0});if(!G.st.seen)G.st.seen={};if(!G.inv)G.inv={};if(!G.ach)G.ach={};if(!G.fl)G.fl={n:2,cap:0};G.land.forEach(l=>l&&l.s.forEach(c=>{if(c){delete c._collecting;delete c._feeding}}))}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(G,(k,v)=>k[0]==='_'?undefined:v))}catch(e){}};
+ if(!G.st)G.st={};['h','fish','prod','earned'].forEach(k=>{if(!G.st[k])G.st[k]=0});if(!G.st.seen)G.st.seen={};if(!G.inv)G.inv={};if(!G.ach)G.ach={};if(!G.fl)G.fl={n:2,cap:0};G.land.forEach(l=>l&&l.s.forEach(c=>{if(c){delete c._collecting;delete c._feeding}}))
+}
+function farmPayload(){return {v:2,savedAt:farmSavedAt,game:G}}
+async function loadFarmCloud(){
+ farmCloudReady=false;
+ if(!user||!window.firebase||!db){farmCloudReady=true;return}
+ try{
+  const snap=await Promise.race([db.ref('farmValley/'+user.uid).once('value'),new Promise((_,rej)=>setTimeout(()=>rej(new Error('Farm cloud load timed out')),5000))]);
+  const row=snap.val();let cloud=null;
+  try{cloud=row&&row.data?JSON.parse(row.data):null}catch(e){}
+  if(cloud&&cloud.v===2&&cloud.game&&cloud.game.land&&Number(cloud.savedAt)>farmSavedAt){
+   G=cloud.game;farmSavedAt=Number(cloud.savedAt)||0;
+   try{localStorage.setItem(KEY,JSON.stringify(farmPayload()))}catch(e){}
+   say('☁️ Farm Valley loaded from your Firebase account');
+  }
+ }catch(e){console.warn('Farm Valley cloud load failed:',e)}
+ farmCloudReady=true;
+ // Sync this device's current state (new saves, legacy local saves, or cloud restore) to the account.
+ save();
+}
+const save=()=>{
+ farmSavedAt=Date.now();
+ const payload=farmPayload();
+ try{localStorage.setItem(KEY,JSON.stringify(payload))}catch(e){}
+ if(!farmCloudReady||!user||!window.firebase||!db)return;
+ clearTimeout(farmCloudTimer);
+ farmCloudTimer=setTimeout(()=>{
+  const uid=user&&user.uid;if(!uid)return;
+  db.ref('farmValley/'+uid).set({
+   data:JSON.stringify(payload),
+   updatedAt:firebase.database.ServerValue.TIMESTAMP,
+   playerName:(profile&&profile.name)||''
+  }).then(()=>{}).catch(e=>{console.warn('Farm Valley Firebase save failed:',e);say('Cloud save failed — check Firebase Database Rules')});
+ },700);
+};
 function say(m){const t=$('fmToast');t.textContent=m;t.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>t.classList.remove('on'),1800)}
 function pt(){return PT||{x:window.innerWidth/2,y:window.innerHeight*.35}}
 function pop(txt,cls){const p=pt(),el=document.createElement('div');el.className='fm-pop'+(cls?' '+cls:'');el.textContent=txt;el.style.left=p.x+'px';el.style.top=p.y+'px';$('screen-farm').appendChild(el);setTimeout(()=>el.remove(),1000)}
@@ -11445,7 +11482,7 @@ function render(){
  const nb=sh.querySelector('.fm-bar');if(nb){if(same)nb.scrollLeft=sl;else{const s=nb.querySelector('.sel');if(s)nb.scrollLeft=Math.max(0,s.offsetLeft-nb.clientWidth/2+s.offsetWidth/2)}}lastK=k;
  const m=$('fmModal');m.className=modal?'on':'';m.innerHTML=modal?'<div class="fm-mc"><div class="fm-sh"><span>'+(modal==='barn'?' Barn &amp; Garage':' Awards')+'</span><button class="fm-x" data-a="closeM" aria-label="Close">✕</button></div>'+(modal==='barn'?vBarn()+vGarage():vAch())+'</div>':'';
  mount3();paint();tutCheck();if(tI>=0)tutRender()}
-window.openFarm=function(){load();chk();boot3();sel=-1;modal='';lastK='';tI=-1;const c=pc(START);tx=gx=c.x;tz=gz=c.z;dist=17;foc=0;show('screen-farm');render();clearInterval(tm);
+window.openFarm=async function(){load();await loadFarmCloud();chk();boot3();sel=-1;modal='';lastK='';tI=-1;const c=pc(START);tx=gx=c.x;tz=gz=c.z;dist=17;foc=0;show('screen-farm');render();clearInterval(tm);
  tm=setInterval(()=>{if($('screen-farm').classList.contains('active')){paint();tutCheck();tutTick()}else{clearInterval(tm);tI=-1}},1000);if(!G.tut)setTimeout(()=>{if($('screen-farm').classList.contains('active')&&tI<0)startTut()},500)};
 })();
 </script>
