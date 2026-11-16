@@ -11001,7 +11001,7 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
 let PM,GM,DM,MKG,MKO,MKN,HG,HM,SUN;const GC={},MC={},RC={};
 /* ===== Farm Valley v3: tractor, conveyors, truck, 3D item icons (no emoji) ===== */
-const MKX=-44.5,MKZ=28;let later=[],clouds=[],WM=null,WORLD,mv_=[],arcs=[],jobQ=[],busyT=0,truck=null,ts=null,belts=[],barnTiles=[];
+const MKX=-44.5,MKZ=28;let later=[],clouds=[],WM=null,WORLD,mv_=[],arcs=[],jobQ=[],busyT=0,truck=null,ts=null,belts=[],barnTiles=[],claimedPlots=new Set();
 const BZ=-2.3,BX=-24,DOOR={x:-26.7,z:BZ},IN_Z=BZ+.6,OUT_Z=BZ-.6,HOP={x:-32.2,z:IN_Z},DOCK={x:-39.2,z:OUT_Z},TPARK={x:-40.1,z:OUT_Z+.2},LZ=0,UNL={x:-34.25,z:LZ},YARD={x:-36.5,z:4.6},MAXT=2,CAP=8,BV=.9;
 function mkWheel(r,w,hub){const g=new THREE.Group(),t=M3('y',0x1c1c1c,r,w,r,0,0,0,g);t.rotation.z=PI/2;const h=M3('y',hub,r*.55,w*1.06,r*.55,0,0,0,g);h.rotation.z=PI/2;
  for(let i=0;i<14;i++){const a=i*PI/7,l=M3('b',0x141414,w*1.02,.05,.1,0,sn(a)*r,cs(a)*r,g);l.rotation.x=-a}g.r=r;return g}
@@ -11084,7 +11084,6 @@ function arc(m,a,b,dur,done){arcs.push({m,a:{x:a.x,y:a.y,z:a.z},b:{x:b.x,y:b.y,z
 function updateConv(dt){
  for(let k=mv_.length-1;k>=0;k--){const o=mv_[k],g=o.g;if(o.wait>0){o.wait-=dt;if(g.legs)g.legs.forEach(l=>l.rotation.x=0);continue}const p=o.pts[o.i];if(!p){mv_.splice(k,1);o.done&&o.done();continue}
   const dx=p.x-g.position.x,dz=p.z-g.position.z,d=Math.hypot(dx,dz),st=o.spd*dt;
-  if(g.isTractor&&d>0.01){let blocked=0;for(let j=0;j<mv_.length;j++){const o2=mv_[j];if(o2===o||!o2.g||!o2.g.isTractor)continue;const ox=o2.g.position.x-g.position.x,oz=o2.g.position.z-g.position.z,dd=Math.hypot(ox,oz);if(dd>=3.2)continue;const sl=(g.slot|0),os=(o2.g.slot|0),ahead=ox*dx+oz*dz;if(os<sl||(os===sl&&ahead>0)){blocked=1;break}}if(blocked){if(g.wh)g.wh.forEach(w=>w.rotation.x*=.85);continue}}
   if(d<=st){g.position.x=p.x;g.position.z=p.z;if(p.y!=null)g.position.y=p.y;if(g.wh)g.wh.forEach(w=>w.rotation.x+=d/w.r);if(!o.arr){o.arr=1;if(p.fn)p.fn()}if(p.hold&&p.hold())continue;o.arr=0;o.i++;if(p.wait)o.wait=p.wait;continue}
   g.position.x+=dx/d*st;g.position.z+=dz/d*st;if(g.wh)g.wh.forEach(w=>w.rotation.x+=st/w.r);if(g.legs){const q=sn(T*11)*.7;g.legs[0].rotation.x=q;g.legs[1].rotation.x=-q;g.arms[0].rotation.x=-q*.8;g.arms[1].rotation.x=q*.8}
   if(o.turn!==false){const h=Math.atan2(dx,dz);let df=h-g.rotation.y;df=Math.atan2(sn(df),cs(df));g.rotation.y+=df*Math.min(1,dt*(g.legs?9:4))}}
@@ -11093,15 +11092,18 @@ function updateConv(dt){
 const stopFor=j=>({x:j.sx,z:pc(j.p).z+PP/2+.35});
 function enqueueCollect(j){j.kind='collect';jobQ.push(j);pump()}
 function enqueueFeed(j){j.kind='feed';jobQ.push(j);pump()}
-function pump(){while(busyT<MAXT&&jobQ.length){const kind=jobQ[0].kind,b=[];for(let i=0;i<jobQ.length&&b.length<CAP;){if(jobQ[i].kind===kind)b.push(...jobQ.splice(i,1));else i++}
- if(!ready||!WORLD){b.forEach(j=>kind==='feed'?doFeed(j):finishHarvest(j));continue}trip(b,kind)}}
+function pump(){while(busyT<MAXT&&jobQ.length){const kind=jobQ[0].kind,b=[],take=new Set();
+ for(let i=0;i<jobQ.length&&b.length<CAP;){const j=jobQ[i];if(j.kind!==kind){i++;continue}if(claimedPlots.has(j.p)&&!take.has(j.p)){i++;continue}
+  if(!take.has(j.p)&&b.length&&b.length+1>CAP){i++;continue}take.add(j.p);b.push(jobQ.splice(i,1)[0])}
+ for(let i=0;i<jobQ.length&&b.length<CAP;){const j=jobQ[i];if(j.kind===kind&&take.has(j.p))b.push(jobQ.splice(i,1)[0]);else i++}
+ if(!b.length)break;if(!ready||!WORLD){b.forEach(j=>kind==='feed'?doFeed(j):finishHarvest(j));continue}trip(b,kind)}}
 function doFeed(j){const c=j.c;if(!c)return;const now=Date.now(),fed=c.fed!=null?c.fed:c.t;c.t+=Math.max(0,now-Math.max(fed+HUNGER_MS,c.t));c.fed=now;delete c._feeding;paint()}
 function mkWorker(){const g=new THREE.Group(),sh=[0x2f6fb8,0xc0392b,0x8e44ad,0xe67e22,0x16a085,0xd4a017][Math.floor(Math.random()*6)],sk=[0xf2c9a0,0xd9a273,0x8d5a3b][Math.floor(Math.random()*3)],b=new THREE.Group();b.position.y=.42;g.add(b);g.b=b;g.legs=[];g.arms=[];
  [-1,1].forEach(s=>{const l=new THREE.Group();l.position.set(.07*s,.42,0);M3('b',0x3a4a6a,.09,.42,.1,0,-.21,0,l);M3('b',0x2a2a2a,.1,.06,.14,0,-.42,.02,l);g.add(l);g.legs.push(l);
   const a=new THREE.Group();a.position.set(.17*s,.34,0);M3('b',sh,.07,.3,.08,0,-.14,0,a);M3('s',sk,.045,.045,.045,0,-.3,0,a);b.add(a);g.arms.push(a)});
  M3('b',sh,.26,.34,.15,0,.17,0,b);M3('s',sk,.1,.1,.1,0,.46,0,b);M3('y',0xe3c16f,.2,.02,.2,0,.53,0,b);M3('y',0xe3c16f,.1,.07,.1,0,.54,0,b);
  g.hold=new THREE.Group();g.hold.position.set(0,.22,.24);b.add(g.hold);g.scale.setScalar(1.3);return g}
-const lane=(a,b)=>{if(Math.abs(a.z-b.z)<.01)return[b];const c=Math.max(4,Math.min(COLS,Math.round(b.x/PP+COLS/2))),gx=c*PP-COLS*PP/2;return[{x:gx,z:a.z},{x:gx,z:b.z},b]};
+const lane=(a,b,slot)=>{const off=((slot|0)%2?1:-1)*1.9;if(Math.abs(a.z-b.z)<.01)return[{x:b.x+off*.35,z:b.z}];const c=Math.max(4,Math.min(COLS,Math.round(b.x/PP+COLS/2))),gx=c*PP-COLS*PP/2+off;return[{x:gx,z:a.z},{x:gx,z:b.z},{x:b.x+off*.35,z:b.z}];};
 function workerRun(t,q,kind,mine,zs,fin){const w=mkWorker(),tp=new THREE.Vector3();t.getWorldPosition(tp);const home={x:tp.x,z:zs-.95};w.position.set(home.x,0,home.z);WORLD.add(w);
  const drop=()=>{t.updateMatrixWorld(true);const v=new THREE.Vector3();t.tr.getWorldPosition(v);return{x:v.x,z:zs-.95}},clr=()=>w.hold.children.slice().forEach(c=>w.hold.remove(c));
  const next=()=>{const j=q.shift();if(!j){drive(w,[home],2.4,()=>{WORLD.remove(w);fin()});return}
@@ -11110,18 +11112,19 @@ function workerRun(t,q,kind,mine,zs,fin){const w=mkWorker(),tp=new THREE.Vector3
    if(kind==='feed'){doFeed(j);clr();pop('Fed '+IT[j.c.id].n,'plant')}else{finishHarvest(j);M3('b',0xb88a4a,.3,.14,.24,0,0,0,w.hold);const m=itemMesh(j.key);m.position.y=.1;w.hold.add(m)}
    drive(w,[drop()],2.4,()=>{if(kind==='feed'){next();return}const p=new THREE.Vector3();w.hold.getWorldPosition(p);clr();const m=itemMesh(j.key);WORLD.add(m);t.updateMatrixWorld(true);
     const n=mine.length,lx=(n%2-.5)*.4,lz=(Math.floor(n/2)%4-1.5)*.4,to=t.ld.localToWorld(new THREE.Vector3(lx,.15,lz));mine.push({m,j});arc(m,p,to,.5,()=>{WORLD.remove(m);t.ld.add(m);m.position.set(lx,.12,lz)});setTimeout(next,350)})}}],2.4)};next()}
-function trip(b,kind){busyT++;const t=mkTractor(),mine=[],slot=busyT-1;t.isTractor=1;t.slot=slot;t.born=T;
- const yx=YARD.x+(slot%2?1.8:-1.8),yz=YARD.z+slot*2.6;t.position.set(yx,0,yz);t.rotation.y=PI/2;WORLD.add(t);
+function trip(b,kind){busyT++;const t=mkTractor(),mine=[],slot=busyT-1;t.isTractor=1;t.slot=slot;
+ const myPlots=new Set(b.map(j=>j.p));myPlots.forEach(p=>claimedPlots.add(p));
+ const yx=YARD.x+(slot%2?2.2:-2.2),yz=YARD.z+slot*2.8;t.position.set(yx,0,yz);t.rotation.y=PI/2;WORLD.add(t);
  if(kind==='feed')for(let i=0;i<4;i++)M3('b',0xd9b44a,.34,.22,.3,(i%2-.5)*.45,.12+Math.floor(i/2)*.2,i%2?.3:-.3,t.ld);
  const G2={};b.forEach(j=>(G2[j.p]=G2[j.p]||[]).push(j));const ps=Object.keys(G2).map(Number).sort((a,c)=>{const A=pc(a),C=pc(c);return Math.hypot(A.x-HOP.x,A.z)-Math.hypot(C.x-HOP.x,C.z)});
- const gate=()=>{if(slot===0)return 0;for(let j=0;j<mv_.length;j++){const o2=mv_[j];if(o2.g&&o2.g.isTractor&&(o2.g.slot|0)<slot){const dx=o2.g.position.x-YARD.x,dz=o2.g.position.z-YARD.z;if(Math.hypot(dx,dz)<14&&T-(o2.g.born||0)<12)return 1}}return 0};
- let cur={x:yx,z:yz};const pts=[{x:yx,z:yz,hold:gate},{x:YARD.x+(slot%2?1.4:-1.4),z:0}];
- ps.forEach(p=>{const q=G2[p].slice(),zs=pc(p).z+PP/2,st={x:pc(p).x,z:zs};let wk=0;lane(cur,st).slice(0,-1).forEach(x=>pts.push(x));
+ const side=((slot%2)?1:-1)*1.15;
+ let cur={x:yx,z:yz};const pts=[{x:yx,z:yz},{x:YARD.x+side*1.2,z:0}];
+ ps.forEach(p=>{const q=G2[p].slice(),zs=pc(p).z+PP/2,st={x:pc(p).x+side,z:zs};let wk=0;lane(cur,st,slot).slice(0,-1).forEach(x=>pts.push(x));
   pts.push({x:st.x,z:st.z,fn:()=>{const n=Math.min(3,q.length);wk=n;for(let i=0;i<n;i++)setTimeout(()=>workerRun(t,q,kind,mine,zs,()=>wk--),i*500)},hold:()=>wk>0});cur=st});
- lane(cur,{x:UNL.x,z:LZ}).slice(0,-1).forEach(x=>pts.push(x));
- pts.push({x:UNL.x,z:LZ,wait:kind==='feed'?.3:b.length*.45+1.6,fn:()=>{mine.forEach((o,i)=>setTimeout(()=>{const p=new THREE.Vector3();o.m.getWorldPosition(p);t.ld.remove(o.m);WORLD.add(o.m);o.m.position.copy(p);
+ const ul={x:UNL.x+side*.8,z:LZ+side*1.1};lane(cur,ul,slot).slice(0,-1).forEach(x=>pts.push(x));
+ pts.push({x:ul.x,z:ul.z,wait:kind==='feed'?.3:b.length*.45+1.6,fn:()=>{mine.forEach((o,i)=>setTimeout(()=>{const p=new THREE.Vector3();o.m.getWorldPosition(p);t.ld.remove(o.m);WORLD.add(o.m);o.m.position.copy(p);
   arc(o.m,p,{x:HOP.x,y:1.0,z:IN_Z},.55,()=>{WORLD.remove(o.m);const c=mkCrate(o.j.key);WORLD.add(c);c.position.set(HOP.x+.2,BELT_TOP,IN_Z);drive(c,[{x:DOOR.x+.3,z:IN_Z}],BV,()=>{WORLD.remove(c);pop('+1 '+(IT[o.j.key]?IT[o.j.key].n:''),'gain')},{turn:false})})},i*450))}});
- pts.push({x:YARD.x+(t.slot%2?1.4:-1.4),z:0});pts.push({x:yx,z:yz});drive(t,pts,3.6,()=>{WORLD.remove(t);busyT--;pump()})}
+ pts.push({x:YARD.x+side*1.2,z:0});pts.push({x:yx,z:yz});drive(t,pts,3.6,()=>{WORLD.remove(t);myPlots.forEach(p=>claimedPlots.delete(p));busyT--;pump()})}
 function shipOut(keys,done){if(!ready||!WORLD){done&&done();return}
  if(ts&&ts.leaving){later.push(...keys);return}
  if(!truck){truck=mkTruck();truck.position.set(TPARK.x,0,TPARK.z-36);WORLD.add(truck);ts={arrived:false,pend:0,q:[],gap:0,leaving:false,t:0};drive(truck,[{x:TPARK.x,z:TPARK.z}],6,()=>{ts.arrived=true})}
