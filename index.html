@@ -10965,150 +10965,200 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
 /* ---- 3D view (three.js, lightweight) ---- */
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
 let PM,GM,DM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
-/* conveyor + truck visuals
-   Belt runs from a pickup hub near the fields → barn front door.
-   On harvest, goods ride the belt into the barn.
-   On sell, a truck parks at the door and goods ride the belt out into the truck. */
-let convItems=[],truck=null,truckState=null,beltGroup=null;
-/* Barn group is at (-15.2, 0, -2.5); front door faces +Z at local z≈2.5 → world z≈0 */
-const BARN_DOOR={x:-15.2,z:0.15};
-const BELT_HUB={x:-3.5,z:1.4};          // near the main fields
-const CONV_PATH=[
-  {x:BELT_HUB.x,     z:BELT_HUB.z},
-  {x:-7.2,           z:1.1},
-  {x:-10.5,          z:0.7},
-  {x:-13.2,          z:0.35},
-  {x:BARN_DOOR.x,    z:BARN_DOOR.z}
-];
-function emojiSprite(em){
+/* harvest worker + barn-door loading + market truck
+   - No long belt across fields (that overlapped plots).
+   - On harvest: a farmhand walks to the plot, picks up the goods, walks back to the barn door.
+   - Items are staggered so they never stack on top of each other.
+   - On sell: truck parks at the barn door; parcels load one-by-one from the door into the truck, then it drives off. */
+let convItems=[], workers=[], truck=null, truckState=null, beltGroup=null, harvestQueue=0;
+const BARN_DOOR={x:-15.2, z:0.15};
+const TRUCK_PARK={x:-17.6, z:0.15};
+
+function emojiSprite(em, scale){
   const c=document.createElement('canvas');c.width=c.height=64;
   const x=c.getContext('2d');x.font='48px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(em,32,36);
   const m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true});
-  const s=new THREE.Sprite(m);s.scale.set(.6,.6,1);return s;
+  const s=new THREE.Sprite(m);s.scale.set(scale||.55, scale||.55, 1);return s;
 }
-/* path: array of {x,z}. speed is segments-per-second (lower = slower). */
-function spawnConv(fromX,fromZ,em,path,speed,onArrive){
-  if(!ready||!root){if(onArrive)onArrive();return}
-  const g=emojiSprite(em||'📦');
-  g.position.set(fromX,.7,fromZ);root.add(g);
-  /* walk to the first path node, then along the path */
-  const full=[{x:fromX,z:fromZ}].concat(path||CONV_PATH);
-  convItems.push({g,path:full,t:0,speed:speed||.55,onArrive:onArrive||null});
+
+/* ---- generic path follower (segments-per-second) ---- */
+function followPath(g, path, speed, onArrive, bobAmp){
+  const it={g, path, t:0, speed:speed||.7, onArrive:onArrive||null, bob:bobAmp==null?.04:bobAmp};
+  convItems.push(it);return it;
 }
 function updateConv(dt){
   for(let i=convItems.length-1;i>=0;i--){
     const it=convItems[i];
     it.t+=dt*it.speed;
-    const p=it.t,n=it.path.length-1,seg=Math.min(n-1e-6,Math.floor(p)),f=p-seg;
+    const p=it.t, n=it.path.length-1, seg=Math.min(n-1e-6, Math.floor(p)), f=p-seg;
     if(p>=n){
       const cb=it.onArrive;
-      root.remove(it.g);
-      if(it.g.material&&it.g.material.map)it.g.material.map.dispose();
-      if(it.g.material)it.g.material.dispose();
+      if(it.g.parent)it.g.parent.remove(it.g);
+      try{if(it.g.material&&it.g.material.map)it.g.material.map.dispose();if(it.g.material)it.g.material.dispose()}catch(e){}
       convItems.splice(i,1);
       if(cb)cb();
       continue;
     }
-    const a=it.path[seg],b=it.path[seg+1]||a;
-    const bob=.55+Math.sin(T*7+i)*.05;
-    it.g.position.set(a.x+(b.x-a.x)*f, bob, a.z+(b.z-a.z)*f);
-    it.g.rotation.z=Math.sin(T*5+i)*.25;
+    const a=it.path[seg], b=it.path[seg+1]||a;
+    const y=(it.baseY!=null?it.baseY:.55)+(it.bob?Math.sin(T*8+i)*it.bob:0);
+    it.g.position.set(a.x+(b.x-a.x)*f, y, a.z+(b.z-a.z)*f);
+    /* face direction of travel for workers */
+    if(it.face){
+      const dx=b.x-a.x, dz=b.z-a.z;
+      if(Math.abs(dx)+Math.abs(dz)>.001) it.g.rotation.y=Math.atan2(dx,dz);
+    }
   }
 }
+
+/* ---- farmhand: walks plot → barn with the harvested emoji ---- */
+function mkWorker(){
+  const g=new THREE.Group();
+  /* simple person: body + head + legs */
+  M3('y',0x4a90d9,.12,.28,.12,0,.42,0,g);          /* torso */
+  M3('s',0xffdbac,.11,.11,.11,0,.68,0,g);          /* head */
+  M3('y',0x2c3e50,.045,.2,.045,-.06,.16,0,g);      /* leg L */
+  M3('y',0x2c3e50,.045,.2,.045, .06,.16,0,g);      /* leg R */
+  M3('y',0x4a90d9,.04,.16,.04,-.16,.48,0,g);       /* arm L */
+  M3('y',0x4a90d9,.04,.16,.04, .16,.48,0,g);       /* arm R */
+  g.userData.carry=null;
+  return g;
+}
+function spawnWorkerPickup(fromX, fromZ, em){
+  if(!ready||!root)return;
+  harvestQueue++;
+  /* stagger so multiple harvests don't overlap */
+  const delay=Math.max(0,(harvestQueue-1)*0.55);
+  setTimeout(()=>{
+    if(!ready||!root){harvestQueue=Math.max(0,harvestQueue-1);return}
+    const w=mkWorker();
+    w.position.set(BARN_DOOR.x, 0, BARN_DOOR.z);
+    root.add(w);
+    const toPlot=[
+      {x:BARN_DOOR.x, z:BARN_DOOR.z},
+      {x:(BARN_DOOR.x+fromX)/2, z:(BARN_DOOR.z+fromZ)/2 + 0.8},
+      {x:fromX, z:fromZ}
+    ];
+    const back=[
+      {x:fromX, z:fromZ},
+      {x:(BARN_DOOR.x+fromX)/2, z:(BARN_DOOR.z+fromZ)/2 - 0.6},
+      {x:BARN_DOOR.x, z:BARN_DOOR.z}
+    ];
+    /* walk to plot */
+    const walker={g:w, path:toPlot, t:0, speed:.85, face:true, baseY:0, bob:.02, onArrive:null};
+    walker.onArrive=()=>{
+      /* pick up: attach emoji above head */
+      const item=emojiSprite(em||'📦', .5);
+      item.position.set(0, 1.05, 0.12);
+      w.add(item);w.userData.carry=item;
+      /* walk back to barn */
+      walker.path=back;walker.t=0;walker.speed=.75;
+      walker.onArrive=()=>{
+        /* drop into barn */
+        if(w.userData.carry){w.remove(w.userData.carry);w.userData.carry=null}
+        root.remove(w);
+        harvestQueue=Math.max(0,harvestQueue-1);
+        /* tiny barn "stored" flash */
+        const flash=emojiSprite('✅', .4);
+        flash.position.set(BARN_DOOR.x, 1.2, BARN_DOOR.z);
+        root.add(flash);
+        followPath(flash, [{x:BARN_DOOR.x,z:BARN_DOOR.z},{x:BARN_DOOR.x,z:BARN_DOOR.z}], 2, ()=>{try{root.remove(flash)}catch(e){}}, 0);
+        setTimeout(()=>{try{root.remove(flash)}catch(e){}}, 400);
+      };
+      convItems.push(walker);
+    };
+    convItems.push(walker);
+  }, delay*1000);
+}
+
+/* ---- short loading ramp only at the barn door (not across fields) ---- */
 function buildBelt(){
   if(beltGroup){root.remove(beltGroup);beltGroup=null}
   beltGroup=new THREE.Group();root.add(beltGroup);
-  const pts=CONV_PATH;
-  for(let i=0;i<pts.length-1;i++){
-    const a=pts[i],b=pts[i+1],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;
-    const midX=(a.x+b.x)/2,midZ=(a.z+b.z)/2,ang=-Math.atan2(dz,dx);
-    /* dark frame / rails */
-    const rail=M3('b',0x4a3a2a,len+.2,.05,.38,midX,.06,midZ,beltGroup);rail.rotation.y=ang;
-    /* moving-looking belt surface */
-    const belt=M3('b',0x2c2c2c,len,.035,.26,midX,.11,midZ,beltGroup);belt.rotation.y=ang;
-    /* yellow rollers every segment */
-    for(let k=0;k<Math.max(2,Math.floor(len/1.4));k++){
-      const t=(k+.5)/Math.max(2,Math.floor(len/1.4));
-      const x=a.x+dx*t,z=a.z+dz*t;
-      const roll=M3('y',0xffd166,.13,.04,.13,x,.14,z,beltGroup);roll.rotation.z=Math.PI/2;roll.rotation.y=ang;
-    }
+  /* small dock / ramp from door to truck park */
+  const a=BARN_DOOR, b=TRUCK_PARK;
+  const dx=b.x-a.x, dz=b.z-a.z, len=Math.hypot(dx,dz)||1;
+  const midX=(a.x+b.x)/2, midZ=(a.z+b.z)/2, ang=-Math.atan2(dz,dx);
+  const rail=M3('b',0x5a4a3a,len+.25,.05,.42,midX,.07,midZ,beltGroup);rail.rotation.y=ang;
+  const belt=M3('b',0x333333,len,.03,.28,midX,.12,midZ,beltGroup);belt.rotation.y=ang;
+  for(let k=0;k<3;k++){
+    const t=(k+.5)/3, x=a.x+dx*t, z=a.z+dz*t;
+    const roll=M3('y',0xffd166,.11,.035,.11,x,.15,z,beltGroup);roll.rotation.z=Math.PI/2;
   }
-  /* pickup platform near fields */
-  M3('b',0x6b5b4b,1.1,.12,1.1,BELT_HUB.x,.08,BELT_HUB.z,beltGroup);
-  M3('b',0xffd166,.9,.04,.9,BELT_HUB.x,.15,BELT_HUB.z,beltGroup);
-  /* drop-off / loading pad at barn door */
-  M3('b',0x6b5b4b,1.4,.12,1.2,BARN_DOOR.x,.08,BARN_DOOR.z,beltGroup);
-  M3('b',0xc0392b,1.1,.04,1.0,BARN_DOOR.x,.15,BARN_DOOR.z,beltGroup);
+  /* door mat */
+  M3('b',0xc0392b,1.0,.04,.8,BARN_DOOR.x,.05,BARN_DOOR.z+.35,beltGroup);
 }
+
 function mkTruck(){
   const g=new THREE.Group();
-  /* flatbed truck facing +X (away from barn when parked at door) */
-  M3('b',0xe74c3c,1.6,.4,.85,0,.38,0,g);           /* bed */
-  M3('b',0xc0392b,1.7,.08,.9,0,.58,0,g);             /* rails */
-  M3('b',0x2c3e50,.65,.42,.8,.7,.4,0,g);             /* cab */
-  M3('b',0x85c1e9,.45,.22,.65,.78,.55,0,g);          /* windshield */
-  [[-.5,-.32],[-.5,.32],[.55,-.32],[.55,.32]].forEach(p=>{
-    const w=M3('y',0x222222,.14,.14,.1,p[0],.14,p[1],g);w.rotation.z=Math.PI/2;
+  M3('b',0xe74c3c,1.7,.42,.9,0,.4,0,g);
+  M3('b',0xc0392b,1.8,.08,.95,0,.62,0,g);
+  M3('b',0x2c3e50,.7,.45,.85,.75,.42,0,g);
+  M3('b',0x85c1e9,.48,.24,.7,.82,.58,0,g);
+  [[-.55,-.34],[-.55,.34],[.55,-.34],[.55,.34]].forEach(p=>{
+    const w=M3('y',0x222222,.15,.15,.11,p[0],.15,p[1],g);w.rotation.z=Math.PI/2;
   });
-  const cab=label('🚚',1);cab.position.set(0,1.15,0);cab.scale.set(1.5,.55,1);g.add(cab);
+  const cab=label('🚚',1);cab.position.set(0,1.2,0);cab.scale.set(1.5,.55,1);g.add(cab);
   g.visible=false;return g;
 }
+
 function startTruck(onDone){
   if(!ready||!root){if(onDone)onDone();return}
   if(truck){try{root.remove(truck)}catch(e){}truck=null}
   truck=mkTruck();root.add(truck);
-  /* park just outside the barn door, facing outward (-X toward market) */
-  truck.position.set(BARN_DOOR.x-2.4,.0,BARN_DOOR.z);
-  truck.rotation.y=Math.PI; /* face left / away */
+  truck.position.set(TRUCK_PARK.x-10, 0, TRUCK_PARK.z);
+  truck.rotation.y=Math.PI;
   truck.visible=true;
-  truckState={phase:'arrive',t:0,onDone,loadLeft:0};
-  /* drive in from further left */
-  truck.position.x=BARN_DOOR.x-12;
+  truckState={phase:'arrive', t:0, onDone, loadLeft:0};
   say('🚚 Truck arriving at the barn…');
 }
+
 function updateTruck(dt){
   if(!truckState||!truck)return;
   const s=truckState;s.t+=dt;
   if(s.phase==='arrive'){
-    const u=Math.min(1,s.t/2.6);
+    const u=Math.min(1, s.t/2.4);
     const ease=1-Math.pow(1-u,2);
-    truck.position.x=(BARN_DOOR.x-12)+(BARN_DOOR.x-2.4-(BARN_DOOR.x-12))*ease;
-    truck.position.z=BARN_DOOR.z;
+    truck.position.x=(TRUCK_PARK.x-10)+(TRUCK_PARK.x-(TRUCK_PARK.x-10))*ease;
+    truck.position.z=TRUCK_PARK.z;
     if(u>=1){
-      s.phase='load';s.t=0;
-      say('📦 Loading goods onto the truck…');
-      /* spawn a few parcels from barn door → truck bed on a short reverse path */
-      const loadPath=[
-        {x:BARN_DOOR.x,z:BARN_DOOR.z},
-        {x:BARN_DOOR.x-1.0,z:BARN_DOOR.z},
-        {x:BARN_DOOR.x-2.0,z:BARN_DOOR.z}
-      ];
-      const ems=['📦','🥕','🥚','🐟','🌽','🥛'];
-      s.loadLeft=4;
-      for(let k=0;k<4;k++){
+      s.phase='load';s.t=0;s.loadLeft=5;
+      say('📦 Loading goods from the barn…');
+      const loadPath=[BARN_DOOR, {x:(BARN_DOOR.x+TRUCK_PARK.x)/2, z:BARN_DOOR.z}, TRUCK_PARK];
+      const ems=['📦','🥕','🥚','🐟','🌽','🥛','🧶'];
+      for(let k=0;k<5;k++){
         setTimeout(()=>{
-          spawnConv(BARN_DOOR.x, BARN_DOOR.z, ems[k%ems.length], loadPath, .7, ()=>{
+          if(!truckState||truckState.phase!=='load')return;
+          const item=emojiSprite(ems[k%ems.length], .48);
+          item.position.set(BARN_DOOR.x, .6, BARN_DOOR.z);
+          root.add(item);
+          const it=followPath(item, loadPath, .65, ()=>{
             s.loadLeft=Math.max(0,(s.loadLeft||1)-1);
-          });
-        }, k*450);
+          }, .03);
+          it.baseY=.55;
+        }, 280+k*520); /* lined up one-by-one */
       }
     }
   }else if(s.phase==='load'){
-    /* wait until parcels finished (or timeout) */
-    if(s.t>3.2 && (s.loadLeft||0)<=0 || s.t>5.5){
+    if((s.t>4.5 && s.loadLeft<=0) || s.t>7){
       s.phase='depart';s.t=0;say('🛒 Off to market!');
     }
   }else if(s.phase==='depart'){
-    const u=Math.min(1,s.t/2.8);
+    const u=Math.min(1, s.t/2.6);
     const ease=u*u;
-    truck.position.x=(BARN_DOOR.x-2.4)+(-18-(BARN_DOOR.x-2.4))*ease;
-    truck.position.z=BARN_DOOR.z-ease*3;
+    truck.position.x=TRUCK_PARK.x+(-22-TRUCK_PARK.x)*ease;
+    truck.position.z=TRUCK_PARK.z-ease*2.5;
     if(u>=1){
       try{root.remove(truck)}catch(e){}
       truck=null;const cb=s.onDone;truckState=null;if(cb)cb();
     }
   }
 }
+
+/* keep old name so harvest call sites still work */
+function spawnConv(fromX, fromZ, em){
+  spawnWorkerPickup(fromX, fromZ, em);
+}
+
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
 const mat=(c,o)=>{const k=c+(o?JSON.stringify(o):'');return MC[k]||(MC[k]=new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{})))};
@@ -11288,7 +11338,8 @@ function setScene(){const key=G.land.map((l,p)=>l?(l.u||'n')[0]:(G.coins>=price(
  inst(L.tr,'y',0x7a4b25);inst(L.c1,'c',0x2f8f4e);inst(L.c2,'c',0x3aa65c);
  barn();
  buildBelt();
- convItems.forEach(it=>{try{root.remove(it.g)}catch(e){}});convItems=[];
+ convItems.forEach(it=>{try{if(it.g&&it.g.parent)it.g.parent.remove(it.g);else if(it.g)root.remove(it.g)}catch(e){}});convItems=[];
+ harvestQueue=0;
  if(truck){try{root.remove(truck)}catch(e){}truck=null;truckState=null}
  root.add(D);D.traverse(o=>{o.matrixAutoUpdate=false;o.updateMatrix()})}
 const IC={};function setIc(e,em){if(!em){if(e.ic)e.ic.visible=false;return}
