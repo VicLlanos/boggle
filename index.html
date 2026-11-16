@@ -11121,7 +11121,7 @@ function trip(b,kind){busyT++;const t=mkTractor(),mine=[];t.position.set(YARD.x,
  pts.push({x:YARD.x,z:0});pts.push({x:YARD.x,z:YARD.z});drive(t,pts,3.6,()=>{WORLD.remove(t);busyT--;pump()})}
 function shipOut(keys,done){if(!ready||!WORLD){done&&done();return}
  if(ts&&ts.leaving){later.push(...keys);return}
- if(!truck){truck=mkTruck();truck.position.set(TPARK.x,0,TPARK.z-36);ts={arrived:false,pend:0,q:[],gap:0,leaving:false,t:0};drive(truck,[{x:TPARK.x,z:TPARK.z}],6,()=>{ts.arrived=true})}
+ if(!truck){truck=mkTruck();truck.position.set(TPARK.x,0,TPARK.z-36);WORLD.add(truck);ts={arrived:false,pend:0,q:[],gap:0,leaving:false,t:0};drive(truck,[{x:TPARK.x,z:TPARK.z}],6,()=>{ts.arrived=true})}
  ts.q.push(...keys);ts.pend+=keys.length;ts.done=done||ts.done}
 function updateTruck(dt){if(!ts||!truck)return;ts.gap-=dt;
  if(ts.arrived&&ts.q.length&&ts.gap<=0){ts.gap=.75;const k=ts.q.shift(),c=mkCrate(k);WORLD.add(c);c.position.set(DOOR.x,BELT_TOP,OUT_Z);
