@@ -11005,7 +11005,7 @@ let PM,GM,DM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
    Workers walk to the plot, pick up the goods, walk back to the barn, THEN inventory updates. */
 let convItems=[], truck=null, truckState=null, beltGroup=null;
 const BARN_DOOR={x:-15.2, z:0.15};
-const TRUCK_PARK={x:-17.6, z:0.15};
+const TRUCK_PARK={x:-21.5, z:2.8}; /* clear of barn walls, in front of the door side */
 const MAX_WORKERS=5;
 let activeWorkers=0, collectQueue=[];
 
@@ -11237,7 +11237,7 @@ function updateTruck(dt){
     if((s.t>4.5 && s.loadLeft<=0)||s.t>7){s.phase='depart';s.t=0;say('🛒 Off to market!')}
   }else if(s.phase==='depart'){
     const u=Math.min(1,s.t/2.6), ease=u*u;
-    truck.position.x=TRUCK_PARK.x+(-22-TRUCK_PARK.x)*ease;
+    truck.position.x=TRUCK_PARK.x+(-32-TRUCK_PARK.x)*ease;
     truck.position.z=TRUCK_PARK.z-ease*2.5;
     if(u>=1){
       try{root.remove(truck)}catch(e){}
