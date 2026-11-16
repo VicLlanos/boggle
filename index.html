@@ -10965,17 +10965,150 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
 /* ---- 3D view (three.js, lightweight) ---- */
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
 let PM,GM,DM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
-/* conveyor + truck visuals */
-let convItems=[],truck=null,truckState=null,beltGroup=null,BARN_POS={x:-15.2,z:-2.5};
-const CONV_PATH=[{x:0,z:0},{x:-4,z:-1},{x:-9,z:-1.5},{x:-13,z:-2},{x:-15.2,z:-2.5}];
-function emojiSprite(em){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.font='48px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(em,32,36);const m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true});const s=new THREE.Sprite(m);s.scale.set(.55,.55,1);return s}
-function spawnConv(fromX,fromZ,em){if(!ready||!root)return;const g=emojiSprite(em||'📦');g.position.set(fromX,.6,fromZ);root.add(g);const path=[{x:fromX,z:fromZ}].concat(CONV_PATH.slice(1));convItems.push({g,path,t:0,speed:1.8+Math.random()*.6})}
-function updateConv(dt){for(let i=convItems.length-1;i>=0;i--){const it=convItems[i];it.t+=dt*it.speed;const p=it.t,n=it.path.length-1,seg=Math.min(n-1e-6,Math.floor(p)),f=p-seg;if(p>=n){root.remove(it.g);if(it.g.material&&it.g.material.map)it.g.material.map.dispose();if(it.g.material)it.g.material.dispose();convItems.splice(i,1);continue}const a=it.path[seg],b=it.path[seg+1]||a;it.g.position.set(a.x+(b.x-a.x)*f,.55+Math.sin(T*8+i)*.04,a.z+(b.z-a.z)*f);it.g.rotation.z=Math.sin(T*6)*.2}}
-function buildBelt(){if(beltGroup){root.remove(beltGroup);beltGroup=null}beltGroup=new THREE.Group();root.add(beltGroup);const pts=CONV_PATH;for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1,midX=(a.x+b.x)/2,midZ=(a.z+b.z)/2;const rail=M3('b',0x5a4a3a,len+.15,.06,.28,midX,.08,midZ,beltGroup);rail.rotation.y=-Math.atan2(dz,dx);const belt=M3('b',0x3d3d3d,len,.04,.18,midX,.12,midZ,beltGroup);belt.rotation.y=-Math.atan2(dz,dx);for(let k=0;k<3;k++){const t=(k+1)/4,x=a.x+dx*t,z=a.z+dz*t;M3('b',0xffd166,.12,.02,.12,x,.14,z,beltGroup)}}M3('b',0x6b5b4b,.8,.15,.8,BARN_POS.x,.1,BARN_POS.z+.8,beltGroup)}
-function mkTruck(){const g=new THREE.Group();const body=M3('b',0xe74c3c,1.4,.45,.7,0,.35,0,g);M3('b',0xc0392b,1.5,.08,.75,0,.55,0,g);M3('b',0x2c3e50,.55,.4,.65,.55,.4,0,g);M3('b',0x85c1e9,.4,.2,.55,.6,.55,0,g);[[-.45,-.25],[-.45,.25],[.45,-.25],[.45,.25]].forEach(p=>{M3('y',0x222222,.12,.12,.08,p[0],.12,p[1],g).rotation.z=Math.PI/2});const cab=label('🚚',1);cab.position.set(0,1.1,0);cab.scale.set(1.4,.55,1);g.add(cab);g.visible=false;return g}
-function startTruck(onDone){if(!ready||!root){if(onDone)onDone();return}if(truck){root.remove(truck);truck=null}truck=mkTruck();root.add(truck);truckState={phase:'in',t:0,onDone};truck.position.set(-28,.0,-2.5);truck.rotation.y=0;truck.visible=true;say('🚚 Delivery truck arriving…')}
-function updateTruck(dt){if(!truckState||!truck)return;truckState.t+=dt;const s=truckState;if(s.phase==='in'){const u=Math.min(1,s.t/2.2);truck.position.x=-28+(BARN_POS.x+2.2-(-28))*u;truck.position.z=BARN_POS.z;if(u>=1){s.phase='load';s.t=0;say('📦 Loading goods from the barn…')}}else if(s.phase==='load'){if(s.t>1.4){s.phase='out';s.t=0;say('🛒 Off to market!')}}else if(s.phase==='out'){const u=Math.min(1,s.t/2.4);truck.position.x=(BARN_POS.x+2.2)+(-28-(BARN_POS.x+2.2))*u;truck.position.z=BARN_POS.z-(u*u)*4;if(u>=1){root.remove(truck);truck=null;const cb=s.onDone;truckState=null;if(cb)cb()}}}
-
+/* conveyor + truck visuals
+   Belt runs from a pickup hub near the fields → barn front door.
+   On harvest, goods ride the belt into the barn.
+   On sell, a truck parks at the door and goods ride the belt out into the truck. */
+let convItems=[],truck=null,truckState=null,beltGroup=null;
+/* Barn group is at (-15.2, 0, -2.5); front door faces +Z at local z≈2.5 → world z≈0 */
+const BARN_DOOR={x:-15.2,z:0.15};
+const BELT_HUB={x:-3.5,z:1.4};          // near the main fields
+const CONV_PATH=[
+  {x:BELT_HUB.x,     z:BELT_HUB.z},
+  {x:-7.2,           z:1.1},
+  {x:-10.5,          z:0.7},
+  {x:-13.2,          z:0.35},
+  {x:BARN_DOOR.x,    z:BARN_DOOR.z}
+];
+function emojiSprite(em){
+  const c=document.createElement('canvas');c.width=c.height=64;
+  const x=c.getContext('2d');x.font='48px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(em,32,36);
+  const m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true});
+  const s=new THREE.Sprite(m);s.scale.set(.6,.6,1);return s;
+}
+/* path: array of {x,z}. speed is segments-per-second (lower = slower). */
+function spawnConv(fromX,fromZ,em,path,speed,onArrive){
+  if(!ready||!root){if(onArrive)onArrive();return}
+  const g=emojiSprite(em||'📦');
+  g.position.set(fromX,.7,fromZ);root.add(g);
+  /* walk to the first path node, then along the path */
+  const full=[{x:fromX,z:fromZ}].concat(path||CONV_PATH);
+  convItems.push({g,path:full,t:0,speed:speed||.55,onArrive:onArrive||null});
+}
+function updateConv(dt){
+  for(let i=convItems.length-1;i>=0;i--){
+    const it=convItems[i];
+    it.t+=dt*it.speed;
+    const p=it.t,n=it.path.length-1,seg=Math.min(n-1e-6,Math.floor(p)),f=p-seg;
+    if(p>=n){
+      const cb=it.onArrive;
+      root.remove(it.g);
+      if(it.g.material&&it.g.material.map)it.g.material.map.dispose();
+      if(it.g.material)it.g.material.dispose();
+      convItems.splice(i,1);
+      if(cb)cb();
+      continue;
+    }
+    const a=it.path[seg],b=it.path[seg+1]||a;
+    const bob=.55+Math.sin(T*7+i)*.05;
+    it.g.position.set(a.x+(b.x-a.x)*f, bob, a.z+(b.z-a.z)*f);
+    it.g.rotation.z=Math.sin(T*5+i)*.25;
+  }
+}
+function buildBelt(){
+  if(beltGroup){root.remove(beltGroup);beltGroup=null}
+  beltGroup=new THREE.Group();root.add(beltGroup);
+  const pts=CONV_PATH;
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1;
+    const midX=(a.x+b.x)/2,midZ=(a.z+b.z)/2,ang=-Math.atan2(dz,dx);
+    /* dark frame / rails */
+    const rail=M3('b',0x4a3a2a,len+.2,.05,.38,midX,.06,midZ,beltGroup);rail.rotation.y=ang;
+    /* moving-looking belt surface */
+    const belt=M3('b',0x2c2c2c,len,.035,.26,midX,.11,midZ,beltGroup);belt.rotation.y=ang;
+    /* yellow rollers every segment */
+    for(let k=0;k<Math.max(2,Math.floor(len/1.4));k++){
+      const t=(k+.5)/Math.max(2,Math.floor(len/1.4));
+      const x=a.x+dx*t,z=a.z+dz*t;
+      const roll=M3('y',0xffd166,.13,.04,.13,x,.14,z,beltGroup);roll.rotation.z=Math.PI/2;roll.rotation.y=ang;
+    }
+  }
+  /* pickup platform near fields */
+  M3('b',0x6b5b4b,1.1,.12,1.1,BELT_HUB.x,.08,BELT_HUB.z,beltGroup);
+  M3('b',0xffd166,.9,.04,.9,BELT_HUB.x,.15,BELT_HUB.z,beltGroup);
+  /* drop-off / loading pad at barn door */
+  M3('b',0x6b5b4b,1.4,.12,1.2,BARN_DOOR.x,.08,BARN_DOOR.z,beltGroup);
+  M3('b',0xc0392b,1.1,.04,1.0,BARN_DOOR.x,.15,BARN_DOOR.z,beltGroup);
+}
+function mkTruck(){
+  const g=new THREE.Group();
+  /* flatbed truck facing +X (away from barn when parked at door) */
+  M3('b',0xe74c3c,1.6,.4,.85,0,.38,0,g);           /* bed */
+  M3('b',0xc0392b,1.7,.08,.9,0,.58,0,g);             /* rails */
+  M3('b',0x2c3e50,.65,.42,.8,.7,.4,0,g);             /* cab */
+  M3('b',0x85c1e9,.45,.22,.65,.78,.55,0,g);          /* windshield */
+  [[-.5,-.32],[-.5,.32],[.55,-.32],[.55,.32]].forEach(p=>{
+    const w=M3('y',0x222222,.14,.14,.1,p[0],.14,p[1],g);w.rotation.z=Math.PI/2;
+  });
+  const cab=label('🚚',1);cab.position.set(0,1.15,0);cab.scale.set(1.5,.55,1);g.add(cab);
+  g.visible=false;return g;
+}
+function startTruck(onDone){
+  if(!ready||!root){if(onDone)onDone();return}
+  if(truck){try{root.remove(truck)}catch(e){}truck=null}
+  truck=mkTruck();root.add(truck);
+  /* park just outside the barn door, facing outward (-X toward market) */
+  truck.position.set(BARN_DOOR.x-2.4,.0,BARN_DOOR.z);
+  truck.rotation.y=Math.PI; /* face left / away */
+  truck.visible=true;
+  truckState={phase:'arrive',t:0,onDone,loadLeft:0};
+  /* drive in from further left */
+  truck.position.x=BARN_DOOR.x-12;
+  say('🚚 Truck arriving at the barn…');
+}
+function updateTruck(dt){
+  if(!truckState||!truck)return;
+  const s=truckState;s.t+=dt;
+  if(s.phase==='arrive'){
+    const u=Math.min(1,s.t/2.6);
+    const ease=1-Math.pow(1-u,2);
+    truck.position.x=(BARN_DOOR.x-12)+(BARN_DOOR.x-2.4-(BARN_DOOR.x-12))*ease;
+    truck.position.z=BARN_DOOR.z;
+    if(u>=1){
+      s.phase='load';s.t=0;
+      say('📦 Loading goods onto the truck…');
+      /* spawn a few parcels from barn door → truck bed on a short reverse path */
+      const loadPath=[
+        {x:BARN_DOOR.x,z:BARN_DOOR.z},
+        {x:BARN_DOOR.x-1.0,z:BARN_DOOR.z},
+        {x:BARN_DOOR.x-2.0,z:BARN_DOOR.z}
+      ];
+      const ems=['📦','🥕','🥚','🐟','🌽','🥛'];
+      s.loadLeft=4;
+      for(let k=0;k<4;k++){
+        setTimeout(()=>{
+          spawnConv(BARN_DOOR.x, BARN_DOOR.z, ems[k%ems.length], loadPath, .7, ()=>{
+            s.loadLeft=Math.max(0,(s.loadLeft||1)-1);
+          });
+        }, k*450);
+      }
+    }
+  }else if(s.phase==='load'){
+    /* wait until parcels finished (or timeout) */
+    if(s.t>3.2 && (s.loadLeft||0)<=0 || s.t>5.5){
+      s.phase='depart';s.t=0;say('🛒 Off to market!');
+    }
+  }else if(s.phase==='depart'){
+    const u=Math.min(1,s.t/2.8);
+    const ease=u*u;
+    truck.position.x=(BARN_DOOR.x-2.4)+(-18-(BARN_DOOR.x-2.4))*ease;
+    truck.position.z=BARN_DOOR.z-ease*3;
+    if(u>=1){
+      try{root.remove(truck)}catch(e){}
+      truck=null;const cb=s.onDone;truckState=null;if(cb)cb();
+    }
+  }
+}
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
 const mat=(c,o)=>{const k=c+(o?JSON.stringify(o):'');return MC[k]||(MC[k]=new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{})))};
