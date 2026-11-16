@@ -1316,6 +1316,18 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .fm-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.fm-row .btn{flex:1;min-width:140px}
 .fm-r{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid #EEE}.fm-r>i{font-style:normal;font-size:1.6rem}.fm-r>span{flex:1;font-size:.9rem}.fm-r small{display:block;color:#777;font-size:.72rem}.fm-r em{font-style:normal;font-weight:800;color:#B8860B;font-size:.8rem}.fm-r:not(.ok) b{opacity:.6}
 .fm-empty{text-align:center;padding:30px 10px;font-weight:700;color:#555}.fm-empty p{margin:10px 0 14px}
+/* farm look: cozy cartoon HUD */
+.fm-top{background:linear-gradient(#FFE7A8,#F4C874);border:3px solid #C98F3F;border-radius:18px;padding:6px 10px;box-shadow:0 4px 0 #9a6a2a}
+.fm-badge{width:44px;height:44px;border-radius:50%;background:radial-gradient(#cfd5db,#8b95a1);border:3px solid #fff;color:#fff;font:800 1.1rem 'Bricolage Grotesque',sans-serif;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 0 rgba(0,0,0,.4);flex:none;margin:-12px 0 -12px -4px;box-shadow:0 3px 0 #5b6572}
+.fm-coins{background:#FFF8E4;color:#7a5200;border:2px solid #E2B867;padding:5px 12px;border-radius:99px}
+.fm-xp{flex:1;position:relative;height:20px;border-radius:99px;background:#6b3f1d;border:2px solid #4a2a12;overflow:hidden}.fm-xp #fmXp{height:100%;background:linear-gradient(#9BE86A,#3FAE3A);width:0;transition:width .3s}.fm-xp span{position:absolute;inset:0;text-align:center;font:800 .68rem/16px 'DM Sans',sans-serif;color:#fff;text-shadow:0 1px 0 #000}
+.fm-top .rn{background:radial-gradient(#7BE06B,#2FA33A);border:3px solid #fff;flex:none}
+#fmTabs button{background:linear-gradient(#FFF3D2,#F2D08A);color:#6b4a1d;border:2px solid #C98F3F;box-shadow:0 3px 0 #9a6a2a}#fmTabs button.on{background:linear-gradient(#9BE86A,#47B042);color:#fff;border-color:#2f8a2f}
+#fmBody{background:#FBE9C0;border:3px solid #C98F3F;padding:8px}
+.fm3{position:relative;border:2px solid #C98F3F;margin-bottom:8px;background:#8fd14f}
+.fm-sd{background:linear-gradient(#FFF8E4,#F6DDA0);border:2px solid #C98F3F;width:62px}.fm-sd.sel{border-color:#3FAE3A;box-shadow:0 0 0 3px rgba(80,200,70,.45)}
+.fm-new{position:absolute;left:8px;bottom:8px;z-index:3;border:2px solid #C98F3F;border-radius:12px;background:linear-gradient(#FFF8E4,#F6DDA0);padding:4px 10px;font:800 .72rem 'DM Sans',sans-serif;color:#6b4a1d;cursor:pointer}.fm-new b{display:block;color:#B8860B}
+.fm-info{color:#6b4a1d}
 #fmToast{position:fixed;top:max(16px,var(--safe-t));left:50%;transform:translate(-50%,-150%);background:rgba(45,52,54,.94);color:#fff;padding:10px 16px;border-radius:99px;font-weight:800;font-size:.85rem;z-index:9000;opacity:0;transition:.3s;max-width:90vw;text-align:center;pointer-events:none}#fmToast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
@@ -1848,7 +1860,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 </section>
 
 <section id="screen-farm" class="screen">
-  <div class="fm-top"><button class="rn" data-a="back" aria-label="Back">←</button><div class="fm-lv"><span id="fmLv">Lv 1</span><div><div id="fmXp"></div></div></div><div class="fm-coins" id="fmCoins">🪙 0</div></div>
+  <div class="fm-top"><div class="fm-badge" id="fmLv">1</div><div class="fm-coins" id="fmCoins">🪙 0</div><div class="fm-xp"><div id="fmXp"></div><span id="fmXpT"></span></div><button class="rn" data-a="back" aria-label="Back">⮌</button></div>
   <div id="fmTabs"><button data-a="tab" data-t="farm">🌱 Farm</button><button data-a="tab" data-t="pond">🐟 Pond</button><button data-a="tab" data-t="barn">🧺 Barn</button><button data-a="tab" data-t="ach">🏆 Awards</button></div>
   <div id="fmBody"></div><div id="fmToast"></div>
 </section>
@@ -10786,13 +10798,13 @@ function build(){if(G.lvl<POND[1]){say('🔒 Reach level '+POND[1]);return}if(G.
 const bar=(list,sel,k)=>'<div class="fm-bar">'+list.map(x=>{const lk=G.lvl<x.lvl;return '<button class="fm-sd'+(sel===x.id?' sel':'')+(lk?' lk':'')+'" data-a="sel" data-k="'+k+'" data-id="'+x.id+'"><i>'+x.e+'</i><b>'+(lk?'🔒 L'+x.lvl:'🪙'+x.cost)+'</b></button>'}).join('')+'</div>';
 const info=id=>{const x=IT[id];return '<div class="fm-info">'+x.e+' <b>'+x.n+'</b> · '+x.k+' · grows '+fmt(x.t/1000)+' · sells 🪙'+x.sell+' · +'+x.xp+' XP</div>'};
 const cell=(k,i)=>'<button class="fm-c" data-a="cell" data-k="'+k+'" data-i="'+i+'"></button>';
-function vFarm(){const x=EXP[G.size];return bar(CR,selC,'farm')+info(selC)+grid('farm')+'<div class="fm-row"><button class="btn btn-mint" data-a="harvest" data-k="farm">🧺 Harvest all</button>'+(x?'<button class="btn btn-gold" data-a="expand">🗺️ Expand '+(G.size+1)+'×'+(G.size+1)+' · 🪙'+x[0]+(G.lvl<x[1]?' · L'+x[1]:'')+'</button>':'<div class="fm-info">Biggest farm unlocked 🎉</div>')+'</div>'}
+function vFarm(){const x=EXP[G.size];return grid('farm')+bar(CR,selC,'farm')+info(selC)+'<div class="fm-row"><button class="btn btn-mint" data-a="harvest" data-k="farm">🧺 Harvest all</button>'+(x?'<button class="btn btn-gold" data-a="expand">🗺️ Expand '+(G.size+1)+'×'+(G.size+1)+' · 🪙'+x[0]+(G.lvl<x[1]?' · L'+x[1]:'')+'</button>':'<div class="fm-info">Biggest farm unlocked 🎉</div>')+'</div>'}
 function vPond(){if(!G.pond)return '<div class="fm-empty"><div style="font-size:3rem">🏞️</div><p>'+(G.lvl<POND[1]?'Reach <b>level '+POND[1]+'</b> to unlock the fish pond.':'Dig a pond and raise fish to sell for big coins!')+'</p><button class="btn btn-gold" data-a="pond">🐟 Build pond · 🪙'+POND[0]+(G.lvl<POND[1]?' · L'+POND[1]:'')+'</button></div>';
- return bar(FS,selF,'fish')+info(selF)+grid('fish')+'<div class="fm-row"><button class="btn btn-mint" data-a="harvest" data-k="fish">🎣 Catch all</button></div>'}
+ return grid('fish')+bar(FS,selF,'fish')+info(selF)+'<div class="fm-row"><button class="btn btn-mint" data-a="harvest" data-k="fish">🎣 Catch all</button></div>'}
 function vBarn(){const ids=Object.keys(G.inv).filter(i=>G.inv[i]>0);if(!ids.length)return '<div class="fm-empty"><div style="font-size:3rem">🧺</div><p>Your barn is empty. Harvest crops or catch fish, then sell them here.</p></div>';
  const tot=ids.reduce((s,i)=>s+G.inv[i]*IT[i].sell,0);return ids.map(i=>{const x=IT[i];return '<div class="fm-r"><i>'+x.e+'</i><span><b>'+x.n+'</b> ×'+G.inv[i]+'<small>🪙'+x.sell+' each</small></span><button class="btn btn-mint" data-a="sell" data-id="'+i+'">Sell 🪙'+G.inv[i]*x.sell+'</button></div>'}).join('')+'<button class="btn btn-gold" style="width:100%;margin-top:8px" data-a="sellall">💰 Sell everything · 🪙'+tot+'</button>'}
 const vAch=()=>AC.map((a,i)=>'<div class="fm-r'+(G.ach[i]?' ok':'')+'"><i>'+(G.ach[i]?'🏆':'🔒')+'</i><span><b>'+a[0]+'</b><small>'+a[1]+'</small></span><em>+'+a[3]+' 🪙</em></div>').join('');
-function render(){$('fmCoins').textContent='🪙 '+G.coins.toLocaleString();$('fmLv').textContent='Lv '+G.lvl;$('fmXp').style.width=Math.min(100,100*G.xp/xpNeed(G.lvl))+'%';
+function render(){$('fmCoins').textContent='🪙 '+G.coins.toLocaleString();$('fmLv').textContent=G.lvl;$('fmXpT').textContent=G.xp+'/'+xpNeed(G.lvl);$('fmXp').style.width=Math.min(100,100*G.xp/xpNeed(G.lvl))+'%';
  document.querySelectorAll('#fmTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
  $('fmBody').innerHTML=tab==='farm'?vFarm():tab==='pond'?vPond():tab==='barn'?vBarn():vAch();mount3();paint()}
 function paint(){sync3();document.querySelectorAll('#fmBody .fm-c').forEach(el=>{const f=el.dataset.k==='farm',c=(f?G.plots:G.fish)[+el.dataset.i];
@@ -10829,13 +10841,23 @@ function fish(id){const g=new THREE.Group(),c=FC[id],z=id==='shark'?1.5:id==='oc
  M3('s',c,id==='puffer'?.2:.22*z,id==='puffer'?.2:id==='crab'?.08:.13*z,id==='crab'?.15:.12*z,0,0,0,g);
  M3('c',c,.1*z,.14*z,.04,-.24*z,0,0,g).rotation.z=Math.PI/2;if(id==='shark')M3('c',c,.07,.16,.03,0,.16,0,g);return g}
 function setScene(k){const n=k==='farm'?G.size:3,rows=k==='farm'?n:2,key=k+n;if(key===ck)return;ck=key;root.remove(...root.children);cells=[];pick=[];clouds=[];
- const sp=1.2,W=n*sp,H=rows*sp,fm=k==='farm';
- M3('b',fm?0x7cc464:0xe8d9a0,40,.6,40,0,-.4,0,root);M3('b',fm?0x5a3b22:0x8f959c,W+.5,.12,H+.5,0,-.12,0,root);
- for(let r=0;r<rows;r++)for(let c=0;c<n;c++){const i=r*n+c,x=(c-(n-1)/2)*sp,z=(r-(rows-1)/2)*sp,t=M3('b',fm?0x7a5230:0x2f8fd0,1.05,.2,1.05,x,-.05,z,root);t.userData.i=i;pick.push(t);cells[i]={x,z,id:null}}
- for(let j=0;j<9;j++){const a=j*.75+.3,d=W/2+2.3+(j%3)*.9,x=Math.cos(a)*d,z=Math.sin(a)*d-1;M3('y',0x7a4b25,.15,.7,.15,x,.3,z,root);M3('c',0x2f9e44,.6,1,.6,x,1.1,z,root);M3('c',0x37b24d,.45,.8,.45,x,1.7,z,root)}
- if(fm){M3('b',0xc0392b,1.6,1.2,1.4,-W/2-2.2,.5,-H/2-1.2,root);M3('c',0x7b241c,1.3,.8,1.2,-W/2-2.2,1.5,-H/2-1.2,root).rotation.y=.8}
- for(let j=0;j<3;j++){const c=new THREE.Group();M3('s',0xffffff,1.2,.45,.7,0,0,0,c,{fog:false});M3('s',0xffffff,.8,.4,.6,.9,-.05,.1,c);c.position.set(-12+j*9,6+j%2,-5-j*2);root.add(c);clouds.push(c)}
- const f=Math.max(W,H)*1.25+3;CAM.position.set(0,f*.85,f*.75);CAM.lookAt(0,0,0)}
+ const sp=1.2,fm=k==='farm',ox=fm?2.5:1,oz=fm?2.5:.5,D=new THREE.Group();SC.background.set(0x8fd14f);
+ M3('b',0x8fd14f,80,.6,80,0,-.4,0,root);
+ for(let r=0;r<rows;r++)for(let c=0;c<n;c++){const i=r*n+c,x=(c-ox)*sp,z=(r-oz)*sp,t=M3('b',fm?0x7b4a2d:0x2f8fd0,1.19,.2,1.19,x,-.05,z,root);t.userData.i=i;pick.push(t);cells[i]={x,z,id:null}}
+ if(fm){const p=[];for(let i=0;i<=6;i++){const o=(i-3)*sp;p.push(o,0,-3*sp,o,0,3*sp,-3*sp,0,o,3*sp,0,o)}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));const ln=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x8b5a2b,transparent:true,opacity:.5}));ln.position.y=.03;root.add(ln)}
+ else M3('b',0xa9aeb5,n*sp+.5,.14,rows*sp+.5,0,-.13,0,root);
+ let sd=7;const rn=()=>(sd=sd*16807%2147483647)/2147483647;
+ for(let j=0;j<64;j++){const x=(rn()-.5)*28,z=(rn()-.5)*28,t=rn(),s=.8+rn()*.6;if(Math.abs(x)<5&&Math.abs(z)<5||Math.abs(z+5.4)<1.7&&x<11||Math.abs(x+6.8)<1.8&&Math.abs(z+1.5)<1.8)continue;
+  const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);
+  if(t<.55){M3('y',0x7a4b25,.12,.3,.12,0,.15,0,g);M3('c',0x2f8f4e,.55,1.1,.55,0,1,0,g);M3('c',0x3aa65c,.42,.9,.42,0,1.6,0,g)}
+  else if(t<.85){M3('y',0x7a4b25,.12,.5,.12,0,.25,0,g);M3('s',0x8d9a3f,.55,.5,.55,0,1.1,0,g)}
+  else{M3('s',0xb9b9b0,.4,.25,.35,0,.1,0,g);M3('s',0xa4a49c,.25,.18,.25,.4,.07,.2,g)}D.add(g)}
+ if(fm){M3('b',0x9aa3ad,26,.05,1.7,-5,0,-5.4,D);M3('b',0xffffff,3.6,.05,3.6,9,-.01,-5.4,D);M3('b',0xb8c0c8,3.4,.07,3.4,9,0,-5.4,D);
+  const tr=new THREE.Group();tr.position.set(9,.1,-5.4);tr.rotation.y=.4;M3('b',0xe8742a,1.1,.5,.7,0,.45,0,tr);M3('b',0xf5f5f0,.5,.45,.6,-.2,.95,0,tr);
+  [[-.4,.35],[.4,.35],[-.4,-.35],[.4,-.35]].forEach(w=>M3('y',0x222222,.22,.12,.22,w[0],.22,w[1],tr).rotation.x=Math.PI/2);D.add(tr);
+  M3('b',0xc0392b,1.6,1.2,1.4,-6.8,.6,-1.5,D);M3('c',0x7b241c,1.3,.8,1.2,-6.8,1.6,-1.5,D).rotation.y=.8}
+ root.add(D);D.traverse(o=>{o.matrixAutoUpdate=false;o.updateMatrix()});
+ const f=fm?19:13;CAM.fov=fm?26:30;CAM.updateProjectionMatrix();CAM.position.set(f*.62,f*.8,f*.62);CAM.lookAt(0,0,0)}
 const sync3=safe(()=>{if(!ready||!$('fm3'))return;const fm=tab!=='pond',arr=fm?G.plots:G.fish;
  arr.forEach((c,i)=>{const e=cells[i];if(!e)return;const id=c&&c.id;
   if(e.id!==id){if(e.g){root.remove(e.g);e.g=null}if(e.ring){root.remove(e.ring);e.ring=null}e.id=id;
@@ -10849,11 +10871,11 @@ const mount3=safe(()=>{const h=$('fm3');if(!h||!ready)return;setScene(tab==='pon
  if(cvs._w!==w||cvs._h!==ht){cvs._w=w;cvs._h=ht;R3.setSize(w,ht,false);CAM.aspect=w/ht;CAM.updateProjectionMatrix()}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
 const onTap=safe(e=>{const r=cvs.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),CAM);const h=rc.intersectObjects(pick,false)[0];if(h)tap(tab==='pond'?'fish':'farm',h.object.userData.i)});
 function init3(){try{const d=Math.min(window.devicePixelRatio||1,1.5);R3=new THREE.WebGLRenderer({antialias:d<1.5});R3.setPixelRatio(d);cvs=R3.domElement;cvs.addEventListener('webglcontextlost',e=>e.preventDefault());cvs.addEventListener('click',onTap);
- SC=new THREE.Scene();SC.background=new THREE.Color(0xbfe6ff);SC.fog=new THREE.Fog(0xbfe6ff,18,42);CAM=new THREE.PerspectiveCamera(38,1,.1,60);SC.add(new THREE.HemisphereLight(0xffffff,0x6b8f5a,.95));const l=new THREE.DirectionalLight(0xfff1cc,.8);l.position.set(4,8,5);SC.add(l);root=new THREE.Group();SC.add(root);ready=1}catch(e){console.warn(e);ready=0}if(ready)render()}
+ SC=new THREE.Scene();SC.background=new THREE.Color(0xbfe6ff);CAM=new THREE.PerspectiveCamera(38,1,.1,60);SC.add(new THREE.HemisphereLight(0xffffff,0x6b8f5a,.95));const l=new THREE.DirectionalLight(0xfff1cc,.8);l.position.set(4,8,5);SC.add(l);root=new THREE.Group();SC.add(root);ready=1}catch(e){console.warn(e);ready=0}if(ready)render()}
 function boot3(){if(ready||boot3.b)return;boot3.b=1;if(window.THREE)return init3();let i=0;const S=['three.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'];
  const nx=()=>{if(i>=S.length){boot3.b=0;return}const e=document.createElement('script');let d=0;const to=setTimeout(()=>f(0),9000),f=ok=>{if(d)return;d=1;clearTimeout(to);if(ok&&window.THREE)init3();else{e.remove();nx()}};e.onload=()=>f(1);e.onerror=()=>f(0);e.src=S[i++];document.head.appendChild(e)};nx()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)mount3()});window.addEventListener('resize',()=>{if(cvs)delete cvs._w;mount3()});
-const grid=k=>ready?'<div id="fm3" class="fm3"></div>':'<div class="fm-grid'+(k==='fish'?' pond':'')+'" style="grid-template-columns:repeat('+(k==='farm'?G.size:3)+',1fr)">'+(k==='farm'?G.plots:G.fish).map((_,i)=>cell(k,i)).join('')+'</div>';
+const grid=k=>ready?'<div id="fm3" class="fm3">'+(k==='farm'&&EXP[G.size]?'<button class="fm-new" data-a="expand">New Field<b>🪙 '+EXP[G.size][0]+'</b></button>':'')+'</div>':'<div class="fm-grid'+(k==='fish'?' pond':'')+'" style="grid-template-columns:repeat('+(k==='farm'?G.size:3)+',1fr)">'+(k==='farm'?G.plots:G.fish).map((_,i)=>cell(k,i)).join('')+'</div>';
 window.openFarm=function(){load();chk();boot3();tab='farm';show('screen-farm');render();clearInterval(tm);tm=setInterval(()=>{if($('screen-farm').classList.contains('active'))paint();else clearInterval(tm)},1000)};
 })();
 </script>
