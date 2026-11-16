@@ -10877,23 +10877,23 @@ function gain(n){G.coins+=n;G.st.earned+=n}
 function addXp(n){G.xp+=n;while(G.xp>=xpNeed(G.lvl)){G.xp-=xpNeed(G.lvl);G.lvl++;say('⭐ Level '+G.lvl+'!')}}
 function chk(){AC.forEach(a=>{if(!G.ach[a[0]]&&a[2](G)){G.ach[a[0]]=1;G.coins+=a[3];say('🏆 '+a[0]+' · +'+a[3]+' 🪙')}})}
 const done=()=>{chk();save();render()};
-function harvest(s,i){const c=s[i],it=IT[c.id];let key=it.id;if(it.k==='Animal'){c.t=Date.now();key='p_'+it.id;G.st.prod++}else{s[i]=null;it.k==='Fish'?G.st.fish++:G.st.h++}G.inv[key]=(G.inv[key]||0)+1;G.st.seen[it.id]=1;addXp(it.xp)}
+function harvest(s,i,fromP){const c=s[i],it=IT[c.id];let key=it.id;const em=it.k==='Animal'?IT['p_'+it.id].e:(it.e||'📦');if(it.k==='Animal'){c.t=Date.now();key='p_'+it.id;G.st.prod++}else{s[i]=null;it.k==='Fish'?G.st.fish++:G.st.h++}G.inv[key]=(G.inv[key]||0)+1;G.st.seen[it.id]=1;addXp(it.xp);if(fromP!=null){const pos=pc(fromP);const sx=pos.x+((i%3)-1)*1.2,sz=pos.z+(Math.floor(i/3)-1)*1.2;spawnConv(sx,sz,em)}else spawnConv(0,0,em)}
 function waterIt(c){const q=st(c);if(q!=='grow'&&q!=='dry')return 0;const it=IT[c.id];if(q==='grow'&&c.w-Date.now()>WD(it)*.7)return 0;c.w=Date.now()+WD(it);G.st.w=(G.st.w||0)+1;return 1}
 function waterAll(p){let n=0;G.land.forEach((l,q)=>{if(!l||l.u!=='crop'||(p>=0&&q!==p))return;l.s.forEach(c=>{if(c&&waterIt(c))n++})});pop(n?'💧 Watered '+n:'Nothing needs water',n?'plant':'wait');if(n)tsnd();done()}
 function tap(p,i){const l=G.land[p],s=l.s,c=s[i],u=USE[l.u];
  if(c){const it=IT[c.id];
   if(isCrop(c)){const q=st(c);
    if(q==='rot'||q==='dead'){s[i]=null;pop('🧹 Cleared '+it.n,'bad');tsnd();return done()}
-   if(q==='ready'){harvest(s,i);pop('+1 '+it.e+' · +'+it.xp+' XP','gain');tsnd();return done()}
+   if(q==='ready'){harvest(s,i,p);pop('+1 '+it.e+' · +'+it.xp+' XP','gain');tsnd();return done()}
    if(waterIt(c)){pop('💧 Watered '+it.n,'plant');tsnd();return done()}
    pop('🌱 '+it.n+' '+Math.floor(100*c.g/it.t)+'% · 💧 '+fmt((c.w-Date.now())/1000),'wait');return}
-  const left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}harvest(s,i);pop('+1 '+(it.k==='Animal'?IT['p_'+it.id].e:it.e)+' · +'+it.xp+' XP','gain');tsnd();return done()}
+  const left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}harvest(s,i,p);pop('+1 '+(it.k==='Animal'?IT['p_'+it.id].e:it.e)+' · +'+it.xp+' XP','gain');tsnd();return done()}
  const it=IT[S[l.u]];if(G.coins<it.cost){pop('Need 🪙'+(it.cost-G.coins)+' more','bad');say('Not enough coins 🪙 — sell goods in the Barn');return}
  G.coins-=it.cost;const now=Date.now();s[i]=it.k==='Animal'||it.k==='Fish'?{id:it.id,t:now}:{id:it.id,t:now,g:0,u:now,w:now+WD(it)};pop(u.v+' '+it.n+' · −🪙'+it.cost,'plant');tsnd();done()}
-function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(isRdy(c)){harvest(l.s,i);n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
+function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(isRdy(c)){harvest(l.s,i,q);n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
  pop(n?'🧺 Collected '+n+(z?' · cleared '+z:''):z?'🧹 Cleared '+z:'Nothing ready yet',n?'gain':'wait');if(n||z)tsnd();done()}
-function sell(id){const n=G.inv[id]||0;if(!n)return;gain(n*IT[id].sell);G.inv[id]=0;pop('+🪙'+n*IT[id].sell,'gain');say('Sold '+n+' '+IT[id].e+' · +'+n*IT[id].sell+' 🪙');done()}
-function sellAll(){let t=0;for(const id in G.inv){t+=G.inv[id]*IT[id].sell;G.inv[id]=0}if(t){gain(t);pop('+🪙'+t,'gain');say('Sold everything · +'+t+' 🪙')}done()}
+function sell(id){const n=G.inv[id]||0;if(!n)return;const money=n*IT[id].sell,em=IT[id].e;G.inv[id]=0;startTruck(()=>{gain(money);pop('+🪙'+money,'gain');say('Sold '+n+' '+em+' · +'+money+' 🪙');done()});done()}
+function sellAll(){let t=0;const had=Object.keys(G.inv).some(i=>G.inv[i]>0);for(const id in G.inv){t+=G.inv[id]*IT[id].sell;G.inv[id]=0}if(!had)return;startTruck(()=>{if(t){gain(t);pop('+🪙'+t,'gain');say('Sold everything · +'+t+' 🪙')}done()});done()}
 function buy(p){const c=price(p);if(G.lvl<need()){say('🔒 Reach level '+need()+' to buy more land');return}if(G.coins<c){say('Not enough coins 🪙');return}G.coins-=c;G.land[p]={u:null,s:E9()};say('🏞️ Land purchased! Choose how to use it');done()}
 function setUse(p,k){const x=USE[k];if(G.lvl<x.lvl){say('🔒 Reach level '+x.lvl);return}if(G.coins<x.fee){say('Not enough coins 🪙');return}G.coins-=x.fee;G.land[p].u=k;say(x.e+' '+x.n+' ready!');done()}
 const bar=(list,s)=>'<div class="fm-bar">'+list.map(x=>{const lk=G.lvl<x.lvl;return '<button class="fm-sd'+(s===x.id?' sel':'')+(lk?' lk':'')+'" data-a="sel" data-id="'+x.id+'"><i>'+x.e+'</i><b>'+(lk?'🔒 L'+x.lvl:'🪙'+x.cost)+'</b></button>'}).join('')+'</div>';
@@ -10964,6 +10964,17 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
 /* ---- 3D view (three.js, lightweight) ---- */
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
 let PM,GM,DM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
+/* conveyor + truck visuals */
+let convItems=[],truck=null,truckState=null,beltGroup=null,BARN_POS={x:-15.2,z:-2.5};
+const CONV_PATH=[{x:0,z:0},{x:-4,z:-1},{x:-9,z:-1.5},{x:-13,z:-2},{x:-15.2,z:-2.5}];
+function emojiSprite(em){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.font='48px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(em,32,36);const m=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,transparent:true});const s=new THREE.Sprite(m);s.scale.set(.55,.55,1);return s}
+function spawnConv(fromX,fromZ,em){if(!ready||!root)return;const g=emojiSprite(em||'📦');g.position.set(fromX,.6,fromZ);root.add(g);const path=[{x:fromX,z:fromZ}].concat(CONV_PATH.slice(1));convItems.push({g,path,t:0,speed:1.8+Math.random()*.6})}
+function updateConv(dt){for(let i=convItems.length-1;i>=0;i--){const it=convItems[i];it.t+=dt*it.speed;const p=it.t,n=it.path.length-1,seg=Math.min(n-1e-6,Math.floor(p)),f=p-seg;if(p>=n){root.remove(it.g);if(it.g.material&&it.g.material.map)it.g.material.map.dispose();if(it.g.material)it.g.material.dispose();convItems.splice(i,1);continue}const a=it.path[seg],b=it.path[seg+1]||a;it.g.position.set(a.x+(b.x-a.x)*f,.55+Math.sin(T*8+i)*.04,a.z+(b.z-a.z)*f);it.g.rotation.z=Math.sin(T*6)*.2}}
+function buildBelt(){if(beltGroup){root.remove(beltGroup);beltGroup=null}beltGroup=new THREE.Group();root.add(beltGroup);const pts=CONV_PATH;for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz)||1,midX=(a.x+b.x)/2,midZ=(a.z+b.z)/2;const rail=M3('b',0x5a4a3a,len+.15,.06,.28,midX,.08,midZ,beltGroup);rail.rotation.y=-Math.atan2(dz,dx);const belt=M3('b',0x3d3d3d,len,.04,.18,midX,.12,midZ,beltGroup);belt.rotation.y=-Math.atan2(dz,dx);for(let k=0;k<3;k++){const t=(k+1)/4,x=a.x+dx*t,z=a.z+dz*t;M3('b',0xffd166,.12,.02,.12,x,.14,z,beltGroup)}}M3('b',0x6b5b4b,.8,.15,.8,BARN_POS.x,.1,BARN_POS.z+.8,beltGroup)}
+function mkTruck(){const g=new THREE.Group();const body=M3('b',0xe74c3c,1.4,.45,.7,0,.35,0,g);M3('b',0xc0392b,1.5,.08,.75,0,.55,0,g);M3('b',0x2c3e50,.55,.4,.65,.55,.4,0,g);M3('b',0x85c1e9,.4,.2,.55,.6,.55,0,g);[[-.45,-.25],[-.45,.25],[.45,-.25],[.45,.25]].forEach(p=>{M3('y',0x222222,.12,.12,.08,p[0],.12,p[1],g).rotation.z=Math.PI/2});const cab=label('🚚',1);cab.position.set(0,1.1,0);cab.scale.set(1.4,.55,1);g.add(cab);g.visible=false;return g}
+function startTruck(onDone){if(!ready||!root){if(onDone)onDone();return}if(truck){root.remove(truck);truck=null}truck=mkTruck();root.add(truck);truckState={phase:'in',t:0,onDone};truck.position.set(-28,.0,-2.5);truck.rotation.y=0;truck.visible=true;say('🚚 Delivery truck arriving…')}
+function updateTruck(dt){if(!truckState||!truck)return;truckState.t+=dt;const s=truckState;if(s.phase==='in'){const u=Math.min(1,s.t/2.2);truck.position.x=-28+(BARN_POS.x+2.2-(-28))*u;truck.position.z=BARN_POS.z;if(u>=1){s.phase='load';s.t=0;say('📦 Loading goods from the barn…')}}else if(s.phase==='load'){if(s.t>1.4){s.phase='out';s.t=0;say('🛒 Off to market!')}}else if(s.phase==='out'){const u=Math.min(1,s.t/2.4);truck.position.x=(BARN_POS.x+2.2)+(-28-(BARN_POS.x+2.2))*u;truck.position.z=BARN_POS.z-(u*u)*4;if(u>=1){root.remove(truck);truck=null;const cb=s.onDone;truckState=null;if(cb)cb()}}}}
+
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
 const mat=(c,o)=>{const k=c+(o?JSON.stringify(o):'');return MC[k]||(MC[k]=new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o||{})))};
@@ -11142,6 +11153,9 @@ function setScene(){const key=G.land.map((l,p)=>l?(l.u||'n')[0]:(G.coins>=price(
  const O=new THREE.Object3D(),inst=(a,k,c)=>{if(!a.length)return;const m=new THREE.InstancedMesh(geo(k),mat(c),a.length);a.forEach((v,i)=>{O.position.set(v[0],v[1],v[2]);O.scale.set(v[3],v[4],v[5]);O.updateMatrix();m.setMatrixAt(i,O.matrix)});m.frustumCulled=false;D.add(m)};
  inst(L.tr,'y',0x7a4b25);inst(L.c1,'c',0x2f8f4e);inst(L.c2,'c',0x3aa65c);
  barn();
+ buildBelt();
+ convItems.forEach(it=>{try{root.remove(it.g)}catch(e){}});convItems=[];
+ if(truck){try{root.remove(truck)}catch(e){}truck=null;truckState=null}
  root.add(D);D.traverse(o=>{o.matrixAutoUpdate=false;o.updateMatrix()})}
 const IC={};function setIc(e,em){if(!em){if(e.ic)e.ic.visible=false;return}
  if(!IC[em]){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.font='46px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(em,32,36);IC[em]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthWrite:false,depthTest:false})}
@@ -11164,6 +11178,7 @@ const frame=safe(t=>{if(!ready||document.hidden||!$('screen-farm').classList.con
   if(e.born!=null){const k=(T-e.born)/.45;if(k>=1){e.born=null;e.g.scale.setScalar(1)}else{const x=k-1;e.g.scale.setScalar(Math.max(.02,1+2.70158*x*x*x+1.70158*x*x))}}
   if(e.m){const a=T*(.35+(i%5)*.09)+i*2,r=e.f?.3:.17,x=e.x+Math.cos(a)*r,z=e.z+Math.sin(a)*r;e.g.position.set(x,e.f?.2+Math.sin(T*2+i)*.03:.05+Math.abs(Math.sin(T*5+i))*.015,z);e.g.rotation.y=-a-PI/2;if(e.rdy)e.ring.position.set(x,(e.f?.8:.9)+Math.sin(T*3)*.07,z)}
   else if(e.rdy){e.g.position.y=.05+Math.abs(Math.sin(T*4+i))*.05;e.ring.position.y=.75+Math.sin(T*3+i)*.07}});
+ updateConv(dt);updateTruck(dt);
  R3.render(SC,CAM)});
 const mount3=safe(()=>{if(!ready)return;setScene();const st=$('fmStage'),w=st.clientWidth||window.innerWidth,h=st.clientHeight||window.innerHeight;
  if(cvs._w!==w||cvs._h!==h){cvs._w=w;cvs._h=h;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.setViewOffset(w,h,0,Math.round(h*.09),w,h)}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
