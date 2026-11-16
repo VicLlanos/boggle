@@ -1922,7 +1922,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 <section id="screen-farm" class="screen">
   <div id="fmStage"></div>
   <div class="fm-top"><div class="fm-badge" id="fmLv">1</div><div class="fm-coins" id="fmCoins">🪙 0</div><div class="fm-xp"><div id="fmXp"></div><span id="fmXpT"></span></div><button class="rn" data-a="help" aria-label="How to play" title="How to play">?</button><button class="rn" data-a="back" aria-label="Back">⮌</button></div>
-  <div id="fmBottom"><div id="fmSheet"></div><div id="fmDock"><button data-a="map"><i>🗺️</i>Map</button><button data-a="water"><i>💧</i>Water<span id="fmWet" style="display:none"></span></button><button data-a="collect"><i>✨</i>Collect<span id="fmRdy" style="display:none"></span></button><button data-a="barn"><i>🧺</i>Barn</button><button data-a="ach"><i>🏆</i>Awards</button></div></div>
+  <div id="fmBottom"><div id="fmSheet"></div><div id="fmDock"><button data-a="map"><i>🗺️</i>Map</button><button data-a="water"><i>💧</i>Water<span id="fmWet" style="display:none"></span></button><button data-a="collect"><i>✨</i>Collect<span id="fmRdy" style="display:none"></span></button><button data-a="feed"><i>🌾</i>Feed<span id="fmHungry" style="display:none"></span></button><button data-a="barn"><i>🧺</i>Barn</button><button data-a="ach"><i>🏆</i>Awards</button></div></div>
   <div id="fmModal"></div>
   <div id="fmToast"></div>
   <div id="fmTut" role="dialog" aria-live="polite"></div><div id="fmSpot"></div>
@@ -10858,6 +10858,9 @@ function st(c){const it=IT[c.id],now=Date.now();if(c.g==null){c.g=Math.min(it.t,
  if(c.g>=it.t){if(c.r==null)c.r=now;return now>c.r+RT(it)?'rot':'ready'}
  return now>c.w+GR(it)?'dead':now>c.w?'dry':'grow'}
 const isRdy=c=>!!c&&!c._collecting&&(isCrop(c)?st(c)==='ready':Date.now()-c.t>=IT[c.id].t);
+const HUNGER_MS=75e3; /* animals & fish get hungry after ~75s without feed */
+const isHungry=c=>{if(!c||c._feeding||isCrop(c))return false;const fed=c.fed!=null?c.fed:c.t;return Date.now()-(fed||0)>HUNGER_MS};
+
 const tsnd=()=>{try{snd('tap')}catch(e){}};
 const E9=()=>Array(9).fill(null);
 const P=()=>[].concat(...G.land.filter(p=>p&&p.u==='crop').map(p=>p.s));
@@ -10908,7 +10911,22 @@ function tap(p,i){const l=G.land[p],s=l.s,c=s[i],u=USE[l.u];
    pop('🌱 '+it.n+' '+Math.floor(100*c.g/it.t)+'% · 💧 '+fmt((c.w-Date.now())/1000),'wait');return}
   const left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}if(c._collecting){pop('👷 Already being collected…','wait');return}harvest(s,i,p);pop('👷 Collecting '+(it.k==='Animal'?IT['p_'+it.id].e:it.e)+'…','plant');tsnd();return}
  const it=IT[S[l.u]];if(G.coins<it.cost){pop('Need 🪙'+(it.cost-G.coins)+' more','bad');say('Not enough coins 🪙 — sell goods in the Barn');return}
- G.coins-=it.cost;const now=Date.now();s[i]=it.k==='Animal'||it.k==='Fish'?{id:it.id,t:now}:{id:it.id,t:now,g:0,u:now,w:now+WD(it)};pop(u.v+' '+it.n+' · −🪙'+it.cost,'plant');tsnd();done()}
+ G.coins-=it.cost;const now=Date.now();s[i]=it.k==='Animal'||it.k==='Fish'?{id:it.id,t:now,fed:now}:{id:it.id,t:now,g:0,u:now,w:now+WD(it)};pop(u.v+' '+it.n+' · −🪙'+it.cost,'plant');tsnd();done()}
+function feedAll(){
+  let n=0;
+  G.land.forEach((l,q)=>{
+    if(!l||(l.u!=='pen'&&l.u!=='pond'))return;
+    l.s.forEach((c,i)=>{
+      if(!c||c._feeding||!isHungry(c))return;
+      c._feeding=1;n++;
+      const pos=pc(q), sx=pos.x+((i%3)-1)*1.2, sz=pos.z+(Math.floor(i/3)-1)*1.2;
+      const it=IT[c.id], em=it?it.e:'🐾';
+      enqueueFeed({p:q,i,s:l.s,em,sx,sz,c});
+    });
+  });
+  pop(n?'🌾 Feeding '+n+' animals…':'No hungry animals or fish right now',n?'plant':'wait');
+  if(n)tsnd();
+}
 function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(c&&c._collecting)return;if(isRdy(c)){harvest(l.s,i,q);n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
  pop(n?'👷 Workers collecting '+n+'…'+(z?' · cleared '+z:''):z?'🧹 Cleared '+z:'Nothing ready yet',n?'gain':'wait');if(n||z)tsnd();if(z)done()}
 function sell(id){const n=G.inv[id]||0;if(!n)return;const money=n*IT[id].sell,em=IT[id].e;G.inv[id]=0;startTruck(()=>{gain(money);pop('+🪙'+money,'gain');say('Sold '+n+' '+em+' · +'+money+' 🪙');done()});done()}
@@ -10975,7 +10993,7 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
  if(a==='tnext'){tutNext();return}
  if(a==='tskip'){tutEnd(true);return}
  if(a==='sel'){const l=G.land[sel];if(G.lvl<IT[id].lvl){say('🔒 Reach level '+IT[id].lvl+' to unlock '+IT[id].n);return}S[l.u]=id;render()}
- else if(a==='harvest')all(sel);else if(a==='collect')all(-1);else if(a==='sell')sell(id);else if(a==='sellall')sellAll();
+ else if(a==='harvest')all(sel);else if(a==='collect')all(-1);else if(a==='feed')feedAll();else if(a==='sell')sell(id);else if(a==='sellall')sellAll();
  else if(a==='waterall')waterAll(sel);else if(a==='water')waterAll(-1);else if(a==='buy')buy(sel);else if(a==='use')setUse(sel,t.dataset.u);
  else if(a==='barn'||a==='ach'){modal=a;render()}else if(a==='closeM'){modal='';render()}else if(a==='closeS'){sel=-1;render()}
  else if(a==='map'){sel=-1;modal='';gx=gz=0;dist=42;foc=1;render()}});
@@ -11038,15 +11056,76 @@ function mkWorker(){
 }
 
 function enqueueCollect(job){
+  job.kind='collect';
+  collectQueue.push(job);
+  pumpCollectQueue();
+}
+function enqueueFeed(job){
+  job.kind='feed';
   collectQueue.push(job);
   pumpCollectQueue();
 }
 function pumpCollectQueue(){
   while(activeWorkers<MAX_WORKERS && collectQueue.length){
     const job=collectQueue.shift();
-    startWorkerJob(job);
+    if(job.kind==='feed') startFeedJob(job);
+    else startWorkerJob(job);
   }
 }
+function startFeedJob(job){
+  if(!ready||!root){
+    if(job.c){job.c.fed=Date.now();delete job.c._feeding}
+    activeWorkers=Math.max(0,activeWorkers);pumpCollectQueue();return;
+  }
+  activeWorkers++;
+  const w=mkWorker();
+  w.position.set(BARN_DOOR.x,0,BARN_DOOR.z);root.add(w);
+  /* carry a feed sack from the start */
+  const sack=emojiSprite('🌾',.48);sack.position.set(.2,.95,.1);w.add(sack);
+  const fromX=job.sx, fromZ=job.sz;
+  const toAnimal=[
+    {x:BARN_DOOR.x,z:BARN_DOOR.z},
+    {x:(BARN_DOOR.x+fromX)*.55,z:(BARN_DOOR.z+fromZ)*.55+1.0},
+    {x:fromX,z:fromZ}
+  ];
+  const back=[
+    {x:fromX,z:fromZ},
+    {x:(BARN_DOOR.x+fromX)*.55,z:(BARN_DOOR.z+fromZ)*.55-.8},
+    {x:BARN_DOOR.x,z:BARN_DOOR.z}
+  ];
+  function go(path,speed,then){
+    convItems.push({g:w,path,t:0,speed,face:true,baseY:0,bob:.025,onArrive:then});
+  }
+  go(toAnimal,.9,function(){
+    /* feed the animal / fish */
+    if(job.c){
+      job.c.fed=Date.now();
+      /* happy boost: shave 20% off remaining production time */
+      if(job.c.t!=null){
+        const it=IT[job.c.id], need=it?it.t:0, elapsed=Date.now()-job.c.t;
+        if(need && elapsed<need){
+          const left=need-elapsed;
+          job.c.t=Date.now()-(need-left*.8);
+        }
+      }
+      delete job.c._feeding;
+    }
+    /* leave the sack / show heart */
+    try{w.remove(sack)}catch(e){}
+    const heart=emojiSprite('💕',.45);heart.position.set(fromX,1.1,fromZ);root.add(heart);
+    convItems.push({g:heart,path:[{x:fromX,z:fromZ},{x:fromX,z:fromZ}],t:0,speed:1.5,baseY:1.1,bob:.08,onArrive:()=>{try{root.remove(heart)}catch(e){}}});
+    setTimeout(()=>{try{root.remove(heart)}catch(e){}},700);
+    /* walk back empty-handed */
+    go(back,.85,function(){
+      try{root.remove(w)}catch(e){}
+      activeWorkers=Math.max(0,activeWorkers-1);
+      pop('🌾 Fed '+job.em,'plant');
+      pumpCollectQueue();
+      paint();
+    });
+  });
+}
+
 function startWorkerJob(job){
   if(!ready||!root){
     /* fallback: finish instantly if 3D not ready */
@@ -11364,7 +11443,8 @@ const sync3=safe(()=>{if(!ready||!halo)return;const it=l=>IT[S[l.u]],sp=sel>=0?p
     if(!e.m){const h=HH[id]||.5;e.hit=new THREE.Mesh(HG,HM);e.hit.scale.set(.62,h,.62);e.hit.position.set(e.x,h/2,e.z);e.hit.userData={k:'slot',p:e.p,i:e.i};root.add(e.hit)}}}
   if(id){const it=IT[id];let q='grow',p;if(e.m){p=Math.min(1,(Date.now()-c.t)/it.t);q=p>=1?'ready':'grow'}else{q=st(c);p=Math.min(1,c.g/it.t)}
    e.rdy=q==='ready';if(e.f)e.g.scale.setScalar(.5+.5*p);else if(!e.m)stage(e.g,p);e.ring.visible=e.rdy;
-   if(!e.m){const bad=q==='rot'||q==='dead';if(bad!==!!e.bad){e.bad=bad;e.g.children.forEach(o=>o.material=bad?DM:PM)}e.g.rotation.z=q==='dead'?.35:0;e.t.material=mat(bad?0x4a3a2a:q==='dry'?0x9c6a3e:0x5b3519);setIc(e,q==='dry'?'💧':q==='rot'?'🤢':q==='dead'?'🥀':'')}}
+   if(e.m){setIc(e,isHungry(c)?'🍽️':'')}
+   else if(!e.m){const bad=q==='rot'||q==='dead';if(bad!==!!e.bad){e.bad=bad;e.g.children.forEach(o=>o.material=bad?DM:PM)}e.g.rotation.z=q==='dead'?.35:0;e.t.material=mat(bad?0x4a3a2a:q==='dry'?0x9c6a3e:0x5b3519);setIc(e,q==='dry'?'💧':q==='rot'?'🤢':q==='dead'?'🥀':'')}}
   else{e.rdy=false;setIc(e,'');if(l.u==='crop')e.t.material=mat(0x7b4a2d)}
   e.mk.visible=!id&&e.p===sel&&!!l.u;if(!id&&l.u)e.mk.material=G.coins>=it(l).cost?MKO:MKN})});
 const frame=safe(t=>{if(!ready||document.hidden||!$('screen-farm').classList.contains('active')){raf3=0;return}raf3=requestAnimationFrame(frame);if(t-last<(drag?16:33))return;const dt=Math.min(.1,(t-last)/1000);last=t;T+=dt;
@@ -11402,7 +11482,7 @@ function init3(){try{const d=Math.min(window.devicePixelRatio||1,1.5);R3=new THR
 function boot3(){if(ready||boot3.b)return;boot3.b=1;if(window.THREE)return init3();let i=0;const S=['three.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'];
  const nx=()=>{if(i>=S.length){boot3.b=0;return}const e=document.createElement('script');let d=0;const to=setTimeout(()=>f(0),9000),f=ok=>{if(d)return;d=1;clearTimeout(to);if(ok&&window.THREE)init3();else{e.remove();nx()}};e.onload=()=>f(1);e.onerror=()=>f(0);e.src=S[i++];document.head.appendChild(e)};nx()}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)mount3()});window.addEventListener('resize',()=>{if(cvs)delete cvs._w;mount3();if(tI>=0)tutTick()});
-function paint(){sync3();let n=0,w=0;G.land.forEach(l=>{if(l&&l.u)l.s.forEach(c=>{if(!c)return;if(isRdy(c))n++;else if(l.u==='crop'&&st(c)==='dry')w++})});const r=$('fmRdy'),q=$('fmWet');r.textContent=n;r.style.display=n?'':'none';q.textContent=w;q.style.display=w?'':'none'}
+function paint(){sync3();let n=0,w=0,h=0;G.land.forEach(l=>{if(l&&l.u)l.s.forEach(c=>{if(!c)return;if(isRdy(c))n++;else if(l.u==='crop'&&st(c)==='dry')w++;if(isHungry(c))h++})});const r=$('fmRdy'),q=$('fmWet'),hg=$('fmHungry');r.textContent=n;r.style.display=n?'':'none';q.textContent=w;q.style.display=w?'':'none';if(hg){hg.textContent=h;hg.style.display=h?'':'none'}}
 function render(){
  $('fmCoins').textContent='🪙 '+G.coins.toLocaleString();$('fmLv').textContent=G.lvl;$('fmXpT').textContent=G.xp+'/'+xpNeed(G.lvl);$('fmXp').style.width=Math.min(100,100*G.xp/xpNeed(G.lvl))+'%';
  $('screen-farm').classList.toggle('nogl',!ready);
