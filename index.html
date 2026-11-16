@@ -10858,7 +10858,7 @@ function st(c){const it=IT[c.id],now=Date.now();if(c.g==null){c.g=Math.min(it.t,
  if(c.g>=it.t){if(c.r==null)c.r=now;return now>c.r+RT(it)?'rot':'ready'}
  return now>c.w+GR(it)?'dead':now>c.w?'dry':'grow'}
 const isRdy=c=>!!c&&!c._collecting&&(isCrop(c)?st(c)==='ready':Date.now()-c.t>=IT[c.id].t);
-const HUNGER_MS=75e3; /* animals & fish get hungry after ~75s without feed */
+const HUNGER_MS=8*60e3; /* animals & fish get hungry after ~8 minutes without feed */
 const isHungry=c=>{if(!c||c._feeding||isCrop(c))return false;const fed=c.fed!=null?c.fed:c.t;return Date.now()-(fed||0)>HUNGER_MS};
 
 const tsnd=()=>{try{snd('tap')}catch(e){}};
