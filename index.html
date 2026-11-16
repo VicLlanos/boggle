@@ -10857,7 +10857,7 @@ function st(c){const it=IT[c.id],now=Date.now();if(c.g==null){c.g=Math.min(it.t,
  if(c.g<it.t){const wet=Math.max(0,Math.min(now,c.w)-c.u),need=it.t-c.g;if(wet>=need){c.r=c.u+need;c.g=it.t}else c.g+=wet;c.u=now}
  if(c.g>=it.t){if(c.r==null)c.r=now;return now>c.r+RT(it)?'rot':'ready'}
  return now>c.w+GR(it)?'dead':now>c.w?'dry':'grow'}
-const isRdy=c=>!!c&&(isCrop(c)?st(c)==='ready':Date.now()-c.t>=IT[c.id].t);
+const isRdy=c=>!!c&&!c._collecting&&(isCrop(c)?st(c)==='ready':Date.now()-c.t>=IT[c.id].t);
 const tsnd=()=>{try{snd('tap')}catch(e){}};
 const E9=()=>Array(9).fill(null);
 const P=()=>[].concat(...G.land.filter(p=>p&&p.u==='crop').map(p=>p.s));
@@ -10878,21 +10878,39 @@ function gain(n){G.coins+=n;G.st.earned+=n}
 function addXp(n){G.xp+=n;while(G.xp>=xpNeed(G.lvl)){G.xp-=xpNeed(G.lvl);G.lvl++;say('⭐ Level '+G.lvl+'!')}}
 function chk(){AC.forEach(a=>{if(!G.ach[a[0]]&&a[2](G)){G.ach[a[0]]=1;G.coins+=a[3];say('🏆 '+a[0]+' · +'+a[3]+' 🪙')}})}
 const done=()=>{chk();save();render()};
-function harvest(s,i,fromP){const c=s[i],it=IT[c.id];let key=it.id;const em=it.k==='Animal'?IT['p_'+it.id].e:(it.e||'📦');if(it.k==='Animal'){c.t=Date.now();key='p_'+it.id;G.st.prod++}else{s[i]=null;it.k==='Fish'?G.st.fish++:G.st.h++}G.inv[key]=(G.inv[key]||0)+1;G.st.seen[it.id]=1;addXp(it.xp);if(fromP!=null){const pos=pc(fromP);const sx=pos.x+((i%3)-1)*1.2,sz=pos.z+(Math.floor(i/3)-1)*1.2;spawnConv(sx,sz,em)}else spawnConv(0,0,em)}
+/* Queue a visual collect job. Plot is only cleared when the worker returns to the barn. */
+function harvest(s,i,fromP){
+  const c=s[i];if(!c||c._collecting)return;
+  const it=IT[c.id];if(!it)return;
+  const em=it.k==='Animal'?(IT['p_'+it.id]&&IT['p_'+it.id].e)||'📦':(it.e||'📦');
+  c._collecting=1; /* lock slot so it isn't double-queued; still visible until worker arrives back */
+  const pos=pc(fromP!=null?fromP:0);
+  const sx=pos.x+((i%3)-1)*1.2, sz=pos.z+(Math.floor(i/3)-1)*1.2;
+  enqueueCollect({p:fromP!=null?fromP:0, i, s, em, it, sx, sz});
+}
+/* Apply inventory + clear slot once worker has delivered */
+function finishHarvest(job){
+  const c=job.s[job.i], it=job.it;if(!c)return;
+  let key=it.id;
+  if(it.k==='Animal'){c.t=Date.now();delete c._collecting;key='p_'+it.id;G.st.prod++}
+  else{job.s[job.i]=null;it.k==='Fish'?G.st.fish++:G.st.h++}
+  G.inv[key]=(G.inv[key]||0)+1;G.st.seen[it.id]=1;addXp(it.xp);
+  done();
+}
 function waterIt(c){const q=st(c);if(q!=='grow'&&q!=='dry')return 0;const it=IT[c.id];if(q==='grow'&&c.w-Date.now()>WD(it)*.7)return 0;c.w=Date.now()+WD(it);G.st.w=(G.st.w||0)+1;return 1}
 function waterAll(p){let n=0;G.land.forEach((l,q)=>{if(!l||l.u!=='crop'||(p>=0&&q!==p))return;l.s.forEach(c=>{if(c&&waterIt(c))n++})});pop(n?'💧 Watered '+n:'Nothing needs water',n?'plant':'wait');if(n)tsnd();done()}
 function tap(p,i){const l=G.land[p],s=l.s,c=s[i],u=USE[l.u];
  if(c){const it=IT[c.id];
   if(isCrop(c)){const q=st(c);
    if(q==='rot'||q==='dead'){s[i]=null;pop('🧹 Cleared '+it.n,'bad');tsnd();return done()}
-   if(q==='ready'){harvest(s,i,p);pop('+1 '+it.e+' · +'+it.xp+' XP','gain');tsnd();return done()}
+   if(q==='ready'){harvest(s,i,p);pop('👷 Collecting '+it.e+'…','plant');tsnd();return}
    if(waterIt(c)){pop('💧 Watered '+it.n,'plant');tsnd();return done()}
    pop('🌱 '+it.n+' '+Math.floor(100*c.g/it.t)+'% · 💧 '+fmt((c.w-Date.now())/1000),'wait');return}
-  const left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}harvest(s,i,p);pop('+1 '+(it.k==='Animal'?IT['p_'+it.id].e:it.e)+' · +'+it.xp+' XP','gain');tsnd();return done()}
+  const left=it.t-(Date.now()-c.t);if(left>0){pop('⏳ '+it.n+' · '+fmt(left/1000),'wait');return}if(c._collecting){pop('👷 Already being collected…','wait');return}harvest(s,i,p);pop('👷 Collecting '+(it.k==='Animal'?IT['p_'+it.id].e:it.e)+'…','plant');tsnd();return}
  const it=IT[S[l.u]];if(G.coins<it.cost){pop('Need 🪙'+(it.cost-G.coins)+' more','bad');say('Not enough coins 🪙 — sell goods in the Barn');return}
  G.coins-=it.cost;const now=Date.now();s[i]=it.k==='Animal'||it.k==='Fish'?{id:it.id,t:now}:{id:it.id,t:now,g:0,u:now,w:now+WD(it)};pop(u.v+' '+it.n+' · −🪙'+it.cost,'plant');tsnd();done()}
-function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(isRdy(c)){harvest(l.s,i,q);n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
- pop(n?'🧺 Collected '+n+(z?' · cleared '+z:''):z?'🧹 Cleared '+z:'Nothing ready yet',n?'gain':'wait');if(n||z)tsnd();done()}
+function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(c&&c._collecting)return;if(isRdy(c)){harvest(l.s,i,q);n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
+ pop(n?'👷 Workers collecting '+n+'…'+(z?' · cleared '+z:''):z?'🧹 Cleared '+z:'Nothing ready yet',n?'gain':'wait');if(n||z)tsnd();if(z)done()}
 function sell(id){const n=G.inv[id]||0;if(!n)return;const money=n*IT[id].sell,em=IT[id].e;G.inv[id]=0;startTruck(()=>{gain(money);pop('+🪙'+money,'gain');say('Sold '+n+' '+em+' · +'+money+' 🪙');done()});done()}
 function sellAll(){let t=0;const had=Object.keys(G.inv).some(i=>G.inv[i]>0);for(const id in G.inv){t+=G.inv[id]*IT[id].sell;G.inv[id]=0}if(!had)return;startTruck(()=>{if(t){gain(t);pop('+🪙'+t,'gain');say('Sold everything · +'+t+' 🪙')}done()});done()}
 function buy(p){const c=price(p);if(G.lvl<need()){say('🔒 Reach level '+need()+' to buy more land');return}if(G.coins<c){say('Not enough coins 🪙');return}G.coins-=c;G.land[p]={u:null,s:E9()};say('🏞️ Land purchased! Choose how to use it');done()}
@@ -10965,14 +10983,13 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
 /* ---- 3D view (three.js, lightweight) ---- */
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
 let PM,GM,DM,MKG,MKO,MKN,HG,HM;const GC={},MC={},RC={};
-/* harvest worker + barn-door loading + market truck
-   - No long belt across fields (that overlapped plots).
-   - On harvest: a farmhand walks to the plot, picks up the goods, walks back to the barn door.
-   - Items are staggered so they never stack on top of each other.
-   - On sell: truck parks at the barn door; parcels load one-by-one from the door into the truck, then it drives off. */
-let convItems=[], workers=[], truck=null, truckState=null, beltGroup=null, harvestQueue=0;
+/* harvest workers (max 5) + barn-door truck loading
+   Workers walk to the plot, pick up the goods, walk back to the barn, THEN inventory updates. */
+let convItems=[], truck=null, truckState=null, beltGroup=null;
 const BARN_DOOR={x:-15.2, z:0.15};
 const TRUCK_PARK={x:-17.6, z:0.15};
+const MAX_WORKERS=5;
+let activeWorkers=0, collectQueue=[];
 
 function emojiSprite(em, scale){
   const c=document.createElement('canvas');c.width=c.height=64;
@@ -10981,110 +10998,112 @@ function emojiSprite(em, scale){
   const s=new THREE.Sprite(m);s.scale.set(scale||.55, scale||.55, 1);return s;
 }
 
-/* ---- generic path follower (segments-per-second) ---- */
-function followPath(g, path, speed, onArrive, bobAmp){
-  const it={g, path, t:0, speed:speed||.7, onArrive:onArrive||null, bob:bobAmp==null?.04:bobAmp};
-  convItems.push(it);return it;
-}
 function updateConv(dt){
   for(let i=convItems.length-1;i>=0;i--){
     const it=convItems[i];
     it.t+=dt*it.speed;
-    const p=it.t, n=it.path.length-1, seg=Math.min(n-1e-6, Math.floor(p)), f=p-seg;
+    const p=it.t, n=it.path.length-1;
+    if(n<1){ /* single-point path: finish immediately */
+      const cb=it.onArrive;convItems.splice(i,1);if(cb)cb();continue;
+    }
+    const seg=Math.min(n-1e-6, Math.floor(p)), f=Math.min(1,p-seg);
     if(p>=n){
+      /* snap to end, call arrive — do NOT auto-remove mesh (worker manages its own life) */
+      const last=it.path[n];
+      it.g.position.set(last.x, it.baseY||0, last.z);
       const cb=it.onArrive;
-      if(it.g.parent)it.g.parent.remove(it.g);
-      try{if(it.g.material&&it.g.material.map)it.g.material.map.dispose();if(it.g.material)it.g.material.dispose()}catch(e){}
       convItems.splice(i,1);
       if(cb)cb();
       continue;
     }
     const a=it.path[seg], b=it.path[seg+1]||a;
-    const y=(it.baseY!=null?it.baseY:.55)+(it.bob?Math.sin(T*8+i)*it.bob:0);
+    const y=(it.baseY!=null?it.baseY:0)+(it.bob?Math.sin(T*8+i)*it.bob:0);
     it.g.position.set(a.x+(b.x-a.x)*f, y, a.z+(b.z-a.z)*f);
-    /* face direction of travel for workers */
     if(it.face){
       const dx=b.x-a.x, dz=b.z-a.z;
-      if(Math.abs(dx)+Math.abs(dz)>.001) it.g.rotation.y=Math.atan2(dx,dz);
+      if(Math.abs(dx)+Math.abs(dz)>.001) it.g.rotation.y=Math.atan2(dx, dz);
     }
   }
 }
 
-/* ---- farmhand: walks plot → barn with the harvested emoji ---- */
 function mkWorker(){
   const g=new THREE.Group();
-  /* simple person: body + head + legs */
-  M3('y',0x4a90d9,.12,.28,.12,0,.42,0,g);          /* torso */
-  M3('s',0xffdbac,.11,.11,.11,0,.68,0,g);          /* head */
-  M3('y',0x2c3e50,.045,.2,.045,-.06,.16,0,g);      /* leg L */
-  M3('y',0x2c3e50,.045,.2,.045, .06,.16,0,g);      /* leg R */
-  M3('y',0x4a90d9,.04,.16,.04,-.16,.48,0,g);       /* arm L */
-  M3('y',0x4a90d9,.04,.16,.04, .16,.48,0,g);       /* arm R */
-  g.userData.carry=null;
+  M3('y',0x4a90d9,.12,.28,.12,0,.42,0,g);
+  M3('s',0xffdbac,.11,.11,.11,0,.68,0,g);
+  M3('y',0x2c3e50,.045,.2,.045,-.06,.16,0,g);
+  M3('y',0x2c3e50,.045,.2,.045, .06,.16,0,g);
+  M3('y',0x4a90d9,.04,.16,.04,-.16,.48,0,g);
+  M3('y',0x4a90d9,.04,.16,.04, .16,.48,0,g);
   return g;
 }
-function spawnWorkerPickup(fromX, fromZ, em){
-  if(!ready||!root)return;
-  harvestQueue++;
-  /* stagger so multiple harvests don't overlap */
-  const delay=Math.max(0,(harvestQueue-1)*0.55);
-  setTimeout(()=>{
-    if(!ready||!root){harvestQueue=Math.max(0,harvestQueue-1);return}
-    const w=mkWorker();
-    w.position.set(BARN_DOOR.x, 0, BARN_DOOR.z);
-    root.add(w);
-    const toPlot=[
-      {x:BARN_DOOR.x, z:BARN_DOOR.z},
-      {x:(BARN_DOOR.x+fromX)/2, z:(BARN_DOOR.z+fromZ)/2 + 0.8},
-      {x:fromX, z:fromZ}
-    ];
-    const back=[
-      {x:fromX, z:fromZ},
-      {x:(BARN_DOOR.x+fromX)/2, z:(BARN_DOOR.z+fromZ)/2 - 0.6},
-      {x:BARN_DOOR.x, z:BARN_DOOR.z}
-    ];
-    /* walk to plot */
-    const walker={g:w, path:toPlot, t:0, speed:.85, face:true, baseY:0, bob:.02, onArrive:null};
-    walker.onArrive=()=>{
-      /* pick up: attach emoji above head */
-      const item=emojiSprite(em||'📦', .5);
-      item.position.set(0, 1.05, 0.12);
-      w.add(item);w.userData.carry=item;
-      /* walk back to barn */
-      walker.path=back;walker.t=0;walker.speed=.75;
-      walker.onArrive=()=>{
-        /* drop into barn */
-        if(w.userData.carry){w.remove(w.userData.carry);w.userData.carry=null}
-        root.remove(w);
-        harvestQueue=Math.max(0,harvestQueue-1);
-        /* tiny barn "stored" flash */
-        const flash=emojiSprite('✅', .4);
-        flash.position.set(BARN_DOOR.x, 1.2, BARN_DOOR.z);
-        root.add(flash);
-        followPath(flash, [{x:BARN_DOOR.x,z:BARN_DOOR.z},{x:BARN_DOOR.x,z:BARN_DOOR.z}], 2, ()=>{try{root.remove(flash)}catch(e){}}, 0);
-        setTimeout(()=>{try{root.remove(flash)}catch(e){}}, 400);
-      };
-      convItems.push(walker);
-    };
-    convItems.push(walker);
-  }, delay*1000);
+
+function enqueueCollect(job){
+  collectQueue.push(job);
+  pumpCollectQueue();
+}
+function pumpCollectQueue(){
+  while(activeWorkers<MAX_WORKERS && collectQueue.length){
+    const job=collectQueue.shift();
+    startWorkerJob(job);
+  }
+}
+function startWorkerJob(job){
+  if(!ready||!root){
+    /* fallback: finish instantly if 3D not ready */
+    finishHarvest(job);return;
+  }
+  activeWorkers++;
+  const w=mkWorker();
+  w.position.set(BARN_DOOR.x, 0, BARN_DOOR.z);
+  root.add(w);
+  const fromX=job.sx, fromZ=job.sz, em=job.em;
+  const toPlot=[
+    {x:BARN_DOOR.x, z:BARN_DOOR.z},
+    {x:(BARN_DOOR.x+fromX)*.55, z:(BARN_DOOR.z+fromZ)*.55 + 1.0},
+    {x:fromX, z:fromZ}
+  ];
+  const back=[
+    {x:fromX, z:fromZ},
+    {x:(BARN_DOOR.x+fromX)*.55, z:(BARN_DOOR.z+fromZ)*.55 - 0.8},
+    {x:BARN_DOOR.x, z:BARN_DOOR.z}
+  ];
+  function go(path, speed, then){
+    convItems.push({g:w, path:path, t:0, speed:speed, face:true, baseY:0, bob:.025, onArrive:then});
+  }
+  /* 1) walk empty-handed to the plot */
+  go(toPlot, .9, function(){
+    /* 2) pick up the goods — attach emoji so the return trip is never empty-handed */
+    const item=emojiSprite(em, .5);
+    item.position.set(0.18, 0.95, 0.1);
+    w.add(item);
+    w.userData.carry=item;
+    /* 3) walk back to the barn carrying the item */
+    go(back, .8, function(){
+      /* 4) deliver into barn */
+      if(w.userData.carry){try{w.remove(w.userData.carry)}catch(e){}w.userData.carry=null}
+      try{root.remove(w)}catch(e){}
+      activeWorkers=Math.max(0, activeWorkers-1);
+      finishHarvest(job);
+      pop('+1 '+em,'gain');
+      pumpCollectQueue(); /* start next queued job */
+    });
+  });
 }
 
-/* ---- short loading ramp only at the barn door (not across fields) ---- */
+/* short dock at barn door only */
 function buildBelt(){
-  if(beltGroup){root.remove(beltGroup);beltGroup=null}
+  if(beltGroup){try{root.remove(beltGroup)}catch(e){}beltGroup=null}
+  if(!root)return;
   beltGroup=new THREE.Group();root.add(beltGroup);
-  /* small dock / ramp from door to truck park */
   const a=BARN_DOOR, b=TRUCK_PARK;
   const dx=b.x-a.x, dz=b.z-a.z, len=Math.hypot(dx,dz)||1;
   const midX=(a.x+b.x)/2, midZ=(a.z+b.z)/2, ang=-Math.atan2(dz,dx);
   const rail=M3('b',0x5a4a3a,len+.25,.05,.42,midX,.07,midZ,beltGroup);rail.rotation.y=ang;
   const belt=M3('b',0x333333,len,.03,.28,midX,.12,midZ,beltGroup);belt.rotation.y=ang;
   for(let k=0;k<3;k++){
-    const t=(k+.5)/3, x=a.x+dx*t, z=a.z+dz*t;
-    const roll=M3('y',0xffd166,.11,.035,.11,x,.15,z,beltGroup);roll.rotation.z=Math.PI/2;
+    const t=(k+.5)/3;
+    const roll=M3('y',0xffd166,.11,.035,.11,a.x+dx*t,.15,a.z+dz*t,beltGroup);roll.rotation.z=Math.PI/2;
   }
-  /* door mat */
   M3('b',0xc0392b,1.0,.04,.8,BARN_DOOR.x,.05,BARN_DOOR.z+.35,beltGroup);
 }
 
@@ -11095,7 +11114,7 @@ function mkTruck(){
   M3('b',0x2c3e50,.7,.45,.85,.75,.42,0,g);
   M3('b',0x85c1e9,.48,.24,.7,.82,.58,0,g);
   [[-.55,-.34],[-.55,.34],[.55,-.34],[.55,.34]].forEach(p=>{
-    const w=M3('y',0x222222,.15,.15,.11,p[0],.15,p[1],g);w.rotation.z=Math.PI/2;
+    const wh=M3('y',0x222222,.15,.15,.11,p[0],.15,p[1],g);wh.rotation.z=Math.PI/2;
   });
   const cab=label('🚚',1);cab.position.set(0,1.2,0);cab.scale.set(1.5,.55,1);g.add(cab);
   g.visible=false;return g;
@@ -11106,8 +11125,7 @@ function startTruck(onDone){
   if(truck){try{root.remove(truck)}catch(e){}truck=null}
   truck=mkTruck();root.add(truck);
   truck.position.set(TRUCK_PARK.x-10, 0, TRUCK_PARK.z);
-  truck.rotation.y=Math.PI;
-  truck.visible=true;
+  truck.rotation.y=Math.PI;truck.visible=true;
   truckState={phase:'arrive', t:0, onDone, loadLeft:0};
   say('🚚 Truck arriving at the barn…');
 }
@@ -11116,35 +11134,30 @@ function updateTruck(dt){
   if(!truckState||!truck)return;
   const s=truckState;s.t+=dt;
   if(s.phase==='arrive'){
-    const u=Math.min(1, s.t/2.4);
-    const ease=1-Math.pow(1-u,2);
+    const u=Math.min(1,s.t/2.4), ease=1-Math.pow(1-u,2);
     truck.position.x=(TRUCK_PARK.x-10)+(TRUCK_PARK.x-(TRUCK_PARK.x-10))*ease;
     truck.position.z=TRUCK_PARK.z;
     if(u>=1){
       s.phase='load';s.t=0;s.loadLeft=5;
       say('📦 Loading goods from the barn…');
-      const loadPath=[BARN_DOOR, {x:(BARN_DOOR.x+TRUCK_PARK.x)/2, z:BARN_DOOR.z}, TRUCK_PARK];
+      const loadPath=[BARN_DOOR,{x:(BARN_DOOR.x+TRUCK_PARK.x)/2,z:BARN_DOOR.z},TRUCK_PARK];
       const ems=['📦','🥕','🥚','🐟','🌽','🥛','🧶'];
       for(let k=0;k<5;k++){
         setTimeout(()=>{
           if(!truckState||truckState.phase!=='load')return;
-          const item=emojiSprite(ems[k%ems.length], .48);
-          item.position.set(BARN_DOOR.x, .6, BARN_DOOR.z);
-          root.add(item);
-          const it=followPath(item, loadPath, .65, ()=>{
+          const item=emojiSprite(ems[k%ems.length],.48);
+          item.position.set(BARN_DOOR.x,.6,BARN_DOOR.z);root.add(item);
+          convItems.push({g:item, path:loadPath, t:0, speed:.65, baseY:.55, bob:.03, onArrive:()=>{
+            try{root.remove(item)}catch(e){}
             s.loadLeft=Math.max(0,(s.loadLeft||1)-1);
-          }, .03);
-          it.baseY=.55;
-        }, 280+k*520); /* lined up one-by-one */
+          }});
+        }, 280+k*520);
       }
     }
   }else if(s.phase==='load'){
-    if((s.t>4.5 && s.loadLeft<=0) || s.t>7){
-      s.phase='depart';s.t=0;say('🛒 Off to market!');
-    }
+    if((s.t>4.5 && s.loadLeft<=0)||s.t>7){s.phase='depart';s.t=0;say('🛒 Off to market!')}
   }else if(s.phase==='depart'){
-    const u=Math.min(1, s.t/2.6);
-    const ease=u*u;
+    const u=Math.min(1,s.t/2.6), ease=u*u;
     truck.position.x=TRUCK_PARK.x+(-22-TRUCK_PARK.x)*ease;
     truck.position.z=TRUCK_PARK.z-ease*2.5;
     if(u>=1){
@@ -11154,10 +11167,8 @@ function updateTruck(dt){
   }
 }
 
-/* keep old name so harvest call sites still work */
-function spawnConv(fromX, fromZ, em){
-  spawnWorkerPickup(fromX, fromZ, em);
-}
+/* legacy name kept so any old call sites still compile */
+function spawnConv(fromX,fromZ,em){ /* no-op: harvest() queues workers directly */ }
 
 const safe=f=>(...a)=>{try{return f(...a)}catch(e){console.warn('farm3d',e);if(ready){ready=0;setTimeout(render,0)}}};
 const geo=k=>GC[k]||(GC[k]=k==='b'?new THREE.BoxGeometry(1,1,1):k==='s'?new THREE.SphereGeometry(1,8,6):k==='c'?new THREE.ConeGeometry(1,1,6):k==='y'?new THREE.CylinderGeometry(1,1,1,8):new THREE.TorusGeometry(.38,.05,6,16));
@@ -11339,7 +11350,7 @@ function setScene(){const key=G.land.map((l,p)=>l?(l.u||'n')[0]:(G.coins>=price(
  barn();
  buildBelt();
  convItems.forEach(it=>{try{if(it.g&&it.g.parent)it.g.parent.remove(it.g);else if(it.g)root.remove(it.g)}catch(e){}});convItems=[];
- harvestQueue=0;
+ activeWorkers=0;collectQueue=[];
  if(truck){try{root.remove(truck)}catch(e){}truck=null;truckState=null}
  root.add(D);D.traverse(o=>{o.matrixAutoUpdate=false;o.updateMatrix()})}
 const IC={};function setIc(e,em){if(!em){if(e.ic)e.ic.visible=false;return}
