@@ -11107,10 +11107,10 @@ const stopFor=j=>({x:j.sx,z:pc(j.p).z+PP/2+.35});
 function enqueueCollect(j){j.kind='collect';jobQ.push(j);pump()}
 function enqueueFeed(j){j.kind='feed';jobQ.push(j);pump()}
 function pump(){if(jobQ.length&&jobQ.length<CAPF()&&!pump.go&&busyT<FLN()){clearTimeout(pump.t);pump.t=setTimeout(()=>{pump.go=1;try{pump()}finally{pump.go=0}},1500);return}
- while(busyT<FLN()&&jobQ.length){const kind=jobQ[0].kind,b=[],take=new Set();
- for(let i=0;i<jobQ.length&&b.length<CAPF();){const j=jobQ[i];if(j.kind!==kind){i++;continue}if(claimedPlots.has(j.p)&&!take.has(j.p)){i++;continue}
-  if(!take.has(j.p)&&b.length&&b.length+1>CAPF()){i++;continue}take.add(j.p);b.push(jobQ.splice(i,1)[0])}
- for(let i=0;i<jobQ.length&&b.length<CAPF();){const j=jobQ[i];if(j.kind===kind&&take.has(j.p))b.push(jobQ.splice(i,1)[0]);else i++}
+ while(busyT<FLN()&&jobQ.length){const hj=jobQ.find(j=>!claimedPlots.has(j.p));if(!hj)break;const kind=hj.kind,b=[],take=new Set(),free=new Set();
+ jobQ.forEach(j=>{if(j.kind===kind&&!claimedPlots.has(j.p))free.add(j.p)});if(!free.size)break;
+ const idle=Math.max(1,FLN()-busyT),maxP=Math.max(1,Math.ceil(free.size/idle));
+ for(let i=0;i<jobQ.length&&b.length<CAPF();){const j=jobQ[i];if(j.kind!==kind||claimedPlots.has(j.p)||(!take.has(j.p)&&take.size>=maxP)){i++;continue}take.add(j.p);b.push(jobQ.splice(i,1)[0])}
  if(!b.length)break;if(!ready||!WORLD){b.forEach(j=>kind==='feed'?doFeed(j):finishHarvest(j));continue}trip(b,kind)}}
 function doFeed(j){const c=j.c;if(!c)return;const now=Date.now(),fed=c.fed!=null?c.fed:c.t;c.t+=Math.max(0,now-Math.max(fed+HUNGER_MS,c.t));c.fed=now;delete c._feeding;paint()}
 function mkWorker(){const g=new THREE.Group(),sh=[0x2f6fb8,0xc0392b,0x8e44ad,0xe67e22,0x16a085,0xd4a017][Math.floor(Math.random()*6)],sk=[0xf2c9a0,0xd9a273,0x8d5a3b][Math.floor(Math.random()*3)],b=new THREE.Group();b.position.y=.42;g.add(b);g.b=b;g.legs=[];g.arms=[];
