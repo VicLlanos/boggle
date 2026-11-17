@@ -10844,13 +10844,22 @@ CR.forEach(c=>{c.t*=6;c.sell=Math.round(c.sell*2.2);c.xp*=3});FS.forEach(f=>{f.t
 const ANI=[['chicken','','Chicken','Animal',1,40,45,15,3,'','Egg'],['duck','','Duck','Animal',3,90,70,34,5,'','Duck Egg'],['sheep','','Sheep','Animal',5,200,110,90,9,'','Wool'],['pig','','Pig','Animal',7,400,150,170,14,'','Bacon'],['cow','','Cow','Animal',9,800,200,360,25,'','Milk'],['goat','','Goat','Animal',11,1300,260,600,38,'','Cheese'],['rabbit','','Rabbit','Animal',2,65,55,22,4,'','Fur'],['turkey','','Turkey','Animal',6,300,130,120,11,'','Turkey Egg'],['alpaca','','Alpaca','Animal',13,1900,320,780,46,'','Fleece']].map(a=>{const x=mk(a);x.pe=a[9];x.pn=a[10];return x});
 ANI.forEach(a=>{a.t*=2;a.sell=Math.round(a.sell*1.8)});ANI.forEach(x=>{IT[x.id]=x;IT['p_'+x.id]={id:'p_'+x.id,e:x.pe,n:x.pn,k:'Product',sell:x.sell,xp:0}});
 const USE={crop:{n:'Crop field',e:'',v:' Planted',list:CR,fee:0,lvl:1,btn:' Harvest all'},pen:{n:'Animal pen',e:'',v:' Added',list:ANI,fee:80,lvl:2,btn:' Collect products'},pond:{n:'Fish pond',e:'',v:' Stocked',list:FS,fee:250,lvl:5,btn:' Catch all'}};
+const SEA=[{n:'Spring',k:['Vegetable'],d:'Vegetables'},{n:'Summer',k:['Fruit','Plant'],d:'Fruit & flowers'},{n:'Autumn',k:['Product','Good'],d:'Animal goods & crafts'},{n:'Winter',k:['Fish'],d:'Fish'}],SLEN=20*60e3,SEAS=()=>Math.floor(Date.now()/SLEN)%4;
+const BLD={mill:{n:'Mill',c:900,l:4,col:0xc8a165},dairy:{n:'Dairy',c:1800,l:8,col:0xf0efe8},bakery:{n:'Bakery',c:2800,l:10,col:0xd9a066},smoke:{n:'Smokehouse',c:4000,l:12,col:0x7a5a46}},BLDPOS={mill:[-44,7.2],dairy:[-38.5,7.2],bakery:[-33,7.2],smoke:[-27.5,7.2]};
+const GD=[['g_flour','mill','Flour',{corn:3},50,0xf3ead2],['g_oil','mill','Sunflower Oil',{sunflower:3},60,0xf2c14e],['g_butter','dairy','Butter',{p_cow:2},70,0xffe58a],['g_yogurt','dairy','Yogurt',{p_cow:3},80,0xf4f4ff],['g_bread','bakery','Bread',{g_flour:2},80,0xc98a45],['g_jam','bakery','Strawberry Jam',{strawberry:3},70,0xc2185b],['g_salmon','smoke','Smoked Salmon',{salmon:2},90,0xe9967a],['g_tuna','smoke','Smoked Tuna',{tuna:2},100,0x8a3b3b]].map(a=>({id:a[0],b:a[1],n:a[2],in:a[3],t:a[4],col:a[5]})),GDm={};
+GD.forEach(g=>{g.sell=Math.round(Object.keys(g.in).reduce((t,k)=>t+IT[k].sell*g.in[k],0)*1.5);GDm[g.id]=g;IT[g.id]={id:g.id,e:'',n:g.n,k:'Good',sell:g.sell,xp:0,col:g.col}});
+const DECO=[{id:'flower',n:'Flower bed',c:80,l:1},{id:'hay',n:'Hay bales',c:120,l:2},{id:'bench',n:'Bench',c:150,l:3},{id:'scare',n:'Scarecrow',c:200,l:3},{id:'lamp',n:'Lamp post',c:260,l:5},{id:'tree',n:'Shade tree',c:400,l:6},{id:'flag',n:'Flag pole',c:900,l:7},{id:'fount',n:'Fountain',c:1500,l:9}],
+ PET={dog:{n:'Farm dog',c:600,l:3,d:'Animals stay fed 25% longer'},cat:{n:'Farm cat',c:400,l:2,d:'+10% market order rewards'}},
+ WK={water:{n:'Waterer',c:500,l:3,d:'Waters thirsty crops automatically'},feed:{n:'Feeder',c:1500,l:6,d:'Sends the feed tractor when animals are hungry'},pick:{n:'Collector',c:3000,l:9,d:'Sends tractors to harvest ripe goods'}},
+ SLOTS=[[-45,3.2],[-39,3.2],[-36,3.2],[-33,3.2],[-30,3.2],[-27.5,3.2],[-45,10],[-39,10],[-36,10],[-33,10],[-30,10],[-27.5,10]];
+const px=id=>Math.round(IT[id].sell*(SEA[SEAS()].k.includes(IT[id].k)?1.3:1)*(1+.01*(G.dec?G.dec.length:0)));
 const owned=g=>g.land.filter(Boolean).length;
 const pc=p=>({x:(p%COLS-(COLS-1)/2)*PP,z:(Math.floor(p/COLS)-(ROWS-1)/2)*PP});
 const price=p=>{const a=pc(p),b=pc(START);return Math.round((120+22*Math.pow(owned(G),1.45))*(1+.03*Math.hypot(a.x-b.x,a.z-b.z)/PP)/10)*10};
 const need=()=>Math.min(30,1+Math.floor(owned(G)*.35));
 const adj=p=>{const c=p%COLS,r=Math.floor(p/COLS);for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const x=c+a,y=r+b;if((a||b)&&x>=0&&x<COLS&&y>=0&&y<ROWS&&G.land[y*COLS+x])return true}return false};
 const canBuy=p=>!FARM(p)&&!G.land[p]&&adj(p);
-const AC=[['First Harvest','Harvest your first crop',g=>g.st.h>=1,20],['Green Thumb','Harvest 50 crops',g=>g.st.h>=50,100],['Harvest King','Harvest 250 crops',g=>g.st.h>=250,500],['Crop Collector','Harvest 6 different crops',g=>CR.filter(c=>g.st.seen[c.id]).length>=6,250],['Pocket Change','Earn 500 coins',g=>g.st.earned>=500,50],['Rich Farmer','Earn 5,000 coins',g=>g.st.earned>=5000,300],['Tycoon','Earn 50,000 coins',g=>g.st.earned>=50000,2000],['Rising Star','Reach level 5',g=>g.lvl>=5,100],['Veteran','Reach level 10',g=>g.lvl>=10,500],['Landowner','Own 3 land plots',g=>owned(g)>=3,100],['Estate','Own 8 land plots',g=>owned(g)>=8,600],['Land Baron','Own every plot',g=>owned(g)>=N-FARM0.w*FARM0.h,3000],['Rancher','Collect 25 animal products',g=>g.st.prod>=25,300],['Fishery','Build a fish pond',g=>g.land.some(p=>p&&p.u==='pond'),300],['Angler','Catch 10 fish',g=>g.st.fish>=10,400],['Aquarium','Catch every fish species',g=>FS.every(f=>g.st.seen[f.id]),1500],['Modern Barn','Upgrade the barn to Lv 3',g=>(g.bl||0)>=2,800],['Full Fleet','Own all 16 tractors',g=>g.tr&&Object.keys(g.tr).reduce((a,k)=>a+g.tr[k],0)>=16,5000]];
+const AC=[['First Harvest','Harvest your first crop',g=>g.st.h>=1,20],['Green Thumb','Harvest 50 crops',g=>g.st.h>=50,100],['Harvest King','Harvest 250 crops',g=>g.st.h>=250,500],['Crop Collector','Harvest 6 different crops',g=>CR.filter(c=>g.st.seen[c.id]).length>=6,250],['Pocket Change','Earn 500 coins',g=>g.st.earned>=500,50],['Rich Farmer','Earn 5,000 coins',g=>g.st.earned>=5000,300],['Tycoon','Earn 50,000 coins',g=>g.st.earned>=50000,2000],['Rising Star','Reach level 5',g=>g.lvl>=5,100],['Veteran','Reach level 10',g=>g.lvl>=10,500],['Landowner','Own 3 land plots',g=>owned(g)>=3,100],['Estate','Own 8 land plots',g=>owned(g)>=8,600],['Land Baron','Own every plot',g=>owned(g)>=N-FARM0.w*FARM0.h,3000],['Rancher','Collect 25 animal products',g=>g.st.prod>=25,300],['Fishery','Build a fish pond',g=>g.land.some(p=>p&&p.u==='pond'),300],['Angler','Catch 10 fish',g=>g.st.fish>=10,400],['Aquarium','Catch every fish species',g=>FS.every(f=>g.st.seen[f.id]),1500],['Modern Barn','Upgrade the barn to Lv 3',g=>(g.bl||0)>=2,800],['Full Fleet','Own all 16 tractors',g=>g.tr&&Object.keys(g.tr).reduce((a,k)=>a+g.tr[k],0)>=16,5000],['Order Master','Deliver 10 market orders',g=>(g.st.ord||0)>=10,600],['Chef','Craft 10 goods in the workshop',g=>(g.st.craft||0)>=10,600]];
 let G,tab='farm',sel=-1,modal='',S={crop:'carrot',pen:'chicken',pond:'carp'},tm,lastK='',PT=null,camMoved=0,halo;
 const xpNeed=l=>40+l*30,fmt=s=>s>=60?Math.floor(s/60)+'m '+Math.floor(s%60)+'s':Math.ceil(s)+'s';
 const isCrop=c=>{const k=IT[c.id].k;return k!=='Animal'&&k!=='Fish'};
@@ -10862,13 +10871,13 @@ function st(c){const it=IT[c.id],now=Date.now();if(c.g==null){c.g=Math.min(it.t,
  return now>c.w+GR(it)?'dead':now>c.w?'dry':'grow'}
 const elapsed=c=>{const fed=c.fed!=null?c.fed:c.t;return Math.min(Date.now(),fed+HUNGER_MS)-c.t};
 const isRdy=c=>!!c&&!c._collecting&&(isCrop(c)?st(c)==='ready':elapsed(c)>=IT[c.id].t);
-const HUNGER_MS=8*60e3; /* animals & fish get hungry after ~8 minutes without feed */
+let HUNGER_MS=8*60e3; /* animals & fish get hungry after ~8 minutes without feed */
 const isHungry=c=>{if(!c||c._feeding||isCrop(c))return false;const fed=c.fed!=null?c.fed:c.t;return Date.now()-(fed||0)>HUNGER_MS};
 
 const tsnd=()=>{try{snd('tap')}catch(e){}};
 const E9=()=>Array(9).fill(null);
 const P=()=>[].concat(...G.land.filter(p=>p&&p.u==='crop').map(p=>p.s));
-function norm(){if(!G.fl)G.fl={n:2,cap:0};if(!G.tr){const o=G.fl.n||2;G.tr={crop:1,feed:1,animal:1,fish:1};if(o>2)G.coins+=o>3?2400:600}if(G.bl==null)G.bl=0}
+function norm(){if(!G.fl)G.fl={n:2,cap:0};if(!G.tr){const o=G.fl.n||2;G.tr={crop:1,feed:1,animal:1,fish:1};if(o>2)G.coins+=o>3?2400:600}if(G.bl==null)G.bl=0;if(!G.ord)G.ord=[];if(!G.dec)G.dec=[];if(!G.pr)G.pr={};if(!G.pet)G.pet={};if(!G.wk)G.wk={};HUNGER_MS=(G.pet.dog?10:8)*60e3}
 let farmSavedAt=0,farmCloudReady=false,farmCloudTimer=null;
 function load(){
  let stored=null;try{stored=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -10967,8 +10976,8 @@ function feedAll(){
 function all(p){let n=0,z=0;G.land.forEach((l,q)=>{if(!l||!l.u||(p>=0&&q!==p))return;l.s.forEach((c,i)=>{if(c&&c._collecting)return;if(isRdy(c)){if(harvest(l.s,i,q))n++}else if(c&&l.u==='crop'){const x=st(c);if(x==='rot'||x==='dead'){l.s[i]=null;z++}}})});
  pop(n?' Workers collecting '+n+'…'+(z?' · cleared '+z:''):z?' Cleared '+z:'Nothing ready yet',n?'gain':'wait');if(n||z)tsnd();if(z)done()}
 function shipKeys(ids){const ks=[];ids.forEach(id=>{const n=Math.min(G.inv[id]||0,6);for(let q=0;q<n;q++)ks.push(id)});return ks.slice(0,16)}
-function sell(id){const n=G.inv[id]||0;if(!n)return;const m=n*IT[id].sell,ks=shipKeys([id]);G.inv[id]=0;gain(m);pop('+$'+m,'gain');say('Sold '+n+' '+IT[id].n+' · +$'+m);shipOut(ks);done()}
-function sellAll(){const ids=Object.keys(G.inv).filter(i=>G.inv[i]>0);if(!ids.length)return;let t=0;const ks=shipKeys(ids);ids.forEach(i=>{t+=G.inv[i]*IT[i].sell;G.inv[i]=0});gain(t);pop('+$'+t,'gain');say('Sold everything · +$'+t);shipOut(ks);done()}
+function sell(id){const n=G.inv[id]||0;if(!n)return;const m=n*px(id),ks=shipKeys([id]);G.inv[id]=0;gain(m);pop('+$'+m,'gain');say('Sold '+n+' '+IT[id].n+' · +$'+m);shipOut(ks);done()}
+function sellAll(){const ids=Object.keys(G.inv).filter(i=>G.inv[i]>0);if(!ids.length)return;let t=0;const ks=shipKeys(ids);ids.forEach(i=>{t+=G.inv[i]*px(i);G.inv[i]=0});gain(t);pop('+$'+t,'gain');say('Sold everything · +$'+t);shipOut(ks);done()}
 function buy(p){if(FARM(p)){say('The farmstead is not for sale');return}if(!canBuy(p)){say('Buy land next to a plot you already own');return}const c=price(p);if(G.lvl<need()){say('Reach level '+need()+' to buy more land');return}if(G.coins<c){say('Not enough coins');return}G.coins-=c;G.land[p]={u:null,s:E9()};say('Land purchased! Choose how to use it');done()}
 function setUse(p,k){const x=USE[k];if(G.lvl<x.lvl){say(' Reach level '+x.lvl);return}if(G.coins<x.fee){say('Not enough coins $');return}G.coins-=x.fee;G.land[p].u=k;say(x.e+' '+x.n+' ready!');done()}
 function clearPlot(p){const l=G.land[p];if(!l||!l.u)return;if(l.s.some(c=>c&&(c._collecting||c._feeding))){say('Workers are busy here, try again in a moment');return}
@@ -10983,6 +10992,32 @@ const TN=j=>G&&G.tr?G.tr[j]||0:0,jobOf=(it,k)=>k==='feed'?'feed':it.k==='Animal'
 function buyTr(j){const d=TRJ[j];if(!d)return;const n=G.tr[j];if(n>=4){say('You already have 4 '+d.n+'s');return}if(G.lvl<d.l[n]){say('Reach level '+d.l[n]+' to buy this tractor');return}if(G.coins<d.c[n]){say('Not enough coins');return}G.coins-=d.c[n];G.tr[j]++;say(d.n+' joined your fleet!');done()}
 function upBarn(){const b=G.bl,u=BUP[b];if(!u){say('Your barn is fully upgraded');return}if(G.lvl<u.l){say('Reach level '+u.l+' to upgrade the barn');return}if(G.coins<u.c){say('Not enough coins');return}G.coins-=u.c;G.bl++;
  if(ready&&WORLD){BELTG.forEach(o=>WORLD.remove(o));BELTG.length=0;belts.length=0;barn();buildBelt();ck=''}say('Barn upgraded: '+u.n+'!');done()}
+function newOrd(){const a=[];CR.concat(FS).forEach(x=>{if(x.lvl<=G.lvl)a.push(x.id)});ANI.forEach(x=>{if(x.lvl<=G.lvl)a.push('p_'+x.id)});GD.forEach(g=>{if(G.pr[g.b])a.push(g.id)});const id=a[Math.floor(Math.random()*a.length)],x=IT[id],n=id.startsWith('g_')?2+(Math.random()*3|0):3+(Math.random()*7|0);return{id,n,pay:Math.round(x.sell*n*1.5),xp:Math.round((x.xp||6)*n*.4)+5}}
+const opay=o=>Math.round(o.pay*(G.pet.cat?1.1:1));
+function deliver(k){const o=G.ord[k];if(!o)return;if((G.inv[o.id]||0)<o.n){say('You need '+o.n+' '+IT[o.id].n+' for this order');return}G.inv[o.id]-=o.n;const p=opay(o);gain(p);addXp(o.xp);G.st.ord=(G.st.ord||0)+1;G.ord[k]=newOrd();pop('+$'+p,'gain');say('Order delivered · +$'+p+' · +'+o.xp+' XP');done()}
+function fx3d(){if(ready&&WORLD){buildProc();buildDecor();buildPets();ck=''}}
+function buildP(b){const d=BLD[b];if(!d||G.pr[b])return;if(G.lvl<d.l){say('Reach level '+d.l+' to build the '+d.n);return}if(G.coins<d.c){say('Not enough coins');return}G.coins-=d.c;G.pr[b]={j:null};fx3d();say(d.n+' built! See it south of the barn');done()}
+function make(id){const r=GDm[id],bd=G.pr[r.b];if(!bd){say('Build the '+BLD[r.b].n+' first');return}if(bd.j){say(BLD[r.b].n+' is busy right now');return}
+ if(Object.keys(r.in).some(k=>(G.inv[k]||0)<r.in[k])){say('Not enough ingredients in the barn');return}Object.keys(r.in).forEach(k=>G.inv[k]-=r.in[k]);bd.j={g:id,end:Date.now()+r.t*1000};say('Making '+r.n+'…');done()}
+function procTick(){let ch=0;Object.keys(G.pr).forEach(b=>{const d=G.pr[b];if(d&&d.j&&Date.now()>=d.j.end){const r=GDm[d.j.g];G.inv[r.id]=(G.inv[r.id]||0)+1;addXp(10);G.st.craft=(G.st.craft||0)+1;d.j=null;say(r.n+' is ready in the barn!');ch=1}});if(ch)done();else if(modal==='proc'&&Object.keys(G.pr).some(b=>G.pr[b]&&G.pr[b].j))render()}
+function buyDeco(id){const d=DECO.find(x=>x.id===id);if(G.dec.length>=SLOTS.length){say('Your farm is full of decorations');return}if(G.lvl<d.l){say('Reach level '+d.l);return}if(G.coins<d.c){say('Not enough coins');return}G.coins-=d.c;G.dec.push(id);fx3d();say(d.n+' placed · +1% sell bonus');done()}
+function buyPet(k){const d=PET[k];if(G.pet[k])return;if(G.lvl<d.l){say('Reach level '+d.l);return}if(G.coins<d.c){say('Not enough coins');return}G.coins-=d.c;G.pet[k]=1;HUNGER_MS=(G.pet.dog?10:8)*60e3;fx3d();say(d.n+' joined the farm!');done()}
+function hire(k){const d=WK[k];if(G.wk[k])return;if(G.lvl<d.l){say('Reach level '+d.l);return}if(G.coins<d.c){say('Not enough coins');return}G.coins-=d.c;G.wk[k]=1;fx3d();say(d.n+' hired!');done()}
+function autoWater(){let n=0;G.land.forEach(l=>{if(l&&l.u==='crop')l.s.forEach(c=>{if(c&&waterIt(c))n++})});if(n)done();return n}
+const anyHungry=()=>G.land.some(l=>l&&(l.u==='pen'||l.u==='pond')&&l.s.some(c=>c&&!c._feeding&&isHungry(c))),anyReady=()=>G.land.some(l=>l&&l.u&&l.s.some(c=>c&&!c._collecting&&isRdy(c)&&TN(jobOf(IT[c.id]))));
+function startWx(){FX.k=SEAS()===3?'snow':'rain';FX.t=45;if(FX.k==='rain'){const n=autoWater();say('It started raining'+(n?' · '+n+' crops watered':''))}else say('It started snowing')}
+function applySeason(){if(!SC)return;const c=[0xbfe6ff,0xa4defa,0xf0cf9a,0xdbe6f0][SEAS()];SC.background.set(c);SC.fog.color.set(c)}
+function tickX(){procTick();if(FX.s!==SEAS()){FX.s=SEAS();applySeason()}if(FX.t<=0&&Math.random()<1/140)startWx();
+ tickX.n=(tickX.n||0)+1;if(G.wk.water&&tickX.n%45===0)autoWater();if(G.wk.feed&&tickX.n%30===0&&TN('feed')&&anyHungry())feedAll();if(G.wk.pick&&tickX.n%40===0&&anyReady())all(-1)}
+function tabs(){return '<div style="display:flex;gap:6px;margin:4px 0 10px;overflow-x:auto">'+[['barn','Barn'],['ord','Orders'],['proc','Workshop'],['shop','Shop'],['ach','Awards']].map(t=>'<button class="btn '+(modal===t[0]?'btn-gold':'btn-mint')+'" style="padding:6px 10px;flex:none" data-a="tab" data-id="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'}
+function seasonLine(){const q=SEA[SEAS()],l=Math.ceil((SLEN-Date.now()%SLEN)/60000);return '<div class="fm-info"><b>'+q.n+'</b> · '+q.d+' sell +30% · '+l+'m left'+(G.dec.length?' · decor +'+G.dec.length+'%':'')+'</div>'}
+function vOrd(){while(G.ord.length<3)G.ord.push(newOrd());return '<div class="fm-info">Deliver goods from the barn for bonus pay'+(G.pet.cat?' (cat bonus +10%)':'')+'</div>'+G.ord.map((o,k)=>{const x=IT[o.id],h=G.inv[o.id]||0,ok=h>=o.n;return '<div class="fm-r"><i>'+ico(o.id,'i')+'</i><span><b>'+o.n+' × '+x.n+'</b><small>You have '+h+' · +'+o.xp+' XP</small></span><button class="btn '+(ok?'btn-mint':'btn-gold')+'" data-a="deliver" data-id="'+k+'">'+(ok?'Deliver':'Need')+' $'+opay(o)+'</button></div>'}).join('')}
+function vProc(){let h='<div class="fm-info">Turn raw goods from the barn into valuable products. Tap a building on the farm to open this.</div>';Object.keys(BLD).forEach(b=>{const d=BLD[b],bd=G.pr[b];h+='<div class="fm-sh" style="margin-top:8px"><span>'+d.n+(bd&&bd.j?' · making '+GDm[bd.j.g].n+' '+Math.max(0,Math.ceil((bd.j.end-Date.now())/1000))+'s':'')+'</span></div>';
+ if(!bd){h+='<div class="fm-r"><i></i><span><b>Build the '+d.n+'</b><small>Appears south of the barn</small></span><button class="btn btn-gold" data-a="build" data-id="'+b+'">$'+d.c+(G.lvl<d.l?' · Lv '+d.l:'')+'</button></div>';return}
+ GD.filter(g=>g.b===b).forEach(g=>{h+='<div class="fm-r"><i>'+ico(g.id,'i')+'</i><span><b>'+g.n+' · $'+px(g.id)+'</b><small>'+Object.keys(g.in).map(k=>g.in[k]+'× '+IT[k].n+' ('+(G.inv[k]||0)+')').join(', ')+' · '+g.t+'s</small></span><button class="btn btn-mint" data-a="make" data-id="'+g.id+'">'+(bd.j?'Busy':'Make')+'</button></div>'})});return h}
+function vShop(){let h='<div class="fm-sh"><span>Decorations '+G.dec.length+'/'+SLOTS.length+' · +1% sell each</span></div>';DECO.forEach(d=>{const n=G.dec.filter(x=>x===d.id).length;h+='<div class="fm-r"><i></i><span><b>'+d.n+(n?' ×'+n:'')+'</b><small>Placed around the farmstead</small></span><button class="btn btn-mint" data-a="deco" data-id="'+d.id+'">$'+d.c+(G.lvl<d.l?' · Lv '+d.l:'')+'</button></div>'});
+ h+='<div class="fm-sh" style="margin-top:8px"><span>Pets</span></div>';Object.keys(PET).forEach(k=>{const d=PET[k];h+='<div class="fm-r"><i></i><span><b>'+d.n+'</b><small>'+d.d+'</small></span>'+(G.pet[k]?'<em>Owned</em>':'<button class="btn btn-mint" data-a="pet" data-id="'+k+'">$'+d.c+(G.lvl<d.l?' · Lv '+d.l:'')+'</button>')+'</div>'});
+ h+='<div class="fm-sh" style="margin-top:8px"><span>Farmhands</span></div>';Object.keys(WK).forEach(k=>{const d=WK[k];h+='<div class="fm-r"><i></i><span><b>'+d.n+'</b><small>'+d.d+'</small></span>'+(G.wk[k]?'<em>Hired</em>':'<button class="btn btn-gold" data-a="hire" data-id="'+k+'">$'+d.c+(G.lvl<d.l?' · Lv '+d.l:'')+'</button>')+'</div>'});return h}
 function upTr(){const f=G.fl;if(f.cap>=5){say('Tractors are fully upgraded');return}if(G.lvl<UPL[f.cap]){say('Reach level '+UPL[f.cap]+' to upgrade');return}if(G.coins<UPC[f.cap]){say('Not enough coins');return}G.coins-=UPC[f.cap];f.cap++;say('Bigger trailers! Each tractor now carries '+CAPF());done()}
 function vGarage(){const D={crop:'Harvests vegetables & fruit',fish:'Hauls the catch from ponds',animal:'Collects eggs, wool, milk & more',feed:'Carries feed from the barn to animals & fish'};
  let h='<div class="fm-sh" style="margin-top:12px"><span>Garage · max 4 per job</span></div>';
@@ -10997,7 +11032,7 @@ function sheet(){if(sel<0)return '';const l=G.land[sel],X=t=>'<div class="fm-sh"
  if(!l.u)return X(' Your new land — what will you build?')+'<div class="fm-use">'+Object.keys(USE).map(k=>{const u=USE[k],lk=G.lvl<u.lvl;return '<button data-a="use" data-u="'+k+'"'+(lk?' class="lk"':'')+'><i>'+ico({crop:'carrot',pen:'cow',pond:'carp'}[k],k==='pen'?'a':k==='pond'?'f':'c')+'</i><b>'+u.n+'</b><small>'+(u.fee?'$'+u.fee:'Free')+(lk?' ·  L'+u.lvl:'')+'</small></button>'}).join('')+'</div>';
  const u=USE[l.u];return X(u.e+' '+u.n+' · '+l.s.filter(Boolean).length+'/9')+bar(u.list,S[l.u])+info(S[l.u])+(l.u==='crop'?'<div class="fm-2"><button class="btn btn-gold" data-a="waterall"> Water all</button><button class="btn btn-mint" data-a="harvest">'+u.btn+'</button></div>':'<button class="btn btn-mint fm-w" data-a="harvest">'+u.btn+'</button>')+CLR}
 function vBarn(){const ids=Object.keys(G.inv).filter(i=>G.inv[i]>0);if(!ids.length)return '<div class="fm-empty"><div style="font-size:3rem"></div><p>Your barn is empty. Harvest crops, collect animal goods or catch fish, then sell them here.</p></div>';
- const tot=ids.reduce((s,i)=>s+G.inv[i]*IT[i].sell,0);return ids.map(i=>{const x=IT[i];return '<div class="fm-r"><i>'+ico(i,'i')+'</i><span><b>'+x.n+'</b> ×'+G.inv[i]+'<small>$'+x.sell+' each</small></span><button class="btn btn-mint" data-a="sell" data-id="'+i+'">Sell $'+G.inv[i]*x.sell+'</button></div>'}).join('')+'<button class="btn btn-gold" style="width:100%;margin-top:8px" data-a="sellall"> Sell everything · $'+tot+'</button>'}
+ const tot=ids.reduce((s,i)=>s+G.inv[i]*px(i),0);return ids.map(i=>{const x=IT[i];return '<div class="fm-r"><i>'+ico(i,'i')+'</i><span><b>'+x.n+'</b> ×'+G.inv[i]+'<small>$'+px(i)+' each</small></span><button class="btn btn-mint" data-a="sell" data-id="'+i+'">Sell $'+G.inv[i]*px(i)+'</button></div>'}).join('')+'<button class="btn btn-gold" style="width:100%;margin-top:8px" data-a="sellall"> Sell everything · $'+tot+'</button>'}
 const vAch=()=>AC.map(a=>'<div class="fm-r'+(G.ach[a[0]]?' ok':'')+'"><i>'+(G.ach[a[0]]?'':'')+'</i><span><b>'+a[0]+'</b><small>'+a[1]+'</small></span><em>+'+a[3]+' $</em></div>').join('');
 function hint(){}
 /* ---- guided tutorial ---- */
@@ -11052,7 +11087,7 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
  if(a==='sel'){const l=G.land[sel];if(G.lvl<IT[id].lvl){say(' Reach level '+IT[id].lvl+' to unlock '+IT[id].n);return}S[l.u]=id;render()}
  else if(a==='harvest')all(sel);else if(a==='collect')all(-1);else if(a==='feed')feedAll();else if(a==='sell')sell(id);else if(a==='sellall')sellAll();
  else if(a==='waterall')waterAll(sel);else if(a==='water')waterAll(-1);else if(a==='buy')buy(sel);else if(a==='use')setUse(sel,t.dataset.u);
- else if(a==='clear')clearPlot(sel);else if(a==='buytr')buyTr(id);else if(a==='upbarn')upBarn();else if(a==='uptr')upTr();else if(a==='barn'||a==='ach'){modal=a;render()}else if(a==='closeM'){modal='';render()}else if(a==='closeS'){sel=-1;render()}
+ else if(a==='clear')clearPlot(sel);else if(a==='buytr')buyTr(id);else if(a==='upbarn')upBarn();else if(a==='tab'){modal=id;render()}else if(a==='deliver')deliver(+id);else if(a==='build')buildP(id);else if(a==='make')make(id);else if(a==='deco')buyDeco(id);else if(a==='pet')buyPet(id);else if(a==='hire')hire(id);else if(a==='uptr')upTr();else if(a==='barn'||a==='ach'){modal=a;render()}else if(a==='closeM'){modal='';render()}else if(a==='closeS'){sel=-1;render()}
  else if(a==='map'){sel=-1;modal='';gx=gz=0;dist=80;foc=1;render()}});
 
 /* ---- 3D view (three.js, lightweight) ---- */
@@ -11061,7 +11096,7 @@ let PM,GM,DM,MKG,MKO,MKN,HG,HM,SUN;const GC={},MC={},RC={};
 /* ===== Farm Valley v3: tractor, conveyors, truck, 3D item icons (no emoji) ===== */
 const MKX=-53,MKZ=28;let later=[],clouds=[],WM=null,WORLD,mv_=[],arcs=[],jobQ=[],busyT=0,truck=null,ts=null,belts=[],barnTiles=[],claimedPlots=new Set();
 const GWc=COLS*PP,GHc=ROWS*PP,RZ=r=>r*PP-GHc/2,BZ=RZ(6),BX=-32.5,XW=PP-GWc/2,XE=4*PP-GWc/2,WRD=-48.6,DOOR={x:BX,z:BZ+2},DOCK={x:BX,z:RZ(8)-1.8},TRK={x:BX+.6,z:RZ(8)},
- usedSl=new Set(),MAXT=2,CAP=12;let BV=.9,BARN=null;const busyJ={crop:0,feed:0,animal:0,fish:0},BELTG=[],LBN={crop:'Crops',fish:'Fish',animal:'Produce',feed:'Feed'},LANES={};LJ.forEach((j,k)=>{const d=k<2?1:-1;LANES[j]={job:j,road:RZ(7)+(k%2?.45:-.35),hx:BX+[-4,-1.6,1.6,4][k],hz:RZ(7)-1.5,ez:BZ+2,x0:d>0?XW:XE,dir:d}});
+ usedSl=new Set(),MAXT=2,CAP=12;let BV=.9,BARN=null;const PROCG=[],DECG=[],PETG=[],procTiles=[],FX={t:0,k:'rain',s:-1,p:null};const busyJ={crop:0,feed:0,animal:0,fish:0},BELTG=[],LBN={crop:'Crops',fish:'Fish',animal:'Produce',feed:'Feed'},LANES={};LJ.forEach((j,k)=>{const d=k<2?1:-1;LANES[j]={job:j,road:RZ(7)+(k%2?.45:-.35),hx:BX+[-4,-1.6,1.6,4][k],hz:RZ(7)-1.5,ez:BZ+2,x0:d>0?XW:XE,dir:d}});
 function mkWheel(r,w,hub){const g=new THREE.Group(),t=M3('y',0x1c1c1c,r,w,r,0,0,0,g);t.rotation.z=PI/2;const h=M3('y',hub,r*.55,w*1.06,r*.55,0,0,0,g);h.rotation.z=PI/2;
  for(let i=0;i<14;i++){const a=i*PI/7,l=M3('b',0x141414,w*1.02,.05,.1,0,sn(a)*r,cs(a)*r,g);l.rotation.x=-a}g.r=r;return g}
 function mkTractor(job){const g=new THREE.Group(),GR=({feed:0xe8821e,animal:0xc0392b,fish:0x1f78c8})[job]||0x3a7d1e,Y=0xf2c200,tw=[],GL={transparent:true,opacity:.45};
@@ -11081,9 +11116,35 @@ function mkTruck(){const g=new THREE.Group(),B=0x1f5fa8;
  M3('b',0x8a5f33,.96,.08,1.2,0,.52,-.45,g);[-.48,.48].forEach(x=>M3('b',0x8a5f33,.05,.34,1.2,x,.74,-.45,g));M3('b',0x8a5f33,.96,.34,.05,0,.74,-1.05,g);M3('b',0x8a5f33,.96,.45,.05,0,.78,.15,g);
  g.wh=[];[[.62],[-.5],[-.85]].forEach(a=>[-.45,.45].forEach(x=>{const w=mkWheel(.26,.16,0x999999);w.position.set(x,.26,a[0]);g.add(w);g.wh.push(w)}));
  const bed=new THREE.Group();bed.position.set(0,.56,-.45);g.add(bed);g.bed=bed;return g}
+function extras(){if(!ready||!WORLD)return;buildProc();buildDecor();buildPets();applySeason()}
+function buildProc(){PROCG.forEach(o=>WORLD.remove(o));PROCG.length=0;procTiles.length=0;Object.keys(BLD).forEach(b=>{if(!G.pr[b])return;const P=BLDPOS[b],g=new THREE.Group(),mm=(k,c,a,bb,d,x,y,z)=>M3(k,c,a,bb,d,x,y,z,g);g.position.set(P[0],0,P[1]);
+ const bd=mm('b',BLD[b].col,3,1.8,2.6,0,.9,0);bd.userData={k:'proc'};procTiles.push(bd);mm('b',0x8b3a2e,3.4,.3,3,0,2,0);mm('b',0x8b3a2e,2.6,.3,2.4,0,2.3,0);mm('b',0x777777,.4,1,.4,.9,2.7,.6);mm('b',0x5a3a1e,.7,1.1,.06,0,.55,1.32);mm('b',0x9fd3ee,.6,.5,.06,-.9,1.1,1.32);
+ const sp=label(BLD[b].n,1);sp.position.set(0,3.5,0);sp.scale.set(1.7,.64,1);g.add(sp);WORLD.add(g);PROCG.push(g)})}
+function decoMesh(id){const g=new THREE.Group(),m=(k,c,a,b,d,x,y,z,o)=>M3(k,c,a,b,d,x,y,z,g,o);
+ if(id==='flower'){m('b',0x6b4a2a,1.4,.2,.9,0,.1,0);[[-.5,-.2,0xff5a7a],[0,.1,0xffd54f],[.5,-.15,0xb48cff],[-.2,.25,0xff9a3c],[.3,.25,0xffffff]].forEach(p=>{m('y',0x3b8f3f,.03,.3,.03,p[0],.2,p[1]);m('s',p[2],.12,.12,.12,p[0],.5,p[1])})}
+ else if(id==='hay'){m('y',0xe3c26a,.5,.8,.5,-.5,.4,0);m('y',0xd9b550,.5,.8,.5,.5,.4,0);m('y',0xe3c26a,.5,.8,.5,0,1.1,0)}
+ else if(id==='bench'){m('b',0x8a5f33,1.4,.1,.5,0,.45,0);m('b',0x8a5f33,1.4,.5,.08,0,.8,-.22);[-.6,.6].forEach(x=>m('b',0x5a3a1e,.1,.45,.5,x,.22,0))}
+ else if(id==='scare'){m('y',0x8a5f33,.06,1.6,.06,0,.8,0);m('b',0x8a5f33,1.2,.06,.06,0,1.2,0);m('s',0xe3c26a,.2,.2,.2,0,1.7,0);m('y',0x6b4a2a,.3,.06,.3,0,1.88,0);m('y',0x6b4a2a,.17,.2,.17,0,2,0);m('b',0xc0392b,.5,.6,.2,0,1.1,0)}
+ else if(id==='lamp'){m('y',0x333333,.05,2.2,.05,0,1.1,0);m('s',0xfff2b0,.2,.2,.2,0,2.3,0,{emissive:0xffd860});m('y',0x333333,.15,.08,.15,0,.04,0)}
+ else if(id==='tree'){m('y',0x6d4c41,.12,1.2,.12,0,.6,0);m('s',0x2e8b3a,.8,.7,.8,0,1.6,0);m('s',0x3aa65c,.55,.5,.55,.2,2.1,.1)}
+ else if(id==='flag'){m('y',0xdddddd,.04,2.6,.04,0,1.3,0);m('b',0xc0392b,.6,.4,.03,.32,2.3,0)}
+ else{m('y',0xb0b6bc,.9,.35,.9,0,.17,0);m('y',0x4aa3e0,.78,.05,.78,0,.36,0,{transparent:true,opacity:.8});m('y',0xb0b6bc,.12,.9,.12,0,.7,0);m('s',0x8fd3ff,.28,.18,.28,0,1.2,0,{transparent:true,opacity:.8})}
+ return g}
+function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;G.dec.forEach((id,i)=>{const p=SLOTS[i];if(!p)return;const g=decoMesh(id);g.position.set(p[0],0,p[1]);g.rotation.y=(i%3-1)*.3;WORLD.add(g);DECG.push(g)})}
+function petMesh(k){const g=new THREE.Group(),c=k==='dog'?0xb07a43:0x9a9a9a,z=k==='dog'?1:.75,m=(kk,cc,a,b,d,x,y,zz)=>M3(kk,cc,a*z,b*z,d*z,x*z,y*z,zz*z,g);
+ m('b',c,.55,.3,.28,0,.4,0);m('s',c,.17,.16,.16,.34,.55,0);m('b',0x3a2a1a,.08,.06,.08,.5,.52,0);[[-.2,-.1],[-.2,.1],[.2,-.1],[.2,.1]].forEach(p=>m('b',c,.07,.28,.07,p[0]*1.2,.14,p[1]));m('b',c,.3,.06,.06,-.38,.55,0);[-.09,.09].forEach(q=>m('b',k==='dog'?0x6b4423:c,.05,.1,.05,.32,.7,q));g.scale.setScalar(1.6);return g}
+function buildPets(){PETG.forEach(p=>WORLD.remove(p.g));PETG.length=0;const at=g=>{g.position.set(-40+Math.random()*8,0,4+Math.random()*4);WORLD.add(g)};
+ Object.keys(G.pet).forEach(k=>{if(!G.pet[k])return;const g=petMesh(k);at(g);PETG.push({g,sp:1.4,k:'p'})});Object.keys(G.wk).forEach(k=>{if(!G.wk[k])return;const g=mkWorker();at(g);PETG.push({g,sp:1.1,k:'w'})})}
+function updateFx(dt){if(FX.t>0){FX.t-=dt;if(!FX.p){const n=450,ps=new Float32Array(n*3);for(let i=0;i<n;i++){ps[i*3]=(Math.random()-.5)*70;ps[i*3+1]=Math.random()*30;ps[i*3+2]=(Math.random()-.5)*70}const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.BufferAttribute(ps,3));FX.p=new THREE.Points(gg,new THREE.PointsMaterial({size:.3,transparent:true,opacity:.85}));FX.p.frustumCulled=false;SC.add(FX.p)}
+  FX.p.visible=true;FX.p.material.color.set(FX.k==='snow'?0xffffff:0x9ec8ff);const a=FX.p.geometry.attributes.position,sp=FX.k==='snow'?3:22;for(let i=0;i<a.count;i++){let y=a.getY(i)-sp*dt;if(y<0)y+=30;a.setY(i,y)}a.needsUpdate=true;FX.p.position.set(tx,0,tz)}else if(FX.p)FX.p.visible=false;
+ PETG.forEach(p=>{const o=p.g;if(!p.tg||Math.hypot(p.tg.x-o.position.x,p.tg.z-o.position.z)<.3){p.tg={x:-46+Math.random()*19,z:2.2+Math.random()*8.3};p.w=Math.random()*3}
+  if(p.w>0){p.w-=dt;if(o.legs){o.legs[0].rotation.x=o.legs[1].rotation.x=0}return}
+  const dx=p.tg.x-o.position.x,dz=p.tg.z-o.position.z,d=Math.hypot(dx,dz)||1,st=p.sp*dt;o.position.x+=dx/d*st;o.position.z+=dz/d*st;o.rotation.y=p.k==='p'?Math.atan2(-dz,dx):Math.atan2(dx,dz);
+  if(o.legs){const q=sn(T*9)*.6;o.legs[0].rotation.x=q;o.legs[1].rotation.x=-q}else o.position.y=Math.abs(sn(T*8))*.05})}
 function mkSack(){const g=new THREE.Group();M3('b',0xd9b44a,.34,.22,.3,0,.11,0,g);M3('b',0xb8902e,.36,.04,.32,0,.23,0,g);return g}
 function mkCrate(k){const g=new THREE.Group();M3('b',0xb88a4a,.34,.2,.3,0,.1,0,g);M3('b',0x8a6428,.36,.03,.32,0,.2,0,g);const m=itemMesh(k);m.scale.setScalar(.7);m.position.y=.24;g.add(m);return g}
 function itemMesh(k){const g=new THREE.Group(),I=IT[k];
+ if(I&&I.k==='Good'){M3('b',I.col,.26,.2,.22,0,.1,0,g);M3('b',0xfff6dc,.27,.07,.23,0,.13,0,g);return g}
  if(I&&I.k==='Fish'){const f=fish(k);f.scale.setScalar(.8);f.position.y=.1;g.add(f);return g}
  if(I&&I.k!=='Product'){const ge=cropGeo(k).f;ge.computeBoundingBox();const b=ge.boundingBox,z=new THREE.Vector3(),c=new THREE.Vector3();b.getSize(z);b.getCenter(c);const s=.3/Math.max(z.x,z.y,z.z),me=new THREE.Mesh(ge,PM);me.scale.setScalar(s);me.position.set(-c.x*s,-c.y*s+.12,-c.z*s);g.add(me);return g}
  const o=k.slice(2);
@@ -11122,7 +11183,7 @@ function buildWorld(){WORLD=new THREE.Group();SC.add(WORLD);const GW=COLS*PP,GH=
  const O=new THREE.Object3D(),inst=(a,k,c)=>{if(!a.length)return;const m=new THREE.InstancedMesh(geo(k),mat(c),a.length);a.forEach((v,i)=>{O.position.set(v[0],v[1],v[2]);O.scale.set(v[3],v[4],v[5]);O.updateMatrix();m.setMatrixAt(i,O.matrix)});m.frustumCulled=false;m.castShadow=true;D.add(m)};
  inst(L.tr,'y',0x7a4b25);inst(L.c1,'c',0x2f8f4e);inst(L.c2,'c',0x3aa65c);WORLD.add(D);barn();
  
- scenery();buildBelt()}
+ scenery();buildBelt();extras()}
 function scenery(){const GW=COLS*PP,GH=ROWS*PP,HX=GW/2,HZ=GH/2,O=new THREE.Object3D();let sd=11;const rn=()=>(sd=sd*16807%2147483647)/2147483647;
  
  const post=[];for(let c=0;c<=COLS*2;c++){const x=-HX+c*PP/2;post.push([x,-HZ-.3],[x,HZ+.3])}for(let r=0;r<=ROWS*2;r++){const z=-HZ+r*PP/2;post.push([HX+.3,z]);if(z<-17||z>6)post.push([-HX-.3,z])}
@@ -11152,7 +11213,7 @@ function updateConv(dt){
   g.position.x+=dx/d*st;g.position.z+=dz/d*st;if(g.wh)g.wh.forEach(w=>w.rotation.x+=st/w.r);if(g.legs){const q=sn(T*11)*.7;g.legs[0].rotation.x=q;g.legs[1].rotation.x=-q;g.arms[0].rotation.x=-q*.8;g.arms[1].rotation.x=q*.8}
   if(o.turn!==false){const h=Math.atan2(dx,dz);let df=h-g.rotation.y;df=Math.atan2(sn(df),cs(df));g.rotation.y+=df*Math.min(1,dt*(g.legs?9:4))}}
  for(let k=arcs.length-1;k>=0;k--){const o=arcs[k];o.t+=dt/o.d;const u=Math.min(1,o.t);o.m.position.set(o.a.x+(o.b.x-o.a.x)*u,o.a.y+(o.b.y-o.a.y)*u+sn(PI*u)*.9,o.a.z+(o.b.z-o.a.z)*u);if(u>=1){arcs.splice(k,1);o.done&&o.done()}}
- belts.forEach(b=>{b.tex.offset.x-=b.dir*dt*BV/.32;b.rl.forEach(r=>r.rotation.y+=b.dir*dt*BV/.06)});clouds.forEach(c=>{c.position.x+=dt*.7;if(c.position.x>110)c.position.x=-110});if(WM)WM.rotation.z-=dt*.7;updateTruck(dt)}
+ belts.forEach(b=>{b.tex.offset.x-=b.dir*dt*BV/.32;b.rl.forEach(r=>r.rotation.y+=b.dir*dt*BV/.06)});clouds.forEach(c=>{c.position.x+=dt*.7;if(c.position.x>110)c.position.x=-110});if(WM)WM.rotation.z-=dt*.7;updateTruck(dt);updateFx(dt)}
 const stopFor=j=>({x:j.sx,z:pc(j.p).z+PP/2+.35});
 function enqueueCollect(j){j.kind='collect';j.job=jobOf(j.it);jobQ.push(j);pump()}
 function enqueueFeed(j){j.kind='feed';j.job='feed';jobQ.push(j);pump()}
@@ -11441,7 +11502,7 @@ function barn(){if(BARN)WORLD.remove(BARN);barnTiles.length=0;const L=G.bl||0,B=
 function roads(){const C=0x8d8577,R=(x0,x1,z)=>{M3('b',C,Math.abs(x1-x0)+GAP,.04,GAP-.1,(x0+x1)/2,.02,z,root);M3('b',0xe8d9a0,Math.abs(x1-x0)+GAP,.01,.05,(x0+x1)/2,.045,z,root)},V=(x,z0,z1)=>{M3('b',C,GAP-.1,.04,Math.abs(z1-z0)+GAP,x,.02,(z0+z1)/2,root);M3('b',0xe8d9a0,.05,.01,Math.abs(z1-z0)+GAP,x,.045,(z0+z1)/2,root)};
  const rows={};let zmin=RZ(7),zmax=RZ(7);G.land.forEach((l,p)=>{if(!l||!l.u)return;const z=pc(p).z+PP/2,x=pc(p).x+PP/2;rows[z]=Math.max(rows[z]==null?-1e9:rows[z],x);zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)});
  Object.keys(rows).forEach(z=>R(XW,Math.max(XE,rows[z]),+z));R(XW,XE,RZ(7));V(XW,zmin,zmax);V(XE,zmin,zmax);R(WRD,TRK.x+.6,TRK.z)}
-function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.slice();hov=-1;
+function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.concat(procTiles);hov=-1;
  halo=M3('b',0xfff2a8,PP-GAP+.25,.02,PP-GAP+.25,0,-.1,0,root);halo.visible=false;roads();
  if(G.land.some(Boolean))for(let p=0;p<N;p++)if(canBuy(p)){const{x,z}=pc(p);M3('b',0xe6d27a,PP-GAP-.2,.03,PP-GAP-.2,x,.01,z,root,{transparent:true,opacity:.17})}
  for(let p=0;p<N;p++){const l=G.land[p];if(!l)continue;const{x,z}=pc(p);
@@ -11484,6 +11545,7 @@ function hit(e){const r=cvs.getBoundingClientRect();if(!RC.r)RC.r=new THREE.Rayc
 const setHover=()=>{},hoverAt=()=>{};
 const onTap=safe(e=>{const u=hit(e);PT={x:e.clientX,y:e.clientY};if(!u){if(sel>=0){sel=-1;render()}return}
  if(u.k==='barn'){sel=-1;modal='barn';render();return}
+ if(u.k==='proc'){sel=-1;modal='proc';render();return}
  if(u.k==='parcel'||sel!==u.p){sel=u.p;const c=pc(u.p);gx=c.x;gz=c.z;foc=1;if(dist>20)dist=17;render();return}
  tap(u.p,u.i)});
 function ctl(){const P=new Map();let pd=0,mv=0;const cl=v=>Math.max(-54,Math.min(54,v)),zm=v=>dist=Math.max(8,Math.min(85,v));
@@ -11510,10 +11572,10 @@ function render(){
  const sh=$('fmSheet'),ob=sh.querySelector('.fm-bar'),sl=ob?ob.scrollLeft:0,l=sel>=0&&G.land[sel],k=sel+':'+(l?l.u:''),same=lastK===k,h=sheet();
  sh.innerHTML=h;sh.className=h?'on':'';$('fmDock').style.display=h?'none':'';
  const nb=sh.querySelector('.fm-bar');if(nb){if(same)nb.scrollLeft=sl;else{const s=nb.querySelector('.sel');if(s)nb.scrollLeft=Math.max(0,s.offsetLeft-nb.clientWidth/2+s.offsetWidth/2)}}lastK=k;
- const m=$('fmModal');m.className=modal?'on':'';m.innerHTML=modal?'<div class="fm-mc"><div class="fm-sh"><span>'+(modal==='barn'?' Barn &amp; Garage':' Awards')+'</span><button class="fm-x" data-a="closeM" aria-label="Close">✕</button></div>'+(modal==='barn'?vBarn()+vGarage():vAch())+'</div>':'';
+ const m=$('fmModal'),ms0=m.querySelector('.fm-mc'),mt0=ms0?ms0.scrollTop:0;m.className=modal?'on':'';m.innerHTML=modal?'<div class="fm-mc"><div class="fm-sh"><span>'+'Farm'+'</span><button class="fm-x" data-a="closeM" aria-label="Close">✕</button></div>'+tabs()+(modal==='barn'?seasonLine()+vBarn()+vGarage():modal==='ord'?vOrd():modal==='proc'?vProc():modal==='shop'?vShop():vAch())+'</div>':'';{const q=m.querySelector('.fm-mc');if(q)q.scrollTop=mt0}
  mount3();paint();tutCheck();if(tI>=0)tutRender()}
 window.openFarm=async function(){load();await loadFarmCloud();chk();boot3();sel=-1;modal='';lastK='';tI=-1;const c=pc(START);tx=gx=c.x;tz=gz=c.z;dist=17;foc=0;show('screen-farm');render();clearInterval(tm);
- tm=setInterval(()=>{if($('screen-farm').classList.contains('active')){paint();tutCheck();tutTick()}else{clearInterval(tm);tI=-1}},1000);if(!G.tut)setTimeout(()=>{if($('screen-farm').classList.contains('active')&&tI<0)startTut()},500)};
+ tm=setInterval(()=>{if($('screen-farm').classList.contains('active')){paint();tutCheck();tutTick();tickX()}else{clearInterval(tm);tI=-1}},1000);if(!G.tut)setTimeout(()=>{if($('screen-farm').classList.contains('active')&&tI<0)startTut()},500)};
 })();
 </script>
 </body>
