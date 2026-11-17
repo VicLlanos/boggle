@@ -10900,7 +10900,7 @@ function hvSync(){const h=hvd(),now=Date.now(),dt=Math.max(0,now-h.t);h.t=now;if
  const m1=Math.max(0,h.m-dt/60e3*4),avg=(h.m+m1)/2;h.m=m1;
  if(h.j<HV_CAP){h.p+=dt/HV_MS*(1+.25*hvFlowers())*hvMult(avg);const k=Math.floor(h.p);if(k>0){h.j=Math.min(HV_CAP,h.j+k);h.p-=k}if(h.j>=HV_CAP)h.p=0}
  return h}
-function hvTick(n){const h=hvd();if(n%5===0){hvSync();
+function hvTick(n){const h=hvd();if(n%5===0){hvSync();hvScan();
   if(h.j>=HV_CAP&&!h.f){h.f=1;say('Your hives are full: collect the honey!')}if(h.j<HV_CAP)h.f=0;
   if(h.m<30&&!h.w){h.w=1;say('Your bees are restless: smoke the hive!')}if(h.m>=60)h.w=0}
  if(modal==='hive'&&(n%5===0||h.c>Date.now()))render()}
@@ -10910,13 +10910,34 @@ function hvCollect(){const h=hvSync(),n=h.j;if(n<1){say('No honey yet: keep the 
  h.j=0;let rj=0;for(let i=0;i<n;i++)if(Math.random()<.08)rj++;
  G.inv.g_honey=(G.inv.g_honey||0)+n;if(rj)G.inv.g_jelly=(G.inv.g_jelly||0)+rj;G.st.prod=(G.st.prod||0)+n;G.st.seen.g_honey=1;addXp(4*n);
  fsnd(rj?'level':'coin');pop('+'+n+' Honey'+(rj?' · '+rj+' Royal Jelly!':''),'gain');done()}
+
+/* ===== Apiary: visible 3D bees ===== */
+const HVB=[];let hvTg=[],hvFlC=0;
+function hvScan(){hvFlC=hvFlowers();hvTg=[];G.land.forEach((l,p)=>{if(l&&l.u==='crop'&&l.s.some(c=>{if(!c||IT[c.id].k!=='Plant')return 0;const q=st(c);return q!=='dead'&&q!=='rot'})){const P=pc(p);hvTg.push({x:P.x,z:P.z})}})}
+function hvBuild(g){hvScan();for(let i=0;i<12;i++){const b=new THREE.Group(),body=new THREE.Mesh(new THREE.BoxGeometry(.3,.2,.2),new THREE.MeshLambertMaterial({color:0xf2c200}));b.add(body);
+ [-.03,.09].forEach(a=>M3('b',0x222222,.06,.21,.21,a,0,0,b));
+ const wg=new THREE.Group();wg.position.y=.12;M3('b',0xffffff,.14,.015,.2,0,0,0,wg,{transparent:true,opacity:.75});b.add(wg);
+ const ht=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),HM);ht.scale.set(1.1,1.1,1.1);ht.userData={k:'bee',i};b.add(ht);hiveTiles.push(ht);
+ b.position.set(0,1.4,0);g.add(b);HVB.push({g:b,body,wg,ph:i*1.7,k:i/12,mood:0,pop:0,cd:0})}}
+function hvAnim(T,dt){if(!HVB.length||!G||!G.bd||!G.bd.hive)return;const h=G.hv||{m:100},mood=h.m>=60?0:h.m>=30?1:2,nv=4+hvFlC,hx=FB.hive.x,hz=FB.hive.z;
+ HVB.forEach((b,i)=>{const on=i<nv;b.g.visible=on;if(!on)return;
+  if(b.mood!==mood){b.mood=mood;b.body.material.color.setHex(mood===2?0xe0502c:0xf2c200)}
+  const sp=mood===2?2.2:mood===1?.6:1;b.ph+=dt*sp;b.pop=Math.max(0,b.pop-dt);
+  const tg=hvTg.length&&i%2===0&&mood<2?hvTg[(i>>1)%hvTg.length]:null;let x,y,z;
+  if(tg){const tx=tg.x-hx,tz=tg.z-hz,per=6+Math.hypot(tx,tz)/3;b.k=(b.k+dt*sp/per)%1;const tri=b.k<.5?b.k*2:(1-b.k)*2,s0=Math.min(1,tri*1.5),s=s0*s0*(3-2*s0),x0=Math.cos(b.ph)*1.2,z0=Math.sin(b.ph)*1.2;
+   x=x0+(tx-x0)*s;z=z0+(tz-z0)*s;y=1.4-.4*s+Math.sin(s*Math.PI)*2+Math.sin(T*6+i)*.08}
+  else{const r=1.3+.5*Math.sin(b.ph*.7+i),a=b.ph*(1+(i%3)*.15)+i;x=Math.cos(a)*r;z=Math.sin(a)*r*.8;y=1.3+.5*Math.sin(b.ph*2+i)+(mood===2?Math.sin(T*25+i)*.12:0)}
+  const q=b.g.position;b.g.rotation.y=Math.atan2(-(z-q.z),x-q.x);q.set(x,y,z);
+  b.wg.rotation.x=Math.sin(T*55+i)*.7;b.g.scale.setScalar(b.pop>0?1.7:1)})}
+function hvBee(i){const b=HVB[i],now=Date.now();if(!b||b.pop>0||now<b.cd)return;b.pop=1.2;b.cd=now+6000;const h=hvSync();h.m=Math.min(100,h.m+3);
+ if(h.j<HV_CAP){h.p+=.25;if(h.p>=1){h.j++;h.p-=1}}fsnd('plantall');pop('Bzzz! Nectar +','gain');done()}
 function vHive(){const h=hvSync(),fl=hvFlowers(),m=Math.round(h.m),mo=m>=60?'Happy':m>=30?'Restless':'Angry',mc=m>=60?'#00B894':m>=30?'#E0A020':'#E04848',
  rate=(60e3/HV_MS*(1+.25*fl)*hvMult(h.m)).toFixed(1),cd=h.c>Date.now();
- return '<div class="fm-info">Keep the colony calm and grow flowers nearby. Honey piles up while you are away (max '+HV_CAP+' jars).</div>'
+ return '<div class="fm-info">Watch the bees on the farm: they fly out to your flower plots, and tapping one gives bonus nectar. Keep the colony calm and grow flowers nearby. Honey piles up while you are away (max '+HV_CAP+' jars).</div>'
  +'<div class="fm-r"><i>'+ico('g_honey','i')+'</i><span><b>Honey jars: '+h.j+' / '+HV_CAP+'</b><small>'+(h.j>=HV_CAP?'Hive is full!':'Making '+rate+' jars/min')+' · $'+px('g_honey')+' each</small></span><button class="btn btn-gold" data-a="hcol"'+(h.j?'':' disabled')+'>Collect</button></div>'
  +'<div class="fm-r"><i></i><span><b>Colony mood: '+mo+' ('+m+'%)</b><small><span style="display:block;height:8px;border-radius:6px;background:rgba(0,0,0,.15);margin-top:4px;overflow:hidden"><span style="display:block;height:100%;width:'+m+'%;background:'+mc+'"></span></span>Under 60% bees slow down, under 30% they stop</small></span></div>'
  +'<div class="fm-2" style="margin:6px 0"><button class="btn btn-mint" data-a="hsmoke"'+(cd?' disabled':'')+'>💨 Smoke hive (+35%)</button><button class="btn btn-gold" data-a="hfeed">🍬 Sugar syrup $'+(12+2*G.lvl)+'</button></div>'
- +'<div class="fm-r"><i></i><span><b>🌸 Flowers growing: '+fl+' / 8</b><small>Each flower crop in your fields adds +25% honey speed</small></span></div>'
+ +'<div class="fm-r"><i></i><span><b>🌸 Flowers growing: '+fl+' / 8</b><small>Each flower crop adds +25% honey speed and attracts another bee</small></span></div>'
  +'<div class="fm-info">Bake <b>Honey Cake</b> at the Bakery. Each jar has an 8% chance of rare <b>Royal Jelly</b>.</div>'}
 const UL=k=>(G&&G.up&&G.up[k])||0;
 const UPG={price:{n:'Market Stall',d:'sell price',p:6,s:'+',c:[500,1400,3200,7000,15000],l:[2,5,8,11,14]},
@@ -11259,7 +11280,7 @@ function updateSpawn(dt){if(!SPAWN.length)return;
   if(s.st===2){const e=s.t-T0-FALL;s.fx.forEach(m=>{m.position.x+=m.userData.vx*dt;m.position.z+=m.userData.vz*dt;m.userData.vy-=5*dt;m.position.y=Math.max(.1,m.position.y+m.userData.vy*dt);m.scale.setScalar(.22+e*.5);m.material.opacity=Math.max(0,.9-e*1.3)});
    const f=Math.max(0,1-e/.9);s.ring.material.opacity=f*.9;s.beam.material.opacity=f*.16;s.ring.scale.setScalar(2.4+e*3);
    if(e>1.1){s.fx.forEach(m=>{WORLD.remove(m);m.material.dispose()});WORLD.remove(s.ring,s.beam);s.ring.material.dispose();s.beam.material.dispose();s.beam.geometry.dispose();g.scale.set(1,1,1);g.position.y=0;SPAWN.splice(i,1)}}}}
-function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;hiveTiles.length=0;if(!G||!G.bd)return;
+function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;hiveTiles.length=0;HVB.length=0;if(!G||!G.bd)return;
  const T={transparent:true,opacity:.45};
  const mk={
   tower:g=>{[-.7,.7].forEach(x=>[-.7,.7].forEach(z=>M3('b',0x7a5a3a,.16,2.4,.16,x,1.2,z,g)));M3('b',0x7a5a3a,1.6,.12,.12,0,1.2,.7,g);M3('y',0x2f7fb8,1.05,1.3,1.05,0,3,0,g);M3('y',0x9aa3ab,1.1,.08,1.1,0,2.5,0,g);M3('c',0xb7312c,1.3,.8,1.3,0,4.05,0,g)},
@@ -11271,7 +11292,7 @@ function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;hiveTiles.l
    for(let i=0;i<6;i++)M3('s',0xffd400,.07,.07,.07,-1.2+i*.5,1.3+(i%3)*.25,.6-(i%2)*1.2,g)},
   green:g=>{M3('b',0xcfeeff,3.2,1,2.4,0,.5,0,g,T);[-.8,.8].forEach((x,i)=>{const r=M3('b',0xbfe3f5,1.85,.07,2.5,x,1.35,0,g,T);r.rotation.z=(i?-1:1)*.5});M3('b',0x6b6b72,3.3,.1,2.5,0,.05,0,g);
    [-1.6,1.6].forEach(x=>[-1.2,1.2].forEach(z=>M3('b',0xe8eef2,.1,1.1,.1,x,.55,z,g)));for(let r=0;r<3;r++)for(let c=0;c<4;c++)M3('b',[0x3aa65c,0xe0453a,0x6fae3f][r],.3,.25+((r+c)%2)*.15,.3,-1.05+c*.7,.2,-.7+r*.7,g)}};
- Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group();g.position.set(d.x,0,d.z);mk[k](g);if(k==='hive'){const hb=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,1.8),new THREE.MeshBasicMaterial({visible:false}));hb.position.set(0,1.2,0);hb.userData={k:'hive'};g.add(hb);hiveTiles.push(hb)}
+ Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group();g.position.set(d.x,0,d.z);mk[k](g);if(k==='hive'){const hb=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,1.8),new THREE.MeshBasicMaterial({visible:false}));hb.position.set(0,1.2,0);hb.userData={k:'hive'};g.add(hb);hiveTiles.push(hb);hvBuild(g)}
   const sp=label(d.n,1);sp.position.set(0,k==='silo'||k==='tower'?5.2:2.9,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);DECG.push(g);
   if(k===NEWB){spawnIn(g,d.x,d.z,d.n+' built!',d.d);NEWB=null}});
  G.land.forEach((l,p)=>{if(!l||l.u!=='crop'||(!l.sp&&!l.sc))return;const P=pc(p),g=new THREE.Group();g.position.set(P.x+PP/2-.7,0,P.z+PP/2-.7);
@@ -11686,7 +11707,7 @@ const frame=safe(t=>{if(!ready||document.hidden||!$('screen-farm').classList.con
   if(e.born!=null){const k=(T-e.born)/.45;if(k>=1){e.born=null;e.g.scale.setScalar(1)}else{const x=k-1;e.g.scale.setScalar(Math.max(.02,1+2.70158*x*x*x+1.70158*x*x))}}
   if(e.m){const a=T*(.35+(i%5)*.09)+i*2,r=e.f?.3:.17,x=e.x+Math.cos(a)*r,z=e.z+Math.sin(a)*r;e.g.position.set(x,e.f?.2+Math.sin(T*2+i)*.03:.05+Math.abs(Math.sin(T*5+i))*.015,z);e.g.rotation.y=-a-PI/2;if(e.rdy)e.ring.position.set(x,(e.f?.8:.9)+Math.sin(T*3)*.07,z)}
   else{if(!e.bad)e.g.rotation.z=Math.sin(T*1.4+i)*.04;if(e.rdy){e.g.position.y=.05+Math.abs(Math.sin(T*4+i))*.05;e.ring.position.y=.75+Math.sin(T*3+i)*.07}}});
- updateConv(dt);updateSpawn(dt);
+ updateConv(dt);updateSpawn(dt);hvAnim(T,dt);
  R3.render(SC,CAM)});
 const mount3=safe(()=>{if(!ready)return;setScene();const st=$('fmStage'),w=st.clientWidth||window.innerWidth,h=st.clientHeight||window.innerHeight;
  if(cvs._w!==w||cvs._h!==h){cvs._w=w;cvs._h=h;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.setViewOffset(w,h,0,Math.round(h*.09),w,h)}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
@@ -11696,6 +11717,7 @@ const setHover=()=>{},hoverAt=()=>{};
 const onTap=safe(e=>{const u=hit(e);PT={x:e.clientX,y:e.clientY};if(!u){if(sel>=0){sel=-1;render()}return}
  if(u.k==='barn'){sel=-1;modal='barn';render();return}
  if(u.k==='proc'){sel=-1;modal='proc';render();return}
+ if(u.k==='bee'){hvBee(u.i);return}
  if(u.k==='hive'){sel=-1;modal='hive';render();return}
  if(u.k==='parcel'||sel!==u.p){sel=u.p;const c=pc(u.p);gx=c.x;gz=c.z;foc=1;if(dist>20)dist=17;render();return}
  tap(u.p,u.i)});
