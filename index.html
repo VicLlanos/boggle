@@ -10865,7 +10865,8 @@ ANI.forEach(a=>{a.t*=2;a.sell=Math.round(a.sell*1.8)});ANI.forEach(x=>{IT[x.id]=
 const USE={crop:{n:'Crop field',e:'',v:' Planted',list:CR,fee:0,lvl:1,btn:' Harvest all'},pen:{n:'Animal pen',e:'',v:' Added',list:ANI,fee:80,lvl:2,btn:' Collect products'},pond:{n:'Fish pond',e:'',v:' Stocked',list:FS,fee:250,lvl:5,btn:' Catch all'}};
 const SEA=[{n:'Spring',k:['Vegetable'],d:'Vegetables'},{n:'Summer',k:['Fruit','Plant'],d:'Fruit & flowers'},{n:'Autumn',k:['Product','Good'],d:'Animal goods & crafts'},{n:'Winter',k:['Fish'],d:'Fish'}],SLEN=20*60e3,SEAS=()=>Math.floor(Date.now()/SLEN)%4;
 const BLD={mill:{n:'Mill',c:900,l:4,col:0xc8a165},dairy:{n:'Dairy',c:1800,l:8,col:0xf0efe8},bakery:{n:'Bakery',c:2800,l:10,col:0xd9a066},smoke:{n:'Smokehouse',c:4000,l:12,col:0x7a5a46}},BLDPOS={mill:[-44,7.2],dairy:[-38.5,7.2],bakery:[-33,7.2],smoke:[-27.5,7.2]};
-const GD=[['g_flour','mill','Flour',{corn:3},50,0xf3ead2],['g_oil','mill','Sunflower Oil',{sunflower:3},60,0xf2c14e],['g_butter','dairy','Butter',{p_cow:2},70,0xffe58a],['g_yogurt','dairy','Yogurt',{p_cow:3},80,0xf4f4ff],['g_bread','bakery','Bread',{g_flour:2},80,0xc98a45],['g_jam','bakery','Strawberry Jam',{strawberry:3},70,0xc2185b],['g_salmon','smoke','Smoked Salmon',{salmon:2},90,0xe9967a],['g_tuna','smoke','Smoked Tuna',{tuna:2},100,0x8a3b3b]].map(a=>({id:a[0],b:a[1],n:a[2],in:a[3],t:a[4],col:a[5]})),GDm={};
+IT.g_honey={id:'g_honey',e:'',n:'Honey',k:'Good',sell:55,xp:0,col:0xf2b01e};IT.g_jelly={id:'g_jelly',e:'',n:'Royal Jelly',k:'Good',sell:260,xp:0,col:0xfff0b8};
+const GD=[['g_flour','mill','Flour',{corn:3},50,0xf3ead2],['g_oil','mill','Sunflower Oil',{sunflower:3},60,0xf2c14e],['g_butter','dairy','Butter',{p_cow:2},70,0xffe58a],['g_yogurt','dairy','Yogurt',{p_cow:3},80,0xf4f4ff],['g_bread','bakery','Bread',{g_flour:2},80,0xc98a45],['g_jam','bakery','Strawberry Jam',{strawberry:3},70,0xc2185b],['g_salmon','smoke','Smoked Salmon',{salmon:2},90,0xe9967a],['g_tuna','smoke','Smoked Tuna',{tuna:2},100,0x8a3b3b],['g_hcake','bakery','Honey Cake',{g_flour:1,g_honey:2},90,0xe0a030]].map(a=>({id:a[0],b:a[1],n:a[2],in:a[3],t:a[4],col:a[5]})),GDm={};
 GD.forEach(g=>{g.sell=Math.round(Object.keys(g.in).reduce((t,k)=>t+IT[k].sell*g.in[k],0)*1.5);GDm[g.id]=g;IT[g.id]={id:g.id,e:'',n:g.n,k:'Good',sell:g.sell,xp:0,col:g.col}});
 const PET={dog:{n:'Farm dog',c:600,l:3,d:'Animals stay fed 25% longer'},cat:{n:'Farm cat',c:400,l:2,d:'+10% market order rewards'}},
  WK={water:{n:'Waterer',c:500,l:3,d:'Waters thirsty crops automatically'},feed:{n:'Feeder',c:1500,l:6,d:'Sends the feed tractor when animals are hungry'},pick:{n:'Collector',c:3000,l:9,d:'Sends tractors to harvest ripe goods'}},
@@ -10876,11 +10877,11 @@ const FB={tower:{n:'Water Tower',c:1500,l:4,x:-45.2,z:-15,d:'Waters every thirst
  comp:{n:'Compost Heap',c:900,l:3,x:-45.2,z:-12,d:'+10% XP from everything'},
  shed:{n:'Tool Shed',c:800,l:3,x:-45.2,z:-9.3,d:'Unlocks Sprinklers & Scarecrows for your crop plots'},
  silo:{n:'Grain Silo',c:2000,l:5,x:-41.4,z:-15,d:'+8% sell price on everything you sell'},
- hive:{n:'Apiary',c:1800,l:7,x:-41.4,z:-12,d:'Bees earn honey money every minute'},
+ hive:{n:'Apiary',c:1800,l:7,x:-41.4,z:-12,d:'Tend the bees & collect honey. Flowers boost output'},
  green:{n:'Greenhouse',c:2800,l:6,x:-41.4,z:-9.3,d:'Crops grow 15% faster'}},FBZ=-19,TOOLS={sp:{n:'Sprinkler',c:250},sc:{n:'Scarecrow',c:400}};
 let NEWB=null;const HB=k=>G&&G.bd&&G.bd[k]?1:0;
 function buyBld(k){const d=FB[k];if(!d||HB(k))return;if(G.lvl<d.l){say('Reach level '+d.l+' for the '+d.n);return}if(G.coins<d.c){say('Not enough coins');return}
- G.coins-=d.c;G.bd[k]=1;NEWB=k;modal='';sel=-1;fx3d();fsnd('level');say(d.n+' built! Look west of the barn');done()}
+ G.coins-=d.c;G.bd[k]=1;NEWB=k;modal='';sel=-1;fx3d();fsnd('level');say(d.n+' built! Look west of the barn'+(k==='hive'?' · tap it to tend the bees':''));done()}
 function buyTool(id){const l=G.land[sel],t=TOOLS[id];if(!l||l.u!=='crop'||!t||l[id])return;if(!HB('shed')){say('Build a Tool Shed first');return}if(G.coins<t.c){say('Not enough coins');return}
  G.coins-=t.c;l[id]=1;fx3d();fsnd('plantall');say(t.n+' installed on this plot!');done()}
 function toolBtns(l){if(l.u!=='crop')return '';if(!HB('shed'))return '<div class="fm-info" style="margin:0 0 8px">Build a <b>Tool Shed</b> in the Shop to unlock plot tools.</div>';
@@ -10888,7 +10889,35 @@ function toolBtns(l){if(l.u!=='crop')return '';if(!HB('shed'))return '<div class
  return '<div class="fm-2" style="margin-bottom:6px">'+b('sp','💦','Waters this plot automatically')+b('sc','🧑‍🌾','Ripe crops here never rot')+'</div><div class="fm-info" style="margin:0 0 8px">Sprinkler keeps this plot watered · Scarecrow stops ripe crops rotting.</div>'}
 function vBld(){let h='<div class="fm-sh"><span>Farm Buildings</span></div>';Object.keys(FB).forEach(k=>{const d=FB[k];h+='<div class="fm-r"><i></i><span><b>'+d.n+'</b><small>'+d.d+'</small></span>'+(HB(k)?'<em>Built</em>':'<button class="btn btn-gold" data-a="bld" data-id="'+k+'">$'+d.c.toLocaleString()+(G.lvl<d.l?' · Lv '+d.l:'')+'</button>')+'</div>'});return h}
 function toolTick(){const n=tickX.n||0;let w=0;G.land.forEach(l=>{if(!l||l.u!=='crop')return;l.s.forEach(c=>{if(!c)return;if(l.sc&&c.g!=null&&c.r!=null&&c.g>=IT[c.id].t)c.r=Date.now();if(l.sp&&n%12===0&&waterIt(c))w++})});
- if(w)done();if(HB('tower')&&n%30===0)autoWater();if(HB('hive')&&n%60===0){const m=10+2*G.lvl;gain(m);pop('🐝 Honey +$'+m,'gain');fsnd('coin');done()}}
+ if(w)done();if(HB('tower')&&n%30===0)autoWater();if(HB('hive'))hvTick(n)}
+
+/* ===== Apiary: active beekeeping ===== */
+const HV_CAP=12,HV_MS=150e3,HV_CD=20e3;
+const hvd=()=>G.hv||(G.hv={j:0,p:0,m:100,t:Date.now(),c:0});
+function hvFlowers(){let n=0;G.land.forEach(l=>{if(l&&l.u==='crop')l.s.forEach(c=>{if(c&&IT[c.id].k==='Plant'){const q=st(c);if(q!=='dead'&&q!=='rot')n++}})});return Math.min(n,8)}
+const hvMult=m=>m>=60?1:m>=30?.5:0;
+function hvSync(){const h=hvd(),now=Date.now(),dt=Math.max(0,now-h.t);h.t=now;if(!dt)return h;
+ const m1=Math.max(0,h.m-dt/60e3*4),avg=(h.m+m1)/2;h.m=m1;
+ if(h.j<HV_CAP){h.p+=dt/HV_MS*(1+.25*hvFlowers())*hvMult(avg);const k=Math.floor(h.p);if(k>0){h.j=Math.min(HV_CAP,h.j+k);h.p-=k}if(h.j>=HV_CAP)h.p=0}
+ return h}
+function hvTick(n){const h=hvd();if(n%5===0){hvSync();
+  if(h.j>=HV_CAP&&!h.f){h.f=1;say('Your hives are full: collect the honey!')}if(h.j<HV_CAP)h.f=0;
+  if(h.m<30&&!h.w){h.w=1;say('Your bees are restless: smoke the hive!')}if(h.m>=60)h.w=0}
+ if(modal==='hive'&&(n%5===0||h.c>Date.now()))render()}
+function hvSmoke(){const h=hvSync(),n=Date.now();if(n<h.c){say('Give the smoke a moment');return}h.c=n+HV_CD;h.m=Math.min(100,h.m+35);fsnd('plantall');pop('Calmer bees','gain');done()}
+function hvFeed(){const h=hvSync(),c=12+2*G.lvl;if(h.m>=95){say('The bees are already happy');return}if(G.coins<c){say('Not enough coins');return}G.coins-=c;h.m=100;fsnd('coin');pop('Bees are buzzing!','gain');done()}
+function hvCollect(){const h=hvSync(),n=h.j;if(n<1){say('No honey yet: keep the bees calm and flowers growing');return}
+ h.j=0;let rj=0;for(let i=0;i<n;i++)if(Math.random()<.08)rj++;
+ G.inv.g_honey=(G.inv.g_honey||0)+n;if(rj)G.inv.g_jelly=(G.inv.g_jelly||0)+rj;G.st.prod=(G.st.prod||0)+n;G.st.seen.g_honey=1;addXp(4*n);
+ fsnd(rj?'level':'coin');pop('+'+n+' Honey'+(rj?' · '+rj+' Royal Jelly!':''),'gain');done()}
+function vHive(){const h=hvSync(),fl=hvFlowers(),m=Math.round(h.m),mo=m>=60?'Happy':m>=30?'Restless':'Angry',mc=m>=60?'#00B894':m>=30?'#E0A020':'#E04848',
+ rate=(60e3/HV_MS*(1+.25*fl)*hvMult(h.m)).toFixed(1),cd=h.c>Date.now();
+ return '<div class="fm-info">Keep the colony calm and grow flowers nearby. Honey piles up while you are away (max '+HV_CAP+' jars).</div>'
+ +'<div class="fm-r"><i>'+ico('g_honey','i')+'</i><span><b>Honey jars: '+h.j+' / '+HV_CAP+'</b><small>'+(h.j>=HV_CAP?'Hive is full!':'Making '+rate+' jars/min')+' · $'+px('g_honey')+' each</small></span><button class="btn btn-gold" data-a="hcol"'+(h.j?'':' disabled')+'>Collect</button></div>'
+ +'<div class="fm-r"><i></i><span><b>Colony mood: '+mo+' ('+m+'%)</b><small><span style="display:block;height:8px;border-radius:6px;background:rgba(0,0,0,.15);margin-top:4px;overflow:hidden"><span style="display:block;height:100%;width:'+m+'%;background:'+mc+'"></span></span>Under 60% bees slow down, under 30% they stop</small></span></div>'
+ +'<div class="fm-2" style="margin:6px 0"><button class="btn btn-mint" data-a="hsmoke"'+(cd?' disabled':'')+'>💨 Smoke hive (+35%)</button><button class="btn btn-gold" data-a="hfeed">🍬 Sugar syrup $'+(12+2*G.lvl)+'</button></div>'
+ +'<div class="fm-r"><i></i><span><b>🌸 Flowers growing: '+fl+' / 8</b><small>Each flower crop in your fields adds +25% honey speed</small></span></div>'
+ +'<div class="fm-info">Bake <b>Honey Cake</b> at the Bakery. Each jar has an 8% chance of rare <b>Royal Jelly</b>.</div>'}
 const UL=k=>(G&&G.up&&G.up[k])||0;
 const UPG={price:{n:'Market Stall',d:'sell price',p:6,s:'+',c:[500,1400,3200,7000,15000],l:[2,5,8,11,14]},
  irr:{n:'Irrigation Pipes',d:'longer-lasting water',p:25,s:'+',c:[400,1100,2600,5500,12000],l:[2,4,7,10,13]},
@@ -11178,6 +11207,7 @@ $('screen-farm').addEventListener('click',e=>{if(e.target.id==='fmModal'){modal=
  else if(a==='harvest')all(sel);else if(a==='collect')all(-1);else if(a==='feed')feedAll();else if(a==='sell')sell(id);else if(a==='sellall')sellAll();
  else if(a==='bld')buyBld(id);else if(a==='tool')buyTool(id);else if(a==='upg')buyUp(id);else if(a==='plantall')plantAll(sel);else if(a==='waterall')waterAll(sel);else if(a==='water')waterAll(-1);else if(a==='buy')buy(sel);else if(a==='use')setUse(sel,t.dataset.u);
  else if(a==='clear')clearPlot(sel);else if(a==='buytr')buyTr(id);else if(a==='upbarn')upBarn();else if(a==='tab'){modal=id;render()}else if(a==='deliver')deliver(+id);else if(a==='build')buildP(id);else if(a==='make')make(id);else if(a==='pet')buyPet(id);else if(a==='hire')hire(id);else if(a==='uptr')upTr();else if(a==='barn'||a==='ach'){modal=a;render()}else if(a==='closeM'){modal='';render()}else if(a==='closeS'){sel=-1;render()}
+ else if(a==='hcol')hvCollect();else if(a==='hsmoke')hvSmoke();else if(a==='hfeed')hvFeed();
  else if(a==='open'){(G.nu||(G.nu={}))[id]=1;sel=-1;modal=id;render();save()}
  else if(a==='map'){sel=-1;modal='';gx=gz=0;dist=80;foc=1;render()}});
 
@@ -11187,7 +11217,7 @@ let PM,GM,DM,MKG,MKO,MKN,HG,HM,SUN;const GC={},MC={},RC={};
 /* ===== Farm Valley v3: tractor, conveyors, truck, 3D item icons (no emoji) ===== */
 const MKX=-53,MKZ=28;let later=[],clouds=[],WM=null,WORLD,mv_=[],arcs=[],jobQ=[],busyT=0,truck=null,ts=null,belts=[],barnTiles=[],claimedPlots=new Set();
 const GWc=COLS*PP,GHc=ROWS*PP,RZ=r=>r*PP-GHc/2,BZ=RZ(6),BX=-32.5,XW=PP-GWc/2,XE=4*PP-GWc/2,WRD=-48.6,DOOR={x:BX,z:BZ+2},DOCK={x:BX,z:RZ(8)-1.8},TRK={x:BX+.6,z:RZ(8)},
- usedSl=new Set(),MAXT=2,CAP=12;let BV=.9,BARN=null;const PROCG=[],DECG=[],PETG=[],procTiles=[],FX={t:0,k:'rain',s:-1,p:null};const busyJ={crop:0,feed:0,animal:0,fish:0},BELTG=[],LBN={crop:'Crops',fish:'Fish',animal:'Produce',feed:'Feed'},LANES={};LJ.forEach((j,k)=>{const d=k<2?1:-1;LANES[j]={job:j,k:k,road:RZ(7)+(k%2?.45:-.35),hx:BX+[-4,-1.6,1.6,4][k],hz:RZ(7)-1.5,ez:BZ+2,x0:d>0?XW:XE,dir:d}});
+ usedSl=new Set(),MAXT=2,CAP=12;let BV=.9,BARN=null;const PROCG=[],DECG=[],PETG=[],procTiles=[],hiveTiles=[],FX={t:0,k:'rain',s:-1,p:null};const busyJ={crop:0,feed:0,animal:0,fish:0},BELTG=[],LBN={crop:'Crops',fish:'Fish',animal:'Produce',feed:'Feed'},LANES={};LJ.forEach((j,k)=>{const d=k<2?1:-1;LANES[j]={job:j,k:k,road:RZ(7)+(k%2?.45:-.35),hx:BX+[-4,-1.6,1.6,4][k],hz:RZ(7)-1.5,ez:BZ+2,x0:d>0?XW:XE,dir:d}});
 function mkWheel(r,w,hub){const g=new THREE.Group(),t=M3('y',0x1c1c1c,r,w,r,0,0,0,g);t.rotation.z=PI/2;const h=M3('y',hub,r*.55,w*1.06,r*.55,0,0,0,g);h.rotation.z=PI/2;
  for(let i=0;i<14;i++){const a=i*PI/7,l=M3('b',0x141414,w*1.02,.05,.1,0,sn(a)*r,cs(a)*r,g);l.rotation.x=-a}g.r=r;return g}
 function mkTractor(job){const g=new THREE.Group(),GR=({feed:0xe8821e,animal:0xc0392b,fish:0x1f78c8})[job]||0x3a7d1e,Y=0xf2c200,tw=[],GL={transparent:true,opacity:.45};
@@ -11229,7 +11259,7 @@ function updateSpawn(dt){if(!SPAWN.length)return;
   if(s.st===2){const e=s.t-T0-FALL;s.fx.forEach(m=>{m.position.x+=m.userData.vx*dt;m.position.z+=m.userData.vz*dt;m.userData.vy-=5*dt;m.position.y=Math.max(.1,m.position.y+m.userData.vy*dt);m.scale.setScalar(.22+e*.5);m.material.opacity=Math.max(0,.9-e*1.3)});
    const f=Math.max(0,1-e/.9);s.ring.material.opacity=f*.9;s.beam.material.opacity=f*.16;s.ring.scale.setScalar(2.4+e*3);
    if(e>1.1){s.fx.forEach(m=>{WORLD.remove(m);m.material.dispose()});WORLD.remove(s.ring,s.beam);s.ring.material.dispose();s.beam.material.dispose();s.beam.geometry.dispose();g.scale.set(1,1,1);g.position.y=0;SPAWN.splice(i,1)}}}}
-function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;if(!G||!G.bd)return;
+function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;hiveTiles.length=0;if(!G||!G.bd)return;
  const T={transparent:true,opacity:.45};
  const mk={
   tower:g=>{[-.7,.7].forEach(x=>[-.7,.7].forEach(z=>M3('b',0x7a5a3a,.16,2.4,.16,x,1.2,z,g)));M3('b',0x7a5a3a,1.6,.12,.12,0,1.2,.7,g);M3('y',0x2f7fb8,1.05,1.3,1.05,0,3,0,g);M3('y',0x9aa3ab,1.1,.08,1.1,0,2.5,0,g);M3('c',0xb7312c,1.3,.8,1.3,0,4.05,0,g)},
@@ -11241,7 +11271,7 @@ function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;if(!G||!G.b
    for(let i=0;i<6;i++)M3('s',0xffd400,.07,.07,.07,-1.2+i*.5,1.3+(i%3)*.25,.6-(i%2)*1.2,g)},
   green:g=>{M3('b',0xcfeeff,3.2,1,2.4,0,.5,0,g,T);[-.8,.8].forEach((x,i)=>{const r=M3('b',0xbfe3f5,1.85,.07,2.5,x,1.35,0,g,T);r.rotation.z=(i?-1:1)*.5});M3('b',0x6b6b72,3.3,.1,2.5,0,.05,0,g);
    [-1.6,1.6].forEach(x=>[-1.2,1.2].forEach(z=>M3('b',0xe8eef2,.1,1.1,.1,x,.55,z,g)));for(let r=0;r<3;r++)for(let c=0;c<4;c++)M3('b',[0x3aa65c,0xe0453a,0x6fae3f][r],.3,.25+((r+c)%2)*.15,.3,-1.05+c*.7,.2,-.7+r*.7,g)}};
- Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group();g.position.set(d.x,0,d.z);mk[k](g);
+ Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group();g.position.set(d.x,0,d.z);mk[k](g);if(k==='hive'){const hb=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,1.8),new THREE.MeshBasicMaterial({visible:false}));hb.position.set(0,1.2,0);hb.userData={k:'hive'};g.add(hb);hiveTiles.push(hb)}
   const sp=label(d.n,1);sp.position.set(0,k==='silo'||k==='tower'?5.2:2.9,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);DECG.push(g);
   if(k===NEWB){spawnIn(g,d.x,d.z,d.n+' built!',d.d);NEWB=null}});
  G.land.forEach((l,p)=>{if(!l||l.u!=='crop'||(!l.sp&&!l.sc))return;const P=pc(p),g=new THREE.Group();g.position.set(P.x+PP/2-.7,0,P.z+PP/2-.7);
@@ -11622,7 +11652,7 @@ function barn(){if(BARN)WORLD.remove(BARN);barnTiles.length=0;const L=G.bl||0,B=
 function roads(){const C=0x8d8577,R=(x0,x1,z)=>{M3('b',C,Math.abs(x1-x0)+GAP,.04,GAP-.1,(x0+x1)/2,.02,z,root);M3('b',0xe8d9a0,Math.abs(x1-x0)+GAP,.01,.05,(x0+x1)/2,.045,z,root)},V=(x,z0,z1)=>{M3('b',C,GAP-.1,.04,Math.abs(z1-z0)+GAP,x,.02,(z0+z1)/2,root);M3('b',0xe8d9a0,.05,.01,Math.abs(z1-z0)+GAP,x,.045,(z0+z1)/2,root)};
  const rows={};let zmin=RZ(7),zmax=RZ(7);G.land.forEach((l,p)=>{if(!l||!l.u)return;const z=pc(p).z+PP/2,x=pc(p).x+PP/2;rows[z]=Math.max(rows[z]==null?-1e9:rows[z],x);zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)});
  Object.keys(rows).forEach(z=>R(XW,Math.max(XE,rows[z]),+z));R(XW,XE,RZ(7));V(XW,zmin,zmax);V(XE,zmin,zmax);R(WRD,TRK.x+.6,TRK.z)}
-function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.concat(procTiles);hov=-1;
+function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.concat(procTiles,hiveTiles);hov=-1;
  halo=M3('b',0xfff2a8,PP-GAP+.25,.02,PP-GAP+.25,0,-.1,0,root);halo.visible=false;roads();
  if(G.land.some(Boolean))for(let p=0;p<N;p++)if(canBuy(p)){const{x,z}=pc(p);M3('b',0xe6d27a,PP-GAP-.2,.03,PP-GAP-.2,x,.01,z,root,{transparent:true,opacity:.17})}
  for(let p=0;p<N;p++){const l=G.land[p];if(!l)continue;const{x,z}=pc(p);
@@ -11666,6 +11696,7 @@ const setHover=()=>{},hoverAt=()=>{};
 const onTap=safe(e=>{const u=hit(e);PT={x:e.clientX,y:e.clientY};if(!u){if(sel>=0){sel=-1;render()}return}
  if(u.k==='barn'){sel=-1;modal='barn';render();return}
  if(u.k==='proc'){sel=-1;modal='proc';render();return}
+ if(u.k==='hive'){sel=-1;modal='hive';render();return}
  if(u.k==='parcel'||sel!==u.p){sel=u.p;const c=pc(u.p);gx=c.x;gz=c.z;foc=1;if(dist>20)dist=17;render();return}
  tap(u.p,u.i)});
 function ctl(){const P=new Map();let pd=0,mv=0;const cl=v=>Math.max(-54,Math.min(54,v)),zm=v=>dist=Math.max(8,Math.min(85,v));
@@ -11692,7 +11723,7 @@ function render(){
  const sh=$('fmSheet'),ob=sh.querySelector('.fm-bar'),sl=ob?ob.scrollLeft:0,l=sel>=0&&G.land[sel],k=sel+':'+(l?l.u:''),same=lastK===k,h=sheet();
  sh.innerHTML=h;sh.className=h?'on':'';$('fmDock').style.display=h?'none':'';$('fmBuild').style.display=h?'none':'';updBuild();
  const nb=sh.querySelector('.fm-bar');if(nb){if(same)nb.scrollLeft=sl;else{const s=nb.querySelector('.sel');if(s)nb.scrollLeft=Math.max(0,s.offsetLeft-nb.clientWidth/2+s.offsetWidth/2)}}lastK=k;
- const m=$('fmModal'),ms0=m.querySelector('.fm-mc'),mt0=ms0?ms0.scrollTop:0;m.className=modal?'on':'';m.innerHTML=modal?'<div class="fm-mc"><div class="fm-sh"><span>'+({barn:'Barn',garage:'Garage',shop:'Farm Shop',proc:'Workshop',ord:'Market Orders',ach:'Awards'}[modal]||'Farm')+'</span><button class="fm-x" data-a="closeM" aria-label="Close">✕</button></div>'+tabs()+(modal==='barn'?seasonLine()+vBarn()+'<div class="fm-link"><button class="btn btn-mint" data-a="open" data-id="garage">Garage &amp; tractors</button><button class="btn btn-mint" data-a="open" data-id="shop">Shop</button></div>':modal==='garage'?vGarage():modal==='ord'?vOrd():modal==='proc'?vProc():modal==='shop'?vShop():vAch())+'</div>':'';{const q=m.querySelector('.fm-mc');if(q)q.scrollTop=mt0}
+ const m=$('fmModal'),ms0=m.querySelector('.fm-mc'),mt0=ms0?ms0.scrollTop:0;m.className=modal?'on':'';m.innerHTML=modal?'<div class="fm-mc"><div class="fm-sh"><span>'+({barn:'Barn',garage:'Garage',shop:'Farm Shop',proc:'Workshop',ord:'Market Orders',ach:'Awards',hive:'Apiary'}[modal]||'Farm')+'</span><button class="fm-x" data-a="closeM" aria-label="Close">✕</button></div>'+tabs()+(modal==='barn'?seasonLine()+vBarn()+'<div class="fm-link"><button class="btn btn-mint" data-a="open" data-id="garage">Garage &amp; tractors</button><button class="btn btn-mint" data-a="open" data-id="shop">Shop</button></div>':modal==='garage'?vGarage():modal==='ord'?vOrd():modal==='proc'?vProc():modal==='hive'?vHive():modal==='shop'?vShop():vAch())+'</div>':'';{const q=m.querySelector('.fm-mc');if(q)q.scrollTop=mt0}
  mount3();paint();tutCheck();if(tI>=0)tutRender()}
 window.openFarm=async function(){load();await loadFarmCloud();chk();boot3();sel=-1;modal='';lastK='';tI=-1;const c=pc(START);tx=gx=c.x;tz=gz=c.z;dist=17;foc=0;show('screen-farm');render();clearInterval(tm);
  tm=setInterval(()=>{if($('screen-farm').classList.contains('active')){paint();tutCheck();tutTick();tickX()}else{clearInterval(tm);tI=-1}},1000);if(!G.tut)setTimeout(()=>{if($('screen-farm').classList.contains('active')&&tI<0)startTut()},500)};
