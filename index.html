@@ -11247,6 +11247,7 @@ const EST={well:{n:'Stone Well',c:4000,l:4,max:2,d:'A charming stone well. Decor
  fountain:{n:'Grand Fountain',c:60000,l:13,max:3,d:'A sparkling fountain. Decoration.',s:0,x:0},
  manor:{n:'Manor House',c:150000,l:15,max:1,d:'The finest house in the valley. +5% sell price',s:5,x:0},
  statue:{n:'Golden Farmer Statue',c:500000,l:16,max:1,d:'Pure glory. Decoration.',s:0,x:0}};
+const FP={manor:[5.8,3.8],stable:[4.4,5.2],fountain:[3.8,3.8],house:[4.4,3.4]};const fpOf=k=>{const f=k.indexOf('e:')===0?(FP[k.split(':')[1]]||[3.6,3.2]):[3.6,3.2];return((G.rot&&G.rot[k])||0)%2?[f[1],f[0]]:f};
 let MV=0,MVD=null,NEWE=null,MVSEL=null,MVS=null;const brot=k=>k==='hive'?0:((G&&G.rot&&G.rot[k])||0)*PI/2;const ESTG=[];
 const EE=()=>G.est||(G.est={}),PS=()=>G.pos||(G.pos={});
 const estB=f=>{let t=0;if(G&&G.est)Object.keys(G.est).forEach(k=>{if(EST[k])t+=EST[k][f]*G.est[k].length});return t/100};
@@ -11255,37 +11256,65 @@ function bpos(k){if(k.charAt(0)==='e'&&k.charAt(1)===':'){const q=k.split(':'),e
 function setPos(k,x,z){if(k.charAt(1)===':'&&k.charAt(0)==='e'){const q=k.split(':');EE()[q[1]][q[2]]=[x,z]}else PS()[k]=[x,z]}
 function bkeys(){const a=[];Object.keys(FB).forEach(k=>{if(G.bd[k])a.push(k)});Object.keys(BLD).forEach(k=>{if(G.pr[k])a.push(k)});Object.keys(EE()).forEach(t=>EE()[t].forEach((_,i)=>a.push('e:'+t+':'+i)));return a}
 function bldOnPlot(p){const c=p%COLS,r=Math.floor(p/COLS);return bkeys().some(k=>{const q=bpos(k);return Math.floor(q[0]/PP+COLS/2)===c&&Math.floor(q[1]/PP+ROWS/2)===r})}
-function snapPos(key,x,z){const GW=COLS*PP,GH=ROWS*PP;let sx=Math.round(x*2)/2,sz=Math.round(z*2)/2,ok=false;
+function snapPos(key,x,z,ft){const GW=COLS*PP,GH=ROWS*PP;let sx=Math.round(x*2)/2,sz=Math.round(z*2)/2,ok=false;
  const x0=FARM0.c*PP-GW/2+2,x1=(FARM0.c+FARM0.w)*PP-GW/2-2,z0=FARM0.r*PP-GH/2+2,z1=(FARM0.r+FARM0.h)*PP-GH/2-2;
  if(sx>=x0&&sx<=x1&&sz>=z0&&sz<=z1){ok=!(Math.abs(sx-BX)<7&&sz>-15.5&&sz<.5)&&!(sz>-7.6&&sz<-3.6)}
  else{const c=Math.floor(x/PP+COLS/2),r=Math.floor(z/PP+ROWS/2),p=r*COLS+c;if(c>=0&&c<COLS&&r>=0&&r<ROWS&&!FARM(p)&&G.land[p]&&!G.land[p].u){const q=pc(p);sx=q.x;sz=q.z;ok=true}}
- if(ok&&bkeys().some(k=>{if(k===key)return false;const q=bpos(k);return Math.abs(q[0]-sx)<3.6&&Math.abs(q[1]-sz)<3.2}))ok=false;
+ if(ok){const A=key?fpOf(key):(ft||[3.6,3.2]);if(bkeys().some(k=>{if(k===key)return false;const q=bpos(k),B=fpOf(k);return Math.abs(q[0]-sx)<(A[0]+B[0])/2&&Math.abs(q[1]-sz)<(A[1]+B[1])/2}))ok=false}
  return{x:sx,z:sz,ok}}
-function freeSpot(){for(let z=-16;z<=10.5;z+=1)for(let x=-46;x<=-26;x+=1){const s=snapPos('',x,z);if(s.ok)return[s.x,s.z]}
- for(let p=0;p<N;p++){const l=G.land[p];if(l&&!l.u&&!FARM(p)){const q=pc(p),s=snapPos('',q.x,q.z);if(s.ok)return[s.x,s.z]}}return null}
+function freeSpot(ft){for(let z=-16;z<=10.5;z+=1)for(let x=-46;x<=-26;x+=1){const s=snapPos('',x,z,ft);if(s.ok)return[s.x,s.z]}
+ for(let p=0;p<N;p++){const l=G.land[p];if(l&&!l.u&&!FARM(p)){const q=pc(p),s=snapPos('',q.x,q.z,ft);if(s.ok)return[s.x,s.z]}}return null}
 function buyEst(k){const d=EST[k],n=(EE()[k]||[]).length;if(!d)return;if(n>=d.max){say('You already have the maximum '+d.n);return}if(G.lvl<d.l){say('Reach level '+d.l+' for the '+d.n);return}
- const c=estCost(k);if(G.coins<c){say('Not enough coins');return}const sp=freeSpot();if(!sp){say('No free space: buy more land');return}
+ const c=estCost(k);if(G.coins<c){say('Not enough coins');return}const sp=freeSpot(FP[k]);if(!sp){say('No free space: buy more land');return}
  G.coins-=c;(EE()[k]=EE()[k]||[]).push(sp);NEWE='e:'+k+':'+n;modal='';sel=-1;fx3d();fsnd('level');say(d.n+' built! Use ✥ to move it');done()}
 function vEst(){let h='<div class="fm-sh"><span>Estate</span></div><div class="fm-info">Build houses and landmarks, then drag them anywhere on your land. Prices rise with each copy.</div><div class="fm-2" style="margin-bottom:6px"><button class="btn btn-mint" data-a="mvmode">✥ Move buildings</button></div>';
  Object.keys(EST).forEach(k=>{const d=EST[k],n=(EE()[k]||[]).length;h+='<div class="fm-r"><i></i><span><b>'+d.n+' · '+n+'/'+d.max+'</b><small>'+d.d+'</small></span>'+(n>=d.max?'<em>Max</em>':'<button class="btn btn-gold" data-a="buyest" data-id="'+k+'">$'+estCost(k).toLocaleString()+(G.lvl<d.l?' · Lv '+d.l:'')+'</button>')+'</div>'});return h}
-function hs(g,w,r,W,D,H){M3('b',w,W,H,D,0,H/2,0,g);[-1,1].forEach(s=>{const p=M3('b',r,W*.62,.16,D+.5,s*W*.27,H+W*.2,0,g);p.rotation.z=-s*.75});M3('b',0x5a3a1e,.6,H*.6,.07,0,H*.3,D/2+.02,g);[-1,1].forEach(s=>M3('b',0x9fd3ee,.5,.45,.07,s*W*.3,H*.62,D/2+.02,g));M3('b',0x777777,.35,.8,.35,W*.3,H+W*.3,-D*.2,g)}
+let PRG=null;
+function prism(g,c,w,h,len,x,y0,z,ry){if(!PRG)PRG=new THREE.CylinderGeometry(1,1,1,3);const m=new THREE.Mesh(PRG,mat(c)),o=new THREE.Group(),sz=h/1.5;m.scale.set(w/1.732,len,sz);m.rotation.x=-PI/2;o.add(m);o.position.set(x,y0+.5*sz,z);o.rotation.y=ry||0;g.add(o);return o}
+function hs(g,w,r,W,D,H){M3('b',w,W,H,D,0,H/2,0,g);prism(g,r,W+.7,W*.34,D+.5,0,H,0,0);M3('b',0x5a3a1e,.6,H*.6,.07,0,H*.3,D/2+.02,g);[-1,1].forEach(s=>{M3('b',0xffffff,.56,.5,.05,s*W*.3,H*.62,D/2+.02,g);M3('b',0x9fd3ee,.46,.4,.07,s*W*.3,H*.62,D/2+.03,g)});M3('b',0x8a4a3a,.35,.9,.35,W*.3,H+W*.22,-D*.2,g)}
+const HORSES=[];
+function mkHorse(c,m){const g=new THREE.Group(),h=new THREE.Group();h.scale.setScalar(.8);g.add(h);g.legs=[];
+ M3('s',c,.3,.3,.62,0,1.05,0,h);M3('s',c,.27,.27,.3,0,1.08,.42,h);
+ const n=M3('b',c,.2,.7,.24,0,1.5,.62,h);n.rotation.x=.55;const hd=M3('b',c,.2,.22,.5,0,1.8,.95,h);hd.rotation.x=.35;M3('b',0x3a2a20,.17,.16,.12,0,1.66,1.2,h);
+ [-1,1].forEach(q=>{M3('c',c,.05,.14,.05,q*.07,2.0,.8,h);M3('s',0x111111,.025,.025,.025,q*.11,1.84,1.02,h)});
+ const mn=M3('b',m,.07,.65,.1,0,1.58,.5,h);mn.rotation.x=.55;const tl=M3('b',m,.1,.65,.1,0,.95,-.68,h);tl.rotation.x=.35;
+ [[-.15,.4],[.15,.4],[-.15,-.4],[.15,-.4]].forEach(p=>{const l=new THREE.Group();l.position.set(p[0],.78,p[1]);h.add(l);M3('b',c,.11,.78,.11,0,-.39,0,l);M3('b',0x222222,.12,.1,.12,0,-.8,0,l);g.legs.push(l)});return g}
+function addHorses(g){[[0x8b5a2b,0x3a2414,-.9],[0xf2eee4,0xcfc6b4,.9]].forEach(a=>{const h=mkHorse(a[0],a[1]);h.position.set(a[2],0,3.1);g.add(h);HORSES.push({g:h,tx:a[2],tz:3.1,w:Math.random()*2,ph:Math.random()*6})})}
+function updHorses(dt){HORSES.forEach(h=>{const g=h.g;if(!g.parent)return;if(h.w>0){h.w-=dt;g.legs.forEach(l=>l.rotation.x*=.85);return}const dx=h.tx-g.position.x,dz=h.tz-g.position.z,d=Math.hypot(dx,dz);
+ if(d<.12){h.w=1.5+Math.random()*4;h.tx=-1.5+Math.random()*3;h.tz=2.3+Math.random()*1.7;return}const st=Math.min(d,.55*dt);g.position.x+=dx/d*st;g.position.z+=dz/d*st;
+ let df=Math.atan2(dx,dz)-g.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));g.rotation.y+=df*Math.min(1,dt*5);h.ph+=dt*7;const q=Math.sin(h.ph)*.5;g.legs.forEach((l,i)=>l.rotation.x=(i%3===0?q:-q))})}
 function mkEst(t,g){
  if(t==='house')hs(g,0xf3e6c8,0xb83a2e,4,3,2.2);
  else if(t==='cottage')hs(g,0xdfe9f5,0x3b5ea8,3,2.4,1.8);
- else if(t==='manor'){hs(g,0xf2e0a8,0x6b2a2a,6,3.6,3);M3('b',0xf2e0a8,1.8,1.6,1.8,-1.6,3.6,-.4,g);M3('c',0xffd24a,1.4,1.2,1.4,-1.6,5.1,-.4,g);[-1.8,1.8].forEach(x=>M3('y',0xffffff,.18,3,.18,x,1.5,1.9,g))}
- else if(t==='stable'){hs(g,0x8a5f33,0x4a2f18,4,2.6,1.7);M3('s',0x7a4a28,.45,.3,.25,2.6,.55,.8,g);M3('s',0x7a4a28,.18,.2,.15,3,.9,.8,g);[[2.4,.5],[2.8,.5]].forEach(a=>M3('b',0x4a2f18,.07,.5,.07,a[0],.25,a[1]+.55,g))}
+ else if(t==='manor'){const W=0xeadfc0,T=0xffffff,S=0x3f4a5a,BR=0x9b4a3a,GL=0x7fb0d0,win=(x,y,z)=>{M3('b',T,.5,.7,.05,x,y,z,g);M3('b',GL,.38,.58,.07,x,y,z+.01,g)};
+  M3('b',0xb8b2a0,6.2,.14,4.3,0,.07,.1,g);M3('b',W,2.4,3.4,3,0,1.84,0,g);M3('b',T,2.5,.1,3.1,0,3.58,0,g);
+  [-1,1].forEach(s=>{M3('b',W,1.7,2.7,2.6,s*2.05,1.49,0,g);M3('b',T,1.8,.09,2.7,s*2.05,2.86,0,g);prism(g,S,2.0,1.0,2.9,s*2.05,2.9,0,0);win(s*2.05,.95,1.33);win(s*2.05,2.1,1.33);M3('b',BR,.35,1.2,.35,s*2.45,3.3,-.6,g)});
+  prism(g,S,3.3,1.2,2.8,0,3.62,0,PI/2);[-.8,0,.8].forEach(x=>win(x,2.7,1.53));[-1,1].forEach(s=>M3('b',BR,.4,1.3,.4,s*1,4.2,-.4,g));
+  M3('b',0xcfc8b4,2.3,.12,.9,0,.2,1.75,g);M3('b',0xcfc8b4,1.2,.1,.4,0,.15,2.3,g);[-.8,-.27,.27,.8].forEach(x=>M3('y',T,.11,2.7,.11,x,1.5,1.95,g));M3('b',T,2.1,.18,.6,0,2.95,1.8,g);prism(g,T,2.1,.55,.5,0,3.04,1.85,0);
+  M3('b',0x4a2f1c,.7,1.5,.06,0,.9,1.52,g);M3('b',GL,.5,.2,.07,0,1.75,1.52,g);[-1,1].forEach(s=>M3('b',0x3f8f3a,.5,.45,.5,s*1.5,.35,2.3,g))}
+ else if(t==='stable'){hs(g,0x8a5f33,0x4a2f18,4,2.6,1.7);M3('b',0x9a7a4a,4.2,.05,2.6,0,.03,3.2,g);const F=0x8a5f33;
+  M3('b',F,4.3,.08,.07,0,.5,4.5,g);M3('b',F,4.3,.08,.07,0,.9,4.5,g);[-1,1].forEach(s=>{M3('b',F,.07,.08,2.6,s*2.15,.5,3.2,g);M3('b',F,.07,.08,2.6,s*2.15,.9,3.2,g)});[-2.15,0,2.15].forEach(x=>M3('b',F,.12,1.1,.12,x,.55,4.5,g));[-1,1].forEach(s=>M3('b',F,.12,1.1,.12,s*2.15,.55,1.9,g))}
  else if(t==='haybarn'){hs(g,0xb5382f,0x6b6b6b,3.4,2.6,2.2);[0,1].forEach(i=>{const h=M3('y',0xe0c050,.5,.8,.5,2.2,.4,-.4+i*1.1,g);h.rotation.x=PI/2})}
  else if(t==='well'){M3('y',0x9aa3ab,.8,.9,.8,0,.45,0,g);M3('y',0x4a90d9,.62,.05,.62,0,.9,0,g);[-.7,.7].forEach(x=>M3('b',0x8a5f33,.1,1.6,.1,x,1.4,0,g));M3('c',0xb83a2e,1.2,.7,1.2,0,2.4,0,g)}
  else if(t==='fountain'){M3('y',0xb8bfc7,1.7,.35,1.7,0,.18,0,g);M3('y',0x7fc8f0,1.5,.05,1.5,0,.38,0,g);M3('y',0xb8bfc7,.22,1.2,.22,0,.8,0,g);M3('y',0xb8bfc7,.7,.12,.7,0,1.4,0,g);M3('s',0x9fe0ff,.35,.3,.35,0,1.65,0,g)}
  else if(t==='garden'){M3('b',0x4f9a45,3,.2,3,0,.1,0,g);[0xff6b8b,0xffd24a,0xb48cff,0xff9a3c,0xffffff].forEach((c,i)=>{for(let j=0;j<5;j++)M3('s',c,.14,.14,.14,-1.1+((i*5+j)%5)*.55,.3,-1.1+Math.floor((i*5+j)/5)*.55,g)})}
  else if(t==='statue'){M3('b',0x9aa3ab,1.8,1.2,1.8,0,.6,0,g);M3('y',0xffd24a,.4,1.5,.4,0,1.95,0,g);M3('s',0xffd24a,.32,.32,.32,0,2.9,0,g);M3('c',0xe6b020,.5,.4,.5,0,3.3,0,g)}}
-function buildEst(){ESTG.forEach(o=>WORLD.remove(o));ESTG.length=0;if(!G||!G.est)return;Object.keys(EST).forEach(t=>(G.est[t]||[]).forEach((e,i)=>{const g=new THREE.Group(),k='e:'+t+':'+i;g.position.set(e[0],0,e[1]);g.userData.bk=k;g.rotation.y=brot(k);mkEst(t,g);
- const sp=label(EST[t].n,1);sp.position.set(0,t==='manor'||t==='statue'?5:3.6,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);ESTG.push(g);if(k===NEWE){spawnIn(g,e[0],e[1],EST[t].n+' built!',EST[t].d);NEWE=null}}))}
+function buildEst(){ESTG.forEach(o=>WORLD.remove(o));ESTG.length=0;HORSES.length=0;if(!G||!G.est)return;Object.keys(EST).forEach(t=>(G.est[t]||[]).forEach((e,i)=>{const g=new THREE.Group(),k='e:'+t+':'+i;g.position.set(e[0],0,e[1]);g.userData.bk=k;g.rotation.y=brot(k);mkEst(t,g);if(t==='stable')addHorses(g);
+ const sp=label(EST[t].n,1);sp.position.set(0,t==='manor'?5.9:t==='statue'?5:3.6,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);ESTG.push(g);if(k===NEWE){spawnIn(g,e[0],e[1],EST[t].n+' built!',EST[t].d);NEWE=null}}))}
 function gnd(e){const r=cvs.getBoundingClientRect();if(!RC.r)RC.r=new THREE.Raycaster();RC.r.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),CAM);const v=new THREE.Vector3();return RC.r.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),v)?v:null}
 function mvDown(e){if(!ready||!WORLD)return 0;const v=gnd(e);if(!v)return 0;const h=RC.r.intersectObjects([].concat(DECG,PROCG,ESTG),true)[0];if(!h)return 0;let o=h.object;while(o&&!(o.userData&&o.userData.bk))o=o.parent;if(!o)return 0;
  const k=o.userData.bk,p=bpos(k),m=new THREE.Mesh(MKG,MKO);m.rotation.x=-PI/2;m.position.set(p[0],.09,p[1]);m.scale.setScalar(3.8);WORLD.add(m);MVD={k,g:o,x0:p[0],z0:p[1],ox:p[0]-v.x,oz:p[1]-v.z,x:p[0],z:p[1],ok:true,m};drag=1;return 1}
 function mvMove(e){const v=gnd(e);if(!v||!MVD)return;const s=snapPos(MVD.k,v.x+MVD.ox,v.z+MVD.oz);MVD.x=s.x;MVD.z=s.z;MVD.ok=s.ok;MVD.g.position.set(s.x,0,s.z);MVD.m.position.set(s.x,.09,s.z);MVD.m.material=s.ok?MKO:MKN}
 function selMark(k){if(!WORLD)return;if(!MVS){MVS=new THREE.Mesh(MKG,new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:.45,depthWrite:false}));MVS.rotation.x=-PI/2;MVS.scale.setScalar(4.4);WORLD.add(MVS)}MVSEL=k;if(k){const q=bpos(k);MVS.position.set(q[0],.07,q[1]);MVS.visible=true}else MVS.visible=false}
+function rmBld(){const k=MVSEL;if(!k){say('Tap a building first');return}let nm,rf,t=null,i=0;
+ if(k.indexOf('e:')===0){const q=k.split(':');t=q[1];i=+q[2];nm=EST[t].n;rf=Math.floor(EST[t].c*(1+.5*(EE()[t].length-1))/2)}
+ else if(FB[k]){nm=FB[k].n;rf=Math.floor(FB[k].c/2)}
+ else{nm=BLD[k].n;rf=Math.floor(BLD[k].c/2);if(G.pr[k]&&bjobs(G.pr[k]).length){say('Wait for cooking to finish');return}}
+ if(!confirm('Remove '+nm+'? You get $'+rf.toLocaleString()+' back.'))return;
+ G.coins+=rf;
+ if(t){EE()[t].splice(i,1);const r=G.rot||{},nr={};Object.keys(r).forEach(kk=>{const m=kk.split(':');if(m[0]==='e'&&m[1]===t){const j=+m[2];if(j===i)return;nr['e:'+t+':'+(j>i?j-1:j)]=r[kk]}else nr[kk]=r[kk]});G.rot=nr}
+ else{if(FB[k])delete G.bd[k];else delete G.pr[k];delete PS()[k];if(G.rot)delete G.rot[k]}
+ selMark(null);fx3d();fsnd('coin');say(nm+' removed: +$'+rf.toLocaleString());done()}
 function mvRot(){if(!MVSEL){say('Tap a building first');return}if(MVSEL==='hive'){say('The apiary cannot be rotated');return}
  const r=(G.rot||(G.rot={}));r[MVSEL]=((r[MVSEL]||0)+1)%4;[].concat(DECG,PROCG,ESTG).forEach(g=>{if(g.userData.bk===MVSEL)g.rotation.y=brot(MVSEL)});fsnd('plant');done()}
 function mvUp(e){const d=MVD;MVD=null;drag=0;if(!d)return;WORLD.remove(d.m);selMark(d.k);if(d.ok&&(d.x!==d.x0||d.z!==d.z0)){setPos(d.k,d.x,d.z);selMark(d.k);fsnd('plant');say('Building moved');done()}else{d.g.position.set(d.x0,0,d.z0);selMark(d.k);if(!d.ok)say('Cannot place it there')}}
@@ -11294,8 +11323,8 @@ function mvToggle(){MV=MV?0:1;modal='';sel=-1;mvUi();render();say(MV?'Drag a bui
 (function(){const b=document.createElement('button');b.id='fmMvBtn';b.textContent='✥';b.title='Move buildings';b.setAttribute('aria-label','Move buildings');
  b.style.cssText='position:absolute;top:116px;right:8px;z-index:6;width:38px;height:38px;border-radius:50%;border:2px solid #4b2fdb;background:#fff;color:#4b2fdb;font:800 1.05rem DM Sans,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer;padding:0;touch-action:manipulation';b.onclick=mvToggle;
  const t=document.createElement('div');t.id='fmMvBar';t.style.cssText='position:absolute;left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:none;gap:10px;z-index:7;pointer-events:none';
- const mb=(txt,bg,fg,fn)=>{const x=document.createElement('button');x.textContent=txt;x.style.cssText='flex:1;min-height:48px;border-radius:16px;border:0;background:'+bg+';color:'+fg+';font:800 1rem DM Sans,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.3);pointer-events:auto;touch-action:manipulation';x.onclick=fn;return x};
- t.appendChild(mb('⟳ Rotate','#ffd166','#4b2fdb',mvRot));t.appendChild(mb('✓ Done','#00d2a0','#fff',mvToggle));
+ const mb=(txt,bg,fg,fn)=>{const x=document.createElement('button');x.textContent=txt;x.style.cssText='flex:1;min-height:48px;border-radius:16px;border:0;background:'+bg+';color:'+fg+';font:800 .92rem DM Sans,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.3);pointer-events:auto;touch-action:manipulation';x.onclick=fn;return x};
+ t.appendChild(mb('⟳ Rotate','#ffd166','#4b2fdb',mvRot));t.appendChild(mb('🗑 Remove','#ff6b6b','#fff',rmBld));t.appendChild(mb('✓ Done','#00d2a0','#fff',mvToggle));
  const add=()=>{const sc=document.getElementById('screen-farm');if(sc){sc.appendChild(b);sc.appendChild(t);mvUi()}else setTimeout(add,500)};add()})();
 
 /* ---- 3D view (three.js, lightweight) ---- */
@@ -11773,7 +11802,7 @@ const frame=safe(t=>{if(!ready||document.hidden||!$('screen-farm').classList.con
   if(e.born!=null){const k=(T-e.born)/.45;if(k>=1){e.born=null;e.g.scale.setScalar(1)}else{const x=k-1;e.g.scale.setScalar(Math.max(.02,1+2.70158*x*x*x+1.70158*x*x))}}
   if(e.m){const a=T*(.35+(i%5)*.09)+i*2,r=e.f?.3:.17,x=e.x+Math.cos(a)*r,z=e.z+Math.sin(a)*r;e.g.position.set(x,e.f?.2+Math.sin(T*2+i)*.03:.05+Math.abs(Math.sin(T*5+i))*.015,z);e.g.rotation.y=-a-PI/2;if(e.rdy)e.ring.position.set(x,(e.f?.8:.9)+Math.sin(T*3)*.07,z)}
   else{if(!e.bad)e.g.rotation.z=Math.sin(T*1.4+i)*.04;if(e.rdy){e.g.position.y=.05+Math.abs(Math.sin(T*4+i))*.05;e.ring.position.y=.75+Math.sin(T*3+i)*.07}}});
- updateConv(dt);updateSpawn(dt);hvAnim(T,dt);
+ updateConv(dt);updateSpawn(dt);hvAnim(T,dt);updHorses(dt);
  R3.render(SC,CAM)});
 const mount3=safe(()=>{if(!ready)return;setScene();const st=$('fmStage'),w=st.clientWidth||window.innerWidth,h=st.clientHeight||window.innerHeight;
  if(cvs._w!==w||cvs._h!==h){cvs._w=w;cvs._h=h;R3.setSize(w,h,false);CAM.aspect=w/h;CAM.setViewOffset(w,h,0,Math.round(h*.09),w,h)}sync3();if(!raf3){last=0;raf3=requestAnimationFrame(frame)}});
