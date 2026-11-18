@@ -11247,7 +11247,7 @@ const EST={well:{n:'Stone Well',c:4000,l:4,max:2,d:'A charming stone well. Decor
  fountain:{n:'Grand Fountain',c:60000,l:13,max:3,d:'A sparkling fountain. Decoration.',s:0,x:0},
  manor:{n:'Manor House',c:150000,l:15,max:1,d:'The finest house in the valley. +5% sell price',s:5,x:0},
  statue:{n:'Golden Farmer Statue',c:500000,l:16,max:1,d:'Pure glory. Decoration.',s:0,x:0}};
-let MV=0,MVD=null,NEWE=null;const ESTG=[];
+let MV=0,MVD=null,NEWE=null,MVSEL=null,MVS=null;const brot=k=>k==='hive'?0:((G&&G.rot&&G.rot[k])||0)*PI/2;const ESTG=[];
 const EE=()=>G.est||(G.est={}),PS=()=>G.pos||(G.pos={});
 const estB=f=>{let t=0;if(G&&G.est)Object.keys(G.est).forEach(k=>{if(EST[k])t+=EST[k][f]*G.est[k].length});return t/100};
 const estCost=k=>Math.round(EST[k].c*(1+.5*(EE()[k]||[]).length)/10)*10;
@@ -11279,17 +11279,21 @@ function mkEst(t,g){
  else if(t==='fountain'){M3('y',0xb8bfc7,1.7,.35,1.7,0,.18,0,g);M3('y',0x7fc8f0,1.5,.05,1.5,0,.38,0,g);M3('y',0xb8bfc7,.22,1.2,.22,0,.8,0,g);M3('y',0xb8bfc7,.7,.12,.7,0,1.4,0,g);M3('s',0x9fe0ff,.35,.3,.35,0,1.65,0,g)}
  else if(t==='garden'){M3('b',0x4f9a45,3,.2,3,0,.1,0,g);[0xff6b8b,0xffd24a,0xb48cff,0xff9a3c,0xffffff].forEach((c,i)=>{for(let j=0;j<5;j++)M3('s',c,.14,.14,.14,-1.1+((i*5+j)%5)*.55,.3,-1.1+Math.floor((i*5+j)/5)*.55,g)})}
  else if(t==='statue'){M3('b',0x9aa3ab,1.8,1.2,1.8,0,.6,0,g);M3('y',0xffd24a,.4,1.5,.4,0,1.95,0,g);M3('s',0xffd24a,.32,.32,.32,0,2.9,0,g);M3('c',0xe6b020,.5,.4,.5,0,3.3,0,g)}}
-function buildEst(){ESTG.forEach(o=>WORLD.remove(o));ESTG.length=0;if(!G||!G.est)return;Object.keys(EST).forEach(t=>(G.est[t]||[]).forEach((e,i)=>{const g=new THREE.Group(),k='e:'+t+':'+i;g.position.set(e[0],0,e[1]);g.userData.bk=k;mkEst(t,g);
+function buildEst(){ESTG.forEach(o=>WORLD.remove(o));ESTG.length=0;if(!G||!G.est)return;Object.keys(EST).forEach(t=>(G.est[t]||[]).forEach((e,i)=>{const g=new THREE.Group(),k='e:'+t+':'+i;g.position.set(e[0],0,e[1]);g.userData.bk=k;g.rotation.y=brot(k);mkEst(t,g);
  const sp=label(EST[t].n,1);sp.position.set(0,t==='manor'||t==='statue'?5:3.6,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);ESTG.push(g);if(k===NEWE){spawnIn(g,e[0],e[1],EST[t].n+' built!',EST[t].d);NEWE=null}}))}
 function gnd(e){const r=cvs.getBoundingClientRect();if(!RC.r)RC.r=new THREE.Raycaster();RC.r.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),CAM);const v=new THREE.Vector3();return RC.r.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),v)?v:null}
 function mvDown(e){if(!ready||!WORLD)return 0;const v=gnd(e);if(!v)return 0;const h=RC.r.intersectObjects([].concat(DECG,PROCG,ESTG),true)[0];if(!h)return 0;let o=h.object;while(o&&!(o.userData&&o.userData.bk))o=o.parent;if(!o)return 0;
  const k=o.userData.bk,p=bpos(k),m=new THREE.Mesh(MKG,MKO);m.rotation.x=-PI/2;m.position.set(p[0],.09,p[1]);m.scale.setScalar(3.8);WORLD.add(m);MVD={k,g:o,x0:p[0],z0:p[1],ox:p[0]-v.x,oz:p[1]-v.z,x:p[0],z:p[1],ok:true,m};drag=1;return 1}
 function mvMove(e){const v=gnd(e);if(!v||!MVD)return;const s=snapPos(MVD.k,v.x+MVD.ox,v.z+MVD.oz);MVD.x=s.x;MVD.z=s.z;MVD.ok=s.ok;MVD.g.position.set(s.x,0,s.z);MVD.m.position.set(s.x,.09,s.z);MVD.m.material=s.ok?MKO:MKN}
-function mvUp(e){const d=MVD;MVD=null;drag=0;if(!d)return;WORLD.remove(d.m);if(d.ok&&(d.x!==d.x0||d.z!==d.z0)){setPos(d.k,d.x,d.z);fsnd('plant');say('Building moved');done()}else{d.g.position.set(d.x0,0,d.z0);if(!d.ok)say('Cannot build there: pick open farmstead ground or an empty land plot')}}
-function mvUi(){const b=document.getElementById('fmMvBtn');if(!b)return;b.textContent=MV?'✓ Done':'✥ Move';b.style.background=MV?'#00d2a0':'#fff';b.style.color=MV?'#fff':'#4b2fdb'}
-function mvToggle(){MV=MV?0:1;modal='';sel=-1;mvUi();render();say(MV?'Move mode: drag any building. Tap Done when finished':'Move mode off')}
+function selMark(k){if(!WORLD)return;if(!MVS){MVS=new THREE.Mesh(MKG,new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:.45,depthWrite:false}));MVS.rotation.x=-PI/2;MVS.scale.setScalar(4.4);WORLD.add(MVS)}MVSEL=k;if(k){const q=bpos(k);MVS.position.set(q[0],.07,q[1]);MVS.visible=true}else MVS.visible=false}
+function mvRot(){if(!MVSEL){say('Tap or drag a building first, then rotate it');return}if(MVSEL==='hive'){say('The apiary cannot be rotated: the bees would get lost');return}
+ const r=(G.rot||(G.rot={}));r[MVSEL]=((r[MVSEL]||0)+1)%4;[].concat(DECG,PROCG,ESTG).forEach(g=>{if(g.userData.bk===MVSEL)g.rotation.y=brot(MVSEL)});fsnd('plant');done()}
+function mvUp(e){const d=MVD;MVD=null;drag=0;if(!d)return;WORLD.remove(d.m);selMark(d.k);if(d.ok&&(d.x!==d.x0||d.z!==d.z0)){setPos(d.k,d.x,d.z);selMark(d.k);fsnd('plant');say('Building moved. Tap ⟳ Rotate to turn it');done()}else{d.g.position.set(d.x0,0,d.z0);selMark(d.k);if(!d.ok)say('Cannot build there: pick open farmstead ground or an empty land plot')}}
+function mvUi(){const b=document.getElementById('fmMvBtn');if(!b)return;b.textContent=MV?'✓ Done':'✥ Move';b.style.background=MV?'#00d2a0':'#fff';b.style.color=MV?'#fff':'#4b2fdb';const r=document.getElementById('fmRotBtn');if(r)r.style.display=MV?'':'none';if(!MV)selMark(null)}
+function mvToggle(){MV=MV?0:1;modal='';sel=-1;mvUi();render();say(MV?'Move mode: drag a building, tap ⟳ Rotate to turn it. Tap Done when finished':'Move mode off')}
 (function(){const b=document.createElement('button');b.id='fmMvBtn';b.title='Move buildings';b.style.cssText='position:absolute;top:114px;right:8px;z-index:6;padding:8px 12px;border-radius:999px;border:2px solid #4b2fdb;font:800 .8rem DM Sans,sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25);cursor:pointer';b.onclick=mvToggle;
- const add=()=>{const sc=document.getElementById('screen-farm');if(sc){sc.appendChild(b);mvUi()}else setTimeout(add,500)};add()})();
+ const r=document.createElement('button');r.id='fmRotBtn';r.textContent='⟳ Rotate';r.style.cssText=b.style.cssText.replace('top:114px','top:158px')+';display:none;background:#ffd166;color:#4b2fdb';r.onclick=mvRot;
+ const add=()=>{const sc=document.getElementById('screen-farm');if(sc){sc.appendChild(b);sc.appendChild(r);mvUi()}else setTimeout(add,500)};add()})();
 
 /* ---- 3D view (three.js, lightweight) ---- */
 let ready=0,R3,SC,CAM,root,cvs,cells=[],fc=[],tiles=[],ck='',raf3=0,last=0,T=0,hov=-1,hovT=0,ghost=null,ghostId='';
@@ -11318,7 +11322,7 @@ function mkTruck(){const g=new THREE.Group(),B=0x1f5fa8;
  g.wh=[];[[.62],[-.5],[-.85]].forEach(a=>[-.45,.45].forEach(x=>{const w=mkWheel(.26,.16,0x999999);w.position.set(x,.26,a[0]);g.add(w);g.wh.push(w)}));
  const bed=new THREE.Group();bed.position.set(0,.56,-.45);g.add(bed);g.bed=bed;return g}
 function extras(){if(!ready||!WORLD)return;buildProc();buildDecor();buildEst();buildPets();applySeason()}
-function buildProc(){PROCG.forEach(o=>WORLD.remove(o));PROCG.length=0;procTiles.length=0;Object.keys(BLD).forEach(b=>{if(!G.pr[b])return;const P=bpos(b),g=new THREE.Group(),mm=(k,c,a,bb,d,x,y,z)=>M3(k,c,a,bb,d,x,y,z,g);g.position.set(P[0],0,P[1]);g.userData.bk=b;
+function buildProc(){PROCG.forEach(o=>WORLD.remove(o));PROCG.length=0;procTiles.length=0;Object.keys(BLD).forEach(b=>{if(!G.pr[b])return;const P=bpos(b),g=new THREE.Group(),mm=(k,c,a,bb,d,x,y,z)=>M3(k,c,a,bb,d,x,y,z,g);g.position.set(P[0],0,P[1]);g.userData.bk=b;g.rotation.y=brot(b);
  const bd=mm('b',BLD[b].col,3,1.8,2.6,0,.9,0);bd.userData={k:'proc'};procTiles.push(bd);mm('b',0x8b3a2e,3.4,.3,3,0,2,0);mm('b',0x8b3a2e,2.6,.3,2.4,0,2.3,0);mm('b',0x777777,.4,1,.4,.9,2.7,.6);mm('b',0x5a3a1e,.7,1.1,.06,0,.55,1.32);mm('b',0x9fd3ee,.6,.5,.06,-.9,1.1,1.32);
  const sp=label(BLD[b].n,1);sp.position.set(0,3.5,0);sp.scale.set(1.7,.64,1);g.add(sp);WORLD.add(g);PROCG.push(g);if(b===NEWP){spawnIn(g,P[0],P[1],BLD[b].n+' built!','Tap it to make goods');NEWP=null}})}
 
@@ -11351,7 +11355,7 @@ function buildDecor(){DECG.forEach(o=>WORLD.remove(o));DECG.length=0;hiveTiles.l
    for(let i=0;i<6;i++)M3('s',0xffd400,.07,.07,.07,-1.2+i*.5,1.3+(i%3)*.25,.6-(i%2)*1.2,g)},
   green:g=>{M3('b',0xcfeeff,3.2,1,2.4,0,.5,0,g,T);[-.8,.8].forEach((x,i)=>{const r=M3('b',0xbfe3f5,1.85,.07,2.5,x,1.35,0,g,T);r.rotation.z=(i?-1:1)*.5});M3('b',0x6b6b72,3.3,.1,2.5,0,.05,0,g);
    [-1.6,1.6].forEach(x=>[-1.2,1.2].forEach(z=>M3('b',0xe8eef2,.1,1.1,.1,x,.55,z,g)));for(let r=0;r<3;r++)for(let c=0;c<4;c++)M3('b',[0x3aa65c,0xe0453a,0x6fae3f][r],.3,.25+((r+c)%2)*.15,.3,-1.05+c*.7,.2,-.7+r*.7,g)}};
- Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group(),_p=bpos(k);g.position.set(_p[0],0,_p[1]);g.userData.bk=k;mk[k](g);if(k==='hive'){const hb=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,1.8),new THREE.MeshBasicMaterial({visible:false}));hb.position.set(0,1.2,0);hb.userData={k:'hive'};g.add(hb);hiveTiles.push(hb);hvBuild(g)}
+ Object.keys(FB).forEach(k=>{if(!G.bd[k])return;const d=FB[k],g=new THREE.Group(),_p=bpos(k);g.position.set(_p[0],0,_p[1]);g.userData.bk=k;g.rotation.y=brot(k);mk[k](g);if(k==='hive'){const hb=new THREE.Mesh(new THREE.BoxGeometry(3.2,2.4,1.8),new THREE.MeshBasicMaterial({visible:false}));hb.position.set(0,1.2,0);hb.userData={k:'hive'};g.add(hb);hiveTiles.push(hb);hvBuild(g)}
   const sp=label(d.n,1);sp.position.set(0,k==='silo'||k==='tower'?5.2:2.9,0);sp.scale.set(1.9,.7,1);g.add(sp);WORLD.add(g);DECG.push(g);
   if(k===NEWB){spawnIn(g,_p[0],_p[1],d.n+' built!',d.d);NEWB=null}});
  G.land.forEach((l,p)=>{if(!l||l.u!=='crop'||(!l.sp&&!l.sc))return;const P=pc(p),g=new THREE.Group();g.position.set(P.x+PP/2-.7,0,P.z+PP/2-.7);
@@ -11732,11 +11736,11 @@ function barn(){if(BARN)WORLD.remove(BARN);barnTiles.length=0;const L=G.bl||0,B=
 function roads(){const C=0x8d8577,R=(x0,x1,z)=>{M3('b',C,Math.abs(x1-x0)+GAP,.04,GAP-.1,(x0+x1)/2,.02,z,root);M3('b',0xe8d9a0,Math.abs(x1-x0)+GAP,.01,.05,(x0+x1)/2,.045,z,root)},V=(x,z0,z1)=>{M3('b',C,GAP-.1,.04,Math.abs(z1-z0)+GAP,x,.02,(z0+z1)/2,root);M3('b',0xe8d9a0,.05,.01,Math.abs(z1-z0)+GAP,x,.045,(z0+z1)/2,root)};
  const rows={};let zmin=RZ(7),zmax=RZ(7);G.land.forEach((l,p)=>{if(!l||!l.u)return;const z=pc(p).z+PP/2,x=pc(p).x+PP/2;rows[z]=Math.max(rows[z]==null?-1e9:rows[z],x);zmin=Math.min(zmin,z);zmax=Math.max(zmax,z)});
  Object.keys(rows).forEach(z=>R(XW,Math.max(XE,rows[z]),+z));R(XW,XE,RZ(7));V(XW,zmin,zmax);V(XE,zmin,zmax);R(WRD,TRK.x+.6,TRK.z)}
-function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.concat(procTiles,hiveTiles);hov=-1;
+function setScene(){if(!WORLD)buildWorld();const key=G.land.map(l=>l?(l.u||'n')[0]:'-').join('')+'|'+bkeys().map(k=>bpos(k).join(',')).join(';');if(key===ck)return;ck=key;root.remove(...root.children);cells=[];tiles=barnTiles.concat(procTiles,hiveTiles);hov=-1;
  halo=M3('b',0xfff2a8,PP-GAP+.25,.02,PP-GAP+.25,0,-.1,0,root);halo.visible=false;roads();
  if(G.land.some(Boolean))for(let p=0;p<N;p++)if(canBuy(p)){const{x,z}=pc(p);M3('b',0xe6d27a,PP-GAP-.2,.03,PP-GAP-.2,x,.01,z,root,{transparent:true,opacity:.17})}
  for(let p=0;p<N;p++){const l=G.land[p];if(!l)continue;const{x,z}=pc(p);
-  if(!l.u){const t=M3('b',0xc9a46a,PP-GAP-.2,.14,PP-GAP-.2,x,-.05,z,root);t.userData={k:'parcel',p};tiles.push(t);const sp=label('Tap to build',1);sp.position.set(x,.9,z);root.add(sp);continue}
+  if(!l.u){const t=M3('b',0xc9a46a,PP-GAP-.2,.14,PP-GAP-.2,x,-.05,z,root);t.userData={k:'parcel',p};tiles.push(t);if(!bldOnPlot(p)){const sp=label('Tap to build',1);sp.position.set(x,.9,z);root.add(sp)}continue}
   M3('b',l.u==='pond'?0x6a7f8c:0xa9855a,PP-GAP,.1,PP-GAP,x,-.1,z,root);{const h=(PP-GAP)/2;[[0,-h,PP-GAP,.12],[0,h,PP-GAP,.12],[-h,0,.12,PP-GAP],[h,0,.12,PP-GAP]].forEach(a=>M3('b',l.u==='pond'?0x7a8a94:0x6b4a2a,a[2],.26,a[3],x+a[0],.05,z+a[1],root))}
   for(let r=0;r<3;r++)for(let c=0;c<3;c++){const i=r*3+c,sx=x+(c-1)*1.2,sz=z+(r-1)*1.2,t=M3('b',l.u==='pond'?0x2f8fd0:l.u==='pen'?0x9bcf5a:0x7b4a2d,1.15,.2,1.15,sx,-.05,sz,root);t.userData={k:'slot',p,i};tiles.push(t);cells.push({x:sx,z:sz,p,i,id:null,t,mk:marker(sx,sz)})}
   if(l.u==='pen')fence(x,z)}}
