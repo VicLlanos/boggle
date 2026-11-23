@@ -1410,6 +1410,46 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .fm-link{display:flex;gap:6px;margin-top:10px}.fm-link .btn{flex:1}
 @media (prefers-reduced-motion:reduce){#fmBuild button.has::after,#fmBuild .nw,.fm-place{animation:none}}
 </style>
+<style>
+/* ===== Are You Smarter Than a 5th Grader? — Philippines Edition ===== */
+.game-card[data-game=smarter]{--a:#FFD166;--t:#3A2A0A}
+.t-smarter{background:linear-gradient(#1f5a3f 62%,#b9803f 62%);display:flex;align-items:center;justify-content:center;font-size:2.1rem;letter-spacing:4px}
+#screen-smarter{position:fixed;inset:0;max-width:none;width:100%;z-index:60;padding:0;gap:0;overflow:hidden;background:linear-gradient(#f7e7c4 58%,#b9803f 58%)}
+#screen-smarter.active{display:block;animation:none}
+#screen-smarter::before{content:'';position:absolute;left:0;right:0;bottom:0;height:42%;background:repeating-linear-gradient(90deg,#b07a3c 0 46px,#9c6a30 46px 48px)}
+.sg-room{position:relative;height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;padding:max(8px,var(--safe-t)) 10px max(10px,var(--safe-b));gap:8px;font-family:'DM Sans',sans-serif;color:#3b2a14}
+.sg-top{display:flex;align-items:center;gap:8px}
+.sg-top button,.sg-ll button{border:0;border-radius:12px;background:#fff8e1;color:#4b2f10;font:800 .85rem 'DM Sans',sans-serif;padding:8px 12px;box-shadow:0 3px 0 #8a5a2b;cursor:pointer}
+.sg-ll button:disabled{opacity:.35}
+.sg-lad{flex:1;display:flex;justify-content:center;gap:5px}
+.sg-lad i{font-style:normal;width:28px;height:28px;border-radius:8px;background:#fff8e1;border:2px solid #8a5a2b;display:grid;place-items:center;font:800 .8rem 'DM Sans',sans-serif}
+.sg-lad i.d{background:#7bd66b}.sg-lad i.c{background:#FFD166;transform:scale(1.18)}
+.sg-wall{display:flex;justify-content:space-between;font-size:1.3rem;opacity:.85;padding:0 8px}
+.sg-board{background:#1f5a3f;border:9px solid #8a5a2b;border-radius:10px;box-shadow:inset 0 0 28px rgba(0,0,0,.45),0 6px 0 #6b4423;padding:12px 14px;min-height:150px;display:flex;flex-direction:column;gap:8px;color:#f6f6e8;position:relative}
+.sg-chip{align-self:flex-start;background:rgba(255,255,255,.16);border-radius:999px;padding:3px 12px;font-weight:800;font-size:.8rem}
+#sgQ{font:700 clamp(1.05rem,4.7vw,1.5rem)/1.3 'Bricolage Grotesque',sans-serif;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.sg-tb{height:6px;border-radius:9px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:auto}
+#sgBar{height:100%;width:100%;background:#f6f6e8;transition:width .25s linear}
+.sg-tr{display:flex;align-items:center;gap:10px}
+#sgT{font-size:2.6rem;line-height:1}
+#sgT.talk{animation:sgTalk .4s ease-in-out infinite}
+@keyframes sgTalk{50%{transform:translateY(-4px) rotate(-4deg)}}
+#sgBub{flex:1;background:#fff;border-radius:14px;padding:8px 12px;font-weight:700;font-size:.9rem;box-shadow:0 3px 0 rgba(0,0,0,.15);position:relative}
+#sgBub::before{content:'';position:absolute;left:-8px;top:14px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+.sg-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
+.sg-o,.sg-sub{position:relative;background:#fff8e1;border:3px solid #6b4423;border-bottom-width:7px;border-radius:12px;padding:14px 10px 12px 34px;font:800 .98rem/1.25 'DM Sans',sans-serif;color:#3b2a14;text-align:left;cursor:pointer;min-height:62px}
+.sg-o::before{content:attr(data-l);position:absolute;left:8px;top:8px;width:21px;height:21px;border-radius:50%;background:#6b4423;color:#fff;display:grid;place-items:center;font-size:.75rem}
+.sg-sub{padding-left:14px;font-size:1.05rem}
+.sg-o:active,.sg-sub:active{transform:translateY(3px);border-bottom-width:4px}
+.sg-o.ok{background:#b7f5a8;border-color:#2e8b2e}.sg-o.no{background:#ffb3b3;border-color:#c0392b}.sg-o.x{opacity:.2}
+.sg-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;background:rgba(255,248,225,.92);border-radius:14px;padding:8px 10px;font-weight:800}
+.sg-ll{display:flex;gap:6px}
+.sg-end{display:flex;flex-direction:column;gap:10px}
+.sg-sum{background:#fff8e1;border:3px solid #6b4423;border-radius:12px;padding:12px;font-weight:800;text-align:center}
+.sg-go{border:0;border-radius:14px;background:#00D2A0;color:#053b2e;font:800 1.05rem 'DM Sans',sans-serif;padding:14px;box-shadow:0 4px 0 #00906f;cursor:pointer}
+.sg-go.alt{background:#fff8e1;color:#4b2f10;box-shadow:0 4px 0 #8a5a2b}
+@media (prefers-reduced-motion:reduce){#sgT.talk{animation:none}}
+</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -1561,6 +1601,11 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="thumb t-farm" aria-hidden="true">🚜🌽🐄</div>
         <div class="name">Farm Valley</div>
         <div class="desc">Grow, sell &amp; expand</div>
+      </div>
+      <div class="game-card" data-game="smarter" id="pickSmarter" aria-label="Play Are You Smarter Than a 5th Grader, Philippines Edition" style="cursor:pointer">
+        <div class="thumb t-smarter" aria-hidden="true">🎓📚👩‍🏫</div>
+        <div class="name">Smarter than a 5th Grader?</div>
+        <div class="desc">Philippines edition 🇵🇭</div>
       </div>
       <div class="game-card" data-game="emberfall" id="pickEmberfall" data-href="https://vicllanos.github.io/AIM/" aria-label="Open Emberfall, a separate first-person shooter with its own login" style="cursor:pointer">
         <div class="thumb t-emberfall" aria-hidden="true"><svg viewBox="0 0 320 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="efA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A0912"/><stop offset=".6" stop-color="#7C1D18"/><stop offset="1" stop-color="#FF8A2B"/></linearGradient><radialGradient id="efG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD27A" stop-opacity=".95"/><stop offset=".5" stop-color="#FF6A2B" stop-opacity=".45"/><stop offset="1" stop-color="#FF6A2B" stop-opacity="0"/></radialGradient></defs><rect width="320" height="100" fill="url(#efA)"/><g class="px1"><circle class="a glow" cx="240" cy="54" r="50" fill="url(#efG)"/><circle cx="240" cy="54" r="13" fill="#FFE2A0"/><polygon points="0,100 0,62 16,62 16,50 32,50 32,66 50,66 50,56 64,56 64,100" fill="#2A0D14"/><polygon points="252,100 252,60 264,60 264,46 282,46 282,62 298,62 298,52 320,52 320,100" fill="#2A0D14"/></g><g class="px2"><polygon points="64,100 64,68 82,68 82,42 90,42 90,32 96,32 96,42 104,42 104,72 124,72 124,60 140,60 140,100" fill="#12060B"/><polygon points="184,100 184,66 198,66 198,50 214,50 214,70 232,70 232,100" fill="#12060B"/><g fill="#FFB347" opacity=".85"><rect x="86" y="48" width="3" height="3"/><rect x="92" y="58" width="3" height="3"/><rect x="110" y="78" width="3" height="3"/><rect x="202" y="56" width="3" height="3"/><rect x="220" y="80" width="3" height="3"/></g><rect y="80" width="320" height="20" fill="#0E0509"/><path d="M0 80H320" stroke="#FF6A2B" stroke-opacity=".5" stroke-width="1"/><g class="a foe" stroke="#FF6A2B" stroke-width=".8" fill="#0D0509"><circle cx="160" cy="45" r="5"/><rect x="153" y="50" width="14" height="22" rx="3"/><rect x="154" y="72" width="5" height="9" rx="1.5"/><rect x="161" y="72" width="5" height="9" rx="1.5"/><rect x="166" y="54" width="12" height="3" rx="1.5"/><circle cx="158" cy="45" r=".9" fill="#FF4F4F" stroke="none"/><circle cx="162" cy="45" r=".9" fill="#FF4F4F" stroke="none"/></g></g><g class="px3"><g class="a ch"><circle cx="160" cy="52" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"/><path d="M160 36v8M160 60v8M144 52h8M168 52h8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="160" cy="52" r="1.4" fill="#FF4F4F"/></g><path class="a hit" d="M154 46l-4-4M166 46l4-4M154 58l-4 4M166 58l4 4" stroke="#FF4F4F" stroke-width="1.8" stroke-linecap="round"/><polygon points="236,70 296,62 320,68 320,100 222,100 230,86" fill="#16111A" stroke="#4A3640" stroke-width=".8"/><polygon points="196,80 238,72 242,80 202,88" fill="#241A1F" stroke="#4A3640" stroke-width=".8"/><path d="M242 76L316 70" stroke="#FF6A2B" stroke-width="1.6" stroke-linecap="round"/><rect x="248" y="63" width="10" height="5" rx="1" fill="#FF6A2B"/><polygon class="a flash" points="196,80 188,74 190,80 182,80 190,82 188,88 195,83" fill="#FFD166"/><circle class="a em" style="--i:0" cx="30" cy="90" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:1" cx="72" cy="94" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:2" cx="118" cy="92" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:3" cx="150" cy="96" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:4" cx="196" cy="95" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:5" cx="246" cy="97" r="1.3" fill="#FF6A2B"/><circle class="a em" style="--i:6" cx="284" cy="93" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:7" cx="98" cy="87" r="1.1" fill="#FF6A2B"/><circle class="a em" style="--i:8" cx="178" cy="90" r="1.4" fill="#FFD166"/><circle class="a em" style="--i:9" cx="304" cy="98" r="1.2" fill="#FF6A2B"/></g></svg><span class="ext">FPS &#8599;</span></div>
@@ -1946,6 +1991,17 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
   <div id="fmModal"></div>
   <div id="fmToast"></div>
   <div id="fmTut" role="dialog" aria-live="polite"></div><div id="fmSpot"></div>
+</section>
+
+<section id="screen-smarter" class="screen">
+  <div class="sg-room">
+    <div class="sg-top"><button type="button" id="sgBack">← Lobby</button><div class="sg-lad" id="sgLad"></div><button type="button" id="sgSnd" aria-label="Toggle narration">🔊</button></div>
+    <div class="sg-wall"><span>🇵🇭</span><span>🅰️ 🅱️ 🅲</span><span>🕒</span><span>📏</span></div>
+    <div class="sg-board"><div class="sg-chip" id="sgChip"></div><div id="sgQ"></div><div class="sg-tb"><div id="sgBar"></div></div></div>
+    <div class="sg-tr"><div id="sgT">👩‍🏫</div><div id="sgBub"></div></div>
+    <div id="sgOpts" class="sg-opts"></div>
+    <div class="sg-bar"><span id="sgLife">❤️❤️❤️</span><span class="sg-ll"><button type="button" id="sgF">✂️ 50/50</button><button type="button" id="sgC">🙋 Classmate</button><button type="button" id="sgR" aria-label="Repeat question">🔁</button></span><span>⭐ <b id="sgSc">0</b></span></div>
+  </div>
 </section>
 
 <section id="screen-results" class="screen">
@@ -11930,5 +11986,124 @@ AC.push(['Welcome Guests','Welcome 25 visitor stays',g=>(g.st.vis||0)>=25,400],[
 
 })();
 </script>
+<script>
+/* ===== Are You Smarter Than a 5th Grader? — Philippines Edition (self-contained, single-player) ===== */
+(function(){
+const $=id=>document.getElementById(id),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)],SH=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const SE={Math:'➗',Science:'🔬',English:'📖',Filipino:'🇵🇭','A.P.':'🗺️',MAPEH:'🎨'};
+/* grade|subject|question|correct|wrong|wrong|wrong */
+const BANK=`1|Science|Which of these is a mammal?|Carabao|Eagle|Frog|Lizard
+1|Science|What do plants need to make their own food?|Sunlight|Plastic|Sugar|Milk
+1|English|Which word is a noun?|mango|run|quickly|happy
+1|English|Which word rhymes with "star"?|jar|stir|stay|sun
+1|Filipino|Alin ang pangngalan?|bahay|tumakbo|maganda|mabilis
+1|Filipino|Ano ang Filipino ng "grandmother"?|Lola|Ate|Tita|Nanay
+1|A.P.|Who is known as the National Hero of the Philippines?|Jose Rizal|Andres Bonifacio|Emilio Aguinaldo|Antonio Luna
+1|A.P.|What is the national fruit of the Philippines?|Mango|Banana|Pineapple|Papaya
+1|MAPEH|What color do you get when you mix blue and yellow?|Green|Orange|Purple|Pink
+2|Science|When water changes from liquid to gas, the process is called…|Evaporation|Condensation|Freezing|Melting
+2|Science|Which of these is a living thing?|Mushroom|Rock|Chair|Cloud
+2|English|What is the plural of "child"?|children|childs|childrens|childes
+2|English|Choose the correct word: Yesterday, the children ___ to school.|walked|walk|walking|walks
+2|Filipino|Ano ang kasalungat ng "malaki"?|maliit|mataba|mabigat|mahaba
+2|Filipino|Anong panlapi ang nasa salitang "magluto"?|mag-|um-|-in-|-an
+2|A.P.|What is the capital city of the Philippines?|Manila|Quezon City|Cebu City|Davao City
+2|MAPEH|Which Philippine folk dance imitates the tikling bird?|Tinikling|Itik-itik|Cariñosa|Maglalatik
+2|MAPEH|Which food helps you grow strong and healthy?|Fruits and vegetables|Candies|Soft drinks|Chips
+3|Science|Which part of the plant absorbs water from the soil?|Roots|Leaves|Flower|Stem
+3|Science|What force pulls objects toward the Earth?|Gravity|Friction|Magnetism|Wind
+3|English|Choose the correct word: The twins ___ playing in the yard.|are|is|was|be
+3|English|What is the antonym of "ancient"?|modern|old|historic|dusty
+3|Filipino|Anong bantas ang ginagamit sa pangungusap na patanong?|Tandang pananong (?)|Tuldok (.)|Kuwit (,)|Tandang padamdam (!)
+3|Filipino|Ano ang kahulugan ng "bayanihan"?|Pagtutulungan ng komunidad|Pag-aaway|Pag-iisa|Pagtitinda
+3|A.P.|Which province is famous for the Banaue Rice Terraces?|Ifugao|Bohol|Batangas|Pampanga
+3|MAPEH|How many lines does a musical staff have?|5|4|6|3
+4|Science|Which layer of the Earth do we live on?|Crust|Mantle|Outer core|Inner core
+4|Science|Which of these is a good conductor of electricity?|Copper|Rubber|Wood|Plastic
+4|English|Which word is the adverb: The turtle crawled slowly.|slowly|turtle|crawled|The
+4|English|A word with the same meaning as another word is called a…|Synonym|Antonym|Homonym|Acronym
+4|Filipino|Alin ang tambalang salita?|bahaghari|bahay|aral|masaya
+4|A.P.|What are the three main island groups of the Philippines?|Luzon, Visayas, Mindanao|Luzon, Cebu, Davao|Manila, Visayas, Palawan|Luzon, Mindanao, Palawan
+4|A.P.|Which body of water lies east of the Philippines?|Philippine Sea|South China Sea|Celebes Sea|Sulu Sea
+4|MAPEH|What is the traditional Filipino mat woven from pandan or buri leaves?|Banig|Barong|Bilao|Salakot
+5|Science|Which blood vessels carry blood away from the heart?|Arteries|Veins|Capillaries|Platelets
+5|Science|Which instrument measures air pressure?|Barometer|Thermometer|Anemometer|Seismograph
+5|English|Choose the correct word: Neither Ana nor her brothers ___ late.|were|was|is|be
+5|English|"The classroom was a zoo" is an example of a…|Metaphor|Simile|Personification|Hyperbole
+5|Filipino|Anong uri ng pangungusap ang "Naku, nahulog ang baso!"?|Padamdam|Patanong|Pautos|Pasalaysay
+5|A.P.|In what year did the Philippines declare independence from Spain?|1898|1946|1896|1935
+5|A.P.|Who founded the Katipunan?|Andres Bonifacio|Jose Rizal|Emilio Aguinaldo|Marcelo H. del Pilar
+5|MAPEH|In music, what does "forte" mean?|Loud|Soft|Fast|Slow
+6|Science|What is the chemical formula of water?|H₂O|CO₂|O₂|NaCl
+6|Science|Which gas do plants take in for photosynthesis?|Carbon dioxide|Oxygen|Nitrogen|Hydrogen
+6|Science|Which part of the cell contains the DNA?|Nucleus|Cell membrane|Cytoplasm|Vacuole
+6|English|Which sentence is in the passive voice?|The cake was baked by Lola.|Lola baked the cake.|Lola is baking a cake.|Lola will bake the cake.
+6|English|What does the idiom "a piece of cake" mean?|Very easy|Very sweet|Very small|Very expensive
+6|Filipino|Ano ang kahulugan ng sawikaing "bukas-palad"?|Mapagbigay|Matakaw|Tamad|Mayabang
+6|Filipino|Sino ang sumulat ng nobelang "Noli Me Tangere"?|Jose Rizal|Francisco Balagtas|Andres Bonifacio|Graciano Lopez Jaena
+6|A.P.|Who was the first President of the Philippines (First Republic, 1899)?|Emilio Aguinaldo|Manuel L. Quezon|Sergio Osmeña|Jose P. Laurel
+6|A.P.|How many senators are there in the Philippine Senate?|24|12|36|20
+6|MAPEH|Which Filipino painter created the "Spoliarium"?|Juan Luna|Fernando Amorsolo|Jose Rizal|Guillermo Tolentino`.split('\n').map(l=>{const p=l.split('|');return{g:+p[0],s:p[1],q:p[2],a:p.slice(3)}});
+/* generated Math: endless variety, so every game gets fresh numbers */
+const NM=['Aling Nena','Mang Tomas','Maria','Juan','Liza','Mark'],pf=n=>'₱'+n.toLocaleString('en-US');
+const MG={
+1:[()=>{const a=R(12,20),b=R(3,9);return[`${P(NM)} has ${a} pandesal. ${b} are sold. How many are left?`,a-b]},()=>{const a=R(15,40),b=R(10,30);return[`Pedro has ${a} marbles. His friend gives him ${b} more. How many marbles does he have now?`,a+b]}],
+2:[()=>{const a=R(3,9),b=R(4,9);return[`${a} jeepneys each carry ${b} passengers. How many passengers are there in all?`,a*b]},()=>{const a=R(120,480),b=R(130,450);return[`What is ${a} + ${b}?`,a+b]},()=>{const a=R(500,900),b=R(120,450);return[`What is ${a} − ${b}?`,a-b]}],
+3:[()=>{const a=R(4,9),b=R(3,9);return[`${a*b} candies are shared equally among ${b} children. How many candies does each child get?`,a]},()=>{const p=R(12,28),n=R(2,5);return[`A notebook costs ₱${p}. Mara buys ${n} notebooks and pays ₱200. How much is her change?`,200-p*n,pf]}],
+4:[()=>{const l=R(6,15),w=R(3,9);return[`A rectangular garden is ${l} m long and ${w} m wide. What is its area in square meters?`,l*w]},()=>{const l=R(6,15),w=R(3,9);return[`A rectangular fishpond is ${l} m long and ${w} m wide. What is its perimeter in meters?`,2*(l+w)]},()=>{const t=P([[4,6,12],[6,8,24],[3,5,15],[4,10,20],[6,9,18],[8,12,24],[5,6,30]]);return[`What is the least common multiple of ${t[0]} and ${t[1]}?`,t[2]]}],
+5:[()=>{const n=R(4,25)*40,p=P([10,20,25,50]);return[`A school bag costs ₱${n}. It is on sale at ${p}% off. How much is the discount?`,n*p/100,pf]},()=>{const l=R(5,12),w=R(3,9),h=R(2,8);return[`A box is ${l} cm long, ${w} cm wide and ${h} cm high. What is its volume in cubic centimeters?`,l*w*h]},()=>{const a=R(70,100),b=R(70,100),c=R(70,100),d=80+(4-(a+b+c+80)%4)%4;return[`Rico's quiz scores are ${a}, ${b}, ${c} and ${d}. What is his average score?`,(a+b+c+d)/4]}],
+6:[()=>{const v=R(4,9)*10,t=R(2,6);return[`A bus travels at ${v} km/h for ${t} hours. How many kilometers does it travel?`,v*t]},()=>{const a=P([2,3,4,5]),c=R(45,60),b=a*R(2,4);return[`If ${a} kilos of rice cost ₱${a*c}, how much do ${b} kilos cost?`,b*c,pf]},()=>{const r=P([7,14,21]);return[`Using π = 22/7, what is the area of a circle with a radius of ${r} cm (in square cm)?`,22*r*r/7]},()=>{const a=R(2,9),x=R(3,12),b=R(2,15);return[`Solve for x: ${a}x + ${b} = ${a*x+b}`,x]}]};
+function nd(ans,f){f=f||String;const c=SH([...new Set([ans+1,ans-1,ans+2,ans-2,ans+10,ans-10,ans+5,ans*2,ans-5])]).filter(x=>x>0&&x!==ans).slice(0,3);return[f(ans)].concat(c.map(f))}
+/* history: last 4 games are remembered so no question repeats within 4 consecutive games */
+const HK='ast5_hist',BK='ast5_best';
+const seen=()=>{try{return new Set([].concat(...(JSON.parse(localStorage.getItem(HK))||[])))}catch(e){return new Set()}};
+function commit(){try{const h=JSON.parse(localStorage.getItem(HK))||[],cur=[...S.used];if(S.h)h[h.length-1]=cur;else{h.push(cur);S.h=true}localStorage.setItem(HK,JSON.stringify(h.slice(-4)))}catch(e){}}
+function genMath(g){const sn=seen();let r;for(let i=0;i<40;i++){r=P(MG[g])();if(!sn.has(r[0])&&!S.used.has(r[0]))break}return{g,s:'Math',q:r[0],a:nd(r[1],r[2])}}
+let S=null,snOn=true;try{snOn=localStorage.getItem('ast5_say')!=='0'}catch(e){}
+const T=$('sgT');
+function say(t,fil){if(!snOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const vs=speechSynthesis.getVoices(),L=s=>(s||'').replace('_','-').toLowerCase();let v=fil&&vs.find(x=>/^(fil|tl)/.test(L(x.lang)));if(!v)v=vs.find(x=>L(x.lang)==='en-ph')||vs.find(x=>/^en/.test(L(x.lang)));const u=new SpeechSynthesisUtterance(t.replace(/₱(\d[\d,]*)/g,'$1 pesos').replace(/ \+ /g,' plus ').replace(/ − /g,' minus ').replace(/π/g,'pi').replace(/₂/g,' 2').replace(/%/g,' percent'));if(v){u.voice=v;u.lang=v.lang}else u.lang='en-PH';u.rate=.92;u.pitch=1.1;u.onstart=()=>T.classList.add('talk');u.onend=u.onerror=()=>T.classList.remove('talk');speechSynthesis.speak(u)}catch(e){}}
+const stopSay=()=>{try{speechSynthesis.cancel()}catch(e){}T.classList.remove('talk')};
+const bub=t=>{$('sgBub').textContent=t};
+function hud(){const g=S?S.g:0;$('sgLad').innerHTML=[1,2,3,4,5,6].map(i=>`<i class="${i<g?'d':i===g?'c':''}">${i}</i>`).join('');$('sgLife').textContent=S?'❤️'.repeat(S.lives)+'🖤'.repeat(3-S.lives):'❤️❤️❤️';$('sgSc').textContent=S?S.score:0;const on=S&&S.cur&&!S.locked;$('sgF').disabled=!(on&&S.ll.f);$('sgC').disabled=!(on&&S.ll.c);$('sgR').disabled=!on}
+function intro(){stopSay();S=null;hud();$('sgChip').textContent='Philippines Edition 🇵🇭';$('sgQ').textContent='Are You Smarter Than a 5th Grader?';$('sgBar').style.width='100%';bub('Good day, class! Climb from Grade 1 to Grade 6 — three wrong answers and you stay behind!');
+$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">12 questions · Grades 1–6 · you pick the subject each time<br>🏆 Best score: ${(()=>{try{return localStorage.getItem(BK)||0}catch(e){return 0}})()}</div><button class="sg-go" id="sgStart">Start class</button>`;
+$('sgStart').onclick=start;say("Good day, class! Let's see if you are smarter than a fifth grader.")}
+function start(){S={g:1,n:1,lives:3,score:0,right:0,used:new Set(),ll:{f:1,c:1},h:false,cur:null,locked:false,run:true,tm:0,left:0};snd('go');nextQ()}
+function nextQ(){if(!S)return;if(S.g>6){end(true);return}choose()}
+function choose(){const sn=seen();let pool=BANK.filter(x=>x.g===S.g&&!sn.has(x.q)&&!S.used.has(x.q));if(!pool.length)pool=BANK.filter(x=>x.g===S.g&&!S.used.has(x.q));const subs=['Math'].concat([...new Set(pool.map(x=>x.s))]);S.cur=null;S.pool=pool;hud();
+$('sgChip').textContent=`Grade ${S.g} · Question ${(S.g-1)*2+S.n} of 12`;$('sgQ').textContent='Choose your subject!';bub('Pick any subject you like for Grade '+S.g+'.');$('sgBar').style.width='100%';
+$('sgOpts').className='sg-opts';$('sgOpts').innerHTML=subs.map(s=>`<button class="sg-sub" data-s="${s}">${SE[s]} ${s}</button>`).join('');
+say(`Grade ${S.g}, question ${(S.g-1)*2+S.n}. Choose your subject: ${subs.join(', ')}.`)}
+function ask(q){S.cur={...q,o:SH(q.a),t:q.a[0]};S.used.add(q.q);S.locked=false;commit();const n=(S.g-1)*2+S.n;
+$('sgChip').textContent=`Grade ${S.g} · ${SE[q.s]} ${q.s} · Question ${n} of 12`;$('sgQ').textContent=q.q;bub('Think carefully, class!');
+$('sgOpts').className='sg-opts';$('sgOpts').innerHTML=S.cur.o.map((o,i)=>`<button class="sg-o" data-i="${i}" data-l="${'ABCD'[i]}">${o}</button>`).join('');hud();tmr();read()}
+function read(){if(S&&S.cur)say(`Grade ${S.g}, ${S.cur.s}. ${S.cur.q} ${S.cur.o.map((o,i)=>'ABCD'[i]+'. '+o+'.').join(' ')}`,S.cur.s==='Filipino')}
+function tmr(){const s=S;clearInterval(s.tm);s.left=45;$('sgBar').style.width='100%';s.tm=setInterval(()=>{if(S!==s||!$('screen-smarter').classList.contains('active')){clearInterval(s.tm);return}s.left-=.25;$('sgBar').style.width=Math.max(0,s.left/45*100)+'%';if(s.left<=0)answer(-1)},250)}
+function answer(i){const s=S;if(!s||s.locked||!s.cur)return;s.locked=true;clearInterval(s.tm);const ok=i>=0&&s.cur.o[i]===s.cur.t;
+document.querySelectorAll('#sgOpts .sg-o').forEach((b,j)=>{b.disabled=true;if(s.cur.o[j]===s.cur.t)b.classList.add('ok');else if(j===i)b.classList.add('no')});
+let m;if(ok){s.right++;s.score+=100*s.g+Math.round(s.left)*2;snd('ok');m=P(['Tama! Very good!','Magaling! Correct!','Excellent, you are a star student!'])}else{s.lives--;snd('bad');m=(i<0?"Time's up! ":'Sorry! ')+'The answer is '+s.cur.t+'.'}
+bub(m);say(m,!ok&&false);hud();setTimeout(()=>{if(S!==s)return;if(s.lives<1){end(false);return}if(s.n===2){s.n=1;s.g++}else s.n++;nextQ()},2300)}
+function end(win){const s=S;clearInterval(s.tm);s.run=false;s.cur=null;hud();let best=0;try{best=+localStorage.getItem(BK)||0;if(s.score>best){best=s.score;localStorage.setItem(BK,best)}}catch(e){}
+const xp=s.right*5+(win?60:0);try{if(typeof profile!=='undefined'&&profile&&typeof user!=='undefined'&&user&&typeof saveProfile==='function')saveProfile({xp:(profile.xp||0)+xp}).catch(()=>{})}catch(e){}
+const t=win?'You are smarter than a 5th grader! Congratulations, graduate!':`You reached Grade ${s.g}. You are not smarter than a 5th grader... yet!`;
+$('sgChip').textContent=win?'🎓 Graduation Day!':'📕 Class dismissed';$('sgQ').textContent=t;$('sgBar').style.width='0%';bub(win?'Maraming salamat, class! 🎉':'Study hard and try again!');snd(win?'win':'shake');say(t);
+$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">✅ ${s.right}/12 correct · ⭐ ${s.score} pts<br>🏆 Best ${best} · +${xp} XP</div><button class="sg-go" id="sgAgain">Play again</button><button class="sg-go alt" id="sgHome">Back to lobby</button>`;
+$('sgAgain').onclick=start;$('sgHome').onclick=leave}
+function leave(){if(S)clearInterval(S.tm);S=null;stopSay();show('screen-lobby')}
+$('sgOpts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S)return;if(b.classList.contains('sg-o'))answer(+b.dataset.i);else if(b.classList.contains('sg-sub')&&!S.cur){const sb=b.dataset.s,q=sb==='Math'?genMath(S.g):P(S.pool.filter(x=>x.s===sb));snd('tap');ask(q)}});
+$('sgF').onclick=()=>{if(!S||!S.cur||S.locked||!S.ll.f)return;S.ll.f=0;snd('tap');const b=document.querySelectorAll('#sgOpts .sg-o');SH([0,1,2,3].filter(i=>S.cur.o[i]!==S.cur.t)).slice(0,2).forEach(i=>{b[i].classList.add('x');b[i].disabled=true});bub('Two wrong answers are removed!');hud()};
+$('sgC').onclick=()=>{if(!S||!S.cur||S.locked||!S.ll.c)return;S.ll.c=0;snd('tap');const ci=S.cur.o.indexOf(S.cur.t),pk=Math.random()<.75?ci:P([0,1,2,3].filter(i=>i!==ci)),m=`${P(['Bea','Migo','Tala','Jomar'])} whispers: "I think it is ${'ABCD'[pk]}!"`;bub(m);say(m);hud()};
+$('sgR').onclick=()=>{if(S&&S.cur&&!S.locked)read()};
+$('sgSnd').onclick=()=>{snOn=!snOn;try{localStorage.setItem('ast5_say',snOn?'1':'0')}catch(e){}$('sgSnd').textContent=snOn?'🔊':'🔇';if(!snOn)stopSay()};
+$('sgSnd').textContent=snOn?'🔊':'🔇';
+$('sgBack').onclick=()=>{if(S&&S.run&&!confirm('Leave class? Your progress in this game will be lost.'))return;leave()};
+window.openSmarter=function(){show('screen-smarter');intro()};
+if(typeof GAME_META!=='undefined')GAME_META.smarter={title:'🎓 Smarter than a 5th Grader?',sub:'Philippines edition — Grade 1 to Grade 6.'};
+if(typeof HOWTO!=='undefined')HOWTO.smarter={steps:['Climb the <b>classroom ladder</b> from Grade 1 to Grade 6. Each grade has <b>2 questions</b> — 12 in all.','Before <b>every question</b>, you <b>choose your subject</b>: Math, Science, English, Filipino, A.P. or MAPEH.','Your teacher <b>reads each question aloud</b> (tap 🔁 to hear it again, 🔊 to mute). You have 45 seconds per question.','Three wrong answers and you stay behind! Use <b>✂️ 50/50</b> and <b>🙋 Classmate</b> once each.','Finish Grade 6 to prove you are smarter than a 5th grader and earn bonus XP.'],tip:'Questions are fresh every game — none repeat for at least 4 games in a row.'};
+const cd=document.querySelector('.game-card[data-game="smarter"]');
+if(cd)cd.onclick=()=>{try{snd('tap')}catch(e){}if(typeof showHowTo==='function'&&typeof HOWTO!=='undefined')showHowTo('smarter',window.openSmarter);else window.openSmarter()};
+})();
+</script>
+
 </body>
 </html>
