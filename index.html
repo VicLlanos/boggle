@@ -1513,6 +1513,38 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .kid.helper .plate{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00}
 @media (max-height:700px){.sg-av{width:38px;height:38px}.sg-screen{flex-basis:96px;padding:10px 12px}.pv{max-width:62px}.sg-pod{width:78px}.sg-o,.sg-sub{min-height:50px}}
 @media (prefers-reduced-motion:reduce){.sg-beam,.sg-bulbs,.pv svg,.sg-o,.sg-sub,.sg-host,.sg-sum,.sg-go,.kid{animation:none!important}}
+
+/* ===== MECCHA CHAMELEON ===== */
+#screen-meccha{position:fixed;inset:0;max-width:none;width:100%;z-index:60;padding:0;gap:0;overflow:hidden;background:#1a1430;font-family:'DM Sans',sans-serif;color:#fff;user-select:none;-webkit-user-select:none}
+#screen-meccha.active{display:flex;flex-direction:column;animation:none}
+.mc-top{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 12px 8px;gap:8px;background:rgba(0,0,0,.35);backdrop-filter:blur(10px);z-index:5}
+.mc-top .back{min-width:44px;height:40px;border:none;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-weight:800;cursor:pointer}
+.mc-top .title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.05rem;flex:1;text-align:center}
+.mc-phase{font-size:.72rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.85;text-align:center;margin-top:2px}
+.mc-stage-wrap{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0d0a1f}
+#mcCanvas{max-width:100%;max-height:100%;display:block;touch-action:none;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.mc-hud{position:absolute;left:10px;right:10px;bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;pointer-events:none;z-index:4}
+.mc-hud > *{pointer-events:auto}
+.mc-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden}
+.mc-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#00D2A0,#FFD166);transform-origin:left;transition:transform .2s linear}
+.mc-tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mc-tools button,.mc-palette button{border:none;border-radius:12px;padding:10px 14px;font-weight:800;font-family:inherit;cursor:pointer;background:rgba(255,255,255,.92);color:#1a1230;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.mc-tools button.on{outline:3px solid #7C5CFF;transform:translateY(-2px)}
+.mc-palette{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:8px;background:rgba(0,0,0,.45);border-radius:16px}
+.mc-palette .sw{width:32px;height:32px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.mc-palette .sw.on{outline:3px solid #FFD166;transform:scale(1.12)}
+.mc-status{text-align:center;font-weight:800;font-size:.9rem;text-shadow:0 1px 3px #000;min-height:1.3em}
+.mc-lobby{padding:16px;max-width:420px;margin:0 auto;width:100%;overflow-y:auto}
+.mc-maps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mc-map{border:3px solid rgba(255,255,255,.2);border-radius:16px;padding:12px 8px;text-align:center;background:rgba(255,255,255,.08);cursor:pointer;font-weight:800}
+.mc-map.on{border-color:#7C5CFF;background:rgba(124,92,255,.25);box-shadow:0 0 0 3px rgba(124,92,255,.3)}
+.mc-map .ic{font-size:1.8rem;display:block;margin-bottom:4px}
+.mc-roles{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.mc-roles span{padding:6px 12px;border-radius:99px;font-weight:800;font-size:.8rem;background:rgba(255,255,255,.12)}
+.mc-roles .hider{background:#2ecc71;color:#063}
+.mc-roles .seeker{background:#e74c3c;color:#fff}
+.game-card[data-game=meccha]{--a:#00D2A0;--t:#003D33}
+
 </style>
 </head>
 <body>
@@ -1671,6 +1703,12 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="name">Smarter than a 5th Grader?</div>
         <div class="desc">Philippines edition</div>
       </div>
+      <div class="game-card" data-game="meccha" id="pickMeccha" aria-label="Play Meccha Chameleon" style="cursor:pointer">
+        <div class="icon">🦎</div>
+        <div class="name">Meccha Chameleon</div>
+        <div class="desc">Paint · Hide · Seek — max 4 players, 4 maps</div>
+      </div>
+
       <div class="game-card" data-game="emberfall" id="pickEmberfall" data-href="https://vicllanos.github.io/AIM/" aria-label="Open Emberfall, a separate first-person shooter with its own login" style="cursor:pointer">
         <div class="thumb t-emberfall" aria-hidden="true"><svg viewBox="0 0 320 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="efA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A0912"/><stop offset=".6" stop-color="#7C1D18"/><stop offset="1" stop-color="#FF8A2B"/></linearGradient><radialGradient id="efG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD27A" stop-opacity=".95"/><stop offset=".5" stop-color="#FF6A2B" stop-opacity=".45"/><stop offset="1" stop-color="#FF6A2B" stop-opacity="0"/></radialGradient></defs><rect width="320" height="100" fill="url(#efA)"/><g class="px1"><circle class="a glow" cx="240" cy="54" r="50" fill="url(#efG)"/><circle cx="240" cy="54" r="13" fill="#FFE2A0"/><polygon points="0,100 0,62 16,62 16,50 32,50 32,66 50,66 50,56 64,56 64,100" fill="#2A0D14"/><polygon points="252,100 252,60 264,60 264,46 282,46 282,62 298,62 298,52 320,52 320,100" fill="#2A0D14"/></g><g class="px2"><polygon points="64,100 64,68 82,68 82,42 90,42 90,32 96,32 96,42 104,42 104,72 124,72 124,60 140,60 140,100" fill="#12060B"/><polygon points="184,100 184,66 198,66 198,50 214,50 214,70 232,70 232,100" fill="#12060B"/><g fill="#FFB347" opacity=".85"><rect x="86" y="48" width="3" height="3"/><rect x="92" y="58" width="3" height="3"/><rect x="110" y="78" width="3" height="3"/><rect x="202" y="56" width="3" height="3"/><rect x="220" y="80" width="3" height="3"/></g><rect y="80" width="320" height="20" fill="#0E0509"/><path d="M0 80H320" stroke="#FF6A2B" stroke-opacity=".5" stroke-width="1"/><g class="a foe" stroke="#FF6A2B" stroke-width=".8" fill="#0D0509"><circle cx="160" cy="45" r="5"/><rect x="153" y="50" width="14" height="22" rx="3"/><rect x="154" y="72" width="5" height="9" rx="1.5"/><rect x="161" y="72" width="5" height="9" rx="1.5"/><rect x="166" y="54" width="12" height="3" rx="1.5"/><circle cx="158" cy="45" r=".9" fill="#FF4F4F" stroke="none"/><circle cx="162" cy="45" r=".9" fill="#FF4F4F" stroke="none"/></g></g><g class="px3"><g class="a ch"><circle cx="160" cy="52" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"/><path d="M160 36v8M160 60v8M144 52h8M168 52h8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="160" cy="52" r="1.4" fill="#FF4F4F"/></g><path class="a hit" d="M154 46l-4-4M166 46l4-4M154 58l-4 4M166 58l4 4" stroke="#FF4F4F" stroke-width="1.8" stroke-linecap="round"/><polygon points="236,70 296,62 320,68 320,100 222,100 230,86" fill="#16111A" stroke="#4A3640" stroke-width=".8"/><polygon points="196,80 238,72 242,80 202,88" fill="#241A1F" stroke="#4A3640" stroke-width=".8"/><path d="M242 76L316 70" stroke="#FF6A2B" stroke-width="1.6" stroke-linecap="round"/><rect x="248" y="63" width="10" height="5" rx="1" fill="#FF6A2B"/><polygon class="a flash" points="196,80 188,74 190,80 182,80 190,82 188,88 195,83" fill="#FFD166"/><circle class="a em" style="--i:0" cx="30" cy="90" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:1" cx="72" cy="94" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:2" cx="118" cy="92" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:3" cx="150" cy="96" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:4" cx="196" cy="95" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:5" cx="246" cy="97" r="1.3" fill="#FF6A2B"/><circle class="a em" style="--i:6" cx="284" cy="93" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:7" cx="98" cy="87" r="1.1" fill="#FF6A2B"/><circle class="a em" style="--i:8" cx="178" cy="90" r="1.4" fill="#FFD166"/><circle class="a em" style="--i:9" cx="304" cy="98" r="1.2" fill="#FF6A2B"/></g></svg><span class="ext">FPS &#8599;</span></div>
         <div class="name">Emberfall</div>
@@ -12278,6 +12316,262 @@ if(typeof GAME_META!=='undefined')GAME_META.smarter={title:'Smarter than a 5th G
 if(typeof HOWTO!=='undefined')HOWTO.smarter={steps:['You are the contestant on the game-show stage. Five <b>real 5th graders</b> stand beside you — each one sometimes gets it right and sometimes gets it wrong.','Before <b>each grade</b> you choose <b>ONE 5th grader as your helper</b> (or go solo). Each one is strongest in a different subject.','Climb from <b>Grade 1 to Grade 6</b> (2 questions per grade, 12 in all). Before every question, <b>choose a subject</b>. Questions get tougher each grade, and the prize climbs up to ₱1,000,000.','Three wrong answers and you are out! You have 45 seconds per question.','Lifelines (once each): <b>Copy</b> — lock in your helper&rsquo;s answer (once per game; even smart 5th graders can be wrong!); <b>Switch</b> — swap for a new question in the same subject; <b>Pass</b> — get the correct answer for free.','After you answer, the 5th graders reveal their answers, so you can see who was right.'],tip:'The questions get so tough you will wonder if they are really for 5th graders. Even the smart ones slip up in the later grades, so think before you copy!'};
 const cd=document.querySelector('.game-card[data-game="smarter"]');
 if(cd)cd.onclick=()=>{try{snd('tap')}catch(e){}if(typeof showHowTo==='function'&&typeof HOWTO!=='undefined')showHowTo('smarter',window.openSmarter);else window.openSmarter()};
+})();
+</script>
+
+<section id="screen-meccha" class="screen">
+  <div class="mc-top">
+    <button class="back" id="mcBack" aria-label="Back">←</button>
+    <div>
+      <div class="title">Meccha Chameleon</div>
+      <div class="mc-phase" id="mcPhase">Lobby</div>
+    </div>
+    <div style="width:44px"></div>
+  </div>
+  <div id="mcLobby" class="mc-lobby">
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:2.5rem">🦎</div>
+      <div style="font-family:Bricolage Grotesque;font-weight:700;font-size:1.2rem;color:#FFD166">Paint · Hide · Discover</div>
+      <div style="font-size:.85rem;opacity:.8;margin-top:4px">Max 4 players · 4 maps · Hiders paint to blend in</div>
+    </div>
+    <label style="display:block;font-size:.75rem;font-weight:800;opacity:.7;margin-bottom:6px">CHOOSE MAP (1 of 4)</label>
+    <div class="mc-maps" id="mcMaps">
+      <div class="mc-map on" data-map="0"><span class="ic">🏠</span>Living Room</div>
+      <div class="mc-map" data-map="1"><span class="ic">📚</span>Library</div>
+      <div class="mc-map" data-map="2"><span class="ic">🍳</span>Kitchen</div>
+      <div class="mc-map" data-map="3"><span class="ic">🌳</span>Garden</div>
+    </div>
+    <div class="mc-roles" id="mcRoleInfo">
+      <span class="hider">Hiders paint & hide</span>
+      <span class="seeker">Seekers find them</span>
+    </div>
+    <p style="font-size:.8rem;text-align:center;opacity:.75;line-height:1.4;margin:8px 0 14px">
+      Hiders get a short prep time to paint their white body and freeze in a pose.
+      Seekers then search the stage and tag anyone who doesn’t blend in.
+    </p>
+    <button class="btn btn-primary" id="mcStart" style="width:100%">Start Practice Round</button>
+    <button class="btn btn-ghost" id="mcHow" style="width:100%;margin-top:8px">How to play</button>
+  </div>
+  <div id="mcPlay" style="display:none;flex:1;flex-direction:column;position:relative;min-height:0">
+    <div class="mc-stage-wrap">
+      <canvas id="mcCanvas" width="720" height="480"></canvas>
+    </div>
+    <div class="mc-hud">
+      <div class="mc-status" id="mcStatus">Get ready…</div>
+      <div class="mc-bar"><i id="mcBar"></i></div>
+      <div class="mc-palette" id="mcPalette" style="display:none"></div>
+      <div class="mc-tools" id="mcTools"></div>
+    </div>
+  </div>
+</section>
+<script>
+/* ===== MECCHA CHAMELEON — paint & hide (max 4 players concept, 4 maps) ===== */
+(function(){
+const $=id=>document.getElementById(id);
+const MAPS=[
+  {name:'Living Room',bg:'#3d2b4f',props:[
+    {x:80,y:120,w:140,h:90,c:'#8B4513'},{x:320,y:80,w:80,h:120,c:'#2c3e50'},
+    {x:500,y:200,w:100,h:60,c:'#c0392b'},{x:200,y:300,w:160,h:40,c:'#27ae60'},{x:550,y:80,w:70,h:70,c:'#f1c40f'}
+  ]},
+  {name:'Library',bg:'#2c1810',props:[
+    {x:40,y:60,w:200,h:180,c:'#5d4037'},{x:280,y:100,w:60,h:140,c:'#3e2723'},
+    {x:400,y:200,w:180,h:50,c:'#795548'},{x:550,y:80,w:90,h:100,c:'#4e342e'},{x:150,y:320,w:120,h:40,c:'#a1887f'}
+  ]},
+  {name:'Kitchen',bg:'#455a64',props:[
+    {x:60,y:80,w:180,h:70,c:'#eceff1'},{x:300,y:60,w:100,h:120,c:'#90a4ae'},
+    {x:450,y:200,w:140,h:80,c:'#ff7043'},{x:100,y:280,w:80,h:80,c:'#26a69a'},{x:500,y:100,w:60,h:60,c:'#ffca28'}
+  ]},
+  {name:'Garden',bg:'#1b5e20',props:[
+    {x:100,y:150,w:100,h:100,c:'#33691e'},{x:300,y:80,w:80,h:160,c:'#558b2f'},
+    {x:450,y:220,w:120,h:50,c:'#8d6e63'},{x:50,y:300,w:150,h:40,c:'#7cb342'},{x:550,y:120,w:70,h:70,c:'#fdd835'}
+  ]}
+];
+const POSES=['stand','crouch','lie','stretch'];
+const COLORS=['#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#95a5a6','#8B4513','#2c3e50','#c0392b','#27ae60','#f39c12'];
+let S=null, raf=0, cv, ctx, dragging=false;
+
+function showLobby(){
+  $('mcLobby').style.display='block';
+  $('mcPlay').style.display='none';
+  $('mcPhase').textContent='Lobby';
+}
+function openMeccha(){
+  show('screen-meccha');
+  showLobby();
+  document.querySelectorAll('#mcMaps .mc-map').forEach(el=>{
+    el.onclick=()=>{
+      document.querySelectorAll('#mcMaps .mc-map').forEach(m=>m.classList.remove('on'));
+      el.classList.add('on');
+    };
+  });
+  $('mcStart').onclick=()=>{
+    const m=document.querySelector('#mcMaps .mc-map.on');
+    startRound(m?+m.dataset.map:0);
+  };
+  $('mcHow').onclick=()=>{
+    if(typeof showHowTo==='function') showHowTo('meccha', openMeccha);
+    else alert('Paint your white body to match the stage, freeze in a pose, then hope the seekers miss you!');
+  };
+  $('mcBack').onclick=()=>{
+    if(S&&S.running&&!confirm('Leave the round?')) return;
+    stopRound();
+    show('screen-lobby');
+  };
+}
+
+function startRound(mapId){
+  S={
+    map:MAPS[mapId%4], phase:'prep', t:30, maxT:30, role:'hider',
+    color:'#ffffff', pose:'stand', x:360, y:240, found:false, running:true,
+    seekers:[{x:100,y:100,vx:1.2,vy:0.8},{x:600,y:350,vx:-1,vy:-0.6}]
+  };
+  $('mcLobby').style.display='none';
+  $('mcPlay').style.display='flex';
+  $('mcPhase').textContent='Prep — Paint & Hide';
+  $('mcStatus').textContent='Paint yourself to blend with the environment! Drag to move, then freeze.';
+  buildPalette(); buildTools();
+  cv=$('mcCanvas'); ctx=cv.getContext('2d');
+  resize(); loop(); tick();
+}
+function stopRound(){ S=null; cancelAnimationFrame(raf); showLobby(); }
+
+function buildPalette(){
+  const p=$('mcPalette'); p.style.display='flex';
+  p.innerHTML=COLORS.map(c=>`<button class="sw" style="background:${c}" data-c="${c}"></button>`).join('');
+  p.querySelectorAll('.sw').forEach(b=>{
+    b.onclick=()=>{
+      p.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on'); if(S) S.color=b.dataset.c;
+    };
+  });
+  p.querySelector('.sw').classList.add('on');
+}
+function buildTools(){
+  const t=$('mcTools');
+  if(S.phase==='prep'){
+    t.innerHTML=`<button data-a="pose">Pose: ${S.pose}</button>
+      <button data-a="eyedrop">Eyedrop</button>
+      <button data-a="freeze" style="background:#00D2A0;color:#003D33">Freeze & Ready</button>`;
+  } else if(S.phase==='hunt'){
+    t.innerHTML=`<button data-a="wait" style="opacity:.7">Hiding… seekers are searching</button>`;
+  } else {
+    t.innerHTML=`<button data-a="again" style="background:#7C5CFF;color:#fff">Play again</button>
+      <button data-a="lobby">Lobby</button>`;
+  }
+  t.querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{
+      const a=b.dataset.a;
+      if(a==='pose'){ const i=(POSES.indexOf(S.pose)+1)%POSES.length; S.pose=POSES[i]; b.textContent='Pose: '+S.pose; }
+      else if(a==='eyedrop'){
+        let best=null,bd=1e9;
+        S.map.props.forEach(pr=>{ const d=Math.hypot(S.x-(pr.x+pr.w/2),S.y-(pr.y+pr.h/2)); if(d<bd){bd=d;best=pr;} });
+        if(best){ S.color=best.c; document.querySelectorAll('#mcPalette .sw').forEach(sw=>sw.classList.toggle('on',sw.dataset.c===best.c)); }
+        $('mcStatus').textContent='Sampled nearby object color!';
+      } else if(a==='freeze'){
+        S.phase='hunt'; S.t=45; S.maxT=45;
+        $('mcPhase').textContent='Hunt — Seekers searching';
+        $('mcStatus').textContent='Stay still! Seekers look for color mismatches and odd poses.';
+        $('mcPalette').style.display='none'; buildTools();
+      } else if(a==='again'){ const m=document.querySelector('#mcMaps .mc-map.on'); startRound(m?+m.dataset.map:0); }
+      else if(a==='lobby') stopRound();
+    };
+  });
+}
+function resize(){
+  if(!cv) return;
+  const wrap=cv.parentElement, maxW=wrap.clientWidth-16, maxH=wrap.clientHeight-16;
+  const scale=Math.min(maxW/720, maxH/480, 1.2);
+  cv.style.width=(720*scale)+'px'; cv.style.height=(480*scale)+'px';
+}
+function hexToRgb(hex){ const h=hex.replace('#',''); return {r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)}; }
+function colorDist(a,b){ const pa=hexToRgb(a),pb=hexToRgb(b); return Math.hypot(pa.r-pb.r,pa.g-pb.g,pa.b-pb.b); }
+function nearestPropColor(x,y){
+  let best=S.map.bg, bd=1e9;
+  S.map.props.forEach(p=>{ const d=Math.hypot(x-(p.x+p.w/2),y-(p.y+p.h/2)); if(d<bd){bd=d;best=p.c;} });
+  return best;
+}
+function drawAvatar(x,y,col,pose,caught){
+  ctx.save(); ctx.translate(x,y);
+  if(pose==='lie'){ctx.rotate(-Math.PI/2); ctx.scale(1.1,0.7);}
+  else if(pose==='crouch'){ctx.scale(1,0.75); ctx.translate(0,12);}
+  else if(pose==='stretch'){ctx.scale(1.25,0.85);}
+  ctx.fillStyle=caught?'#ff6b6b':col;
+  ctx.beginPath(); ctx.ellipse(0,10,22,28,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,-22,16,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1230';
+  ctx.beginPath(); ctx.arc(-6,-24,2.5,0,Math.PI*2); ctx.arc(6,-24,2.5,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#1a1230'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(0,-18,5,0.2,Math.PI-0.2); ctx.stroke();
+  ctx.strokeStyle=col; ctx.lineWidth=6; ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(-18,0); ctx.lineTo(-28,20); ctx.moveTo(18,0); ctx.lineTo(28,20);
+  ctx.moveTo(-10,30); ctx.lineTo(-14,48); ctx.moveTo(10,30); ctx.lineTo(14,48); ctx.stroke();
+  ctx.restore();
+}
+function draw(){
+  if(!S||!ctx) return;
+  const m=S.map;
+  ctx.fillStyle=m.bg; ctx.fillRect(0,0,720,480);
+  m.props.forEach(p=>{ ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.w,p.h); ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(p.x,p.y+p.h-6,p.w,6); });
+  if(S.phase==='hunt'||S.phase==='end'){
+    S.seekers.forEach(sk=>{
+      sk.x+=sk.vx; sk.y+=sk.vy;
+      if(sk.x<30||sk.x>690) sk.vx*=-1; if(sk.y<30||sk.y>450) sk.vy*=-1;
+      ctx.beginPath(); ctx.arc(sk.x,sk.y,18,0,Math.PI*2); ctx.fillStyle='#e74c3c'; ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.fillText('S',sk.x,sk.y+5);
+      if(S.phase==='hunt'&&!S.found&&Math.hypot(sk.x-S.x,sk.y-S.y)<40){
+        const match=colorDist(S.color,nearestPropColor(S.x,S.y))<90;
+        if(!match||Math.random()<0.012){ S.found=true; S.phase='end';
+          $('mcStatus').textContent='Caught! A seeker spotted you.'; $('mcPhase').textContent='Round over'; buildTools(); }
+      }
+    });
+  }
+  if(!S.found||S.phase==='end') drawAvatar(S.x,S.y,S.color,S.pose,S.phase==='end'&&S.found);
+}
+function loop(){ if(!S||!S.running) return; draw(); raf=requestAnimationFrame(loop); }
+function tick(){
+  if(!S||!S.running) return;
+  S.t-=0.25; const pct=Math.max(0,S.t/S.maxT); $('mcBar').style.transform=`scaleX(${pct})`;
+  if(S.t<=0){
+    if(S.phase==='prep'){ S.phase='hunt'; S.t=45; S.maxT=45;
+      $('mcPhase').textContent='Hunt — Seekers searching'; $('mcStatus').textContent='Prep time over! Seekers are loose.';
+      $('mcPalette').style.display='none'; buildTools();
+    } else if(S.phase==='hunt'){ S.phase='end';
+      if(!S.found){ $('mcStatus').textContent='You survived! Great camouflage.'; $('mcPhase').textContent='Hiders win'; }
+      buildTools();
+    }
+  }
+  setTimeout(tick,250);
+}
+function pointer(e){
+  if(!S||S.phase!=='prep'||!cv) return;
+  const rect=cv.getBoundingClientRect(), scaleX=720/rect.width, scaleY=480/rect.height;
+  const x=(e.clientX-rect.left)*scaleX, y=(e.clientY-rect.top)*scaleY;
+  if(e.type==='pointerdown'&&Math.hypot(x-S.x,y-S.y)<45) dragging=true;
+  else if(e.type==='pointermove'&&dragging){ S.x=Math.max(30,Math.min(690,x)); S.y=Math.max(30,Math.min(450,y)); }
+  else if(e.type==='pointerup') dragging=false;
+}
+document.addEventListener('pointerdown',e=>{ if(e.target===cv) pointer(e); });
+document.addEventListener('pointermove',e=>{ if(dragging) pointer(e); });
+document.addEventListener('pointerup',()=>dragging=false);
+
+window.openMeccha=openMeccha;
+if(typeof GAME_META!=='undefined') GAME_META.meccha={title:'Meccha Chameleon',sub:'Paint yourself, freeze, and hide in plain sight. Max 4 players · 4 maps.'};
+if(typeof HOWTO!=='undefined') HOWTO.meccha={
+  steps:[
+    'Choose one of the <b>4 maps</b> (Living Room, Library, Kitchen, Garden).',
+    'You start as a <b>Hider</b>. Drag the white figure around the stage.',
+    'Use the <b>color palette</b> or <b>Eyedrop</b> to sample nearby objects and paint your body.',
+    'Cycle <b>poses</b> (stand / crouch / lie / stretch) to break your human silhouette.',
+    'Press <b>Freeze & Ready</b> (or wait for the prep timer). Seekers then search.',
+    'Seekers win by finding you; Hiders win by surviving the hunt timer.',
+    'Designed for up to <b>4 players</b>. This practice mode lets you learn the full loop solo.'
+  ],
+  tip:'Match both color AND pose to the surface. A perfect paint job with the wrong pose is still easy to spot!'
+};
+const cd=document.querySelector('.game-card[data-game="meccha"]');
+if(cd) cd.onclick=()=>{ try{snd('tap')}catch(e){} if(typeof showHowTo==='function'&&typeof HOWTO!=='undefined') showHowTo('meccha',window.openMeccha); else window.openMeccha(); };
+window.addEventListener('resize',()=>{ if(S) resize(); });
 })();
 </script>
 
