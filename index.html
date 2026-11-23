@@ -1508,6 +1508,9 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .sg-ll button b{font-size:.62rem;font-weight:700;opacity:.7}
 .sg-ll button:active:not(:disabled){transform:translateY(2px)}.sg-ll button:disabled{opacity:.3;filter:grayscale(1)}
 .sg-ll button.on{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00;animation:sgPulse 1s infinite}
+.kid.helper::after{content:'★';position:absolute;top:16px;right:0;font-size:1.15rem;color:#ffd166;filter:drop-shadow(0 0 4px #ff9f1c);animation:sgBeat 1.2s infinite}
+.kid.helper .pv{filter:drop-shadow(0 0 9px rgba(255,209,102,.95))}
+.kid.helper .plate{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00}
 @media (max-height:700px){.sg-av{width:38px;height:38px}.sg-screen{flex-basis:96px;padding:10px 12px}.pv{max-width:62px}.sg-pod{width:78px}.sg-o,.sg-sub{min-height:50px}}
 @media (prefers-reduced-motion:reduce){.sg-beam,.sg-bulbs,.pv svg,.sg-o,.sg-sub,.sg-host,.sg-sum,.sg-go,.kid{animation:none!important}}
 </style>
@@ -12058,95 +12061,110 @@ AC.push(['Welcome Guests','Welcome 25 visitor stays',g=>(g.st.vis||0)>=25,400],[
 /* ===== Are You Smarter Than a 5th Grader? — Philippines Edition (game-show stage, 5 fifth graders, lifelines) ===== */
 (function(){
 const $=id=>document.getElementById(id),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)],SH=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
-const BANK=`1|Science|Which animal lays eggs?|Chicken|Carabao|Dog|Cat
-1|Science|Which body part do we use to smell?|Nose|Ears|Eyes|Tongue
-1|English|Which word begins with the same sound as "ball"?|bat|cup|sun|hen
-1|English|What is the opposite of "hot"?|cold|warm|tall|soft
-1|Filipino|Ano ang kasalungat ng "mataas"?|mababa|malaki|mahaba|mabilis
-1|Filipino|Ilang pantig mayroon ang salitang "bahay"?|2|1|3|4
-1|A.P.|Who leads a barangay?|Barangay Captain|Mayor|President|Governor
-1|A.P.|Which colors are on the Philippine flag?|Blue, red, white and yellow|Green, red and white|Blue, green and yellow|Red, black and white
-1|MAPEH|Which instrument do you hit with sticks?|Drum|Guitar|Flute|Violin
-1|MAPEH|Which of these is a primary color?|Red|Green|Orange|Purple
-2|Science|Which state of matter has a definite shape?|Solid|Liquid|Gas|Vapor
-2|Science|What do we call animals that eat only plants?|Herbivores|Carnivores|Omnivores|Decomposers
-2|English|Choose the correct sentence.|She goes to school.|She go to school.|She going school.|She gone to school.
-2|English|What is the plural of "box"?|boxes|boxs|boxen|boxies
-2|Filipino|Ano ang pang-uri sa pangungusap: "Mabait na bata si Ana."?|mabait|bata|si|Ana
-2|Filipino|Alin ang pandiwa?|kumain|mesa|pula|bata
-2|A.P.|Which direction does the sun rise?|East|West|North|South
-2|A.P.|Which of these is a basic need of every family?|Food, clothing and shelter|Toys|Gadgets|Jewelry
-2|MAPEH|How many beats does a quarter note get?|1|2|4|3
-2|MAPEH|Which of these is a locomotive movement?|Hopping|Bending|Twisting|Stretching
-3|Science|Which of these is a producer in a food chain?|Grass|Snake|Eagle|Frog
-3|Science|Which simple machine is a seesaw?|Lever|Pulley|Wedge|Screw
-3|Science|What do we call water vapor turning into liquid water?|Condensation|Evaporation|Precipitation|Melting
-3|English|What is the past tense of "bring"?|brought|bringed|brang|brung
-3|English|Which of these is a compound word?|sunflower|flowering|sunny|flowered
-3|English|Choose the correct pronoun: "Maria and I went to market. ___ bought fish."|We|They|She|Us
-3|Filipino|Ano ang ibig sabihin ng "balat-sibuyas"?|Madaling masaktan ang damdamin|Mayabang|Matapang|Masipag
-3|Filipino|Alin ang pangngalang pantangi?|Cebu|lungsod|ilog|bundok
-3|Filipino|Alin ang wastong pagkakasulat?|Pumunta kami sa Maynila.|pumunta kami sa maynila.|Pumunta Kami sa Maynila|pumunta Kami sa maynila.
-3|A.P.|Which is the largest island in the Philippines?|Luzon|Mindanao|Samar|Palawan
-3|A.P.|What is the highest mountain in the Philippines?|Mount Apo|Mount Pulag|Mayon Volcano|Mount Banahaw
-3|A.P.|Which city is nicknamed the "Queen City of the South"?|Cebu City|Davao City|Iloilo City|Zamboanga City
-3|MAPEH|How many beats does a half note get?|2|1|3|4
-3|MAPEH|Which folk dance uses two bamboo poles and imitates a bird?|Tinikling|Cariñosa|Maglalatik|Pandanggo sa Ilaw
-3|MAPEH|What is the music term for "very soft"?|Pianissimo|Fortissimo|Allegro|Crescendo
-4|Science|Which type of rock forms from cooled lava?|Igneous|Sedimentary|Metamorphic|Fossil
-4|Science|What force opposes motion between two touching surfaces?|Friction|Gravity|Inertia|Buoyancy
-4|Science|Which of these is a renewable source of energy?|Solar|Coal|Natural gas|Oil
-4|English|Which sentence uses a comma correctly?|After dinner, we watched a movie.|After dinner we, watched a movie.|After, dinner we watched a movie.|After dinner we watched, a movie.
-4|English|What does the prefix "un-" mean in "unhappy"?|not|again|before|very
-4|English|Which word is spelled correctly?|necessary|neccessary|necesary|neccesary
-4|Filipino|Ano ang kahulugan ng "ilaw ng tahanan"?|Ina|Ama|Kapatid|Lolo
-4|Filipino|Alin ang salitang-ugat ng "kumakain"?|kain|kakain|umakain|kumain-kain
-4|Filipino|Alin ang panghalip?|siya|bata|tumakbo|masaya
-4|A.P.|Which imaginary line divides Earth into Northern and Southern Hemispheres?|Equator|Prime Meridian|International Date Line|Tropic of Cancer
-4|A.P.|Which volcano is famous for its almost perfect cone shape?|Mayon|Taal|Pinatubo|Kanlaon
-4|A.P.|Which hero is known as the "Sublime Paralytic"?|Apolinario Mabini|Andres Bonifacio|Jose Rizal|Juan Luna
-4|MAPEH|In 3/4 time, how many beats are in each measure?|3|4|2|6
-4|MAPEH|Which element of art refers to how light or dark a color is?|Value|Line|Shape|Texture
-4|MAPEH|Which activity best improves cardiovascular endurance?|Jogging|Stretching|Sit-and-reach|Lifting a book
-5|Science|Which blood cells help fight infection?|White blood cells|Red blood cells|Platelets|Hemoglobin
-5|Science|What is the pH of pure water?|7|1|10|14
-5|Science|Which layer of the atmosphere contains the ozone layer?|Stratosphere|Troposphere|Mesosphere|Thermosphere
-5|English|Identify the figure of speech: "The wind whispered through the trees."|Personification|Simile|Metaphor|Alliteration
-5|English|Which word is an antonym of "scarce"?|abundant|rare|limited|sparse
-5|English|Which sentence is in the present perfect tense?|I have finished my project.|I finished my project.|I am finishing my project.|I will finish my project.
-5|Filipino|Ano ang kahulugan ng sawikaing "kapit-tuko"?|Mahigpit ang pagkakahawak|Mabagal kumilos|Palaging nagtatago|Mahilig umakyat
-5|Filipino|Sino ang tinaguriang "Ama ng Wikang Pambansa"?|Manuel L. Quezon|Jose Rizal|Francisco Balagtas|Lope K. Santos
-5|Filipino|Alin ang halimbawa ng pagtutulad (simile)?|Para siyang anghel sa bait.|Ang mundo ay isang entablado.|Umiyak ang langit.|Pasan niya ang daigdig.
-5|A.P.|Which treaty ended the Spanish-American War in 1898?|Treaty of Paris|Treaty of Versailles|Treaty of Manila|Treaty of Tordesillas
-5|A.P.|Who was the first President of the Commonwealth of the Philippines?|Manuel L. Quezon|Emilio Aguinaldo|Sergio Osmeña|Manuel Roxas
-5|A.P.|Which is the longest river in the Philippines?|Cagayan River|Pasig River|Agusan River|Pampanga River
-5|MAPEH|Who composed the music of the Philippine national anthem?|Julian Felipe|Jose Palma|Nicanor Abelardo|Francisco Santiago
-5|MAPEH|To which instrument family does the cello belong?|Strings|Woodwind|Brass|Percussion
-5|MAPEH|In first aid, what does the "R" in RICE stand for?|Rest|Run|Repair|Rinse
-6|Science|Which part of the brain controls balance and coordination?|Cerebellum|Cerebrum|Brain stem|Hypothalamus
-6|Science|What is the SI unit of force?|Newton|Joule|Watt|Pascal
-6|Science|Which type of chemical bond is formed by sharing electrons?|Covalent|Ionic|Metallic|Hydrogen
-6|English|Which sentence contains a dangling modifier?|Walking to school, the rain started pouring.|Walking to school, I got wet in the rain.|The rain poured while I walked to school.|I walked to school in the rain.
-6|English|What does the word "ubiquitous" mean?|Found everywhere|Very rare|Extremely old|Easily broken
-6|English|Which of these is a complex sentence?|Although it rained, we played outside.|We played outside.|It rained, and we stayed home.|Rain fell; we left.
-6|Filipino|Anong akda ni Rizal ang karugtong ng Noli Me Tangere?|El Filibusterismo|Florante at Laura|Mi Ultimo Adios|Sa Aking Mga Kabata
-6|Filipino|Ano ang tawag sa uri ng panitikang may sukat at tugma?|Tula|Maikling kuwento|Sanaysay|Nobela
-6|Filipino|Sino ang sumulat ng "Florante at Laura"?|Francisco Balagtas|Jose Rizal|Andres Bonifacio|Jose Corazon de Jesus
-6|A.P.|Which president declared Martial Law in 1972?|Ferdinand Marcos|Diosdado Macapagal|Carlos P. Garcia|Elpidio Quirino
-6|A.P.|The 1986 People Power Revolution took place along which avenue?|EDSA|Roxas Boulevard|Taft Avenue|Commonwealth Avenue
-6|A.P.|Which branch of government makes the laws?|Legislative (Congress)|Executive|Judicial|Constitutional Commission
-6|MAPEH|Which painting medium uses water-based transparent pigments?|Watercolor|Oil paint|Charcoal|Mosaic
-6|MAPEH|Who composed the kundiman "Mutya ng Pasig"?|Nicanor Abelardo|Julian Felipe|Antonio Molina|Lucio San Pedro
+const BANK=`1|Science|How many legs does an insect have?|6|4|8|10
+1|Science|Which of these animals is NOT an insect?|Spider|Ant|Bee|Butterfly
+1|Science|Which of these animals is nocturnal (active at night)?|Owl|Hen|Sparrow|Duck
+1|English|Which word has a silent letter?|knee|tree|green|sleep
+1|English|How many vowels are in the word "education"?|5|4|3|6
+1|English|What is the plural of "mouse"?|mice|mouses|mices|mouse
+1|Filipino|Ilang titik mayroon ang makabagong alpabetong Filipino?|28|26|20|31
+1|Filipino|Ano ang Filipino ng "rainbow"?|bahaghari|kidlat|ulap|bituin
+1|Filipino|Ano ang Filipino ng "umbrella"?|payong|tabo|banig|sombrero
+1|A.P.|How many stars are on the Philippine flag?|3|8|5|9
+1|A.P.|What is the national tree of the Philippines?|Narra|Mango|Acacia|Coconut
+1|A.P.|What is the national flower of the Philippines?|Sampaguita|Rose|Ilang-ilang|Gumamela
+1|MAPEH|How many colors are in a rainbow?|7|5|6|8
+1|MAPEH|How many strings does a standard guitar have?|6|4|5|8
+1|MAPEH|What is the national sport of the Philippines?|Arnis|Basketball|Sipa|Boxing
+2|Science|Which planet is closest to the Sun?|Mercury|Venus|Earth|Mars
+2|Science|What is the hardest natural substance on Earth?|Diamond|Gold|Iron|Quartz
+2|Science|Which of these animals is a marsupial?|Kangaroo|Rabbit|Monkey|Squirrel
+2|English|Which word sounds the same as "flower" but means something you bake with?|flour|floor|flow|fowl
+2|English|Which word is the adjective in: "The tiny puppy barked loudly."?|tiny|puppy|barked|loudly
+2|English|How many syllables does the word "elephant" have?|3|2|4|5
+2|Filipino|Ano ang pang-ukol sa pangungusap: "Pumunta si Ana sa palengke."?|sa|Ana|pumunta|palengke
+2|Filipino|Ano ang kasalungat ng "matapang"?|duwag|malakas|mabilis|masaya
+2|Filipino|Ilan ang patinig sa alpabetong Filipino?|5|3|7|10
+2|A.P.|What is the largest lake in the Philippines?|Laguna de Bay|Lake Taal|Lake Lanao|Lake Buhi
+2|A.P.|On what date do Filipinos celebrate Independence Day?|June 12|July 4|August 21|November 30
+2|A.P.|Which of the three main island groups is the southernmost?|Mindanao|Luzon|Visayas|Batanes
+2|MAPEH|What is the national costume for Filipino men?|Barong Tagalog|Salakot|Kimona|Tapis
+2|MAPEH|How many players of one team are on the court in basketball?|5|6|7|4
+2|MAPEH|Which of these is a secondary color?|Orange|Red|Blue|Yellow
+3|Science|Which gas do humans breathe out?|Carbon dioxide|Oxygen|Nitrogen|Helium
+3|Science|What is the largest organ of the human body?|Skin|Liver|Brain|Heart
+3|Science|Which planet is famous for its bright, wide rings?|Saturn|Mars|Earth|Mercury
+3|English|What is the superlative form of "good"?|best|goodest|better|most good
+3|English|Which word is a synonym of "enormous"?|gigantic|tiny|ordinary|gentle
+3|English|What kind of sentence is "Please close the door."?|Imperative|Declarative|Interrogative|Exclamatory
+3|Filipino|Alin ang tamang baybay?|edukasyon|edukasiyon|eduksyon|edukasyun
+3|Filipino|Alin ang salitang may klaster (kambal-katinig)?|plato|bahay|araw|mesa
+3|Filipino|Ano ang kahulugan ng "Kung may tiyaga, may nilaga"?|Ang sipag at tiyaga ay may gantimpala|Masarap ang nilaga|Huwag magluto|Ang tiyaga ay pagkain
+3|A.P.|Which city is the "Summer Capital of the Philippines"?|Baguio|Tagaytay|Cebu|Davao
+3|A.P.|Which ocean lies east of the Philippines?|Pacific Ocean|Atlantic Ocean|Indian Ocean|Arctic Ocean
+3|A.P.|What is the capital of the province of Bohol?|Tagbilaran|Dumaguete|Tacloban|Cebu City
+3|MAPEH|In art, what are the three primary colors?|Red, yellow, blue|Red, green, blue|Red, orange, yellow|Blue, green, yellow
+3|MAPEH|Which festival is celebrated in Kalibo, Aklan?|Ati-Atihan|Sinulog|Pahiyas|Dinagyang
+3|MAPEH|How many beats does a dotted half note get?|3|2|4|1.5
+4|Science|What is the process by which plants lose water through their leaves?|Transpiration|Respiration|Digestion|Germination
+4|Science|Which planet takes the shortest time to orbit the Sun?|Mercury|Venus|Mars|Earth
+4|Science|What is the hardest substance in the human body?|Tooth enamel|Femur|Skull|Fingernail
+4|English|Which of these words is a palindrome?|level|planet|garden|window
+4|English|What does the idiom "break the ice" mean?|Start a conversation in an awkward moment|Break a frozen lake|Become very angry|Cool down a drink
+4|English|Which word is the conjunction in: "I wanted to play, but it rained."?|but|wanted|play|rained
+4|Filipino|Ano ang kahulugan ng "tulog-mantika"?|Mahimbing matulog|Madaling magising|Mahilig kumain|Mabaho
+4|Filipino|Alin ang pang-angkop sa "magandang bata"?|-ng|na|at|ay
+4|Filipino|Ilang pantig mayroon ang salitang "kababayan"?|4|3|5|6
+4|A.P.|Which strait separates Luzon from Taiwan?|Luzon Strait|Balabac Strait|San Bernardino Strait|Surigao Strait
+4|A.P.|What is the capital of the province of Pangasinan?|Lingayen|Dagupan|Alaminos|Urdaneta
+4|A.P.|Who was the first Filipino to be canonized a saint?|Lorenzo Ruiz|Pedro Calungsod|Jose Rizal|Mother Ignacia
+4|MAPEH|Which Bacolod festival features smiling masks?|MassKara|Ati-Atihan|Sinulog|Moriones
+4|MAPEH|How many points is a basket made from behind the arc worth in basketball?|3|2|4|5
+4|MAPEH|What is the Filipino title of the national anthem?|Lupang Hinirang|Bayang Magiliw|Pilipinas Kong Mahal|Mutya ng Pasig
+5|Science|How many bones does an adult human body have?|206|106|306|256
+5|Science|What is the chemical symbol for gold?|Au|Ag|Gd|Go
+5|Science|Which is the only mammal capable of true flight?|Bat|Flying squirrel|Flying lemur|Sugar glider
+5|English|What do we call a word that imitates a sound, like "buzz"?|Onomatopoeia|Alliteration|Hyperbole|Oxymoron
+5|English|Which sentence uses "their" correctly?|The students forgot their books.|Their going to the mall.|Put it over their.|Their is a book on the table.
+5|English|What is the past participle of "write"?|written|wrote|writed|writing
+5|Filipino|Ang "Ibong Adarna" ay halimbawa ng anong uri ng tulang may walong pantig?|Korido|Awit|Epiko|Pabula
+5|Filipino|Alin ang wastong gamit ng "nang"?|Umiyak siya nang malakas.|Bumili siya nang tinapay.|Kumain ako nang kanin.|Nagluto si Nanay nang adobo.
+5|Filipino|Ano ang tawag sa paghahambing na walang "tulad" o "gaya", gaya ng "Ang buhay ay isang gulong"?|Pagwawangis|Pagtutulad|Pagmamalabis|Pagtatao
+5|A.P.|In what year did the Battle of Mactan take place?|1521|1565|1898|1492
+5|A.P.|Who was the first woman President of the Philippines?|Corazon Aquino|Gloria Macapagal-Arroyo|Imelda Marcos|Leni Robredo
+5|A.P.|Who founded the first Spanish settlement in Cebu in 1565?|Miguel Lopez de Legazpi|Ferdinand Magellan|Ruy Lopez de Villalobos|Juan de Salcedo
+5|A.P.|What is the capital city of Australia?|Canberra|Sydney|Melbourne|Perth
+5|MAPEH|Who won the first Olympic gold medal for the Philippines?|Hidilyn Diaz|Manny Pacquiao|Carlos Yulo|Eumir Marcial
+5|MAPEH|What is the Italian music term for gradually getting louder?|Crescendo|Diminuendo|Staccato|Legato
+5|MAPEH|Which National Artist is famous for sunlit paintings of rural Filipino life?|Fernando Amorsolo|Juan Luna|Jose Rizal|Guillermo Tolentino
+6|Science|Which is the smallest bone in the human body?|Stapes|Femur|Hyoid|Patella
+6|Science|What is the most abundant gas in Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Argon
+6|Science|About how fast does light travel?|300,000 km per second|30,000 km per second|3,000 km per second|3,000,000 km per second
+6|Science|Which cell organelle builds proteins?|Ribosome|Nucleus|Mitochondrion|Vacuole
+6|English|Which phrase is an oxymoron?|deafening silence|bright light|loud noise|cold ice
+6|English|Choose the correct word: "Each of the students ___ responsible for the project."|is|are|were|be
+6|English|What is the plural of "phenomenon"?|phenomena|phenomenons|phenomenas|phenomenon
+6|English|What does "benevolent" mean?|Kind and generous|Angry|Lazy|Clever
+6|Filipino|Sino ang kinikilalang unang "Hari ng Balagtasan"?|Jose Corazon de Jesus|Francisco Balagtas|Lope K. Santos|Amado V. Hernandez
+6|Filipino|Ilang pantig ang bawat taludtod ng isang awit?|12|8|16|10
+6|Filipino|Ano ang ibig sabihin ng "busilak ang puso"?|Malinis at mabuti ang kalooban|Madamot|Mayabang|Matapang
+6|A.P.|In what year was the current Philippine Constitution ratified?|1987|1986|1973|1935
+6|A.P.|Which general was known as the "Boy General"?|Gregorio del Pilar|Antonio Luna|Emilio Aguinaldo|Artemio Ricarte
+6|A.P.|How many administrative regions does the Philippines have?|17|16|18|15
+6|A.P.|What is the smallest country in the world?|Vatican City|Monaco|San Marino|Malta
+6|MAPEH|What is the kudyapi?|A two-stringed boat lute|A bamboo flute|A hanging gong|A jaw harp
+6|MAPEH|In volleyball, how many points usually win a set before the final set?|25|21|15|30
+6|MAPEH|Which Filipino painter created "Parisian Life"?|Juan Luna|Fernando Amorsolo|Felix Resurreccion Hidalgo|Carlos "Botong" Francisco
 6|MAPEH|What is the formula for Body Mass Index (BMI)?|weight (kg) ÷ height² (m²)|height ÷ weight|weight × height|weight (kg) ÷ height (m)`.split('\n').map(l=>{const p=l.split('|');return{g:+p[0],s:p[1],q:p[2],a:p.slice(3)}});
 /* generated Math: endless variety, fresh numbers every game */
 const NM=['Aling Nena','Mang Tomas','Maria','Juan','Liza','Mark'],pf=n=>'₱'+n.toLocaleString('en-US');
 const MG={
-1:[()=>{const a=R(20,40),b=R(5,12),c=R(3,9);return[`${P(NM)} has ${a} pandesal. ${b} are sold and ${c} more are baked. How many pandesal are there now?`,a-b+c]},()=>{const a=R(25,60),b=R(15,35);return[`What is ${a} + ${b}?`,a+b]}],
-2:[()=>{const a=R(6,9),b=R(6,9);return[`${a} jeepneys each carry ${b} passengers. How many passengers are there in all?`,a*b]},()=>{const a=R(250,480),b=R(250,490);return[`What is ${a} + ${b}?`,a+b]},()=>{const a=R(600,950),b=R(260,590);return[`What is ${a} − ${b}?`,a-b]}],
-3:[()=>{const a=R(6,9),b=R(6,9);return[`${a*b} mangoes are packed equally into ${b} baskets. How many mangoes are in each basket?`,a]},()=>{const p=R(14,38),n=R(3,6);return[`A notebook costs ₱${p}. Mara buys ${n} notebooks and pays ₱500. How much is her change?`,500-p*n,pf]},()=>{const a=R(4,9),b=R(6,12),c=R(5,15);return[`There are ${a} boxes with ${b} pencils each. ${c} pencils are broken. How many pencils are NOT broken?`,a*b-c]}],
-4:[()=>{const l=R(9,18),w=R(6,12);return[`A rectangular garden is ${l} m long and ${w} m wide. What is its area in square meters?`,l*w]},()=>{const t=P([[12,18,6],[16,24,8],[18,30,6],[24,36,12],[20,45,5],[28,42,14]]);return[`What is the greatest common factor of ${t[0]} and ${t[1]}?`,t[2]]},()=>{const n=R(3,12)*4;return[`What is 3/4 of ${n}?`,n/4*3]},()=>{const l=R(12,25),w=R(8,15);return[`A rectangular fishpond is ${l} m long and ${w} m wide. How many meters of fence are needed to go around it?`,2*(l+w)]}],
-5:[()=>{const n=R(5,30)*40,p=P([10,20,25,30]);return[`A school bag costs ₱${n}. It is on sale at ${p}% off. What is the sale price?`,n-n*p/100,pf]},()=>{const l=R(6,14),w=R(4,10),h=R(3,9);return[`A box is ${l} cm long, ${w} cm wide and ${h} cm high. What is its volume in cubic centimeters?`,l*w*h]},()=>{const v=R(80,92),x=R(2,7),y=R(8,12),sc=SH([v+x,v-x,v+y,v-y,v]);return[`Rico's five quiz scores are ${sc.join(', ')}. What is his average score?`,v]},()=>{const a=R(3,9)*2,b=R(2,5),c=R(11,25);return[`What is (${a} × ${b}) + ${c} × 2 − ${a}?`,a*b+c*2-a]}],
-6:[()=>{const v=R(4,9)*10,t=R(3,7);return[`A bus travels at ${v} km/h for ${t} hours. How many kilometers does it travel?`,v*t]},()=>{const P0=R(5,20)*1000,r=P([2,4,5,10]),t=R(2,5);return[`Simple interest: ₱${P0.toLocaleString('en-US')} is invested at ${r}% per year for ${t} years. How much interest is earned?`,P0*r*t/100,pf]},()=>{const r=P([7,14,21]);return[`Using π = 22/7, what is the area of a circle with a radius of ${r} cm (in square cm)?`,22*r*r/7]},()=>{const a=R(3,9),x=R(4,14),b=R(2,15);return[`Solve for x: ${a}x + ${b} = ${a*x+b}`,x]},()=>{const k=R(1,6);return[`A right triangle has legs of ${3*k} cm and ${4*k} cm. How long is the hypotenuse in cm?`,5*k]}]};
+1:[()=>{const a=R(30,60),b=R(10,25),c=R(5,15);return[`${P(NM)} has ${a} pandesal. ${b} are sold and ${c} more are baked. How many pandesal are there now?`,a-b+c]},()=>{const s=R(2,9)*2,k=P([3,4,5,6]);return[`What number comes next? ${s}, ${s+k}, ${s+2*k}, ${s+3*k}, ___`,s+4*k]},()=>{const a=R(6,9),b=R(6,9);return[`What is ${a} + ${a} + ${b} + ${b}?`,2*a+2*b]}],
+2:[()=>{const a=R(6,12),b=R(6,12);return[`What is ${a} × ${b}?`,a*b]},()=>{const a=R(350,680),b=R(250,490);return[`What is ${a} + ${b}?`,a+b]},()=>{const a=R(600,950),b=R(260,590);return[`What is ${a} − ${b}?`,a-b]},()=>{const h=R(2,5);return[`How many minutes are in ${h} hours and 15 minutes?`,h*60+15]}],
+3:[()=>{const a=R(23,69),b=R(4,9);return[`What is ${a} × ${b}?`,a*b]},()=>{const c=P([40,45,50,60]),n=R(3,8)*c+R(5,c-5);return[`A bus holds ${c} passengers. How many buses are needed to carry ${n} students?`,Math.ceil(n/c)]},()=>{const p=R(14,38),n=R(3,6);return[`A notebook costs ₱${p}. Mara buys ${n} notebooks and pays ₱500. How much is her change?`,500-p*n,pf]},()=>{const a=R(6,9),b=R(6,12),c=R(5,15);return[`There are ${a} boxes with ${b} pencils each. ${c} pencils are broken. How many pencils are NOT broken?`,a*b-c]}],
+4:[()=>{const l=R(9,18),w=R(6,12);return[`A rectangle has a perimeter of ${2*(l+w)} m and a length of ${l} m. What is its width in meters?`,w]},()=>{const t=P([[12,18,6],[16,24,8],[18,30,6],[24,36,12],[20,45,5],[28,42,14]]);return[`What is the greatest common factor of ${t[0]} and ${t[1]}?`,t[2]]},()=>{const t=P([[12,18,36],[8,12,24],[15,20,60],[9,12,36],[14,21,42],[18,24,72]]);return[`What is the least common multiple of ${t[0]} and ${t[1]}?`,t[2]]},()=>{const n=R(3,12)*4;return[`What is 3/4 of ${n}?`,n/4*3]},()=>{const n=R(3,12)*40,p=P([15,25,30,45,60]);return[`What is ${p}% of ${n}?`,n*p/100]}],
+5:[()=>{const n=R(5,30)*40,p=P([10,20,25,30]);return[`A school bag costs ₱${n}. It is on sale at ${p}% off. What is the sale price?`,n-n*p/100,pf]},()=>{const b=R(4,15)*2,h=R(3,12);return[`What is the area of a triangle with a base of ${b} cm and a height of ${h} cm?`,b*h/2]},()=>{const a=R(3,9),x=R(4,12),b=R(3,15);return[`Solve for x: ${a}x − ${b} = ${a*x-b}`,x]},()=>{const n=R(4,7);return[`What is 2^${n} + 3²?`,Math.pow(2,n)+9]},()=>{const n=R(5,9);return[`What is the sum of the interior angles of a polygon with ${n} sides?`,(n-2)*180]},()=>{const avg=R(15,25),a=R(10,avg-1),b=R(avg+1,avg+8),c=R(avg-4,avg+4);return[`The average of four numbers is ${avg}. Three of the numbers are ${a}, ${b} and ${c}. What is the fourth number?`,4*avg-a-b-c]}],
+6:[()=>{const p=R(1,5)*10000;return[`Compound interest: ₱${p.toLocaleString('en-US')} is invested at 10% per year for 2 years. How much interest is earned in all?`,p*21/100,pf]},()=>{const c=R(2,4),a=c+R(2,4),b=R(2,5),x=R(5,12),d=a*(x-b)-c*x;return[`Solve for x: ${a}(x − ${b}) = ${c}x ${d<0?'− '+(-d):'+ '+d}`,x]},()=>{const n=R(6,10);return[`How many diagonals does a polygon with ${n} sides have?`,n*(n-3)/2]},()=>{const n=R(10,30);return[`What is the sum of the whole numbers from 1 to ${n}?`,n*(n+1)/2]},()=>{const km=R(2,6)*60,per=P([10,12,15]),pr=R(55,70);return[`A car uses 1 liter of gasoline for every ${per} km. Gasoline costs ₱${pr} per liter. How much does the gasoline cost for a ${km}-km trip?`,km/per*pr,pf]},()=>{const r=P([7,14,21]);return[`Using π = 22/7, what is the area of a circle with a radius of ${r} cm (in square cm)?`,22*r*r/7]},()=>{const k=R(1,6);return[`A right triangle has legs of ${3*k} cm and ${4*k} cm. How long is the hypotenuse in cm?`,5*k]}]};
 function nd(ans,f){f=f||String;const c=SH([...new Set([ans+1,ans-1,ans+2,ans-2,ans+10,ans-10,ans+5,ans*2,ans-5,ans+3,ans-3])]).filter(x=>x>0&&x!==ans).slice(0,3);return[f(ans)].concat(c.map(f))}
 const HK='ast6_hist',BK='ast6_best';
 const seen=()=>{try{return new Set([].concat(...(JSON.parse(localStorage.getItem(HK))||[])))}catch(e){return new Set()}};
@@ -12160,16 +12178,16 @@ const ico=(k,s)=>`<svg viewBox="0 0 24 24" width="${s||22}" height="${s||22}" fi
 const SC={Math:'#e0483e','Science':'#1f9d57',English:'#2a7fc4',Filipino:'#d99a00','A.P.':'#8a49b8',MAPEH:'#e4701e'};
 const heart=on=>`<svg viewBox="0 0 24 24" class="${on?'l':''}"><path d="M12 21s-7-4.6-9.3-9A5.5 5.5 0 0112 6a5.5 5.5 0 019.3 6c-2.3 4.4-9.3 9-9.3 9z" fill="${on?'#ff4d6d':'#3b2f6b'}" stroke="${on?'#fff':'#6c5fa8'}" stroke-width="1.5"/></svg>`;
 $('sgBack').innerHTML=ico('back');$('sgMus').innerHTML=ico('mus');
-$('sgC').innerHTML=ico('copy',20)+'Copy<b>a 5th grader</b>';$('sgS').innerHTML=ico('swap',20)+'Switch<b>new question</b>';$('sgP').innerHTML=ico('pass',20)+'Pass<b>free correct</b>';
+$('sgC').innerHTML=ico('copy',20)+'Copy<b>your helper</b>';$('sgS').innerHTML=ico('swap',20)+'Switch<b>new question</b>';$('sgP').innerHTML=ico('pass',20)+'Pass<b>free correct</b>';
 /* ---------- contestants ---------- */
-const KIDS=[{n:'Bea',sk:'#e0ac7e',hr:'#2a1a10',sh:'#ff6b9a',st:'pig'},{n:'Migo',sk:'#c98f62',hr:'#14100c',sh:'#4aa3ff',st:'cap'},{n:'Tala',sk:'#f0c49a',hr:'#5a3416',sh:'#2fd6a0',st:'bun'},{n:'Jomar',sk:'#d49a6a',hr:'#1a120c',sh:'#ffb340',st:'spk'},{n:'Lia',sk:'#e8b88a',hr:'#14100c',sh:'#a56bff',st:'gl'}];
+const KIDS=[{n:'Bea',sk:'#e0ac7e',hr:'#2a1a10',sh:'#ff6b9a',st:'pig',sp:['Science']},{n:'Migo',sk:'#c98f62',hr:'#14100c',sh:'#4aa3ff',st:'cap',sp:['Math']},{n:'Tala',sk:'#f0c49a',hr:'#5a3416',sh:'#2fd6a0',st:'bun',sp:['English']},{n:'Jomar',sk:'#d49a6a',hr:'#1a120c',sh:'#ffb340',st:'spk',sp:['A.P.']},{n:'Lia',sk:'#e8b88a',hr:'#14100c',sh:'#a56bff',st:'gl',sp:['Filipino','MAPEH'],tag:'Fil/MAPEH'}];
 const ME={n:'YOU',sk:'#e5b087',hr:'#1d130d',sh:'#ffd166',st:'me'};
 function av(o){const back=o.st==='pig'?`<circle cx="11" cy="30" r="6" fill="${o.hr}"/><circle cx="49" cy="30" r="6" fill="${o.hr}"/>`:o.st==='bun'?`<circle cx="30" cy="9" r="7" fill="${o.hr}"/>`:'';
 const top=o.st==='cap'?`<path d="M13 28c0-14 7-19 17-19s17 5 17 19z" fill="#ff4d4d"/><rect x="28" y="24" width="24" height="5" rx="2.5" fill="#c92b2b"/>`:o.st==='spk'?`<path d="M14 30c-1-9 3-18 16-18s17 9 16 18c-3-6-8-9-16-9s-13 3-16 9z" fill="${o.hr}"/><path d="M18 14l3-6 3 6zM27 12l3-7 3 7zM36 14l3-6 3 6z" fill="${o.hr}"/>`:`<path d="M13 31c-1-14 6-20 17-20s18 6 17 20c-4-7-9-10-17-10s-13 3-17 10z" fill="${o.hr}"/>`;
 const gl=o.st==='gl'?`<g fill="none" stroke="#3b2a14" stroke-width="1.6"><circle cx="23" cy="34" r="5"/><circle cx="37" cy="34" r="5"/><path d="M28 34h4"/></g>`:'';
 const star=o.st==='me'?`<path d="M30 55l2 4 4 .6-3 3 .7 4.2-3.7-2-3.7 2 .7-4.2-3-3 4-.6z" fill="#ff3d8b"/>`:'';
 return `<svg viewBox="0 0 60 72" aria-hidden="true">${back}<path d="M5 72c0-17 11-24 25-24s25 7 25 24z" fill="${o.sh}"/><path d="M24 48l6 7 6-7z" fill="#fff" opacity=".9"/>${star}<rect x="26" y="42" width="8" height="8" rx="3" fill="${o.sk}"/><circle cx="30" cy="33" r="16" fill="${o.sk}"/>${top}<circle cx="23" cy="34" r="2.2" fill="#1d130d"/><circle cx="37" cy="34" r="2.2" fill="#1d130d"/>${gl}<circle cx="18" cy="39" r="3" fill="#ff8a8a" opacity=".45"/><circle cx="42" cy="39" r="3" fill="#ff8a8a" opacity=".45"/><path d="M24 40q6 6 12 0" stroke="#a3342f" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`}
-const SK=[.96,.9,.82,.72,.6],GF=[1,.98,.93,.84,.72,.55];
+const SK=[.98,.96,.93,.9,.86],GF=[1,1,.99,.96,.91,.8];
 const PZ=[1000,2000,5000,10000,20000,30000,50000,75000,100000,200000,500000,1000000];
 /* ---------- audio: cheerful marimba loop (no voice narration) ---------- */
 let S=null,mOn=true,talking=false,raf=0;
@@ -12198,23 +12216,31 @@ function build(){$('sgKids').innerHTML=KIDS.map((k,i)=>`<div class="kid" data-k=
 function kidsReset(){document.querySelectorAll('#sgKids .kid').forEach(k=>{k.classList.remove('win','lose');const b=k.querySelector('.kb');b.className='kb';b.textContent=''});$('sgKids').classList.remove('pick')}
 function react(el,c,ms){el.classList.remove('cheer','sad');void el.offsetWidth;el.classList.add(c);setTimeout(()=>el.classList.remove(c),ms)}
 function hud(){const g=S?S.g:0;$('sgLad').innerHTML=[1,2,3,4,5,6].map(i=>`<i class="${i<g?'d':i===g?'c':''}">${i}</i>`).join('');$('sgLife').innerHTML=[0,1,2].map(i=>heart(S?i<S.lives:true)).join('');$('sgSc').textContent=(S?S.score:0).toLocaleString('en-US');
-const on=!!(S&&S.cur&&!S.locked&&!S.busy);$('sgC').disabled=!(on&&S.ll.c);$('sgS').disabled=!(on&&S.ll.s);$('sgP').disabled=!(on&&S.ll.p);$('sgC').classList.toggle('on',!!(S&&S.pick))}
+const on=!!(S&&S.cur&&!S.locked&&!S.busy);$('sgC').disabled=!(on&&S.ll.c&&S.helper!=null);$('sgC').innerHTML=ico('copy',20)+'Copy<b>'+(S&&S.helper!=null?KIDS[S.helper].n:'no helper')+'</b>';$('sgS').disabled=!(on&&S.ll.s);$('sgP').disabled=!(on&&S.ll.p);}
 const best=()=>{try{return +localStorage.getItem(BK)||0}catch(e){return 0}};
 const fmt=n=>'₱'+(+n).toLocaleString('en-US');
 /* ---------- game flow ---------- */
 function intro(){if(S)clearInterval(S.tm);S=null;hud();kidsReset();setB('Philippines Edition','Are You Smarter Than a 5th Grader?',1);$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
 bub("Welcome to the show! Face five 5th graders, climb Grade 1 to 6 and win ₱1,000,000. Three wrong answers and you're out!");
-$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">12 questions · Grades 1–6 · you pick the subject<br>Lifelines: Copy · Switch · Pass<br>Best prize: ${fmt(best())}</div><button class="sg-go" id="sgStart">Start the show!</button>`;
+$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">12 questions · Grades 1–6 · you pick the subject<br>Pick one 5th grader as your helper before each grade<br>Lifelines: Copy · Switch · Pass<br>Best prize: ${fmt(best())}</div><button class="sg-go" id="sgStart">Start the show!</button>`;
 $('sgStart').onclick=start;react($('sgMe'),'cheer',1400);document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.add('win'));setTimeout(()=>document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.remove('win')),1500)}
-function start(){S={g:1,n:1,lives:3,score:0,right:0,used:new Set(),ll:{c:1,s:1,p:1},h:false,cur:null,locked:false,busy:false,pick:false,run:true,tm:0,left:0,ka:[]};snd('go');musicStart();confetti(30);nextQ()}
-function nextQ(){if(!S)return;if(S.g>6){end(true);return}choose()}
+function start(){S={g:1,n:1,lives:3,score:0,right:0,used:new Set(),ll:{c:1,s:1,p:1},h:false,cur:null,locked:false,busy:false,pick:false,hp:false,helper:null,run:true,tm:0,left:0,ka:[]};snd('go');musicStart();confetti(30);nextQ()}
+function nextQ(){if(!S)return;if(S.g>6){end(true);return}if(S.n===1)pickHelper();else choose()}
+function markHelper(){document.querySelectorAll('#sgKids .kid').forEach(k=>{const i=+k.dataset.k,h=S&&S.helper===i;k.classList.toggle('helper',h);k.querySelector('.plate').textContent=(h?'★ ':'')+KIDS[i].n})}
+function pickHelper(){const s=S;s.cur=null;s.helper=null;s.hp=true;s.busy=false;s.pick=false;clearInterval(s.tm);kidsReset();markHelper();hud();
+document.querySelectorAll('#sgKids .kid').forEach((k,i)=>{const b=k.querySelector('.kb');b.textContent=KIDS[i].tag||KIDS[i].sp[0];b.className='kb show'});$('sgKids').classList.add('pick');
+setB(`Grade ${s.g} · Choose your helper`,'Pick ONE 5th grader to help you in this grade!',1);$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
+bub('Tap a 5th grader. Each one is strongest in the subject shown above them, and you can Copy their answer once per game!');
+$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">Your helper stays with you for both Grade ${s.g} questions.<br>${s.ll.c?'Copy lifeline: ready':'Copy lifeline: already used'}</div><button class="sg-go alt" id="sgSolo">Go solo this grade</button>`;$('sgSolo').onclick=()=>{if(S!==s||!s.hp)return;s.hp=false;snd('tap');kidsReset();markHelper();choose()}}
+$('sgKids').addEventListener('click',e=>{const k=e.target.closest('.kid');if(!k||!S||!S.hp)return;const s=S,i=+k.dataset.k;s.hp=false;s.helper=i;snd('tap');kidsReset();markHelper();bub(`${KIDS[i].n} will be your helper in Grade ${s.g}!`);const kb=k.querySelector('.kb');kb.textContent='I got you!';kb.className='kb show';setTimeout(()=>{if(S===s){kidsReset();choose()}},1100)});
+
 function choose(){const sn=seen();let pool=BANK.filter(x=>x.g===S.g&&!sn.has(x.q)&&!S.used.has(x.q));
 const subs=['Math'].concat(['Science','English','Filipino','A.P.','MAPEH'].filter(s=>BANK.some(x=>x.g===S.g&&x.s===s)));
 subs.forEach(s=>{if(s!=='Math'&&!pool.some(x=>x.s===s))pool=pool.concat(BANK.filter(x=>x.g===S.g&&x.s===s&&!S.used.has(x.q)))});
 S.cur=null;S.pool=pool;S.busy=false;S.pick=false;kidsReset();hud();clearInterval(S.tm);
 const n=(S.g-1)*2+S.n;setB(`Grade ${S.g} · Question ${n} of 12 · for ${fmt(PZ[S.right]||PZ[11])}`,'Choose your subject!',1);bub(P(['Pick a subject for Grade '+S.g+'!','Which subject will you take on?','Choose wisely, contestant!']));$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
 $('sgOpts').className='sg-opts';$('sgOpts').innerHTML=subs.map((s,i)=>`<button class="sg-sub" style="--c:${SC[s]};--i:${i}" data-s="${s}"><span>${ico(s,20)}</span>${s}</button>`).join('')}
-function kidsThink(){const c=S.cur,ti=c.o.indexOf(c.t);S.ka=KIDS.map((k,i)=>Math.random()<SK[i]*GF[S.g-1]?ti:P([0,1,2,3].filter(x=>x!==ti)))}
+function kidsThink(){const c=S.cur,ti=c.o.indexOf(c.t);S.ka=KIDS.map((k,i)=>Math.random()<Math.min(.99,SK[i]*GF[S.g-1]+(k.sp.includes(c.s)?.05:0))?ti:P([0,1,2,3].filter(x=>x!==ti)))}
 function ask(q,sw){S.cur={...q,o:SH(q.a),t:q.a[0]};S.used.add(q.q);S.locked=false;S.busy=false;S.pick=false;commit();kidsReset();kidsThink();const n=(S.g-1)*2+S.n;
 setB(`Grade ${S.g} · ${q.s} · Question ${n} of 12`,q.q);bub(sw?'New question coming up! The 5th graders are thinking again...':P(['The 5th graders are thinking... take your time!','Pencils up! Here we go!','Think carefully, contestant!']));
 $('sgOpts').className='sg-opts';$('sgOpts').innerHTML=S.cur.o.map((o,i)=>`<button class="sg-o" style="--i:${i}" data-i="${i}" data-l="${'ABCD'[i]}">${o}<span class="dots"></span></button>`).join('');hud();tmr()}
@@ -12228,7 +12254,7 @@ if(ok){s.right++;s.score=PZ[s.right-1];snd('ok');m=how==='pass'?'Free pass used!
 else{s.lives--;snd('bad');m=(i<0?"Time's up! ":how==='copy'?'Oh no, the copy was wrong! ':'Ay, not quite! ')+'The answer is '+s.cur.t+'. ';react($('sgMe'),'sad',1600);const sc=$('sgScreen');sc.classList.remove('shake');void sc.offsetWidth;sc.classList.add('shake')}
 bub(m);setTimeout(()=>{if(S===s)bub(m+(cnt===5?'All 5 fifth graders got it right!':cnt===0?'None of the 5th graders got it!':`${cnt} of 5 fifth graders got it right.`))},350+5*280);
 hud();setTimeout(()=>{if(S!==s)return;if(s.lives<1){end(false);return}if(s.n===2){s.n=1;s.g++}else s.n++;nextQ()},ok?3600:4600)}
-function end(win){const s=S;clearInterval(s.tm);s.run=false;s.cur=null;hud();kidsReset();let b=0;try{b=+localStorage.getItem(BK)||0;if(s.score>b){b=s.score;localStorage.setItem(BK,b)}}catch(e){}
+function end(win){const s=S;clearInterval(s.tm);s.run=false;s.cur=null;s.helper=null;hud();kidsReset();markHelper();let b=0;try{b=+localStorage.getItem(BK)||0;if(s.score>b){b=s.score;localStorage.setItem(BK,b)}}catch(e){}
 const xp=s.right*5+(win?60:0);try{if(typeof profile!=='undefined'&&profile&&typeof user!=='undefined'&&user&&typeof saveProfile==='function')saveProfile({xp:(profile.xp||0)+xp}).catch(()=>{})}catch(e){}
 const t=win?'You ARE smarter than a 5th grader!':`You reached Grade ${s.g}. Not smarter than a 5th grader... yet!`;
 setB(win?'Graduation Day':'Game over',t,1);$('sgBar').style.width='0%';bub(win?`Congratulations! You walk away with ${fmt(s.score)}!`:`You take home ${fmt(s.score)}. Study hard and try again!`);snd(win?'win':'shake');
@@ -12236,11 +12262,10 @@ if(win){confetti(120);setTimeout(()=>confetti(80),1500);react($('sgMe'),'cheer',
 $('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">${s.right}/12 correct · Prize ${fmt(s.score)}<br>Best ${fmt(b)} · +${xp} XP</div><button class="sg-go" id="sgAgain">Play again</button><button class="sg-go alt" id="sgHome">Back to lobby</button>`;$('sgAgain').onclick=start;$('sgHome').onclick=leave}
 function leave(){if(S)clearInterval(S.tm);S=null;musicStop();show('screen-lobby')}
 $('sgOpts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S||S.busy)return;if(b.classList.contains('sg-o'))answer(+b.dataset.i);else if(b.classList.contains('sg-sub')&&!S.cur){const sb=b.dataset.s,q=sb==='Math'?genMath(S.g):P(S.pool.filter(x=>x.s===sb));snd('tap');ask(q)}});
-/* lifeline 1: copy a 5th grader */
-$('sgC').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.c)return;S.pick=!S.pick;snd('tap');$('sgKids').classList.toggle('pick',S.pick);bub(S.pick?'Tap one of the 5th graders to copy their answer. Choose wisely!':'Copy cancelled.');hud()};
-$('sgKids').addEventListener('click',e=>{const k=e.target.closest('.kid');if(!k||!S||!S.pick||!S.cur||S.locked||S.busy)return;const s=S,i=+k.dataset.k,a=s.ka[i];s.ll.c=0;s.pick=false;s.busy=true;clearInterval(s.tm);$('sgKids').classList.remove('pick');snd('tap');
-const kb=k.querySelector('.kb');kb.textContent=`${'ABCD'[a]}?`;kb.className='kb show';const btn=document.querySelectorAll('#sgOpts .sg-o')[a];if(btn)btn.style.outline='4px solid #ffd166';bub(`You copied ${KIDS[i].n}'s answer: ${'ABCD'[a]}. Locking it in...`);hud();
-setTimeout(()=>{if(S===s&&s.cur)answer(a,'copy')},1600)});
+/* lifeline 1: copy your chosen helper's answer */
+$('sgC').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.c||S.helper==null)return;const s=S,i=s.helper,a=s.ka[i];s.ll.c=0;s.busy=true;clearInterval(s.tm);snd('tap');
+const k=document.querySelectorAll('#sgKids .kid')[i],kb=k.querySelector('.kb');kb.textContent=`${'ABCD'[a]}?`;kb.className='kb show';const btn=document.querySelectorAll('#sgOpts .sg-o')[a];if(btn)btn.style.outline='4px solid #ffd166';bub(`You copied ${KIDS[i].n}'s answer: ${'ABCD'[a]}. Locking it in...`);hud();
+setTimeout(()=>{if(S===s&&s.cur)answer(a,'copy')},1600)};
 /* lifeline 2: switch the question (same subject and grade) */
 $('sgS').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.s)return;S.ll.s=0;snd('tap');const sb=S.cur.s,cq=S.cur.q;let q;if(sb==='Math')q=genMath(S.g);else{let pl=BANK.filter(x=>x.g===S.g&&x.s===sb&&!S.used.has(x.q));if(!pl.length)pl=BANK.filter(x=>x.g===S.g&&x.s===sb&&x.q!==cq);q=P(pl)}ask(q,true)};
 /* lifeline 3: pass (free correct answer) */
@@ -12250,7 +12275,7 @@ $('sgMus').onclick=()=>{mOn=!mOn;try{localStorage.setItem('ast5_mus',mOn?'1':'0'
 $('sgBack').onclick=()=>{if(S&&S.run&&!confirm('Leave the show? Your progress in this game will be lost.'))return;leave()};
 window.openSmarter=function(){show('screen-smarter');build();intro();musicStart()};
 if(typeof GAME_META!=='undefined')GAME_META.smarter={title:'Smarter than a 5th Grader?',sub:'Game show — beat five 5th graders, Grade 1 to 6.'};
-if(typeof HOWTO!=='undefined')HOWTO.smarter={steps:['You are the contestant on the game-show stage. Five <b>real 5th graders</b> stand beside you — each one sometimes gets it right and sometimes gets it wrong.','Climb from <b>Grade 1 to Grade 6</b> (2 questions per grade, 12 in all). Before every question, <b>choose a subject</b>. Questions get tougher each grade, and the prize climbs up to ₱1,000,000.','Three wrong answers and you are out! You have 45 seconds per question.','Lifelines (once each): <b>Copy</b> — tap a 5th grader and lock in their answer (risky, they can be wrong!); <b>Switch</b> — swap for a new question in the same subject; <b>Pass</b> — get the correct answer for free.','After you answer, the 5th graders reveal their answers, so you can see who was right.'],tip:'Later grades are hard even for the 5th graders — their answers get less reliable, so think before you copy!'};
+if(typeof HOWTO!=='undefined')HOWTO.smarter={steps:['You are the contestant on the game-show stage. Five <b>real 5th graders</b> stand beside you — each one sometimes gets it right and sometimes gets it wrong.','Before <b>each grade</b> you choose <b>ONE 5th grader as your helper</b> (or go solo). Each one is strongest in a different subject.','Climb from <b>Grade 1 to Grade 6</b> (2 questions per grade, 12 in all). Before every question, <b>choose a subject</b>. Questions get tougher each grade, and the prize climbs up to ₱1,000,000.','Three wrong answers and you are out! You have 45 seconds per question.','Lifelines (once each): <b>Copy</b> — lock in your helper&rsquo;s answer (once per game; even smart 5th graders can be wrong!); <b>Switch</b> — swap for a new question in the same subject; <b>Pass</b> — get the correct answer for free.','After you answer, the 5th graders reveal their answers, so you can see who was right.'],tip:'The questions get so tough you will wonder if they are really for 5th graders. Even the smart ones slip up in the later grades, so think before you copy!'};
 const cd=document.querySelector('.game-card[data-game="smarter"]');
 if(cd)cd.onclick=()=>{try{snd('tap')}catch(e){}if(typeof showHowTo==='function'&&typeof HOWTO!=='undefined')showHowTo('smarter',window.openSmarter);else window.openSmarter()};
 })();
