@@ -12053,17 +12053,44 @@ function surf(x,z){
   return G.M.floor;
 }
 function mkChar(e){
-  const g=new THREE.Group(),mt={};['head','body','arms','legs'].forEach(k=>mt[k]=new THREE.MeshLambertMaterial({color:'#ffffff'}));
-  const add=(geo,k,x,y,z)=>{const m=new THREE.Mesh(geo,mt[k]);m.position.set(x,y,z);m.userData.owner=e;g.add(m);return m};
-  add(new THREE.BoxGeometry(.8,.9,.5),'body',0,1.05,0);add(new THREE.SphereGeometry(.34,14,10),'head',0,1.8,0);
-  const al=add(new THREE.BoxGeometry(.2,.8,.24),'arms',-.55,1.1,0),ar=add(new THREE.BoxGeometry(.2,.8,.24),'arms',.55,1.1,0);
-  add(new THREE.BoxGeometry(.28,.6,.3),'legs',-.2,.3,0);add(new THREE.BoxGeometry(.28,.6,.3),'legs',.2,.3,0);
-  g.userData={mt:mt,al:al,ar:ar};return g;
+  const g=new THREE.Group(),rig=new THREE.Group(),mt={};g.add(rig);
+  ['head','body','arms','legs'].forEach(k=>mt[k]=new THREE.MeshLambertMaterial({color:'#ffffff'}));
+  const piv=(x,y,z)=>{const p=new THREE.Group();p.position.set(x,y,z||0);rig.add(p);return p};
+  const add=(geo,k,x,y,z,par)=>{const m=new THREE.Mesh(geo,mt[k]);m.position.set(x,y,z);m.userData.owner=e;(par||rig).add(m);return m};
+  add(new THREE.BoxGeometry(.8,.9,.5),'body',0,1.05,0);
+  const head=piv(0,1.5);add(new THREE.SphereGeometry(.34,14,10),'head',0,.3,0,head);
+  const al=piv(-.55,1.5),ar=piv(.55,1.5);
+  add(new THREE.BoxGeometry(.2,.8,.24),'arms',0,-.4,0,al);add(new THREE.BoxGeometry(.2,.8,.24),'arms',0,-.4,0,ar);
+  const ll=piv(-.2,.6),lr=piv(.2,.6);
+  add(new THREE.BoxGeometry(.28,.6,.3),'legs',0,-.3,0,ll);add(new THREE.BoxGeometry(.28,.6,.3),'legs',0,-.3,0,lr);
+  const tail=piv(0,.8,-.25);add(new THREE.BoxGeometry(.14,.14,.55),'body',0,0,-.27,tail);
+  g.userData={mt:mt,rig:rig,head:head,al:al,ar:ar,ll:ll,lr:lr,tail:tail};return g;
 }
 function paintPart(e,k,c){e.ch.userData.mt[k].color.set(c);e.cols[k]=c}
-function setPose(e,p){
-  e.pose=p;const u=e.ch.userData,t=p===2;e.ch.scale.set(1,p===1?.62:1,1);
-  u.al.position.set(t?-.95:-.55,t?1.45:1.1,0);u.ar.position.set(t?.95:.55,t?1.45:1.1,0);u.al.rotation.z=u.ar.rotation.z=t?Math.PI/2:0;
+function setPose(e,p){e.pose=p}
+/* Per-frame character animation: walk cycle, idle breathing, look-around, tail sway, wave pose, found reaction, tag swing */
+function anim(e,dt,t){
+  const u=e.ch&&e.ch.userData;if(!u||!u.rig)return;
+  if(e.px==null){e.px=e.x;e.pz=e.z;e.spd=0;e.wph=Math.random()*6;e.amp=0;e.tp=Math.random()*10;e.cr=0;e.wv=0;e.ft=0;e.swing=0}
+  const raw=dt>0?Math.hypot(e.x-e.px,e.z-e.pz)/dt:0;e.px=e.x;e.pz=e.z;
+  e.spd+=(Math.min(raw,8)-e.spd)*Math.min(1,dt*10);
+  const a=e.amp+=(Math.min(1,e.spd/2.2)-e.amp)*Math.min(1,dt*12),idle=1-a,k=Math.min(1,dt*14);
+  e.wph+=dt*(5+e.spd*1.5);const s=Math.sin(e.wph),str=.6+.35*Math.min(1,e.spd/5);
+  e.cr+=((e.pose===1?1:0)-e.cr)*k;e.wv+=(((e.pose===2||e.cheer)?1:0)-e.wv)*k;
+  if(e.found)e.ft+=dt;if(e.swing>0)e.swing=Math.max(0,e.swing-dt);
+  const R_=u.rig,fnd=e.found,spin=fnd&&e.ft<.6?e.ft/.6:0,hop=fnd&&e.ft<.6?Math.sin(spin*Math.PI)*.55:0,sad=fnd&&e.ft>=.6?1:0;
+  const br=Math.sin(t*2.2+e.tp)*.018*idle;
+  R_.scale.set(1-br*.5,(1-.38*e.cr)*(1+br),1);
+  R_.position.y=Math.abs(s)*.09*a+hop+(e.cheer?Math.abs(Math.sin(t*6+e.tp))*.12:0);
+  R_.rotation.x=.14*a*(1-e.cr);R_.rotation.z=s*.05*a;R_.rotation.y=spin*Math.PI*2;
+  u.ll.rotation.x=s*str*a;u.lr.rotation.x=-s*str*a;
+  const sw=s*.75*a*(1-e.wv),id=Math.sin(t*1.6+e.tp)*.05*idle,sq=e.swing>0?Math.sin((1-e.swing/.35)*Math.PI)*2.2:0;
+  u.al.rotation.x=-sw+id;u.ar.rotation.x=sw-id-sq;
+  const up=e.wv*(2.4+Math.sin(t*10+e.tp)*.35),dn=sad?-.05:0;
+  u.al.rotation.z=-(.08+up)+dn;u.ar.rotation.z=.08+e.wv*(2.4+Math.sin(t*10+e.tp+1.6)*.35)-dn;
+  u.head.rotation.y=Math.sin(t*.9+e.tp)*.4*idle*(sad?.3:1);
+  u.head.rotation.x=Math.sin(t*1.3+e.tp)*.05+(sad?.5:0)+.06*a;
+  u.tail.rotation.y=Math.sin(t*3+e.tp)*(.22+.35*a);u.tail.rotation.x=-.3+Math.sin(t*2.1+e.tp)*.08;
 }
 function sync(e){e.ch.position.set(e.x,0,e.z);e.ch.rotation.y=e.yaw}
 function mv(e,dx,dz,sp,dt){
@@ -12182,7 +12209,7 @@ function foundEnt(h,t){
 }
 function tryTag(sx,sy){
   const me=G&&G.me;if(!me||G.phase!=='hunt'||me.role!=='seeker'||me.cool>0)return;
-  let hit=null;
+  me.swing=.35;let hit=null;
   if(sx!=null){
     const w=play.clientWidth,h=play.clientHeight,rc=new THREE.Raycaster();rc.setFromCamera({x:sx/w*2-1,y:-(sy/h)*2+1},cam);
     const objs=G.props.map(p=>p.m).concat(G.ents.filter(e=>e.role==='hider'&&!e.found).map(e=>e.ch));
@@ -12200,7 +12227,7 @@ function endRound(why){
   hiders().forEach(h=>{if(!h.found){const ring=new THREE.Mesh(new THREE.RingGeometry(.55,.8,24),new THREE.MeshBasicMaterial({color:0x4cff7a,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.06;h.ch.add(ring)}});
   const me=G.me,seekWin=why==='seekers',iWin=(me.role==='seeker')===seekWin,hs=hiders(),nf=hs.filter(h=>h.found).length;
   let xp=me.role==='seeker'?nf*40+(seekWin?100:0):(me.found?20:120)+(seekWin?0:60);
-  ST.p++;if(iWin)ST.w++;sv();
+  ST.p++;if(iWin)ST.w++;sv();G.ents.forEach(e=>{e.cheer=e.role==='seeker'?seekWin:(!e.found&&!seekWin)});
   try{if(xp>0&&typeof profile!=='undefined'&&profile&&typeof saveProfile==='function'){profile.xp=(profile.xp||0)+xp;Promise.resolve(saveProfile({xp:profile.xp})).catch(()=>{})}}catch(e){}
   $('mcTag').hidden=true;$('mcPaint').hidden=true;$('mcBlind').hidden=true;play.classList.remove('painting');
   const lines=hs.map(h=>(h.found?'🔴 ':'🟢 ')+h.name+(h.human?' (you)':'')+(h.found?' – found at '+mmss(h.foundAt):' – never found!')).join('<br>');
@@ -12217,7 +12244,7 @@ function resBtns(){
 function frame(now){
   raf=requestAnimationFrame(frame);
   if(!scr.classList.contains('active')||!G){return}
-  const dt=Math.min(.05,(now-last)/1000);last=now;step(dt);
+  const dt=Math.min(.05,(now-last)/1000);last=now;step(dt);G.ents.forEach(e=>anim(e,dt,now/1000));
   if(G.phase==='end'){orbit+=dt*.3;cam.position.set(Math.sin(orbit)*21,14,Math.cos(orbit)*21);cam.lookAt(0,0,0)}
   else{
     const me=G.me,f=(me.found?G.ents.find(e=>e.role==='seeker'&&alive(e)):me)||me,D=5.2;
