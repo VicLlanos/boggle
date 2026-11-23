@@ -1410,110 +1410,6 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .fm-link{display:flex;gap:6px;margin-top:10px}.fm-link .btn{flex:1}
 @media (prefers-reduced-motion:reduce){#fmBuild button.has::after,#fmBuild .nw,.fm-place{animation:none}}
 </style>
-<style>
-/* ===== Are You Smarter Than a 5th Grader? — Philippines Edition (3D classroom) ===== */
-.game-card[data-game=smarter]{--a:#FFD166;--t:#3A2A0A}
-.t-smarter{background:#2b1d10}.t-smarter svg{width:100%;height:100%;display:block}
-#screen-smarter{position:fixed;inset:0;max-width:none;width:100%;z-index:60;padding:0;gap:0;overflow:hidden;background:#0b0830;font-family:'DM Sans',sans-serif;color:#fff;user-select:none;-webkit-user-select:none}
-#screen-smarter.active{display:block;animation:none}
-.sg-bg{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse 90% 60% at 50% 0%,#6a45f0 0%,#2a1773 45%,#0b0830 85%)}
-.sg-beam{position:absolute;top:-12%;width:44vw;max-width:340px;height:125%;clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);transform-origin:50% 0;mix-blend-mode:screen;opacity:.5;animation:sgSweep 7s ease-in-out infinite alternate}
-.sg-beam.b1{left:-6%;background:linear-gradient(rgba(255,61,139,.75),transparent 72%)}
-.sg-beam.b2{left:22%;background:linear-gradient(rgba(61,224,255,.7),transparent 72%);animation-delay:-2s;animation-duration:9s}
-.sg-beam.b3{left:46%;background:linear-gradient(rgba(255,209,102,.7),transparent 72%);animation-delay:-4s}
-.sg-beam.b4{left:68%;background:linear-gradient(rgba(160,120,255,.75),transparent 72%);animation-delay:-1s;animation-duration:10s}
-@keyframes sgSweep{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
-.sg-floor{position:absolute;left:0;right:0;bottom:0;height:46%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 56px),linear-gradient(transparent,rgba(20,10,70,.9) 55%,#07041f)}
-.sg-conf{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:30}
-.sg-conf i{position:absolute;top:-16px;width:9px;height:15px;border-radius:2px;animation:sgFall linear forwards}
-@keyframes sgFall{to{transform:translateY(112vh) rotate(760deg)}}
-.sg-stage{position:absolute;inset:0;display:flex;flex-direction:column;gap:7px;max-width:760px;margin:0 auto;overflow-y:auto;overflow-x:hidden;padding:0 10px max(10px,var(--safe-b));-webkit-overflow-scrolling:touch}
-.sg-stage button{pointer-events:auto}
-.sg-top{display:flex;align-items:center;gap:8px;padding-top:max(10px,var(--safe-t));flex:none}
-.sg-ib{position:relative;flex:none;width:42px;height:42px;border:0;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.4);transition:transform .15s}
-.sg-ib:active{transform:translateY(2px) scale(.95)}.sg-ib.off{opacity:.5}
-.sg-ib.off::after{content:'';position:absolute;width:26px;height:3px;background:#ff6b6b;border-radius:3px;transform:rotate(-45deg)}
-.sg-lad{flex:1;display:flex;justify-content:center;gap:5px}
-.sg-lad i{font-style:normal;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);display:grid;place-items:center;font:800 .78rem 'DM Sans',sans-serif;color:#cfc6ff;transition:.3s}
-.sg-lad i.d{background:linear-gradient(#7dffc8,#12b886);border-color:#b8ffe3;color:#04382b}
-.sg-lad i.c{background:linear-gradient(#ffe38a,#ffb52e);border-color:#fff3c4;color:#5a3a00;transform:scale(1.2);animation:sgPulse 1.3s ease-in-out infinite}
-@keyframes sgPulse{50%{box-shadow:0 0 0 7px rgba(255,209,102,.4)}}
-.sg-prize{flex:none;min-width:84px;text-align:center;padding:3px 10px 4px;border-radius:12px;background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00;font:800 1.02rem/1.05 'Bricolage Grotesque',sans-serif;box-shadow:0 3px 0 #9a6500,0 0 18px rgba(255,209,102,.5)}
-.sg-prize small{display:block;font:800 .54rem 'DM Sans',sans-serif;letter-spacing:1.6px;opacity:.75}
-.sg-bulbs{flex:none;height:9px;margin:0 2px;background:radial-gradient(circle,#ffd166 3px,transparent 4px) 0 0/20px 9px repeat-x;filter:drop-shadow(0 0 4px #ffd166);animation:sgBulb .9s steps(1) infinite}
-@keyframes sgBulb{0%{background-position:0 0}50%{background-position:10px 0}}
-.sg-tb{flex:none;height:7px;border-radius:9px;background:rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(255,255,255,.18)}
-#sgBar{height:100%;width:100%;background:linear-gradient(90deg,#3de0ff,#ffd166);transition:width .25s linear}
-#sgBar.low{background:#ff4d6d;animation:sgBlink .5s infinite}@keyframes sgBlink{50%{opacity:.4}}
-.sg-host{flex:none;display:flex;align-items:center;gap:9px;animation:sgIn .4s both}
-.sg-av{flex:none;width:46px;height:46px;border-radius:50%;background:linear-gradient(#ffe9b8,#f2c46d);border:3px solid #fff4d6;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.4),0 0 14px rgba(255,209,102,.5)}
-.sg-av svg{width:100%;height:100%;display:block}
-#sgBub{flex:1;background:rgba(255,255,255,.96);color:#241466;border-radius:6px 16px 16px 16px;padding:7px 12px;font-weight:800;font-size:.86rem;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.3);animation:sgPop .35s both}
-@keyframes sgPop{0%{transform:scale(.92);opacity:0}100%{transform:none;opacity:1}}
-@keyframes sgIn{0%{transform:translateY(20px) scale(.94);opacity:0}100%{transform:none;opacity:1}}
-.sg-screen{position:relative;flex:1 0 118px;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:14px 16px;border-radius:18px;text-align:center;background:linear-gradient(160deg,#1c2fb8,#0a1256 70%);border:4px solid transparent;background-clip:padding-box;box-shadow:0 0 0 4px #ffd166,0 0 0 7px rgba(255,209,102,.3),0 0 34px rgba(80,120,255,.55),inset 0 0 40px rgba(0,0,0,.45)}
-.sg-screen::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.1) 50%,transparent 60%);pointer-events:none}
-.sg-screen.flip{animation:sgFlip .5s both}@keyframes sgFlip{0%{transform:rotateX(70deg) scale(.95);opacity:.2}100%{transform:none;opacity:1}}
-.sg-screen.shake{animation:sgShake .45s both}
-@keyframes sgShake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
-.sg-chip{align-self:center;padding:3px 14px;border-radius:99px;background:rgba(255,209,102,.2);border:1px solid rgba(255,209,102,.6);color:#ffe38a;font:800 .74rem 'DM Sans',sans-serif;letter-spacing:.6px}
-.sg-q{font:800 clamp(1.05rem,4.4vw,1.55rem)/1.28 'Bricolage Grotesque',sans-serif;text-shadow:0 2px 0 rgba(0,0,0,.4)}
-.sg-q.big{font-size:clamp(1.4rem,6.4vw,2.2rem);background:linear-gradient(#fff,#ffd166);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
-.sg-kids{flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:end}
-.kid{position:relative;padding-top:22px;display:flex;flex-direction:column;align-items:center;cursor:default;transition:transform .2s}
-.sg-kids.pick .kid{cursor:pointer;animation:sgNudge 1s ease-in-out infinite}
-.sg-kids.pick .kid:nth-child(2n){animation-delay:-.3s}.sg-kids.pick .kid:nth-child(3n){animation-delay:-.6s}
-@keyframes sgNudge{50%{transform:translateY(-6px)}}
-.sg-kids.pick .kid .plate{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00}
-.kb{position:absolute;top:0;left:50%;transform:translateX(-50%) scale(0);padding:2px 9px;border-radius:12px;background:#fff;color:#241466;font:800 .8rem 'DM Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.35);transition:transform .3s cubic-bezier(.34,1.6,.64,1);z-index:3}
-.kb::after{content:'';position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#fff}
-.kb.show{transform:translateX(-50%) scale(1)}
-.kb.ok{background:#b9f7c9;color:#0a5a2b}.kb.ok::after{border-top-color:#b9f7c9}
-.kb.no{background:#ffc5c5;color:#9b1c1c}.kb.no::after{border-top-color:#ffc5c5}
-.pv{width:100%;max-width:76px;position:relative}
-.pv svg{width:100%;height:auto;display:block;overflow:visible;animation:sgBob 2.4s ease-in-out infinite;transform-origin:50% 100%}
-.kid:nth-child(2n) .pv svg{animation-delay:-.8s}.kid:nth-child(3n) .pv svg{animation-delay:-1.5s}
-@keyframes sgBob{50%{transform:translateY(-2px) rotate(1.2deg)}}
-.plate{width:94%;margin-top:-4px;padding:3px 2px 4px;text-align:center;font:800 .68rem/1 'DM Sans',sans-serif;color:#fff;letter-spacing:.3px;background:linear-gradient(#5b46d6,#2c1c86);border-top:2px solid #b7a8ff;border-radius:3px 3px 8px 8px;clip-path:polygon(6% 0,94% 0,100% 100%,0 100%);box-shadow:0 5px 10px rgba(0,0,0,.4)}
-.kid.win .pv svg,.sg-pod.cheer .pv svg{animation:sgJump .45s ease-in-out 3}
-.kid.win .plate{background:linear-gradient(#5cf0a8,#12a86a);color:#04382b}
-.kid.lose .pv svg,.sg-pod.sad .pv svg{animation:sgSlump 1.2s both}
-.kid.lose .plate{background:linear-gradient(#ff8a8a,#c0392b)}
-@keyframes sgJump{40%{transform:translateY(-12px)}}@keyframes sgSlump{to{transform:translateY(4px) rotate(-4deg);filter:saturate(.5)}}
-.sg-opts{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sg-o{position:relative;border:0;text-align:left;cursor:pointer;min-height:58px;padding:10px 12px 10px 46px;font:800 .92rem/1.2 'DM Sans',sans-serif;color:#fff;border-radius:6px 18px 6px 18px;background:linear-gradient(#3550e8,#1a2a9e);border:2px solid #9fb0ff;box-shadow:0 5px 0 #0c1560,0 8px 14px rgba(0,0,0,.4);transition:transform .12s;animation:sgIn .4s both;animation-delay:calc(var(--i,0)*.06s)}
-.sg-o::before{content:attr(data-l);position:absolute;left:9px;top:50%;margin-top:-15px;width:30px;height:30px;border-radius:50%;background:linear-gradient(#ffe38a,#f0a815);color:#5a3a00;display:grid;place-items:center;font:800 .95rem 'DM Sans',sans-serif;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
-.sg-o:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.12)}.sg-o:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #0c1560}
-.sg-o.ok{background:linear-gradient(#41e48a,#0f9b57);border-color:#c9ffe0;box-shadow:0 5px 0 #0a6a3a,0 0 26px rgba(80,255,150,.7);animation:sgWin .6s both}
-.sg-o.no{background:linear-gradient(#ff6b6b,#c0392b);border-color:#ffd0d0;box-shadow:0 5px 0 #7a1c14;animation:sgShake .45s both}
-.sg-o.x{opacity:.2}.sg-o:disabled{cursor:default}
-.sg-o .dots{position:absolute;right:7px;bottom:5px;display:flex;gap:3px}
-.sg-o .dots em{width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.5);animation:sgPop .3s both}
-@keyframes sgWin{40%{transform:scale(1.07)}100%{transform:scale(1.02)}}
-.sg-sub{position:relative;border:0;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 12px;min-height:58px;border-radius:6px 18px 6px 18px;font:800 .98rem 'DM Sans',sans-serif;color:#fff;text-align:left;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,#000));border:2px solid rgba(255,255,255,.5);box-shadow:0 5px 0 rgba(0,0,0,.45),0 8px 14px rgba(0,0,0,.35);transition:transform .12s;animation:sgIn .4s both;animation-delay:calc(var(--i,0)*.06s)}
-.sg-sub:hover{transform:translateY(-2px)}.sg-sub:active{transform:translateY(3px)}
-.sg-sub span{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:grid;place-items:center;flex:none}
-.sg-end{display:flex;flex-direction:column;gap:9px}
-.sg-sum{background:rgba(255,255,255,.95);color:#241466;border-radius:14px;padding:12px;font-weight:800;text-align:center;box-shadow:0 5px 0 rgba(0,0,0,.3);animation:sgIn .5s both}
-.sg-go{border:0;border-radius:14px;background:linear-gradient(#2fe3b4,#00b98a);color:#04382b;font:800 1.05rem 'DM Sans',sans-serif;padding:14px;box-shadow:0 5px 0 #007a5c;cursor:pointer;animation:sgIn .5s both;transition:transform .15s}
-.sg-go:active{transform:translateY(3px)}.sg-go.alt{background:linear-gradient(#fff,#e6defc);color:#2c1c86;box-shadow:0 5px 0 #a99be0}
-.sg-me{flex:none;display:flex;align-items:flex-end;gap:12px;padding:6px 8px;border-radius:16px;background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2)}
-.sg-pod{position:relative;flex:none;width:92px;display:flex;flex-direction:column;align-items:center}
-.sg-pod .pv{max-width:84px;filter:drop-shadow(0 0 10px rgba(255,209,102,.8))}
-.sg-pod .plate{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00;font-size:.78rem;letter-spacing:1px}
-.sg-ctl{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
-.sg-hs{display:flex;gap:4px;justify-content:center}.sg-hs svg{width:26px;height:26px;transition:.3s}.sg-hs .l{animation:sgBeat 1.2s infinite}@keyframes sgBeat{50%{transform:scale(1.15)}}
-.sg-ll{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.sg-ll button{border:0;border-radius:12px;background:linear-gradient(#fff,#e6defc);color:#2c1c86;font:800 .72rem/1.1 'DM Sans',sans-serif;padding:7px 4px;box-shadow:0 3px 0 #a99be0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .15s}
-.sg-ll button b{font-size:.62rem;font-weight:700;opacity:.7}
-.sg-ll button:active:not(:disabled){transform:translateY(2px)}.sg-ll button:disabled{opacity:.3;filter:grayscale(1)}
-.sg-ll button.on{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00;animation:sgPulse 1s infinite}
-.kid.helper::after{content:'★';position:absolute;top:16px;right:0;font-size:1.15rem;color:#ffd166;filter:drop-shadow(0 0 4px #ff9f1c);animation:sgBeat 1.2s infinite}
-.kid.helper .pv{filter:drop-shadow(0 0 9px rgba(255,209,102,.95))}
-.kid.helper .plate{background:linear-gradient(#ffe38a,#f0a815);color:#4a2f00}
-@media (max-height:700px){.sg-av{width:38px;height:38px}.sg-screen{flex-basis:96px;padding:10px 12px}.pv{max-width:62px}.sg-pod{width:78px}.sg-o,.sg-sub{min-height:50px}}
-@media (prefers-reduced-motion:reduce){.sg-beam,.sg-bulbs,.pv svg,.sg-o,.sg-sub,.sg-host,.sg-sum,.sg-go,.kid{animation:none!important}}
-</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -1666,10 +1562,10 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="name">Farm Valley</div>
         <div class="desc">Grow, sell &amp; expand</div>
       </div>
-      <div class="game-card" data-game="smarter" id="pickSmarter" aria-label="Play Are You Smarter Than a 5th Grader, Philippines Edition" style="cursor:pointer">
-        <div class="thumb t-smarter" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="smW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e8c6"/><stop offset="1" stop-color="#e3c68c"/></linearGradient><linearGradient id="smB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#33805a"/><stop offset="1" stop-color="#1c4632"/></linearGradient><linearGradient id="smF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9803f"/><stop offset="1" stop-color="#8a5a2b"/></linearGradient></defs><rect width="160" height="100" fill="url(#smW)"/><rect y="70" width="160" height="30" fill="url(#smF)"/><rect x="22" y="10" width="116" height="52" rx="3" fill="#8a5a2b"/><rect x="26" y="14" width="108" height="44" rx="2" fill="url(#smB)"/><text x="80" y="42" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="800" font-size="19" fill="#f7f5e6">5th Grader?</text><path d="M34 22h22M34 26h14" stroke="#f7f5e6" stroke-opacity=".6" stroke-width="1.6" stroke-linecap="round"/><rect x="22" y="62" width="116" height="4" fill="#6b4423"/><circle cx="130" cy="64" r="7" fill="#e0ac7e"/><path d="M123 64a7 7 0 0114 0z" fill="#2a1a10"/><path d="M121 90c0-14 4-22 9-22s9 8 9 22z" fill="#2f5d9b"/><rect x="26" y="78" width="30" height="5" rx="2" fill="#6b4423"/><rect x="30" y="83" width="3" height="12" fill="#4b2f10"/><rect x="50" y="83" width="3" height="12" fill="#4b2f10"/><circle cx="41" cy="73" r="5" fill="#2a1a10"/><path d="M36 76h10v4H36z" fill="#f4f4e6"/><circle cx="20" cy="22" r="0" fill="none"/></svg></div>
-        <div class="name">Smarter than a 5th Grader?</div>
-        <div class="desc">Philippines edition</div>
+      <div class="game-card" data-game="grader" id="pickGrader" aria-label="Play Are You Smarter Than a 5th Grader, Philippines Edition" style="cursor:pointer">
+        <div class="thumb t-grader" aria-hidden="true"><svg viewBox="0 0 320 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sgTA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D5EAF7"/><stop offset="1" stop-color="#A9CBE3"/></linearGradient></defs><rect width="320" height="100" fill="url(#sgTA)"/><rect y="76" width="320" height="24" fill="#C9985F"/><rect y="72" width="320" height="4" fill="#8C5A2A"/><rect x="66" y="8" width="188" height="62" rx="4" fill="#A8703B"/><rect x="73" y="15" width="174" height="48" rx="2" fill="#2F5B4A"/><text x="160" y="36" text-anchor="middle" font-family="'Patrick Hand','Comic Sans MS',cursive" font-size="16" fill="#F5F2E6">Are you smarter than a</text><text x="160" y="55" text-anchor="middle" font-family="'Patrick Hand','Comic Sans MS',cursive" font-size="19" fill="#FFE27A">5th Grader?</text><rect x="14" y="14" width="40" height="22" fill="#0038A8"/><rect x="14" y="36" width="40" height="22" fill="#CE1126"/><polygon points="14,14 14,58 38,36" fill="#fff"/><circle cx="21" cy="36" r="3.4" fill="#FCD116"/><rect x="12" y="12" width="2.4" height="64" fill="#8C5A2A"/><circle cx="280" cy="30" r="15" fill="#FFF8E6" stroke="#8C5A2A" stroke-width="3"/><path d="M280 30V20M280 30l7 4" stroke="#3C2A12" stroke-width="2" stroke-linecap="round"/><g><rect x="86" y="80" width="30" height="8" rx="3" fill="#E6B176"/><circle cx="101" cy="74" r="6" fill="#F3C9A0"/><rect x="146" y="80" width="30" height="8" rx="3" fill="#E6B176"/><circle cx="161" cy="74" r="6" fill="#E9B98E"/><rect x="206" y="80" width="30" height="8" rx="3" fill="#E6B176"/><circle cx="221" cy="74" r="6" fill="#F3C9A0"/></g></svg></div>
+        <div class="name">Smarter Than a 5th Grader?<span class="sg-new">New</span></div>
+        <div class="desc">Philippines Edition &middot; Grade 1 to 6 classroom quiz</div>
       </div>
       <div class="game-card" data-game="emberfall" id="pickEmberfall" data-href="https://vicllanos.github.io/AIM/" aria-label="Open Emberfall, a separate first-person shooter with its own login" style="cursor:pointer">
         <div class="thumb t-emberfall" aria-hidden="true"><svg viewBox="0 0 320 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="efA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A0912"/><stop offset=".6" stop-color="#7C1D18"/><stop offset="1" stop-color="#FF8A2B"/></linearGradient><radialGradient id="efG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD27A" stop-opacity=".95"/><stop offset=".5" stop-color="#FF6A2B" stop-opacity=".45"/><stop offset="1" stop-color="#FF6A2B" stop-opacity="0"/></radialGradient></defs><rect width="320" height="100" fill="url(#efA)"/><g class="px1"><circle class="a glow" cx="240" cy="54" r="50" fill="url(#efG)"/><circle cx="240" cy="54" r="13" fill="#FFE2A0"/><polygon points="0,100 0,62 16,62 16,50 32,50 32,66 50,66 50,56 64,56 64,100" fill="#2A0D14"/><polygon points="252,100 252,60 264,60 264,46 282,46 282,62 298,62 298,52 320,52 320,100" fill="#2A0D14"/></g><g class="px2"><polygon points="64,100 64,68 82,68 82,42 90,42 90,32 96,32 96,42 104,42 104,72 124,72 124,60 140,60 140,100" fill="#12060B"/><polygon points="184,100 184,66 198,66 198,50 214,50 214,70 232,70 232,100" fill="#12060B"/><g fill="#FFB347" opacity=".85"><rect x="86" y="48" width="3" height="3"/><rect x="92" y="58" width="3" height="3"/><rect x="110" y="78" width="3" height="3"/><rect x="202" y="56" width="3" height="3"/><rect x="220" y="80" width="3" height="3"/></g><rect y="80" width="320" height="20" fill="#0E0509"/><path d="M0 80H320" stroke="#FF6A2B" stroke-opacity=".5" stroke-width="1"/><g class="a foe" stroke="#FF6A2B" stroke-width=".8" fill="#0D0509"><circle cx="160" cy="45" r="5"/><rect x="153" y="50" width="14" height="22" rx="3"/><rect x="154" y="72" width="5" height="9" rx="1.5"/><rect x="161" y="72" width="5" height="9" rx="1.5"/><rect x="166" y="54" width="12" height="3" rx="1.5"/><circle cx="158" cy="45" r=".9" fill="#FF4F4F" stroke="none"/><circle cx="162" cy="45" r=".9" fill="#FF4F4F" stroke="none"/></g></g><g class="px3"><g class="a ch"><circle cx="160" cy="52" r="10" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"/><path d="M160 36v8M160 60v8M144 52h8M168 52h8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="160" cy="52" r="1.4" fill="#FF4F4F"/></g><path class="a hit" d="M154 46l-4-4M166 46l4-4M154 58l-4 4M166 58l4 4" stroke="#FF4F4F" stroke-width="1.8" stroke-linecap="round"/><polygon points="236,70 296,62 320,68 320,100 222,100 230,86" fill="#16111A" stroke="#4A3640" stroke-width=".8"/><polygon points="196,80 238,72 242,80 202,88" fill="#241A1F" stroke="#4A3640" stroke-width=".8"/><path d="M242 76L316 70" stroke="#FF6A2B" stroke-width="1.6" stroke-linecap="round"/><rect x="248" y="63" width="10" height="5" rx="1" fill="#FF6A2B"/><polygon class="a flash" points="196,80 188,74 190,80 182,80 190,82 188,88 195,83" fill="#FFD166"/><circle class="a em" style="--i:0" cx="30" cy="90" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:1" cx="72" cy="94" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:2" cx="118" cy="92" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:3" cx="150" cy="96" r="1.2" fill="#FF6A2B"/><circle class="a em" style="--i:4" cx="196" cy="95" r="1.6" fill="#FFB347"/><circle class="a em" style="--i:5" cx="246" cy="97" r="1.3" fill="#FF6A2B"/><circle class="a em" style="--i:6" cx="284" cy="93" r="1.8" fill="#FFB347"/><circle class="a em" style="--i:7" cx="98" cy="87" r="1.1" fill="#FF6A2B"/><circle class="a em" style="--i:8" cx="178" cy="90" r="1.4" fill="#FFD166"/><circle class="a em" style="--i:9" cx="304" cy="98" r="1.2" fill="#FF6A2B"/></g></svg><span class="ext">FPS &#8599;</span></div>
@@ -2057,20 +1953,33 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
   <div id="fmTut" role="dialog" aria-live="polite"></div><div id="fmSpot"></div>
 </section>
 
-<section id="screen-smarter" class="screen">
-  <div class="sg-bg"><i class="sg-beam b1"></i><i class="sg-beam b2"></i><i class="sg-beam b3"></i><i class="sg-beam b4"></i><div class="sg-floor"></div></div>
-  <div class="sg-conf" id="sgConf" aria-hidden="true"></div>
-  <div class="sg-stage">
-    <div class="sg-top"><button type="button" class="sg-ib" id="sgBack" aria-label="Back to lobby"></button><div class="sg-lad" id="sgLad"></div><div class="sg-prize"><small>PRIZE</small>₱<b id="sgSc">0</b></div><button type="button" class="sg-ib" id="sgMus" aria-label="Toggle music"></button></div>
-    <div class="sg-bulbs" aria-hidden="true"></div>
-    <div class="sg-tb"><div id="sgBar"></div></div>
-    <div class="sg-host"><div class="sg-av" id="sgAv"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 48c0-11 8-15 18-15s18 4 18 15z" fill="#241466"/><path d="M19 33l5 6 5-6z" fill="#fff"/><path d="M20 37l4 3 4-3-1-4h-6z" fill="#ff3d8b"/><circle cx="24" cy="21" r="12" fill="#e0ac7e"/><path d="M11 20c0-10 6-14 13-14s13 4 13 14c-3-5-7-7-13-7s-10 2-13 7z" fill="#1d130d"/><circle cx="19.5" cy="22" r="1.6" fill="#1d130d"/><circle cx="28.5" cy="22" r="1.6" fill="#1d130d"/><path d="M18.5 27q5.5 5 11 0z" fill="#a3342f"/><path d="M19.5 27.4q4.5 1.6 9 0" stroke="#fff" stroke-width="1.6" fill="none"/></svg></div><div id="sgBub"></div></div>
-    <div class="sg-screen" id="sgScreen" aria-live="polite"><div class="sg-chip" id="sgChip"></div><div class="sg-q" id="sgQ"></div></div>
-    <div class="sg-kids" id="sgKids" aria-label="Five fifth graders"></div>
-    <div id="sgOpts" class="sg-opts"></div>
-    <div class="sg-me">
-      <div class="sg-pod" id="sgMe" aria-label="You"></div>
-      <div class="sg-ctl"><div class="sg-hs" id="sgLife"></div><div class="sg-ll"><button type="button" id="sgC"></button><button type="button" id="sgS"></button><button type="button" id="sgP"></button></div></div>
+<section id="screen-grader" class="screen" aria-label="Are You Smarter Than a 5th Grader, Philippines Edition">
+  <div class="sg-bar">
+    <button type="button" class="sg-ib" id="sgBack" aria-label="Back to games">←</button>
+    <div class="sg-ttl">Smarter Than a 5th Grader?<small>Philippines Edition</small></div>
+    <button type="button" class="sg-ib" id="sgNarr" aria-label="Narration on" aria-pressed="true">🔊</button>
+    <button type="button" class="sg-ib" id="sgHelp" aria-label="How to play">?</button>
+  </div>
+  <div class="sg-hud" id="sgHud"></div>
+  <div class="sg-class">
+    <div class="sg-wall">
+      <div class="sg-decor" aria-hidden="true">
+        <svg viewBox="0 0 56 56"><rect x="2" y="2" width="52" height="52" rx="3" fill="#8EC9F0" stroke="#A8703B" stroke-width="4"/><circle cx="38" cy="18" r="7" fill="#FFD84D"/><path d="M4 52V40q8-8 16-2t16-4 16 6v12z" fill="#6DBE6D"/><path d="M28 4v48M4 28h48" stroke="#A8703B" stroke-width="3"/></svg>
+        <svg viewBox="0 0 64 48"><rect x="1.5" y="1.5" width="61" height="45" rx="3" fill="#FFF8E1" stroke="#E0B96A" stroke-width="2"/><text x="8" y="27" font-size="19" font-weight="800" font-family="sans-serif" fill="#E5484D">A</text><text x="25" y="27" font-size="19" font-weight="800" font-family="sans-serif" fill="#2F7DE1">B</text><text x="42" y="27" font-size="19" font-weight="800" font-family="sans-serif" fill="#E59A00">K</text><text x="32" y="41" text-anchor="middle" font-size="8.5" font-weight="700" font-family="sans-serif" fill="#5B4A2A">Abakada</text></svg>
+        <svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="#FFF8E6" stroke="#8C5A2A" stroke-width="4"/><path d="M28 8v5M28 43v5M8 28h5M43 28h5" stroke="#8C5A2A" stroke-width="2.5" stroke-linecap="round"/><path d="M28 28V16M28 28l11 6" stroke="#3C2A12" stroke-width="3" stroke-linecap="round"/><circle cx="28" cy="28" r="2.5" fill="#CE1126"/></svg>
+        <svg viewBox="0 0 66 56"><rect x="2" y="2" width="3" height="54" rx="1" fill="#8C5A2A"/><rect x="5" y="6" width="58" height="19" fill="#0038A8"/><rect x="5" y="25" width="58" height="19" fill="#CE1126"/><polygon points="5,6 5,44 31,25" fill="#fff"/><circle cx="14" cy="25" r="4" fill="#FCD116"/><circle cx="8.5" cy="11" r="1.8" fill="#FCD116"/><circle cx="8.5" cy="39" r="1.8" fill="#FCD116"/><circle cx="27" cy="25" r="1.8" fill="#FCD116"/></svg>
+      </div>
+      <div class="sg-board" id="sgBoard" aria-live="polite"></div>
+      <div class="sg-tray" aria-hidden="true"></div>
+    </div>
+    <div class="sg-trow">
+      <div class="sg-teacher" id="sgTeacher" aria-hidden="true"><span class="sg-t-av">👩🏽‍🏫</span></div>
+      <div class="sg-say" id="sgSay" role="status"></div>
+    </div>
+    <div class="sg-floor">
+      <div class="sg-cheats" id="sgCheats"></div>
+      <div class="sg-hint" id="sgHint"></div>
+      <div class="sg-desks" id="sgDesks"></div>
     </div>
   </div>
 </section>
@@ -12057,227 +11966,884 @@ AC.push(['Welcome Guests','Welcome 25 visitor stays',g=>(g.st.vis||0)>=25,400],[
 
 })();
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+/* ===== Are You Smarter Than a 5th Grader? · Philippines Edition ===== */
+.game-card[data-game=grader]{--a:#4FD08A;--t:#0E3B2C;grid-column:1/-1}
+.game-card[data-game=grader] .thumb{aspect-ratio:32/10}
+.sg-new{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:#FFE27A;color:#4A3300;font-size:.62rem;font-weight:800;vertical-align:middle}
+#screen-grader{max-width:520px;gap:10px;padding-bottom:calc(14px + var(--safe-b))}
+.sg-bar{display:flex;align-items:center;gap:8px}
+.sg-ttl{flex:1;min-width:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.05rem;line-height:1.1;color:#fff}
+.sg-ttl small{display:block;margin-top:2px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.72rem;color:#D9D2FF}
+.sg-ib{width:42px;height:42px;flex:none;border-radius:14px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);color:#fff;font:800 1.05rem 'DM Sans',sans-serif;display:grid;place-items:center;cursor:pointer}
+.sg-ib[aria-pressed=false]{opacity:.65}
+.sg-hud{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:16px;background:rgba(15,10,40,.4);border:1px solid rgba(255,255,255,.18);color:#fff}
+.sg-pz{flex:none;line-height:1.1}.sg-pz b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;color:#FFE27A}.sg-pz span{font-size:.68rem;font-weight:700;color:#D9D2FF}
+.sg-lad{flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.sg-g{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.66rem;font-weight:800;color:#CFC8F5}
+.sg-g.now{color:#FFE27A}.sg-g .p2{display:flex;gap:3px}
+.sg-g .p{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22)}
+.sg-g .p.done{background:#5EF0C4}.sg-g .p.cur{background:#FFE27A;box-shadow:0 0 0 3px rgba(255,226,122,.35)}
+/* the room */
+.sg-class{border-radius:22px;overflow:hidden;box-shadow:var(--shadow);border:3px solid rgba(255,255,255,.35);background:#BBD6EA}
+.sg-wall{padding:12px 12px 0;background:linear-gradient(#CFE6F5,#BBD6EA)}
+.sg-decor{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:62px;margin-bottom:10px}
+.sg-decor svg{display:block;height:100%;width:auto;max-width:25%}
+.sg-board{position:relative;min-height:330px;display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:8px;border:10px solid #A8703B;color:#F5F2E6;font-family:'Patrick Hand','Comic Sans MS',cursive;
+  background:radial-gradient(120% 90% at 18% 8%,rgba(255,255,255,.08),transparent 60%),radial-gradient(70% 50% at 85% 92%,rgba(255,255,255,.06),transparent 60%),#2F5B4A;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),inset 0 0 40px rgba(0,0,0,.35)}
+.sg-board.shake{animation:sgShake .4s}
+@keyframes sgShake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.sg-tray{height:12px;margin:0 6px;border-radius:0 0 6px 6px;background:linear-gradient(#C48A52,#9A6330);position:relative}
+.sg-tray::before{content:'';position:absolute;left:22px;top:-5px;width:26px;height:6px;border-radius:2px;background:#F5F2E6;box-shadow:34px 0 0 #FFB3C7}
+.sg-tray::after{content:'';position:absolute;right:20px;top:-7px;width:34px;height:8px;border-radius:2px;background:#5B3A1E;border-bottom:3px solid #E7D7B0}
+.sg-board h2,.sg-board h3{font-weight:400}
+.sg-hero{text-align:center;display:flex;flex-direction:column;gap:10px;padding:6px 2px}
+.sg-hero h2{font-size:clamp(1.7rem,7vw,2.2rem);line-height:1.05}
+.sg-hero .sub{font-size:1.25rem;color:#FFE27A;text-decoration:underline wavy rgba(255,226,122,.7);text-underline-offset:6px}
+.sg-hero p{font-size:1.1rem;line-height:1.3;max-width:34ch;margin:0 auto}
+.sg-st{display:flex;justify-content:center;gap:14px;font-size:.85rem;color:#BFE3D2}
+.sg-st span{display:flex;flex-direction:column}.sg-st b{font-size:1.25rem;color:#FFB3C7;font-weight:400}
+.sg-tags{display:flex;justify-content:space-between;gap:8px;font-size:1.05rem;color:#FFE27A;border-bottom:2px dashed rgba(245,242,230,.35);padding-bottom:6px}
+.sg-tags .pz{color:#FFB3C7}
+.sg-h3{font-size:1.45rem;line-height:1.15}
+.sg-note{font-size:1rem;color:#A9D8FF;margin-top:-4px}
+.sg-qrow{display:flex;gap:8px;align-items:flex-start}
+.sg-q{flex:1;font-size:clamp(1.3rem,5.4vw,1.6rem);line-height:1.22}
+.sg-rp{flex:none;width:40px;height:40px;border-radius:50%;border:2px solid rgba(245,242,230,.6);background:transparent;color:#F5F2E6;font-size:1.05rem;cursor:pointer}
+.sg-rp.on{background:rgba(255,226,122,.2);border-color:#FFE27A}
+.sg-opts{display:flex;flex-direction:column;gap:8px}
+.sg-opt,.sg-subj{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;background:transparent;color:#F5F2E6;font:inherit;font-size:1.14rem;line-height:1.2;cursor:pointer;
+  border:2px solid rgba(245,242,230,.62);border-radius:15px 11px 14px 10px/11px 15px 10px 14px;transition:background .15s,border-color .15s}
+.sg-opt:hover:not(:disabled),.sg-subj:hover{background:rgba(255,255,255,.07)}
+.sg-opt .lt{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #FFE27A;color:#FFE27A;display:grid;place-items:center}
+.sg-opt .tx{flex:1;min-width:0}
+.sg-opt.sel{background:rgba(255,226,122,.16);border-color:#FFE27A}
+.sg-opt.ok{background:rgba(94,240,196,.18);border-color:#7CFFB2}.sg-opt.ok .lt{background:#7CFFB2;border-color:#7CFFB2;color:#0B3A2A}
+.sg-opt.no{background:rgba(255,120,140,.16);border-color:#FF8FA3}.sg-opt.no .tx{text-decoration:line-through;text-decoration-color:#FF8FA3}
+.sg-opt:disabled{cursor:default}
+.sg-pk{flex:none;padding:2px 8px;border-radius:999px;background:#FFE27A;color:#4A3300;font:800 .7rem 'DM Sans',sans-serif}
+.sg-subj .e{flex:none;font-size:1.7rem;width:42px;text-align:center}
+.sg-subj b{display:block;font-weight:400;font-size:1.25rem}.sg-subj small{color:#BFE3D2;font-size:.9rem}
+.sg-lock{margin-top:2px}.sg-lock:disabled{opacity:.55;cursor:default}
+.sg-res{padding:8px 12px;border-radius:12px;font-size:1.2rem;border:2px solid}
+.sg-res.good{color:#7CFFB2;border-color:#7CFFB2;background:rgba(94,240,196,.1)}.sg-res.bad{color:#FF8FA3;border-color:#FF8FA3;background:rgba(255,120,140,.1)}
+/* report card */
+.sg-board.paper{background:#FFFDF2;color:#2B2A33;box-shadow:inset 0 0 40px rgba(168,112,59,.18)}
+.sg-card{display:flex;flex-direction:column;gap:10px}
+.sg-ch1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.5rem;color:#C0392B;border-bottom:3px double #C0392B;padding-bottom:4px}
+.sg-ch2{font-size:.9rem;color:#6B6A75;margin-top:-6px}
+.sg-grade{font-size:1.4rem;line-height:1.15;color:#1F4FB5}
+.sg-total b{display:block;font-size:2rem;font-weight:400;color:#2B2A33}.sg-total span{font-size:1rem;color:#4A4A55}
+.sg-rows{display:flex;flex-direction:column;gap:4px}
+.sg-rows .r{display:grid;grid-template-columns:76px 1fr 1fr;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #E9E3D0;font-size:1.05rem}
+.sg-rows .r b{font-weight:400}.sg-rows .c{padding:2px 6px;border-radius:8px;background:#F1EEDD}
+.sg-rows .c.y{background:#D9F5E4;color:#1B6B3F}.sg-rows .c.n{background:#FFE1E5;color:#A8283E}.sg-rows .c.s{background:#FFF1C9;color:#7A5200}.sg-rows .c.na{color:#9A98A6}
+.sg-rev{font-size:1rem;line-height:1.25;background:#FFF6D9;border-radius:10px;padding:8px 10px}.sg-rev b{display:block;color:#7A5200;font-weight:400}
+.sg-dark{background:#EFEAFB!important;color:var(--violet-d)!important;border:1px solid #D6CFFF!important}
+/* teacher + floor */
+.sg-trow{display:flex;align-items:flex-end;gap:10px;padding:10px 12px 12px;background:linear-gradient(#BBD6EA 0 24%,#8C5A2A 24% 28%,#C9985F 28%)}
+.sg-teacher{flex:none;width:64px;position:relative;text-align:center}
+.sg-teacher::after{content:'';display:block;height:16px;margin-top:-10px;border-radius:5px;background:linear-gradient(#D9A066,#A9703A);box-shadow:0 3px 0 #6E4421}
+.sg-t-av{display:block;font-size:3.1rem;line-height:1}
+.sg-teacher.talk .sg-t-av{animation:sgTalk .45s ease-in-out infinite alternate}
+@keyframes sgTalk{to{transform:translateY(-4px) rotate(-4deg)}}
+.sg-say{position:relative;flex:1;min-height:52px;display:flex;align-items:center;background:#fff;color:#2B2250;border-radius:16px;padding:10px 12px;font:700 .92rem/1.3 'DM Sans',sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+.sg-say::before{content:'';position:absolute;left:-6px;bottom:18px;width:14px;height:14px;background:#fff;transform:rotate(45deg)}
+.sg-floor{padding:12px 12px 16px;background:repeating-linear-gradient(90deg,#C99A62 0 46px,#BC8C55 46px 48px);box-shadow:inset 0 8px 10px -6px rgba(0,0,0,.3)}
+.sg-cheats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sg-ch{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;border:2px solid #E9D3A5;border-radius:14px;background:#FFF8E7;color:#3C2A12;font:800 .78rem 'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 0 #A9741A}
+.sg-ch .e{font-size:1.35rem;line-height:1.1}.sg-ch small{font-weight:700;font-size:.62rem;opacity:.8;text-align:center}
+.sg-ch.on{background:#FFE27A;border-color:#E3A91A}
+.sg-ch:disabled{opacity:.5;box-shadow:none;transform:translateY(3px);cursor:default}
+.sg-hint{min-height:1.2em;margin:8px 0 0;text-align:center;font:800 .8rem 'DM Sans',sans-serif;color:#2D1B07}
+.sg-desks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:22px}
+.sg-mate{position:relative;display:flex;flex-direction:column;align-items:center;padding:0;background:none;border:0;cursor:pointer;font-family:'DM Sans',sans-serif}
+.sg-mate .av{position:relative;z-index:2;font-size:2.2rem;line-height:1;margin-bottom:-8px}
+.sg-mate .dk{position:relative;width:100%;height:28px;border-radius:9px 9px 5px 5px;background:linear-gradient(#E6B176,#C98B4C);box-shadow:0 5px 0 #8C5A2A}
+.sg-mate .dk::after{content:'';position:absolute;right:-3px;top:-8px;width:22px;height:13px;border-radius:5px;background:#F0C48E;box-shadow:0 2px 0 #B07A43}
+.sg-mate .nm{margin-top:10px;font-weight:800;font-size:.8rem;color:#2D1B07}
+.sg-mate .sb{font-size:.62rem;font-weight:700;color:#4A3419;text-align:center;line-height:1.15}
+.sg-mate.pick .dk{background:linear-gradient(#FFE9A8,#F2C14E);box-shadow:0 5px 0 #A9741A,0 0 0 3px #fff}
+.sg-th{position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);width:max-content;max-width:128px;z-index:5;padding:5px 8px;border-radius:12px;background:#fff;color:#2B2250;font:800 .72rem/1.15 'DM Sans',sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.sg-mate:first-child .sg-th{left:0;transform:none}.sg-mate:last-child .sg-th{left:auto;right:0;transform:none}
+@media (max-width:360px){.sg-opt,.sg-subj{font-size:1.02rem}.sg-ch{font-size:.7rem}}
+@media (prefers-reduced-motion:reduce){.sg-teacher.talk .sg-t-av,.sg-board.shake{animation:none}}
+</style>
 <script>
-/* ===== Are You Smarter Than a 5th Grader? — Philippines Edition (game-show stage, 5 fifth graders, lifelines) ===== */
 (function(){
-const $=id=>document.getElementById(id),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),P=a=>a[R(0,a.length-1)],SH=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
-const BANK=`1|Science|How many legs does an insect have?|6|4|8|10
-1|Science|Which of these animals is NOT an insect?|Spider|Ant|Bee|Butterfly
-1|Science|Which of these animals is nocturnal (active at night)?|Owl|Hen|Sparrow|Duck
-1|English|Which word has a silent letter?|knee|tree|green|sleep
-1|English|How many vowels are in the word "education"?|5|4|3|6
-1|English|What is the plural of "mouse"?|mice|mouses|mices|mouse
-1|Filipino|Ilang titik mayroon ang makabagong alpabetong Filipino?|28|26|20|31
-1|Filipino|Ano ang Filipino ng "rainbow"?|bahaghari|kidlat|ulap|bituin
-1|Filipino|Ano ang Filipino ng "umbrella"?|payong|tabo|banig|sombrero
-1|A.P.|How many stars are on the Philippine flag?|3|8|5|9
-1|A.P.|What is the national tree of the Philippines?|Narra|Mango|Acacia|Coconut
-1|A.P.|What is the national flower of the Philippines?|Sampaguita|Rose|Ilang-ilang|Gumamela
-1|MAPEH|How many colors are in a rainbow?|7|5|6|8
-1|MAPEH|How many strings does a standard guitar have?|6|4|5|8
-1|MAPEH|What is the national sport of the Philippines?|Arnis|Basketball|Sipa|Boxing
-2|Science|Which planet is closest to the Sun?|Mercury|Venus|Earth|Mars
-2|Science|What is the hardest natural substance on Earth?|Diamond|Gold|Iron|Quartz
-2|Science|Which of these animals is a marsupial?|Kangaroo|Rabbit|Monkey|Squirrel
-2|English|Which word sounds the same as "flower" but means something you bake with?|flour|floor|flow|fowl
-2|English|Which word is the adjective in: "The tiny puppy barked loudly."?|tiny|puppy|barked|loudly
-2|English|How many syllables does the word "elephant" have?|3|2|4|5
-2|Filipino|Ano ang pang-ukol sa pangungusap: "Pumunta si Ana sa palengke."?|sa|Ana|pumunta|palengke
-2|Filipino|Ano ang kasalungat ng "matapang"?|duwag|malakas|mabilis|masaya
-2|Filipino|Ilan ang patinig sa alpabetong Filipino?|5|3|7|10
-2|A.P.|What is the largest lake in the Philippines?|Laguna de Bay|Lake Taal|Lake Lanao|Lake Buhi
-2|A.P.|On what date do Filipinos celebrate Independence Day?|June 12|July 4|August 21|November 30
-2|A.P.|Which of the three main island groups is the southernmost?|Mindanao|Luzon|Visayas|Batanes
-2|MAPEH|What is the national costume for Filipino men?|Barong Tagalog|Salakot|Kimona|Tapis
-2|MAPEH|How many players of one team are on the court in basketball?|5|6|7|4
-2|MAPEH|Which of these is a secondary color?|Orange|Red|Blue|Yellow
-3|Science|Which gas do humans breathe out?|Carbon dioxide|Oxygen|Nitrogen|Helium
-3|Science|What is the largest organ of the human body?|Skin|Liver|Brain|Heart
-3|Science|Which planet is famous for its bright, wide rings?|Saturn|Mars|Earth|Mercury
-3|English|What is the superlative form of "good"?|best|goodest|better|most good
-3|English|Which word is a synonym of "enormous"?|gigantic|tiny|ordinary|gentle
-3|English|What kind of sentence is "Please close the door."?|Imperative|Declarative|Interrogative|Exclamatory
-3|Filipino|Alin ang tamang baybay?|edukasyon|edukasiyon|eduksyon|edukasyun
-3|Filipino|Alin ang salitang may klaster (kambal-katinig)?|plato|bahay|araw|mesa
-3|Filipino|Ano ang kahulugan ng "Kung may tiyaga, may nilaga"?|Ang sipag at tiyaga ay may gantimpala|Masarap ang nilaga|Huwag magluto|Ang tiyaga ay pagkain
-3|A.P.|Which city is the "Summer Capital of the Philippines"?|Baguio|Tagaytay|Cebu|Davao
-3|A.P.|Which ocean lies east of the Philippines?|Pacific Ocean|Atlantic Ocean|Indian Ocean|Arctic Ocean
-3|A.P.|What is the capital of the province of Bohol?|Tagbilaran|Dumaguete|Tacloban|Cebu City
-3|MAPEH|In art, what are the three primary colors?|Red, yellow, blue|Red, green, blue|Red, orange, yellow|Blue, green, yellow
-3|MAPEH|Which festival is celebrated in Kalibo, Aklan?|Ati-Atihan|Sinulog|Pahiyas|Dinagyang
-3|MAPEH|How many beats does a dotted half note get?|3|2|4|1.5
-4|Science|What is the process by which plants lose water through their leaves?|Transpiration|Respiration|Digestion|Germination
-4|Science|Which planet takes the shortest time to orbit the Sun?|Mercury|Venus|Mars|Earth
-4|Science|What is the hardest substance in the human body?|Tooth enamel|Femur|Skull|Fingernail
-4|English|Which of these words is a palindrome?|level|planet|garden|window
-4|English|What does the idiom "break the ice" mean?|Start a conversation in an awkward moment|Break a frozen lake|Become very angry|Cool down a drink
-4|English|Which word is the conjunction in: "I wanted to play, but it rained."?|but|wanted|play|rained
-4|Filipino|Ano ang kahulugan ng "tulog-mantika"?|Mahimbing matulog|Madaling magising|Mahilig kumain|Mabaho
-4|Filipino|Alin ang pang-angkop sa "magandang bata"?|-ng|na|at|ay
-4|Filipino|Ilang pantig mayroon ang salitang "kababayan"?|4|3|5|6
-4|A.P.|Which strait separates Luzon from Taiwan?|Luzon Strait|Balabac Strait|San Bernardino Strait|Surigao Strait
-4|A.P.|What is the capital of the province of Pangasinan?|Lingayen|Dagupan|Alaminos|Urdaneta
-4|A.P.|Who was the first Filipino to be canonized a saint?|Lorenzo Ruiz|Pedro Calungsod|Jose Rizal|Mother Ignacia
-4|MAPEH|Which Bacolod festival features smiling masks?|MassKara|Ati-Atihan|Sinulog|Moriones
-4|MAPEH|How many points is a basket made from behind the arc worth in basketball?|3|2|4|5
-4|MAPEH|What is the Filipino title of the national anthem?|Lupang Hinirang|Bayang Magiliw|Pilipinas Kong Mahal|Mutya ng Pasig
-5|Science|How many bones does an adult human body have?|206|106|306|256
-5|Science|What is the chemical symbol for gold?|Au|Ag|Gd|Go
-5|Science|Which is the only mammal capable of true flight?|Bat|Flying squirrel|Flying lemur|Sugar glider
-5|English|What do we call a word that imitates a sound, like "buzz"?|Onomatopoeia|Alliteration|Hyperbole|Oxymoron
-5|English|Which sentence uses "their" correctly?|The students forgot their books.|Their going to the mall.|Put it over their.|Their is a book on the table.
-5|English|What is the past participle of "write"?|written|wrote|writed|writing
-5|Filipino|Ang "Ibong Adarna" ay halimbawa ng anong uri ng tulang may walong pantig?|Korido|Awit|Epiko|Pabula
-5|Filipino|Alin ang wastong gamit ng "nang"?|Umiyak siya nang malakas.|Bumili siya nang tinapay.|Kumain ako nang kanin.|Nagluto si Nanay nang adobo.
-5|Filipino|Ano ang tawag sa paghahambing na walang "tulad" o "gaya", gaya ng "Ang buhay ay isang gulong"?|Pagwawangis|Pagtutulad|Pagmamalabis|Pagtatao
-5|A.P.|In what year did the Battle of Mactan take place?|1521|1565|1898|1492
-5|A.P.|Who was the first woman President of the Philippines?|Corazon Aquino|Gloria Macapagal-Arroyo|Imelda Marcos|Leni Robredo
-5|A.P.|Who founded the first Spanish settlement in Cebu in 1565?|Miguel Lopez de Legazpi|Ferdinand Magellan|Ruy Lopez de Villalobos|Juan de Salcedo
-5|A.P.|What is the capital city of Australia?|Canberra|Sydney|Melbourne|Perth
-5|MAPEH|Who won the first Olympic gold medal for the Philippines?|Hidilyn Diaz|Manny Pacquiao|Carlos Yulo|Eumir Marcial
-5|MAPEH|What is the Italian music term for gradually getting louder?|Crescendo|Diminuendo|Staccato|Legato
-5|MAPEH|Which National Artist is famous for sunlit paintings of rural Filipino life?|Fernando Amorsolo|Juan Luna|Jose Rizal|Guillermo Tolentino
-6|Science|Which is the smallest bone in the human body?|Stapes|Femur|Hyoid|Patella
-6|Science|What is the most abundant gas in Earth's atmosphere?|Nitrogen|Oxygen|Carbon dioxide|Argon
-6|Science|About how fast does light travel?|300,000 km per second|30,000 km per second|3,000 km per second|3,000,000 km per second
-6|Science|Which cell organelle builds proteins?|Ribosome|Nucleus|Mitochondrion|Vacuole
-6|English|Which phrase is an oxymoron?|deafening silence|bright light|loud noise|cold ice
-6|English|Choose the correct word: "Each of the students ___ responsible for the project."|is|are|were|be
-6|English|What is the plural of "phenomenon"?|phenomena|phenomenons|phenomenas|phenomenon
-6|English|What does "benevolent" mean?|Kind and generous|Angry|Lazy|Clever
-6|Filipino|Sino ang kinikilalang unang "Hari ng Balagtasan"?|Jose Corazon de Jesus|Francisco Balagtas|Lope K. Santos|Amado V. Hernandez
-6|Filipino|Ilang pantig ang bawat taludtod ng isang awit?|12|8|16|10
-6|Filipino|Ano ang ibig sabihin ng "busilak ang puso"?|Malinis at mabuti ang kalooban|Madamot|Mayabang|Matapang
-6|A.P.|In what year was the current Philippine Constitution ratified?|1987|1986|1973|1935
-6|A.P.|Which general was known as the "Boy General"?|Gregorio del Pilar|Antonio Luna|Emilio Aguinaldo|Artemio Ricarte
-6|A.P.|How many administrative regions does the Philippines have?|17|16|18|15
-6|A.P.|What is the smallest country in the world?|Vatican City|Monaco|San Marino|Malta
-6|MAPEH|What is the kudyapi?|A two-stringed boat lute|A bamboo flute|A hanging gong|A jaw harp
-6|MAPEH|In volleyball, how many points usually win a set before the final set?|25|21|15|30
-6|MAPEH|Which Filipino painter created "Parisian Life"?|Juan Luna|Fernando Amorsolo|Felix Resurreccion Hidalgo|Carlos "Botong" Francisco
-6|MAPEH|What is the formula for Body Mass Index (BMI)?|weight (kg) ÷ height² (m²)|height ÷ weight|weight × height|weight (kg) ÷ height (m)`.split('\n').map(l=>{const p=l.split('|');return{g:+p[0],s:p[1],q:p[2],a:p.slice(3)}});
-/* generated Math: endless variety, fresh numbers every game */
-const NM=['Aling Nena','Mang Tomas','Maria','Juan','Liza','Mark'],pf=n=>'₱'+n.toLocaleString('en-US');
+"use strict";
+const $=id=>document.getElementById(id);
+/* ---- Handwritten bank: [question, CORRECT, wrong, wrong, wrong]. First 4 = standard, last 4 = advanced. ---- */
+const SG_BANK={
+1:{
+eng:[
+["Which word rhymes with 'cat'?","hat","dog","sun","pen"],
+["What is the opposite of 'big'?","small","tall","long","fast"],
+["Which one is a complete sentence?","The dog runs fast.","The big red","Under the table","Running and jumping"],
+["How many letters are in the English alphabet?","26","24","20","30"],
+["Which word is the plural of 'box'?","boxes","boxs","boxen","boxies"],
+["Choose the correct word: She ___ a student.","is","are","am","be"],
+["Which of these is a naming word (a noun)?","teacher","run","happy","quickly"],
+["Which word has the long 'a' sound, like in 'cake'?","snake","cat","apple","hand"]],
+fil:[
+["Ilang patinig mayroon sa alpabetong Filipino?","5","3","7","10"],
+["Alin ang pangalan ng hayop?","aso","bola","lapis","bahay"],
+["Ano ang kabaligtaran ng 'mataas'?","mababa","malaki","mabigat","maliit"],
+["Alin sa mga ito ang prutas?","mangga","upuan","kotse","damit"],
+["Ilang pantig mayroon ang salitang 'bahay'?","2","1","3","4"],
+["Anong salita ang idinadagdag natin sa pagsagot nang magalang sa nakatatanda?","po","hoy","oy","ay"],
+["Ano ang tawag sa nakatatandang kapatid na babae?","ate","nanay","lola","tita"],
+["Alin sa mga salita ang may klaster (magkasunod na katinig)?","plato","mesa","bata","aso"]],
+sci:[
+["Which body part do we use to smell?","nose","eyes","ears","tongue"],
+["Which of these is a living thing?","tree","stone","chair","pencil"],
+["What do plants need to grow?","water and sunlight","candy","plastic","toys"],
+["What gives us light and heat during the day?","the Sun","the Moon","clouds","the wind"],
+["Which animal is a mammal?","carabao","chicken","lizard","bangus (milkfish)"],
+["What do we call water that falls from the clouds?","rain","smoke","sand","wind"],
+["Which of these is water in its solid state?","ice","steam","rain","mist"],
+["What do we call a baby frog?","tadpole","caterpillar","chick","cub"]],
+ap:[
+["What is the name of our country?","the Philippines","Japan","Thailand","Vietnam"],
+["Which colors are on the Philippine flag?","blue, red, white and yellow","green, white and orange","red, green and black","blue and green"],
+["Who teaches the students in school?","teacher","doctor","farmer","fisherman"],
+["Where do we go when we are sick and need a doctor?","hospital","market","school","church"],
+["What is the title of our national anthem?","Lupang Hinirang","Bayan Ko","Pilipinas Kong Mahal","Magandang Pilipinas"],
+["Which community helper puts out fires?","firefighter","farmer","teacher","baker"],
+["Which of these is our national bird?","Philippine Eagle","parrot","owl","duck"],
+["Which of these is our national flower?","sampaguita","rose","sunflower","orchid"]],
+mapeh:[
+["What should you do every day to keep your teeth clean?","brush them","eat candy all day","skip drinking water","chew ice"],
+["Which of these is a primary color?","red","green","pink","brown"],
+["In 'Do-Re-Mi', which note comes first?","Do","Re","Mi","Fa"],
+["Which food helps you grow strong and healthy?","vegetables","candies","chips","soft drinks"],
+["What do we call a soft song sung to put a baby to sleep?","lullaby","march","anthem","rap"],
+["Mixing blue and yellow makes which color?","green","orange","purple","brown"],
+["When should you wash your hands?","before eating and after using the toilet","only on Sundays","never","only when it rains"],
+["Which Filipino game uses a tin can and slippers (tsinelas)?","Tumbang Preso","Sipa","Piko","Luksong Tinik"]]
+},
+2:{
+eng:[
+["Which word is a verb (an action word)?","jump","table","blue","happy"],
+["What is the plural of 'child'?","children","childs","childen","childes"],
+["Choose the correct word: The birds ___ singing.","are","is","am","was"],
+["What is the past tense of 'play'?","played","plaid","playing","plays"],
+["Which word describes the noun in 'The sweet mango fell.'?","sweet","fell","mango","The"],
+["Which word is spelled correctly?","friend","freind","frend","frind"],
+["Which punctuation mark ends a question?","question mark (?)","period (.)","comma (,)","exclamation point (!)"],
+["Which sentence uses capital letters correctly?","Maria lives in Cebu.","maria lives in cebu.","Maria lives in cebu.","maria lives in Cebu."]],
+fil:[
+["Alin ang salitang kilos (pandiwa)?","tumakbo","mesa","maganda","bahay"],
+["Ano ang kasingkahulugan ng 'masaya'?","natutuwa","malungkot","galit","pagod"],
+["Alin ang naglalarawan sa bulaklak?","mabango","tumakbo","kumain","bukas"],
+["Alin ang pangngalang pantangi?","Pilipinas","bansa","bundok","ilog"],
+["Ilang pantig mayroon ang salitang 'paaralan'?","4","3","5","2"],
+["Alin ang tamang pangungusap?","Ang bata ay naglalaro.","Naglalaro ang ay bata.","Bata naglalaro ang ay.","Ay naglalaro ang bata."],
+["Anong bantas ang inilalagay sa dulo ng tanong?","tandang pananong (?)","tuldok (.)","kuwit (,)","tandang padamdam (!)"],
+["Alin ang salitang kasintugma ng 'araw'?","ilaw","gabi","buwan","ulap"]],
+sci:[
+["Which part of a plant takes in water from the soil?","roots","leaves","flowers","fruits"],
+["Which of these animals lays eggs?","chicken","cat","dog","carabao"],
+["Which of these is a liquid?","milk","stone","wood","paper"],
+["What do we need to breathe?","air","sand","oil","juice"],
+["Which sense do we use to find out if a mango is sweet?","taste","hearing","sight","touch"],
+["What do we call animals that eat only plants?","herbivores","carnivores","omnivores","predators"],
+["Which of these makes its own light?","the Sun","the Moon","a mirror","a planet"],
+["Where does a caterpillar change into a butterfly?","inside a chrysalis (pupa)","in a bird's nest","in a pond","in a cave"]],
+ap:[
+["Who helps keep our community safe from crime?","police officer","baker","tailor","carpenter"],
+["What is the capital of the Philippines?","Manila","Quezon City","Cebu City","Davao City"],
+["How many stars are on the Philippine flag?","3","8","5","1"],
+["What do we call a group of people living together in one place?","community","family","class","team"],
+["What do the three stars on our flag stand for?","Luzon, Visayas and Mindanao","Rizal, Bonifacio and Aguinaldo","land, sea and air","past, present and future"],
+["Who is our national hero?","Jose Rizal","Andres Bonifacio","Emilio Aguinaldo","Apolinario Mabini"],
+["Where can you borrow books in a community?","library","pharmacy","bakery","market"],
+["Where do the barangay officials work?","barangay hall","palengke (market)","simbahan (church)","paaralan (school)"]],
+mapeh:[
+["Which instrument has strings and is played by strumming?","guitar","drum","flute","bell"],
+["Which of these is a secondary color?","orange","red","blue","yellow"],
+["Which exercise makes your legs strong?","running","typing","reading","sitting"],
+["Rice and bread belong to which Pinggang Pinoy food group?","Go foods (give energy)","Grow foods","Glow foods","sweets"],
+["Which Filipino folk dance imitates the tikling bird hopping between bamboo poles?","Tinikling","Cariñosa","Singkil","Pandanggo sa Ilaw"],
+["How do we call how loud or soft the music is?","dynamics","tempo","pitch","rhythm"],
+["Which foods are 'Glow' foods?","fruits and vegetables","rice and bread","fish and eggs","candy and soda"],
+["What do we call a drawing or painting of a person's face?","portrait","landscape","still life","mural"]]
+},
+3:{
+eng:[
+["Which word is the adverb in 'She ran quickly.'?","quickly","ran","She","a"],
+["What is the opposite of 'ancient'?","modern","old","tiny","dusty"],
+["Choose the correct word: Yesterday, we ___ to the beach.","went","go","goes","going"],
+["A word that joins two sentences, like 'and' or 'but', is a ___.","conjunction","noun","preposition","verb"],
+["Which sentence has a preposition?","The cat sleeps under the table.","The cat is big.","Cats sleep.","The cat purrs loudly."],
+["What is the plural of 'leaf'?","leaves","leafs","leafes","leavs"],
+["'As busy as a bee' is an example of a ___.","simile","metaphor","rhyme","riddle"],
+["Which word is a synonym of 'enormous'?","huge","tiny","slow","quiet"]],
+fil:[
+["Ano ang kabaligtaran ng 'matapang'?","duwag","malakas","magaling","mabilis"],
+["Alin ang pang-uri sa pangungusap na 'Mabait na bata si Ana.'?","mabait","bata","si","Ana"],
+["Ano ang tawag sa salitang nagsasabi ng kilos?","pandiwa","pangngalan","pang-uri","panghalip"],
+["Alin sa mga ito ang panghalip?","ako","bahay","tumakbo","pula"],
+["Kumpletuhin ang salawikain: 'Kung may tiyaga, may ___.'","nilaga","adobo","sinigang","pansit"],
+["Piliin ang tamang salita: 'Kumain ___ mabilis si Ben.'","nang","ng","na","mga"],
+["Ilang pantig mayroon ang salitang 'kapayapaan'?","5","4","6","3"],
+["Anong aspekto ng pandiwa ang 'kumain'?","naganap na","nagaganap","magaganap","pawatas"]],
+sci:[
+["Which of these is attracted to a magnet?","iron nail","plastic spoon","piece of wood","rubber band"],
+["What are the three states of matter?","solid, liquid and gas","hot, cold and warm","hard, soft and loud","ice, rain and snow"],
+["Which body part pumps blood around the body?","heart","lungs","stomach","brain"],
+["What do we call the force that pulls objects toward the Earth?","gravity","friction","magnetism","sound"],
+["Which of these is NOT an insect?","spider","ant","butterfly","cockroach"],
+["Which kind of rock is formed from cooled lava?","igneous","sedimentary","metamorphic","limestone"],
+["Which gas do plants give off that we need to breathe?","oxygen","carbon dioxide","nitrogen","smoke"],
+["Which part of a flower becomes the fruit?","ovary","petal","sepal","stem"]],
+ap:[
+["Which is the biggest island in the Philippines?","Luzon","Mindanao","Palawan","Cebu"],
+["What is our national language?","Filipino","Cebuano","Ilocano","English"],
+["Who is the leader of a barangay?","Punong Barangay (Barangay Captain)","Mayor","Governor","President"],
+["Which part of a map shows the directions (north, south, east, west)?","compass rose","scale","legend","title"],
+["How many regions does the Philippines have today?","17","12","20","7"],
+["Which province is famous for the Chocolate Hills?","Bohol","Cebu","Palawan","Leyte"],
+["Which city is called the 'Queen City of the South'?","Cebu City","Davao City","Iloilo City","Zamboanga City"],
+["Which is the longest river in the Philippines?","Cagayan River","Pasig River","Pampanga River","Agusan River"]],
+mapeh:[
+["Which musical note gets 4 beats?","whole note","half note","quarter note","eighth note"],
+["What should you do before playing sports to prevent injuries?","warm up and stretch","go to sleep","eat a big meal","watch TV"],
+["How many colors are in a rainbow?","7","5","6","9"],
+["Which Filipino game is played by hopping on boxes drawn on the ground?","Piko","Sipa","Patintero","Tumbang Preso"],
+["Which of these is a traditional Filipino instrument?","kulintang","piano","violin","saxophone"],
+["Which of these is a warm color?","red","blue","green","violet"],
+["Which vitamin does our body make with the help of sunlight?","Vitamin D","Vitamin C","Vitamin A","Vitamin K"],
+["How many beats are in each measure of 4/4 time?","4","3","2","6"]]
+},
+4:{
+eng:[
+["Which sentence is in the future tense?","I will visit Baguio next month.","I visited Baguio last year.","I am visiting Baguio now.","I visit Baguio every year."],
+["What is the antonym of 'generous'?","stingy","kind","giving","rich"],
+["Which word is the pronoun in 'They went to the market.'?","They","went","market","the"],
+["The setting of a story tells us ___.","where and when it happens","who wrote it","the lesson","the problem"],
+["Choose the correct verb: Neither Ben nor his brothers ___ late.","were","was","is","be"],
+["Which pair of words are homophones?","their / there","big / large","hot / cold","run / ran"],
+["What does the prefix 'un-' mean in 'unhappy'?","not","again","before","very"],
+["Which sentence uses a comma correctly?","After class, we played basketball.","After class we, played basketball.","After, class we played basketball.","After class we played, basketball."]],
+fil:[
+["Alin ang pang-ukol sa pangungusap na 'Pumunta si Ana sa palengke.'?","sa","si","pumunta","palengke"],
+["Alin sa mga ito ang pangatnig?","at","mabilis","bahay","tumakbo"],
+["Ano ang kahulugan ng sawikaing 'balat-sibuyas'?","madaling masaktan ang damdamin","mabait","matapang","mapagbigay"],
+["Alin ang pang-abay sa 'Mabilis tumakbo ang bata.'?","mabilis","tumakbo","bata","ang"],
+["Anong kayarian ng salita ang 'bahaghari'?","tambalan","payak","maylapi","inuulit"],
+["Anong tayutay ang 'Tumutulo ang luha niya na parang ulan'?","pagtutulad","pagwawangis","pagmamalabis","pagtatao"],
+["Ano ang ibig sabihin ng 'Ang taong nagigipit, sa patalim kumakapit'?","kapag desperado, gagawin ang kahit ano","mag-ingat sa kutsilyo","dapat maging matulungin","kailangang magtipid"],
+["Alin ang pangungusap na may pang-abay na pamanahon?","Maglalaro kami bukas.","Kumain siya nang marami.","Nasa mesa ang libro.","Mabango ang rosas."]],
+sci:[
+["What is the main source of energy on Earth?","the Sun","the Moon","wind","volcanoes"],
+["Which body system includes the stomach and intestines?","digestive system","respiratory system","circulatory system","nervous system"],
+["What do we call a material that lets electricity pass through it?","conductor","insulator","magnet","solvent"],
+["Which of these is a physical change?","melting ice","burning paper","rusting iron","cooking an egg"],
+["Which layer of the Earth do we live on?","crust","mantle","outer core","inner core"],
+["Which Philippine agency monitors typhoons and weather?","PAGASA","PHIVOLCS","DepEd","DENR"],
+["Which instrument measures the strength of an earthquake?","seismograph","thermometer","barometer","anemometer"],
+["How do green plants make their own food?","photosynthesis","respiration","digestion","germination"]],
+ap:[
+["How many islands does the Philippines officially have?","7,641","7,107","5,000","8,100"],
+["Which is the highest mountain in the Philippines?","Mount Apo","Mount Mayon","Mount Pulag","Mount Makiling"],
+["Which body of water lies to the east of the Philippines?","Philippine Sea","South China Sea","Celebes Sea","Sulu Sea"],
+["Who is the head of the national government of the Philippines?","the President","the Mayor","the Governor","the Senate President"],
+["How many branches does the Philippine government have?","3","2","4","5"],
+["Which is the deepest part of the ocean near the Philippines?","Philippine Trench","Mariana Trench","Sulu Trench","Manila Trench"],
+["Which Philippine volcano is famous for its almost perfect cone shape?","Mayon Volcano","Taal Volcano","Mount Pinatubo","Kanlaon Volcano"],
+["Which lawmaking body is made up of the Senate and the House of Representatives?","Congress","Supreme Court","Cabinet","Sandiganbayan"]],
+mapeh:[
+["In the Pandanggo sa Ilaw, what do the dancers balance and carry?","oil lamps","fans","swords","bamboo poles"],
+["Which element of art is a mark made by a moving point?","line","shape","texture","space"],
+["Which foods are the best sources of protein?","fish, eggs and beans","rice and potatoes","candies","cooking oil"],
+["Which sport uses a shuttlecock?","badminton","tennis","volleyball","basketball"],
+["In music, what does the tempo marking 'allegro' mean?","fast","slow","loud","soft"],
+["Which dance shows a princess walking between crisscrossing bamboo poles?","Singkil","Tinikling","Cariñosa","Maglalatik"],
+["How many players of one team are on a basketball court at a time?","5","6","7","11"],
+["Which kind of exercise makes your heart and lungs stronger?","aerobic exercise","sleeping","reading","stretching only"]]
+},
+5:{
+eng:[
+["Which sentence is in the passive voice?","The cake was baked by Lola.","Lola baked the cake.","Lola is baking a cake.","Lola will bake a cake."],
+["Which figure of speech is 'The classroom was a zoo'?","metaphor","simile","personification","hyperbole"],
+["Which word is spelled correctly?","necessary","neccessary","necesary","neccesary"],
+["Which word is the best synonym for 'reluctant'?","unwilling","eager","careful","angry"],
+["In 'The teacher, who was very kind, gave us extra time,' what is 'who was very kind'?","an adjective clause","a noun clause","an adverb clause","a simple sentence"],
+["Choose the correct pronoun: Maria and ___ went to the mall.","I","me","myself","mine"],
+["'The wind whispered through the trees' is an example of ___.","personification","simile","alliteration","irony"],
+["A word with the same spelling but different meanings, like 'bat', is called a ___.","homonym","antonym","synonym","acronym"]],
+fil:[
+["Anong uri ng pangungusap ang 'Naku, ang ganda ng bulaklak!'?","padamdam","pasalaysay","patanong","pautos"],
+["Ano ang kahulugan ng 'isang kahig, isang tuka'?","mahirap ang buhay at kakaunti ang kita","masipag","matakaw","maraming ibon"],
+["Anong bahagi ng pananalita ang 'marahan' sa 'Marahan siyang lumakad'?","pang-abay","pang-uri","pangngalan","panghalip"],
+["Ano ang kasingkahulugan ng 'tahimik'?","payapa","maingay","magulo","mabilis"],
+["Anong tayutay ang 'Ang buwan ay sumisilip sa bintana'?","pagtatao","pagtutulad","pagmamalabis","pag-uyam"],
+["Ano ang tawag sa akdang may saknong at taludtod?","tula","maikling kuwento","sanaysay","dula"],
+["Alin ang pandiwang nasa aspektong magaganap?","aawit","umawit","umaawit","inawit"],
+["Ano ang kahulugan ng sawikaing 'butas ang bulsa'?","walang pera","maraming pera","may sira ang pantalon","maramot"]],
+sci:[
+["Which planet is closest to the Sun?","Mercury","Venus","Earth","Mars"],
+["Which gas do plants take in for photosynthesis?","carbon dioxide","oxygen","nitrogen","hydrogen"],
+["What do we call the change of water vapor into liquid water?","condensation","evaporation","precipitation","freezing"],
+["Which part of a cell contains its genetic material (DNA)?","nucleus","cell wall","cytoplasm","vacuole"],
+["What is the chemical formula of water?","H2O","CO2","O2","NaCl"],
+["Which of these is a renewable source of energy?","solar power","coal","natural gas","diesel"],
+["Which blood cells help fight infection?","white blood cells","red blood cells","platelets","hemoglobin"],
+["Which unit is used to measure electric current?","ampere","volt","ohm","watt"]],
+ap:[
+["Which explorer led the Spanish expedition that reached the Philippines in 1521?","Ferdinand Magellan","Miguel López de Legazpi","Christopher Columbus","Vasco da Gama"],
+["Who defeated Magellan in the Battle of Mactan?","Lapu-Lapu","Rajah Humabon","Diego Silang","Sultan Kudarat"],
+["Who founded the first Spanish settlement in Cebu in 1565?","Miguel López de Legazpi","Ferdinand Magellan","Ruy López de Villalobos","Juan de Salcedo"],
+["What was the secret society founded by Andres Bonifacio called?","Katipunan","La Liga Filipina","Propaganda Movement","Cofradía de San Jose"],
+["What is the title of Rizal's first novel, published in 1887?","Noli Me Tángere","El Filibusterismo","Mi Último Adiós","Sa Aking mga Kabata"],
+["In what year did Emilio Aguinaldo declare Philippine independence at Kawit, Cavite?","1898","1896","1946","1901"],
+["What was the forced labor system under Spanish rule called?","polo y servicio","cedula","galleon trade","bandala"],
+["The Manila–Acapulco trade used large ships called ___.","galleons","bangkas","vintas","barotos"]],
+mapeh:[
+["Which time signature has three beats per measure?","3/4","4/4","2/4","5/4"],
+["Which Filipino folk dance shows courtship and uses a handkerchief?","Cariñosa","Tinikling","Binasuan","Itik-itik"],
+["In which Filipino dance do dancers balance glasses of rice wine on their heads and hands?","Binasuan","Maglalatik","Singkil","Subli"],
+["Which nutrient builds and repairs muscles?","protein","fat","sugar","fiber"],
+["Which symbol in music tells you to keep silent for a beat?","rest","clef","sharp","tie"],
+["In art, what do we call how light or dark a color is?","value","hue","texture","pattern"],
+["How many players of one team are on a volleyball court at a time?","6","5","7","9"],
+["What is the proper first aid for a minor burn?","run cool water over it","apply toothpaste","pop the blisters","wrap it with hot cloth"]]
+},
+6:{
+eng:[
+["Choose the correct verb: Each of the students ___ a book.","has","have","are having","have had"],
+["A sentence with one independent clause and one or more dependent clauses is called ___.","complex","simple","compound","a fragment"],
+["What does the idiom 'a piece of cake' mean?","something very easy","a dessert","a gift","something bitter"],
+["Which of these is an example of alliteration?","Peter Piper picked a peck of pickled peppers.","The sun is a golden coin.","Buzz went the bee.","He is as cold as ice."],
+["Choose the correct form: If I ___ you, I would study harder.","were","was","am","be"],
+["Which word is an antonym of 'benevolent'?","malevolent","generous","kind","gracious"],
+["'Her voice was music to his ears' is an example of a ___.","metaphor","simile","hyperbole","irony"],
+["Which sentence uses a semicolon correctly?","I wanted to go; however, it rained.","I wanted; to go however it rained.","I wanted to go however; it rained.","I; wanted to go, however it rained."]],
+fil:[
+["Ano ang ibig sabihin ng 'nagbibilang ng poste'?","walang trabaho","nagtatrabaho sa kuryente","mahilig magbilang","naglalakad nang malayo"],
+["Anong tayutay ang 'Abot-langit ang kanyang tuwa'?","pagmamalabis","pagtutulad","pagwawangis","pag-uyam"],
+["Sa Abakada, ano ang kasunod ng A, B, K, D?","E","G","C","F"],
+["Ilan ang letra sa makabagong alpabetong Filipino (2009)?","28","20","26","31"],
+["Sino ang sumulat ng 'Florante at Laura'?","Francisco Balagtas","Jose Rizal","Andres Bonifacio","Lope K. Santos"],
+["Sino ang may-akda ng 'El Filibusterismo'?","Jose Rizal","Marcelo H. del Pilar","Graciano López Jaena","Andres Bonifacio"],
+["Anong uri ng pangungusap ang 'Kung mag-aaral ka nang mabuti, uunlad ka.'?","hugnayan","payak","tambalan","langkapan"],
+["Aling epiko ang mula sa Bicol?","Ibalon","Hudhud","Darangan","Biag ni Lam-ang"]],
+sci:[
+["Which planet is known as the Red Planet?","Mars","Venus","Jupiter","Saturn"],
+["Which organs filter the blood and make urine?","kidneys","liver","lungs","stomach"],
+["What is the largest organ of the human body?","skin","liver","brain","lungs"],
+["At sea level, at what temperature does water boil?","100 °C","50 °C","90 °C","120 °C"],
+["Which law says that every action has an equal and opposite reaction?","Newton's Third Law","Newton's First Law","Newton's Second Law","Law of Gravitation"],
+["What causes the seasons on Earth?","Earth's tilted axis","Earth's distance from the Sun","the Moon's gravity","sunspots"],
+["Which gas makes up about 78% of Earth's atmosphere?","nitrogen","oxygen","carbon dioxide","argon"],
+["What kind of energy does a moving object have?","kinetic energy","potential energy","chemical energy","nuclear energy"]],
+ap:[
+["Who was the first President of the Philippines (First Republic)?","Emilio Aguinaldo","Manuel L. Quezon","Jose P. Laurel","Sergio Osmeña"],
+["On what date do we celebrate Philippine Independence Day?","June 12","July 4","August 21","November 30"],
+["Who was called the 'Sublime Paralytic'?","Apolinario Mabini","Emilio Jacinto","Gregorio del Pilar","Antonio Luna"],
+["Which country governed the Philippines from 1898 to 1946, after Spain?","United States","Japan","Great Britain","the Netherlands"],
+["Which treaty ended the Spanish–American War and passed the Philippines to the U.S. in 1898?","Treaty of Paris","Treaty of Manila","Treaty of Tordesillas","Treaty of Versailles"],
+["Who was the first President of the Commonwealth of the Philippines?","Manuel L. Quezon","Sergio Osmeña","Manuel Roxas","Jose P. Laurel"],
+["Which event in February 1986 restored democracy in the Philippines?","EDSA People Power Revolution","Battle of Manila","Cavite Mutiny","Battle of Tirad Pass"],
+["Which regional group, formed in 1967, counts the Philippines as a founding member?","ASEAN","APEC","SEATO","European Union"]],
+mapeh:[
+["Which musical term means 'gradually getting louder'?","crescendo","diminuendo","staccato","legato"],
+["Which Filipino folk dance imitates the movements of a duck?","Itik-itik","Tinikling","Maglalatik","Subli"],
+["What does BMI stand for?","Body Mass Index","Basic Muscle Intake","Body Movement Imbalance","Bone Mass Interval"],
+["What do we call the Japanese art of paper folding?","origami","batik","weaving","carving"],
+["Which clef is used for higher-pitched notes?","treble clef","bass clef","alto clef","tenor clef"],
+["In the Maglalatik dance, what do the dancers wear on their bodies?","coconut shell halves","bamboo poles","oil lamps","paper fans"],
+["Dengue is spread by which kind of mosquito?","Aedes aegypti","Anopheles","Culex","Mansonia"],
+["Who won the Philippines' first Olympic gold medal, in weightlifting?","Hidilyn Diaz","Carlos Yulo","Nesthy Petecio","Eumir Marcial"]]
+}
+};
+/* ---------- random + format helpers ---------- */
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a};
+const com=n=>String(Math.round(n*100)/100).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const peso=n=>'₱'+com(n);
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const frac=(n,d)=>{const g=gcd(n,d);n/=g;d/=g;return d===1?String(n):n+'/'+d};
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)};
+const GW=['','Grade one','Grade two','Grade three','Grade four','Grade five','Grade six'];
+
+/* numeric options: correct answer + 3 distractors (own list first, then nearby numbers) */
+function numQ(q,ans,wr,fmt,o){
+  o=o||{};fmt=fmt||com;
+  const key=v=>Math.round(v*100)/100;
+  const seen=new Set([key(ans)]);const out=[];
+  const ok=v=>{v=key(v);return isFinite(v)&&!seen.has(v)&&(o.neg||v>=0)};
+  (wr||[]).forEach(v=>{if(out.length<3&&ok(v)){seen.add(key(v));out.push(key(v))}});
+  const steps=shuf(o.steps||[1,-1,2,-2,3,-3,5,-5,10,-10,20,-20,100,-100]);
+  for(const s of steps){if(out.length>=3)break;const v=ans+s;if(ok(v)){seen.add(key(v));out.push(key(v))}}
+  let k=1;while(out.length<3&&k<80){const v=ans+k*(o.step1||1)*7;if(ok(v)){seen.add(key(v));out.push(key(v))}k++}
+  return{q:q,opts:[fmt(ans)].concat(out.map(fmt))};
+}
+/* text options (fractions, times) */
+function strQ(q,ans,wr){
+  const out=[],seen=new Set([ans]);
+  wr.forEach(w=>{if(out.length<3&&!seen.has(w)){seen.add(w);out.push(w)}});
+  return{q:q,opts:[ans].concat(out)};
+}
+const t12=m=>{m=((m%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60;return (h%12||12)+':'+String(mm).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const toRoman=n=>{const m=[[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let r='';m.forEach(p=>{while(n>=p[0]){r+=p[1];n-=p[0]}});return r};
+
+/* ---------- Math generators: [minimum tier, fn(tier)] — tier 0 = standard, tier 1 = advanced ---------- */
 const MG={
-1:[()=>{const a=R(30,60),b=R(10,25),c=R(5,15);return[`${P(NM)} has ${a} pandesal. ${b} are sold and ${c} more are baked. How many pandesal are there now?`,a-b+c]},()=>{const s=R(2,9)*2,k=P([3,4,5,6]);return[`What number comes next? ${s}, ${s+k}, ${s+2*k}, ${s+3*k}, ___`,s+4*k]},()=>{const a=R(6,9),b=R(6,9);return[`What is ${a} + ${a} + ${b} + ${b}?`,2*a+2*b]}],
-2:[()=>{const a=R(6,12),b=R(6,12);return[`What is ${a} × ${b}?`,a*b]},()=>{const a=R(350,680),b=R(250,490);return[`What is ${a} + ${b}?`,a+b]},()=>{const a=R(600,950),b=R(260,590);return[`What is ${a} − ${b}?`,a-b]},()=>{const h=R(2,5);return[`How many minutes are in ${h} hours and 15 minutes?`,h*60+15]}],
-3:[()=>{const a=R(23,69),b=R(4,9);return[`What is ${a} × ${b}?`,a*b]},()=>{const c=P([40,45,50,60]),n=R(3,8)*c+R(5,c-5);return[`A bus holds ${c} passengers. How many buses are needed to carry ${n} students?`,Math.ceil(n/c)]},()=>{const p=R(14,38),n=R(3,6);return[`A notebook costs ₱${p}. Mara buys ${n} notebooks and pays ₱500. How much is her change?`,500-p*n,pf]},()=>{const a=R(6,9),b=R(6,12),c=R(5,15);return[`There are ${a} boxes with ${b} pencils each. ${c} pencils are broken. How many pencils are NOT broken?`,a*b-c]}],
-4:[()=>{const l=R(9,18),w=R(6,12);return[`A rectangle has a perimeter of ${2*(l+w)} m and a length of ${l} m. What is its width in meters?`,w]},()=>{const t=P([[12,18,6],[16,24,8],[18,30,6],[24,36,12],[20,45,5],[28,42,14]]);return[`What is the greatest common factor of ${t[0]} and ${t[1]}?`,t[2]]},()=>{const t=P([[12,18,36],[8,12,24],[15,20,60],[9,12,36],[14,21,42],[18,24,72]]);return[`What is the least common multiple of ${t[0]} and ${t[1]}?`,t[2]]},()=>{const n=R(3,12)*4;return[`What is 3/4 of ${n}?`,n/4*3]},()=>{const n=R(3,12)*40,p=P([15,25,30,45,60]);return[`What is ${p}% of ${n}?`,n*p/100]}],
-5:[()=>{const n=R(5,30)*40,p=P([10,20,25,30]);return[`A school bag costs ₱${n}. It is on sale at ${p}% off. What is the sale price?`,n-n*p/100,pf]},()=>{const b=R(4,15)*2,h=R(3,12);return[`What is the area of a triangle with a base of ${b} cm and a height of ${h} cm?`,b*h/2]},()=>{const a=R(3,9),x=R(4,12),b=R(3,15);return[`Solve for x: ${a}x − ${b} = ${a*x-b}`,x]},()=>{const n=R(4,7);return[`What is 2^${n} + 3²?`,Math.pow(2,n)+9]},()=>{const n=R(5,9);return[`What is the sum of the interior angles of a polygon with ${n} sides?`,(n-2)*180]},()=>{const avg=R(15,25),a=R(10,avg-1),b=R(avg+1,avg+8),c=R(avg-4,avg+4);return[`The average of four numbers is ${avg}. Three of the numbers are ${a}, ${b} and ${c}. What is the fourth number?`,4*avg-a-b-c]}],
-6:[()=>{const p=R(1,5)*10000;return[`Compound interest: ₱${p.toLocaleString('en-US')} is invested at 10% per year for 2 years. How much interest is earned in all?`,p*21/100,pf]},()=>{const c=R(2,4),a=c+R(2,4),b=R(2,5),x=R(5,12),d=a*(x-b)-c*x;return[`Solve for x: ${a}(x − ${b}) = ${c}x ${d<0?'− '+(-d):'+ '+d}`,x]},()=>{const n=R(6,10);return[`How many diagonals does a polygon with ${n} sides have?`,n*(n-3)/2]},()=>{const n=R(10,30);return[`What is the sum of the whole numbers from 1 to ${n}?`,n*(n+1)/2]},()=>{const km=R(2,6)*60,per=P([10,12,15]),pr=R(55,70);return[`A car uses 1 liter of gasoline for every ${per} km. Gasoline costs ₱${pr} per liter. How much does the gasoline cost for a ${km}-km trip?`,km/per*pr,pf]},()=>{const r=P([7,14,21]);return[`Using π = 22/7, what is the area of a circle with a radius of ${r} cm (in square cm)?`,22*r*r/7]},()=>{const k=R(1,6);return[`A right triangle has legs of ${3*k} cm and ${4*k} cm. How long is the hypotenuse in cm?`,5*k]}]};
-function nd(ans,f){f=f||String;const c=SH([...new Set([ans+1,ans-1,ans+2,ans-2,ans+10,ans-10,ans+5,ans*2,ans-5,ans+3,ans-3])]).filter(x=>x>0&&x!==ans).slice(0,3);return[f(ans)].concat(c.map(f))}
-const HK='ast6_hist',BK='ast6_best';
-const seen=()=>{try{return new Set([].concat(...(JSON.parse(localStorage.getItem(HK))||[])))}catch(e){return new Set()}};
-function commit(){try{const h=JSON.parse(localStorage.getItem(HK))||[],cur=[...S.used];if(S.h)h[h.length-1]=cur;else{h.push(cur);S.h=true}localStorage.setItem(HK,JSON.stringify(h.slice(-4)))}catch(e){}}
-function genMath(g){const sn=seen();let r;for(let i=0;i<40;i++){r=P(MG[g])();if(!sn.has(r[0])&&!S.used.has(r[0]))break}return{g,s:'Math',q:r[0],a:nd(r[1],r[2])}}
-/* ---------- icons ---------- */
-const IC={back:'<path d="M15 5l-7 7 7 7"/>',mus:'<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>',swap:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>',pass:'<path d="M5 12l5 5 9-10"/>',
-Math:'<path d="M4 8h6M7 5v6M14 8h6M5 17h6M14 15l5 5M19 15l-5 5"/>',Science:'<path d="M9 3h6M10 3v6l-6 10a2 2 0 002 3h12a2 2 0 002-3l-6-10V3M8 15h8"/>',English:'<path d="M3 5h7a2 2 0 012 2v13a2 2 0 00-2-2H3zM21 5h-7a2 2 0 00-2 2v13a2 2 0 012-2h7z"/>',Filipino:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
-'A.P.':'<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',MAPEH:'<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>'};
-const ico=(k,s)=>`<svg viewBox="0 0 24 24" width="${s||22}" height="${s||22}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
-const SC={Math:'#e0483e','Science':'#1f9d57',English:'#2a7fc4',Filipino:'#d99a00','A.P.':'#8a49b8',MAPEH:'#e4701e'};
-const heart=on=>`<svg viewBox="0 0 24 24" class="${on?'l':''}"><path d="M12 21s-7-4.6-9.3-9A5.5 5.5 0 0112 6a5.5 5.5 0 019.3 6c-2.3 4.4-9.3 9-9.3 9z" fill="${on?'#ff4d6d':'#3b2f6b'}" stroke="${on?'#fff':'#6c5fa8'}" stroke-width="1.5"/></svg>`;
-$('sgBack').innerHTML=ico('back');$('sgMus').innerHTML=ico('mus');
-$('sgC').innerHTML=ico('copy',20)+'Copy<b>your helper</b>';$('sgS').innerHTML=ico('swap',20)+'Switch<b>new question</b>';$('sgP').innerHTML=ico('pass',20)+'Pass<b>free correct</b>';
-/* ---------- contestants ---------- */
-const KIDS=[{n:'Bea',sk:'#e0ac7e',hr:'#2a1a10',sh:'#ff6b9a',st:'pig',sp:['Science']},{n:'Migo',sk:'#c98f62',hr:'#14100c',sh:'#4aa3ff',st:'cap',sp:['Math']},{n:'Tala',sk:'#f0c49a',hr:'#5a3416',sh:'#2fd6a0',st:'bun',sp:['English']},{n:'Jomar',sk:'#d49a6a',hr:'#1a120c',sh:'#ffb340',st:'spk',sp:['A.P.']},{n:'Lia',sk:'#e8b88a',hr:'#14100c',sh:'#a56bff',st:'gl',sp:['Filipino','MAPEH'],tag:'Fil/MAPEH'}];
-const ME={n:'YOU',sk:'#e5b087',hr:'#1d130d',sh:'#ffd166',st:'me'};
-function av(o){const back=o.st==='pig'?`<circle cx="11" cy="30" r="6" fill="${o.hr}"/><circle cx="49" cy="30" r="6" fill="${o.hr}"/>`:o.st==='bun'?`<circle cx="30" cy="9" r="7" fill="${o.hr}"/>`:'';
-const top=o.st==='cap'?`<path d="M13 28c0-14 7-19 17-19s17 5 17 19z" fill="#ff4d4d"/><rect x="28" y="24" width="24" height="5" rx="2.5" fill="#c92b2b"/>`:o.st==='spk'?`<path d="M14 30c-1-9 3-18 16-18s17 9 16 18c-3-6-8-9-16-9s-13 3-16 9z" fill="${o.hr}"/><path d="M18 14l3-6 3 6zM27 12l3-7 3 7zM36 14l3-6 3 6z" fill="${o.hr}"/>`:`<path d="M13 31c-1-14 6-20 17-20s18 6 17 20c-4-7-9-10-17-10s-13 3-17 10z" fill="${o.hr}"/>`;
-const gl=o.st==='gl'?`<g fill="none" stroke="#3b2a14" stroke-width="1.6"><circle cx="23" cy="34" r="5"/><circle cx="37" cy="34" r="5"/><path d="M28 34h4"/></g>`:'';
-const star=o.st==='me'?`<path d="M30 55l2 4 4 .6-3 3 .7 4.2-3.7-2-3.7 2 .7-4.2-3-3 4-.6z" fill="#ff3d8b"/>`:'';
-return `<svg viewBox="0 0 60 72" aria-hidden="true">${back}<path d="M5 72c0-17 11-24 25-24s25 7 25 24z" fill="${o.sh}"/><path d="M24 48l6 7 6-7z" fill="#fff" opacity=".9"/>${star}<rect x="26" y="42" width="8" height="8" rx="3" fill="${o.sk}"/><circle cx="30" cy="33" r="16" fill="${o.sk}"/>${top}<circle cx="23" cy="34" r="2.2" fill="#1d130d"/><circle cx="37" cy="34" r="2.2" fill="#1d130d"/>${gl}<circle cx="18" cy="39" r="3" fill="#ff8a8a" opacity=".45"/><circle cx="42" cy="39" r="3" fill="#ff8a8a" opacity=".45"/><path d="M24 40q6 6 12 0" stroke="#a3342f" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`}
-const SK=[.98,.96,.93,.9,.86],GF=[1,1,.99,.96,.91,.8];
-const PZ=[1000,2000,5000,10000,20000,30000,50000,75000,100000,200000,500000,1000000];
-/* ---------- audio: cheerful marimba loop (no voice narration) ---------- */
-let S=null,mOn=true,talking=false,raf=0;
-try{mOn=localStorage.getItem('ast5_mus')!=='0'}catch(e){}
-const scr=$('screen-smarter');
-/* ---------- music: procedural, cheerful marimba loop ---------- */
-let mc=null,mg=null,mTimer=0,mStep=0,mNext=0,nbuf=null;
-const FN=n=>440*Math.pow(2,(n-69)/12),CH=[[60,64,67],[57,60,64],[53,57,60],[55,59,62]],BS=[36,33,29,31],ML=[72,74,76,79,81,84,76,79,74];
-function tone(t,f,d,type,v,a,lp){const o=mc.createOscillator(),g=mc.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a);g.gain.exponentialRampToValueAtTime(.0008,t+d);if(lp){const b=mc.createBiquadFilter();b.type='lowpass';b.frequency.value=lp;o.connect(b);b.connect(g)}else o.connect(g);g.connect(mg);o.start(t);o.stop(t+d+.05)}
-function hat(t){const s=mc.createBufferSource(),g=mc.createGain(),h=mc.createBiquadFilter();s.buffer=nbuf;h.type='highpass';h.frequency.value=7000;g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.0008,t+.05);s.connect(h);h.connect(g);g.connect(mg);s.start(t,Math.random(),.06)}
-function sched(){if(!mc)return;const bt=60/108/2;while(mNext<mc.currentTime+.45){const t=mNext,st=mStep%32,bar=st>>3,k=st&7;
-if(k===0)CH[bar].forEach(n=>tone(t,FN(n),bt*7.5,'triangle',.035,.12,1100));
-if(k%4===0)tone(t,FN(BS[bar]),bt*2.4,'sine',.15,.01);if(k===6)tone(t,FN(BS[bar]+7),bt*1.4,'sine',.08,.01);
-if((k%2===0&&Math.random()<.7)||Math.random()<.22){const n=ML[R(0,ML.length-1)];tone(t,FN(n),.45,'sine',.07,.005);tone(t,FN(n)*2,.18,'triangle',.018,.005)}
-if(k%2===1)hat(t);mNext+=bt;mStep++}}
-function musicStart(){if(!mOn)return;try{if(!mc){mc=new(window.AudioContext||window.webkitAudioContext)();mg=mc.createGain();mg.gain.value=0;mg.connect(mc.destination);const b=mc.createBuffer(1,mc.sampleRate,mc.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;nbuf=b}
-if(mc.state==='suspended')mc.resume();mNext=mc.currentTime+.1;clearInterval(mTimer);mTimer=setInterval(sched,110);mg.gain.cancelScheduledValues(0);mg.gain.setTargetAtTime(.22,mc.currentTime,.6)}catch(e){}}
-function musicStop(){clearInterval(mTimer);try{if(mg){mg.gain.setTargetAtTime(0,mc.currentTime,.25);setTimeout(()=>{if(!mTimer||!mOn)mc.suspend()},900)}}catch(e){}}
-const duck=on=>{try{if(mg&&mOn)mg.gain.setTargetAtTime(on?.08:.24,mc.currentTime,.25)}catch(e){}};
+1:[
+[0,t=>{const a=t?ri(11,59):ri(2,9),b=t?ri(5,Math.min(39,99-a)):ri(2,9);
+  const c=pick([`Lola has ${a} mangoes. Tita gives her ${b} more. How many mangoes does Lola have now?`,`There are ${a} chickens in the yard. ${b} more chickens come in. How many chickens are there in all?`,`Ben has ${a} marbles. He wins ${b} more in a game. How many marbles does he have now?`,`Nene puts ${a} sampaguita flowers in one basket and ${b} in another. How many flowers are there in all?`]);
+  return numQ(c,a+b,[a+b+1,a+b-1,Math.abs(a-b)])}],
+[0,t=>{const a=t?ri(40,99):ri(8,18),b=t?ri(11,a-5):ri(2,a-3);
+  const c=pick([`There were ${a} pandesal on the plate. The children ate ${b}. How many pandesal are left?`,`${a} passengers were on the jeepney. ${b} got off at the market. How many passengers are still on the jeepney?`,`Ana had ${a} stickers. She gave ${b} to her friend. How many stickers does Ana have left?`]);
+  return numQ(c,a-b,[a-b+1,a-b-1,a+b])}],
+[0,t=>{const k=pick(t?[3,4,6,7]:[2,5,10]),s=k*ri(1,4),n=[s,s+k,s+2*k,s+3*k],a=s+4*k;
+  return numQ(`What number comes next? ${n.join(', ')}, ___`,a,[a+1,a-1,a+k])}],
+[0,t=>{const n=ri(21,98),a=Math.floor(n/10);
+  return numQ(`In the number ${n}, how many tens are there?`,a,[n%10,a+1,n])}],
+[1,t=>{const a=ri(2,9),b=ri(1,9);
+  return numQ(`What number is ${a} tens and ${b} ones?`,a*10+b,[b*10+a,a+b,a*10])}],
+[0,t=>{const mx=t?99:30,set=new Set();while(set.size<4)set.add(ri(t?10:1,mx));const a=Array.from(set),big=Math.random()<.5,ans=big?Math.max.apply(null,a):Math.min.apply(null,a);
+  return numQ(`Which is the ${big?'greatest':'smallest'} number: ${a.join(', ')}?`,ans,a.filter(x=>x!==ans))}],
+[0,t=>{if(!t){const x=ri(2,6);return numQ(`Mara has ${x} ₱5 coins. How much money does she have?`,5*x,[x+5,10*x,5*x+5],peso)}
+  const x=ri(2,6),y=ri(2,5);return numQ(`Ben has ${x} ₱10 coins and ${y} ₱5 coins. How much money does he have?`,10*x+5*y,[x+y,5*x+10*y,10*x+y],peso)}],
+[0,t=>{const ev=Math.random()<.5,mk=e=>{let v;do{v=ri(t?11:1,t?99:30)}while((v%2===0)!==e);return v};
+  const set=new Set([mk(ev)]);while(set.size<4)set.add(mk(!ev));const arr=Array.from(set);
+  return numQ(`Which of these numbers is ${ev?'even':'odd'}?`,arr[0],arr.slice(1))}]
+],
+2:[
+[0,t=>{const a=t?ri(120,489):ri(21,69),b=t?ri(120,479):ri(12,29);
+  const c=pick([`Aling Nena sold ${a} eggs in the morning and ${b} eggs in the afternoon. How many eggs did she sell in all?`,`A bakery made ${a} pandesal on Monday and ${b} on Tuesday. How many pandesal did it make in all?`]);
+  return numQ(c,a+b,[a+b+10,a+b-10,a+b+100,a+b-1])}],
+[0,t=>{const a=t?ri(300,900):ri(50,99),b=t?ri(120,a-20):ri(12,a-5);
+  const c=pick([`A school canteen had ${a} bottles of water. It sold ${b}. How many bottles are left?`,`There were ${a} students at the flag ceremony. ${b} went to the clinic and the rest stayed. How many students stayed?`]);
+  return numQ(c,a-b,[a-b+10,a-b-10,a+b,a-b+100])}],
+[0,t=>{const k=pick(t?[6,7,8,9]:[2,3,4,5,10]),n=t?ri(3,9):ri(2,6);
+  const c=k===3&&!t&&Math.random()<.5?`A tricycle has 3 wheels. How many wheels do ${n} tricycles have?`:pick([`There are ${n} baskets. Each basket has ${k} mangoes. How many mangoes are there in all?`,`Mang Dodong packs ${k} eggs in each tray. How many eggs are in ${n} trays?`,`Each box has ${k} pencils. How many pencils are in ${n} boxes?`]);
+  return numQ(c,k*n,[k+n,k*(n+1),k*(n-1)])}],
+[0,t=>{const s=60*ri(7,10)+pick([0,30]),d=t?pick([90,120,45,75]):pick([30,60]),a=s+d;
+  const c=pick([`Recess starts at ${t12(s)} and lasts ${d} minutes. What time does recess end?`,`Maria's class begins at ${t12(s)}. The lesson is ${d} minutes long. What time does the lesson end?`]);
+  return strQ(c,t12(a),[t12(a+30),t12(a-30),t12(a+60),t12(a-60),t12(a+15)])}],
+[0,t=>{if(!t){const a=ri(12,38),b=ri(4,11);return numQ(`A notebook costs ₱${a} and a pencil costs ₱${b}. How much do they cost together?`,a+b,[a+b+10,a+b-10,a+b+5,a+b-5],peso)}
+  const a=ri(15,45),b=ri(8,25),c=ri(5,15);return numQ(`Tina buys a notebook for ₱${a}, a ruler for ₱${b} and an eraser for ₱${c}. How much does she pay in all?`,a+b+c,[a+b+c+10,a+b+c-10,a+b,a+b+c+5],peso)}],
+[0,t=>{const d=pick([2,3,4,5,6,8]),n=ri(1,d-1);
+  return strQ(`A pandesal is cut into ${d} equal parts. Lito eats ${n} of the parts. What fraction of the pandesal did he eat?`,n+'/'+d,[d+'/'+n,(d-n)+'/'+d,n+'/'+(d+1),(n+1)+'/'+d,n+'/'+(d+2)])}],
+[0,t=>{const n=2*(t?ri(40,100):ri(5,30));return numQ(`What is half of ${n}?`,n/2,[n/2+10,n/2-10,n*2,n/2+1])}],
+[1,t=>{const n=ri(1,9)*100+ri(0,9)*10+ri(0,9),dig=String(n).split(''),pos=pick([0,1,2]),v=dig[2-pos];if(+v===0)return MG[2][0][1](1);
+  const val=+v*Math.pow(10,pos);return numQ(`What is the value of the digit ${v} in ${n}?`,val,[+v*Math.pow(10,(pos+1)%3),+v*Math.pow(10,(pos+2)%3),+v])}]
+],
+3:[
+[0,t=>{const a=t?ri(12,35):ri(3,9),b=t?ri(3,9):ri(6,9);
+  const c=pick([`Mang Tonyo harvested ${a} crates of bananas. Each crate has ${b} bananas. How many bananas did he harvest?`,`A school hall has ${a} rows of chairs with ${b} chairs in each row. How many chairs are there?`,`Aling Rosa packed ${a} bags with ${b} pieces of pandesal in each bag. How many pieces of pandesal did she pack?`]);
+  return numQ(c,a*b,[a+b,a*b+b,a*b-b,a*b+10])}],
+[0,t=>{const k=ri(3,9),q=t?ri(12,30):ri(3,12);
+  const c=pick([`${k*q} candies are shared equally among ${k} children. How many candies does each child get?`,`Kuya Ben has ${k*q} mangoes. He puts them equally into ${k} baskets. How many mangoes are in each basket?`]);
+  return numQ(c,q,[q+1,q-1,k*q-k,k+q])}],
+[0,t=>{if(!t){const l=ri(8,20),w=ri(3,7);return numQ(`A rectangular garden is ${l} meters long and ${w} meters wide. What is its perimeter?`,2*(l+w),[l*w,l+w,2*l+w,2*(l+w)+2],n=>com(n)+' meters')}
+  const s=ri(12,40);return numQ(`A square park has sides of ${s} meters each. How much fence is needed to go around the whole park?`,4*s,[s*s,2*s,s+4,3*s],n=>com(n)+' meters')}],
+[0,t=>{if(!t){const n=ri(11,98)*10+ri(1,9);const a=Math.round(n/100)*100;return numQ(`Round ${n} to the nearest hundred.`,a,[Math.floor(n/100)*100,Math.ceil(n/100)*100,Math.round(n/10)*10,a+100])}
+  const n=ri(11,98)*100+ri(1,99),a=Math.round(n/1000)*1000;return numQ(`Round ${com(n)} to the nearest thousand.`,a,[Math.floor(n/1000)*1000,Math.ceil(n/1000)*1000,Math.round(n/100)*100,a+1000])}],
+[0,t=>{if(!t){const d=pick([2,3,4,5]),q=ri(3,12);return numQ(`What is 1/${d} of ${d*q}?`,q,[q*d,q+1,q-1,d+q])}
+  const d=pick([4,5,8]),n=ri(2,d-1),q=ri(2,8);return numQ(`What is ${n}/${d} of ${d*q}?`,n*q,[q,d*q-n,n*q+d,q*d])}],
+[0,t=>{const pays=t?pick([100,200,500]):pick([50,100,200,500]),c=t?ri(11,pays/5-1)*5+ri(1,4):ri(2,pays/5-1)*5;
+  return numQ(`Pedro paid ₱${pays} for a school bag that costs ₱${c}. How much change should he get?`,pays-c,[pays-c+10,pays-c-10,pays+c,pays-c+5],peso)}],
+[0,t=>{const s=60*ri(1,5)+pick([0,15,30,45]),h=t?pick([1,2]):1,m=t?pick([15,30,45]):pick([0,30]),a=s+h*60+m;
+  return strQ(`A movie started at ${t12(s+720)} and lasted ${h} hour${h>1?'s':''}${m?' and '+m+' minutes':''}. What time did it end?`,t12(a+720),[t12(a+720+15),t12(a+720-15),t12(a+720+60),t12(a+720-30),t12(a+720+30)])}],
+[0,t=>{const n=t?5:4,dg=[];for(let i=0;i<n;i++)dg.push(ri(i===0?1:1,9));const num=+dg.join(''),pos=ri(0,n-1),d=dg[n-1-pos],val=d*Math.pow(10,pos);
+  return numQ(`What is the value of the digit ${d} in ${com(num)}?`,val,[d*Math.pow(10,(pos+1)%n),d*Math.pow(10,(pos+2)%n),d*Math.pow(10,(pos+3)%n),d])}]
+],
+4:[
+[0,t=>{const a=t?ri(120,480):ri(12,45),b=ri(3,9);
+  const c=pick([`A jeepney carries ${a} passengers on each trip. It makes ${b} trips a day. How many passengers does it carry in one day?`,`A sari-sari store sells ${a} candies every day. How many candies does it sell in ${b} days?`]);
+  return numQ(c,a*b,[a*b+b,a*b-a,a+b,a*b+10])}],
+[0,t=>{const k=ri(4,9),q=ri(6,t?40:20);let r=ri(1,k-1);const n=k*q+r;
+  return numQ(`A teacher packs ${n} pencils into boxes of ${k}. How many pencils are left over after all the full boxes are packed?`,r,[q,k-r,r+1,r-1],null,{steps:[1,-1,2,-2,3,-3]})}],
+[0,t=>{const ds=[5,6,7,8,9,10,11,12];let d,a,b,s;do{d=pick(ds);a=ri(1,d-2);b=ri(1,d-2);s=a+b}while(s>=d||gcd(s,d)!==1);
+  return strQ(`What is ${a}/${d} + ${b}/${d}?`,s+'/'+d,[s+'/'+(2*d),(s+1)+'/'+d,(a*b)+'/'+d,s+'/'+(d+1)])}],
+[1,t=>{let d,q,r;do{d=pick([3,4,5,6,7,8]);q=ri(1,5);r=ri(1,d-1)}while(gcd(r,d)!==1);
+  return strQ(`Change ${q*d+r}/${d} to a mixed number.`,q+' '+r+'/'+d,[(q+1)+' '+r+'/'+d,q+' '+(d-r)+'/'+d,r+' '+q+'/'+d,(q-1>0?q-1:q+2)+' '+r+'/'+d])}],
+[0,t=>{const l=t?ri(12,40):ri(6,15),w=t?ri(8,25):ri(4,12);
+  return numQ(`The floor of a classroom is ${l} meters long and ${w} meters wide. What is its area?`,l*w,[2*(l+w),l*w+l,l*w-w,l+w],n=>com(n)+' square meters')}],
+[0,t=>{const a=ri(11,45)/10,b=ri(11,95)/100,s=Math.round((a+b)*100)/100,f=n=>String(Math.round(n*100)/100);
+  return numQ(`Maria bought ${f(a)} kilograms of rice and ${f(b)} kilograms of sugar. How many kilograms did she buy in all?`,s,[Math.round((s+.1)*100)/100,Math.round((s-.1)*100)/100,Math.round((s+1)*100)/100,Math.round((s-.5)*100)/100],n=>f(n)+' kg',{steps:[.1,-.1,.2,-.2,.5,-.5,1,-1]})}],
+[0,t=>{if(!t){const g=ri(2,9);let x,y;do{x=ri(2,7);y=ri(2,7)}while(x===y||gcd(x,y)!==1);return numQ(`What is the greatest common factor of ${g*x} and ${g*y}?`,g,[g*x,g*y,g+1,g*x*y>99?g*2:g*x*y],null,{steps:[1,-1,2,-2,3,-3]})}
+  const a=pick([4,6,8,9,10,12]),b=pick([3,4,5,6,8,9]);if(a===b)return MG[4][6][1](1);
+  const l=lcm(a,b);return numQ(`What is the least common multiple of ${a} and ${b}?`,l,[a*b===l?l+a:a*b,a+b,l+a,l*2],null,{steps:[1,-1,2,-2,3,-3,6,-6]})}],
+[1,t=>{const n=ri(14,89);return numQ(`Which number is written in Roman numerals as ${toRoman(n)}?`,n,[n+10,n-10,n+5,n-5,n+1],null,{steps:[1,-1,5,-5,10,-10]})}]
+],
+5:[
+[0,t=>{if(!t){const p=pick([200,300,400,500,800,1000,1200,1500]),d=pick([10,20,25,50]);return numQ(`A school bag costs ₱${com(p)}. It is on sale at ${d}% off. How much is the discount?`,p*d/100,[p*d/100+p/10,p-p*d/100,p/d,p*d/10],peso)}
+  const p=ri(5,50)*20,d=pick([10,15,20,25,30,40]);return numQ(`A pair of shoes costs ₱${com(p)} and is ${d}% off. What is the sale price?`,p-p*d/100,[p*d/100,p+p*d/100,p-d,p-p*d/10],peso)}],
+[0,t=>{const d=pick([3,4,5,6]),n=ri(1,d-1),tot=d*ri(t?5:3,t?12:8);
+  return numQ(`There are ${tot} pupils in a class. ${n}/${d} of them are boys. How many are girls?`,tot-tot/d*n,[tot/d*n,tot/d,tot-n,tot-tot/d])}],
+[0,t=>{const m=ri(75,92),dv=[ri(-7,7),ri(-7,7),ri(-7,7),ri(-7,7)];const last=-dv.reduce((x,y)=>x+y,0);dv.push(last);const sc=dv.map(x=>m+x);
+  return numQ(`Pia's quiz scores are ${sc.join(', ')}. What is her average score?`,m,[m+1,m-1,Math.max.apply(null,sc),m+2])}],
+[0,t=>{const l=ri(3,t?12:9),w=ri(2,t?10:8),h=ri(2,t?9:7);
+  return numQ(`An aquarium is ${l} centimeters long, ${w} centimeters wide and ${h} centimeters high. What is its volume?`,l*w*h,[2*(l*w+w*h+l*h),l+w+h,l*w*h+l,l*w],n=>com(n)+' cubic centimeters')}],
+[0,t=>{const s=pick([40,50,60,80]),h=ri(2,6);
+  if(!t)return numQ(`A bus travels at ${s} kilometers per hour for ${h} hours. How far does it travel?`,s*h,[s+h,s*h+s,s*h-s,s*(h+2)],n=>com(n)+' kilometers');
+  return numQ(`A van travels at ${s} kilometers per hour for ${h} and a half hours. How far does it travel?`,s*h+s/2,[s*h,s*(h+1),s*h+s,s*h+s/4],n=>com(n)+' kilometers')}],
+[0,t=>{const p=t?ri(5,25)*4:ri(10,30)*2;
+  if(!t)return numQ(`Rice costs ₱${p} per kilogram. How much do 2.5 kilograms of rice cost?`,p*2.5,[p*2,p*3,p*2.5+5,p*2.5-5],peso,{steps:[5,-5,10,-10,4,-4]});
+  return numQ(`Pork costs ₱${p} per kilogram. How much do 1.25 kilograms cost?`,p*1.25,[p,p*1.5,p*1.25-10,p*1.25+10],peso,{steps:[5,-5,10,-10,4,-4]})}],
+[0,t=>{const a=ri(2,5),b=a+ri(1,3),k=ri(2,t?9:6);
+  return numQ(`The ratio of boys to girls in a choir is ${a}:${b}. There are ${a*k} boys. How many girls are there?`,b*k,[a*k+b,b+k,a*b,b*k+a])}],
+[0,t=>{const a=ri(3,20),b=ri(2,9),c=ri(2,9);
+  if(!t)return numQ(`Solve: ${a} + ${b} × ${c}`,a+b*c,[(a+b)*c,a+b+c,a*b+c,a+b*c+b]);
+  const d=ri(2,15);return numQ(`Solve: (${a} + ${b}) × ${c} − ${d}`,(a+b)*c-d,[a+b*c-d,(a+b)*(c-d),(a+b)*c+d,a+b+c*d],null,{neg:false})}]
+],
+6:[
+[0,t=>{const P=pick([2000,5000,10000,20000]),r=ri(2,6),y=ri(2,5);
+  return numQ(`Lola deposits ${peso(P)} in a bank that pays ${r}% simple interest per year. How much interest does she earn in ${y} years?`,P*r*y/100,[P*r/100,P*r*y/10,P+P*r*y/100,P*y/100],peso)}],
+[0,t=>{const u=pick([12,15,18,20,25]),k=pick([3,4,5,6]),m=ri(2,5),n=k*m;
+  return numQ(`${k} notebooks cost ₱${u*k}. How much do ${n} notebooks cost at the same price?`,u*n,[u*k+n,u*(n+k),u*m,u*n+u],peso)}],
+[0,t=>{const r=pick([7,14,21]),ci=44*r/7,ar=154*r*r/49,circ=Math.random()<.5;
+  if(circ)return numQ(`A circular plate has a radius of ${r} centimeters. Using π = 22/7, what is its circumference?`,ci,[ar,ci/2,ci*2,ci+r],n=>com(n)+' centimeters');
+  return numQ(`A circular garden has a radius of ${r} meters. Using π = 22/7, what is its area?`,ar,[ci,ar*2,ar/2,ar+r],n=>com(n)+' square meters')}],
+[0,t=>{let b,h;do{b=ri(4,t?30:16);h=ri(3,t?24:12)}while((b*h)%2);
+  return numQ(`A triangular banner has a base of ${b} centimeters and a height of ${h} centimeters. What is its area?`,b*h/2,[b*h,b+h,b*h/4,b*h/2+b],n=>com(n)+' square centimeters')}],
+[0,t=>{const a=ri(2,15),b=ri(2,25),res=-a+b,f=n=>(n<0?'−':'')+Math.abs(n)+' °C';
+  return numQ(`The temperature inside a freezer is −${a} °C. It is then raised by ${b} °C. What is the new temperature?`,res,[-a-b,a+b,a-b,res+2],f,{neg:true})}],
+[0,t=>{if(!t){const n=ri(11,25);return numQ(`What is the square root of ${n*n}?`,n,[n+1,n-1,n*2,n+2])}
+  const a=ri(3,9),p=ri(3,6);if(Math.random()<.5)return numQ(`What is ${a}³ (${a} to the power of 3)?`,a*a*a,[a*3,a*a,a*a*a+a,a*a*(a+1)]);return numQ(`What is 2 raised to the power of ${p+1}?`,Math.pow(2,p+1),[2*(p+1),Math.pow(2,p),Math.pow(2,p+2),(p+1)*(p+1)])}],
+[0,t=>{const med=ri(10,60);const lo=[med-ri(1,6),med-ri(7,12)],hi=[med+ri(1,6),med+ri(7,12)];let arr=[med].concat(lo,hi);if(t){arr.push(med-ri(13,20),med+ri(13,20))}
+  const mean=Math.round(arr.reduce((x,y)=>x+y,0)/arr.length),sh=shuf(arr);
+  return numQ(`What is the median of this set of numbers: ${sh.join(', ')}?`,med,[mean===med?med+3:mean,Math.max.apply(null,arr),sh[Math.floor(sh.length/2)]===med?Math.min.apply(null,arr):sh[Math.floor(sh.length/2)],med+2])}],
+[0,t=>{const r=ri(2,9),b=ri(2,9),g=t?ri(2,9):0,tot=r+b+g,ans=frac(r,tot);
+  const cand=[[b,tot],[r,tot-r],[tot-r,tot],[r,tot+1],[r+1,tot],[g||b+1,tot],[r+2,tot+3],[r+1,tot+2]];
+  const wr=[];cand.forEach(c=>{const x=frac(c[0],c[1]);if(x!==ans&&c[0]*tot!==r*c[1]&&wr.indexOf(x)<0)wr.push(x)});
+  return strQ(`A bag has ${r} red marbles${t?`, ${b} blue marbles and ${g} green marbles`:` and ${b} blue marbles`}. What is the probability of picking a red marble? (Give the answer in simplest form.)`,ans,wr)}],
+[1,t=>{const a=pick([6,8,9,10,12,15]),b=pick([4,5,6,8,9,10,12]);if(a===b)return MG[6][8][1](1);const l=lcm(a,b);
+  return numQ(`Two jeepneys leave the terminal together at 6:00 AM. One leaves every ${a} minutes and the other every ${b} minutes. After how many minutes will they leave together again?`,l,[a*b===l?l+a:a*b,a+b,l+a,l*2],n=>com(n)+' minutes',{steps:[1,-1,2,-2,6,-6,12,-12]})}],
+[0,t=>{if(!t){const a=ri(3,15),x=ri(5,40);return numQ(`Solve for n: n + ${a} = ${x+a}`,x,[x+a,x-a>0?x-a:x+1,x+1,x-1])}
+  const a=ri(2,9),x=ri(3,15);return numQ(`Solve for n: ${a}n = ${a*x}`,x,[a*x,a+x,x+1,x-1])}],
+[1,t=>{const y=pick([20,40,60,80,100,120,160,200]),p=pick([10,20,25,40,50,60,75,80]),x=y*p/100;
+  return numQ(`What percent of ${y} is ${x}?`,p,[p+10,p-10,x,100-p],n=>n+'%',{steps:[5,-5,10,-10,15,-15]})}]
+]
+};
+/* ---------- constants ---------- */
+const LAD=[1000,2000,5000,10000,20000,30000,50000,100000,150000,250000,500000,1000000];
+const SAFE_AFTER={3:1,7:1};            // finishing Grade 2 and Grade 4 locks in the prize
+const LET=['A','B','C','D'];
+const SUBJ={
+  math:{n:'Math',e:'🔢',nl:'en',ql:'en'},
+  eng:{n:'English',e:'📖',nl:'en',ql:'en'},
+  fil:{n:'Filipino',e:'📝',nl:'fil',ql:'fil'},
+  sci:{n:'Science',e:'🔬',nl:'en',ql:'en'},
+  ap:{n:'Araling Panlipunan',e:'🗺️',nl:'fil',ql:'en'},
+  mapeh:{n:'MAPEH',e:'🎨',nl:'en',ql:'en'}
+};
+const MATES=[
+  {n:'Migo',a:'🧒🏽',g:5,f:'math'},{n:'Bea',a:'👧🏽',g:6,f:'sci'},{n:'Jomar',a:'👦🏽',g:5,f:'ap'},
+  {n:'Lani',a:'👧🏽',g:4,f:'fil'},{n:'Carlo',a:'👦🏽',g:6,f:'mapeh'},{n:'Trisha',a:'👧🏽',g:5,f:'eng'},
+  {n:'Paolo',a:'🧒🏽',g:4,f:'math'},{n:'Mika',a:'👧🏽',g:6,f:'eng'},{n:'Dodong',a:'👦🏽',g:5,f:'sci'},{n:'Nene',a:'🧒🏽',g:6,f:'ap'}
+];
+const PRAISE=['Tama! Very good!','Magaling! That is correct!','Ayos! You got it!','Excellent! Palakpakan natin siya!','Correct! Ang talino mo!'];
+const OOPS=['Naku! That is not it.','Sayang! Not quite.','Oops, mali. Nice try!'];
+const SURE=['Sure ako rito!','Easy lang ’to!','Tiwala ako sa sagot ko.'];
+const UNSURE=['Hmm… parang ito?','Hula ko lang ha.','Hindi ako sigurado…'];
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const gradeOf=i=>Math.floor(i/2)+1;
 
-/* ---------- helpers ---------- */
-const bub=t=>{const b=$('sgBub');b.style.animation='none';void b.offsetWidth;b.style.animation='';b.textContent=t};
-function setB(chip,text,big){$('sgChip').textContent=chip;const q=$('sgQ');q.textContent=text;q.classList.toggle('big',!!big);const s=$('sgScreen');s.classList.remove('flip');void s.offsetWidth;s.classList.add('flip')}
-function confetti(n){const c=$('sgConf');for(let i=0;i<(n||50);i++){const s=document.createElement('i');s.style.cssText=`left:${Math.random()*100}%;background:${P(['#ff4d6d','#ffd166','#06d6a0','#4cc9f0','#b388ff'])};animation-duration:${1.6+Math.random()*1.6}s;animation-delay:${Math.random()*.4}s`;c.appendChild(s);setTimeout(()=>s.remove(),3800)}}
-function build(){$('sgKids').innerHTML=KIDS.map((k,i)=>`<div class="kid" data-k="${i}"><div class="kb"></div><div class="pv">${av(k)}</div><div class="plate">${k.n}</div></div>`).join('');$('sgMe').innerHTML=`<div class="pv">${av(ME)}</div><div class="plate">YOU</div>`}
-function kidsReset(){document.querySelectorAll('#sgKids .kid').forEach(k=>{k.classList.remove('win','lose');const b=k.querySelector('.kb');b.className='kb';b.textContent=''});$('sgKids').classList.remove('pick')}
-function react(el,c,ms){el.classList.remove('cheer','sad');void el.offsetWidth;el.classList.add(c);setTimeout(()=>el.classList.remove(c),ms)}
-function hud(){const g=S?S.g:0;$('sgLad').innerHTML=[1,2,3,4,5,6].map(i=>`<i class="${i<g?'d':i===g?'c':''}">${i}</i>`).join('');$('sgLife').innerHTML=[0,1,2].map(i=>heart(S?i<S.lives:true)).join('');$('sgSc').textContent=(S?S.score:0).toLocaleString('en-US');
-const on=!!(S&&S.cur&&!S.locked&&!S.busy);$('sgC').disabled=!(on&&S.ll.c&&S.helper!=null);$('sgC').innerHTML=ico('copy',20)+'Copy<b>'+(S&&S.helper!=null?KIDS[S.helper].n:'no helper')+'</b>';$('sgS').disabled=!(on&&S.ll.s);$('sgP').disabled=!(on&&S.ll.p);}
-const best=()=>{try{return +localStorage.getItem(BK)||0}catch(e){return 0}};
-const fmt=n=>'₱'+(+n).toLocaleString('en-US');
+/* ---------- saved stats + question history (per account, on this device) ---------- */
+const SKEY=()=>'sg5_v1_'+((typeof user!=='undefined'&&user&&user.uid)||'guest');
+function loadSt(){try{const o=JSON.parse(localStorage.getItem(SKEY())||'{}');return{played:o.played|0,wins:o.wins|0,best:o.best|0,hist:Array.isArray(o.hist)?o.hist.slice(0,14):[]}}catch(e){return{played:0,wins:0,best:0,hist:[]}}}
+let ST=loadSt();
+function saveSt(){ST.hist=ST.hist.slice(0,14);try{localStorage.setItem(SKEY(),JSON.stringify(ST))}catch(e){}}
+
+/* ---------- narration (Web Speech API) ---------- */
+let NARR=true;try{NARR=localStorage.getItem('sg5_narr')!=='0'}catch(e){}
+const TTS_OK=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+let VOICES=[];
+function loadVoices(){if(!TTS_OK)return;try{VOICES=speechSynthesis.getVoices()||[]}catch(e){}}
+if(TTS_OK){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices)}catch(e){try{speechSynthesis.onvoiceschanged=loadVoices}catch(e2){}}}
+function voiceFor(l){
+  const f=re=>VOICES.find(v=>re.test(String(v.lang).replace('_','-')));
+  if(l==='fil')return f(/^(fil|tl)(-|$)/i)||null;
+  return f(/^en-PH/i)||f(/^en-US/i)||f(/^en-GB/i)||f(/^en/i)||null;
+}
+function tts(s){
+  return String(s).replace(/₱\s?([\d,.]+)/g,'$1 pesos').replace(/(\d)\s?°C/g,'$1 degrees Celsius').replace(/−(\d)/g,'minus $1')
+    .replace(/×/g,' times ').replace(/÷/g,' divided by ').replace(/(\d+)\/(\d+)/g,'$1 over $2').replace(/(\d)%/g,'$1 percent')
+    .replace(/_{2,}/g,' blank ').replace(/\bH2O\b/g,'H 2 O').replace(/\bCO2\b/g,'C O 2').replace(/\bO2\b/g,'O 2').replace(/(\d)³/g,'$1 cubed')
+    .replace(/(\d) kg\b/g,'$1 kilograms').replace(/\bPH\b/g,'P H').replace(/\bMAPEH\b/g,'Mapeh').replace(/\bPAGASA\b/g,'Pagasa').replace(/\bASEAN\b/g,'Asean').replace(/\bBMI\b/g,'B M I').replace(/\bEDSA\b/g,'Edsa');
+}
+let talkTok=0,talkT=0;
+function setTalking(b){const t=$('sgTeacher');if(t)t.classList.toggle('talk',!!b);const r=$('sgReplay');if(r)r.classList.toggle('on',!!b)}
+function stopSpeak(){clearTimeout(talkT);if(TTS_OK){try{speechSynthesis.cancel()}catch(e){}}talkTok++;setTalking(false)}
+function speak(parts){
+  stopSpeak();
+  if(!NARR||!TTS_OK||!parts||!parts.length)return;
+  const tok=++talkTok;
+  talkT=setTimeout(()=>{
+    if(tok!==talkTok)return;
+    setTalking(true);
+    parts.forEach((p,i)=>{
+      const u=new SpeechSynthesisUtterance(tts(p.t)),v=voiceFor(p.l);
+      if(v){u.voice=v;u.lang=v.lang}else u.lang=p.l==='fil'?'fil-PH':'en-PH';
+      u.rate=p.l==='fil'?.92:.96;u.pitch=1.08;
+      if(i===parts.length-1){u.onend=u.onerror=()=>{if(tok===talkTok)setTalking(false)}}
+      try{speechSynthesis.speak(u)}catch(e){}
+    });
+  },70);
+}
+function bell(){if(typeof beep!=='function')return;try{beep(880,.25,'sine',.12);setTimeout(()=>beep(660,.45,'sine',.1),230)}catch(e){}}
+function sfx(k){try{if(typeof snd==='function')snd(k)}catch(e){}}
+
+/* ---------- state ---------- */
+function newState(){return{phase:'intro',idx:0,prize:0,safe:0,correct:0,cheats:{peek:1,copy:1,save:1},saveArmed:false,mode:null,walkArm:false,walkT:0,
+  mates:[],q:null,sel:-1,offers:[],res:[],used:new Set(),prev:[],cur:null,peeks:[],thought:null,outcome:'',payout:0,xp:0}}
+let S=newState();
+function pickMates(){let m=shuf(MATES).slice(0,4);if(!m.some(x=>x.g===6)){const six=shuf(MATES.filter(x=>x.g===6))[0];m[ri(0,3)]=six}return shuf(m)}
+
+/* ---------- question picking (no repeats within 4 consecutive games) ---------- */
+function ageOf(id){for(let i=0;i<S.prev.length;i++)if(S.prev[i].indexOf(id)>=0)return i+1;return 99}
+function finishQ(raw,id,grade,subj,tier){
+  const ord=shuf([0,1,2,3]),opts=ord.map(i=>raw.opts[i]);
+  return{id:id,grade:grade,subj:subj,tier:tier,text:raw.q,opts:opts,ans:ord.indexOf(0),lang:SUBJ[subj].ql,mate:{}};
+}
+function buildQ(grade,subj,tier){
+  if(subj==='math'){
+    const gens=MG[grade].filter(e=>e[0]<=tier);let best=null,bestAge=-1;
+    for(let k=0;k<50;k++){
+      const raw=pick(gens)[1](tier),id='m'+grade+hash(raw.q);
+      if(S.used.has(id))continue;
+      const a=ageOf(id);if(a>3){best={raw:raw,id:id};break}
+      if(a>bestAge){bestAge=a;best={raw:raw,id:id}}
+    }
+    if(!best){const raw=pick(gens)[1](tier);best={raw:raw,id:'m'+grade+hash(raw.q)}}
+    return finishQ(best.raw,best.id,grade,subj,tier);
+  }
+  const pool=SG_BANK[grade][subj],lo=tier?4:0,cand=[];
+  for(let i=lo;i<lo+4;i++){const id=grade+subj+i;if(!S.used.has(id))cand.push({i:i,id:id,age:ageOf(id)})}
+  let ok=cand.filter(c=>c.age>3);if(!ok.length)ok=cand;
+  const top=Math.max.apply(null,ok.map(c=>c.age)),c=pick(ok.filter(x=>x.age===top));
+  return finishQ({q:pool[c.i][0],opts:pool[c.i].slice(1)},c.id,grade,subj,tier);
+}
+function mateAnswer(mi){
+  const q=S.q;if(q.mate[mi])return q.mate[mi];
+  const m=S.mates[mi],d=q.grade-m.g;
+  let p=d<=-2?.96:d===-1?.92:d===0?.84:d===1?.6:d===2?.42:.3;if(m.f===q.subj)p=Math.min(.97,p+.08);
+  const right=Math.random()<p,i=right?q.ans:pick([0,1,2,3].filter(x=>x!==q.ans));
+  return q.mate[mi]={i:i,sure:right?Math.random()<.75:Math.random()<.4};
+}
+
+/* ---------- rendering ---------- */
+function say(t,lang,voiced){const el=$('sgSay');if(el)el.textContent=t;if(voiced)speak([{t:t,l:lang||'en'}])}
+function renderHud(){
+  const g=gradeOf(Math.min(S.idx,11)),started=S.phase!=='intro';
+  let h='<div class="sg-pz"><b>'+peso(S.phase==='end'?S.payout:S.prize)+'</b><span>'+(S.phase==='end'?'You take home':'Prize so far')+'</span></div><div class="sg-lad" role="img" aria-label="Question '+(Math.min(S.idx,11)+1)+' of 12">';
+  for(let k=1;k<=6;k++){
+    const a=(k-1)*2,b=a+1;
+    const st=i=>S.phase==='end'?(S.res[i]&&S.res[i].ok?'done':''):(i<S.idx&&started&&S.res[i]&&S.res[i].ok?'done':(i===S.idx&&started?'cur':''));
+    h+='<div class="sg-g'+(started&&k===g&&S.phase!=='end'?' now':'')+'"><span class="p2"><span class="p '+st(a)+'"></span><span class="p '+st(b)+'"></span></span><span>G'+k+(SAFE_AFTER[b]?' ★':'')+'</span></div>';
+  }
+  $('sgHud').innerHTML=h+'</div>';
+}
+function renderDesks(){
+  $('sgDesks').innerHTML=S.mates.map((m,i)=>{
+    const th=S.thought&&S.thought.i===i?'<div class="sg-th">'+esc(S.thought.t)+'</div>':'';
+    return '<button type="button" class="sg-mate'+(S.mode?' pick':'')+'" data-a="mate" data-i="'+i+'" aria-label="'+esc(m.n)+', Grade '+m.g+', loves '+SUBJ[m.f].n+'">'+th+'<span class="av" aria-hidden="true">'+m.a+'</span><span class="dk"></span><span class="nm">'+esc(m.n)+'</span><span class="sb">Grade '+m.g+'<br>loves '+SUBJ[m.f].n+'</span></button>';
+  }).join('');
+}
+function renderCheats(){
+  const ask=S.phase==='ask',c=S.cheats;
+  const b=(a,e,t,sub,dis,on)=>'<button type="button" class="sg-ch'+(on?' on':'')+'" data-a="'+a+'"'+(dis?' disabled':'')+'><span class="e" aria-hidden="true">'+e+'</span>'+t+'<small>'+sub+'</small></button>';
+  $('sgCheats').innerHTML=
+    b('peek','👀','Peek',c.peek?'see their answer':'used',!ask||!c.peek,S.mode==='peek')+
+    b('copy','✏️','Copy',c.copy?'use their answer':'used',!ask||!c.copy,S.mode==='copy')+
+    b('save','🛟','Save',S.saveArmed?'armed!':(c.save?'1 wrong is ok':'used'),!ask||!c.save,S.saveArmed)+
+    b('walk','🎒',S.walkArm?'Sure?':'Walk away',S.walkArm?'tap again':peso(S.prize),!(S.phase==='pick'||ask)||S.prize<=0,S.walkArm);
+  $('sgHint').textContent=S.mode==='peek'?'Tap a classmate to see their answer.':S.mode==='copy'?'Tap a classmate to copy their answer. It locks in right away!':S.saveArmed&&ask?'Save is on: one wrong answer will not end your game.':'';
+}
+function optsHtml(reveal){
+  const q=S.q;
+  return '<div class="sg-opts">'+q.opts.map((o,i)=>{
+    let cl='sg-opt';
+    if(reveal){if(i===q.ans)cl+=' ok';else if(i===S.sel)cl+=' no'}
+    else if(i===S.sel)cl+=' sel';
+    const pk=S.peeks.filter(p=>p.l===i).map(p=>'<span class="sg-pk">'+esc(S.mates[p.i].n)+'</span>').join('');
+    return '<button type="button" class="'+cl+'" data-a="opt" data-i="'+i+'"'+(reveal?' disabled':'')+'><span class="lt">'+LET[i]+'</span><span class="tx">'+esc(o)+'</span>'+pk+'</button>';
+  }).join('')+'</div>';
+}
+function tagRow(){
+  const q=S.q;
+  return '<div class="sg-tags"><span>Grade '+(q?q.grade:gradeOf(S.idx))+(q?' · '+SUBJ[q.subj].n:'')+'</span><span class="pz">Q'+(S.idx+1)+' · '+peso(LAD[S.idx])+'</span></div>';
+}
+function honors(n){return n>=12?'With Highest Honors':n>=10?'With High Honors':n>=7?'With Honors':n>=4?'Passed':n>=1?'Needs Review':'Back to Kinder'}
+function boardHtml(){
+  const B=$('sgBoard');B.classList.remove('paper');
+  switch(S.phase){
+  case 'intro':
+    return '<div class="sg-hero"><h2>Are You Smarter Than a 5th Grader?</h2><div class="sub">Philippines Edition</div>'+
+      '<p>Climb 12 questions from Grade 1 to Grade 6, from ₱1,000 to ₱1,000,000. Choose your subjects, ask your classmates for help, and keep your prize safe.</p>'+
+      '<div class="sg-st"><span><b>'+peso(ST.best)+'</b>best prize</span><span><b>'+ST.played+'</b>games played</span><span><b>'+ST.wins+'</b>Grade 6 clears</span></div>'+
+      '<button type="button" class="btn btn-gold" data-a="start">Start class</button></div>';
+  case 'pick':{
+    const g=gradeOf(S.idx),adv=S.idx%2===1;
+    return tagRow()+'<h3 class="sg-h3">Choose a Grade '+g+' subject</h3>'+
+      (adv?'<p class="sg-note">This is the tougher question for Grade '+g+'.</p>':'')+
+      S.offers.map(k=>'<button type="button" class="sg-subj" data-a="subj" data-k="'+k+'"><span class="e" aria-hidden="true">'+SUBJ[k].e+'</span><span><b>'+SUBJ[k].n+'</b><small>Grade '+g+' level</small></span></button>').join('');}
+  case 'ask':
+    return tagRow()+'<div class="sg-qrow"><p class="sg-q">'+esc(S.q.text)+'</p><button type="button" class="sg-rp" id="sgReplay" data-a="replay" aria-label="Hear the question again">🔁</button></div>'+optsHtml(false)+
+      '<button type="button" class="btn btn-gold sg-lock" data-a="lock"'+(S.sel<0?' disabled':'')+'>'+(S.sel<0?'Pick an answer':'Final answer: '+LET[S.sel])+'</button>';
+  case 'reveal':{
+    const q=S.q,ok=S.lastOK,last=S.idx===11;
+    const msg=ok?'Correct! '+peso(LAD[S.idx]):(S.savedNow?'Wrong, but your Save kept you in the game.':'Not quite. The answer is '+LET[q.ans]+'.');
+    const nx=ok?(last?'Collect '+peso(LAD[S.idx]):'Next question'):(S.savedNow?(last?'See report card':'Next question'):'See report card');
+    return tagRow()+'<p class="sg-q">'+esc(q.text)+'</p>'+optsHtml(true)+'<div class="sg-res '+(ok?'good':'bad')+'">'+esc(msg)+'</div><button type="button" class="btn btn-gold" data-a="next">'+nx+'</button>';}
+  case 'end':{
+    B.classList.add('paper');
+    const rows=[1,2,3,4,5,6].map(g=>{
+      const cell=i=>{const r=S.res[i];if(!r)return '<span class="c na">—</span>';return '<span class="c '+(r.ok?'y':(r.saved?'s':'n'))+'">'+SUBJ[r.subj].e+' '+(r.ok?'✔':(r.saved?'🛟':'✘'))+'</span>'};
+      return '<div class="r"><b>Grade '+g+(SAFE_AFTER[g*2-1]?' ★':'')+'</b>'+cell((g-1)*2)+cell((g-1)*2+1)+'</div>';
+    }).join('');
+    const miss=S.res.filter(r=>r&&!r.ok&&r.qt);const m=miss[miss.length-1];
+    const title=S.outcome==='win'?'You are smarter than a Grade 6 pupil!':S.outcome==='lose'?'Not smarter this time':S.outcome==='walk'?'You walked away':'Class dismissed';
+    return '<div class="sg-card"><div class="sg-ch1">Report Card</div><div class="sg-ch2">Are You Smarter Than a 5th Grader? · Philippines Edition</div>'+
+      '<div class="sg-grade">'+title+'</div>'+
+      '<div class="sg-total"><b>'+peso(S.payout)+'</b><span>'+honors(S.correct)+' · '+S.correct+' of 12 correct · +'+S.xp+' XP</span></div>'+
+      '<div class="sg-rows">'+rows+'</div>'+
+      (m?'<div class="sg-rev"><b>Review</b>'+esc(m.qt)+'<br>Answer: <i>'+esc(m.at)+'</i></div>':'')+
+      '<div class="btn-row"><button type="button" class="btn btn-ghost sg-dark" data-a="lobby">Games</button><button type="button" class="btn btn-gold" data-a="again">Play again</button></div></div>';}
+  }
+  return '';
+}
+function renderBoard(){$('sgBoard').innerHTML=boardHtml()}
+function renderAll(){renderHud();renderBoard();renderCheats();renderDesks()}
+function nudge(){try{$('sgBoard').scrollIntoView({behavior:'smooth',block:'nearest'})}catch(e){}}
+
 /* ---------- game flow ---------- */
-function intro(){if(S)clearInterval(S.tm);S=null;hud();kidsReset();setB('Philippines Edition','Are You Smarter Than a 5th Grader?',1);$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
-bub("Welcome to the show! Face five 5th graders, climb Grade 1 to 6 and win ₱1,000,000. Three wrong answers and you're out!");
-$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">12 questions · Grades 1–6 · you pick the subject<br>Pick one 5th grader as your helper before each grade<br>Lifelines: Copy · Switch · Pass<br>Best prize: ${fmt(best())}</div><button class="sg-go" id="sgStart">Start the show!</button>`;
-$('sgStart').onclick=start;react($('sgMe'),'cheer',1400);document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.add('win'));setTimeout(()=>document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.remove('win')),1500)}
-function start(){S={g:1,n:1,lives:3,score:0,right:0,used:new Set(),ll:{c:1,s:1,p:1},h:false,cur:null,locked:false,busy:false,pick:false,hp:false,helper:null,run:true,tm:0,left:0,ka:[]};snd('go');musicStart();confetti(30);nextQ()}
-function nextQ(){if(!S)return;if(S.g>6){end(true);return}if(S.n===1)pickHelper();else choose()}
-function markHelper(){document.querySelectorAll('#sgKids .kid').forEach(k=>{const i=+k.dataset.k,h=S&&S.helper===i;k.classList.toggle('helper',h);k.querySelector('.plate').textContent=(h?'★ ':'')+KIDS[i].n})}
-function pickHelper(){const s=S;s.cur=null;s.helper=null;s.hp=true;s.busy=false;s.pick=false;clearInterval(s.tm);kidsReset();markHelper();hud();
-document.querySelectorAll('#sgKids .kid').forEach((k,i)=>{const b=k.querySelector('.kb');b.textContent=KIDS[i].tag||KIDS[i].sp[0];b.className='kb show'});$('sgKids').classList.add('pick');
-setB(`Grade ${s.g} · Choose your helper`,'Pick ONE 5th grader to help you in this grade!',1);$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
-bub('Tap a 5th grader. Each one is strongest in the subject shown above them, and you can Copy their answer once per game!');
-$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">Your helper stays with you for both Grade ${s.g} questions.<br>${s.ll.c?'Copy lifeline: ready':'Copy lifeline: already used'}</div><button class="sg-go alt" id="sgSolo">Go solo this grade</button>`;$('sgSolo').onclick=()=>{if(S!==s||!s.hp)return;s.hp=false;snd('tap');kidsReset();markHelper();choose()}}
-$('sgKids').addEventListener('click',e=>{const k=e.target.closest('.kid');if(!k||!S||!S.hp)return;const s=S,i=+k.dataset.k;s.hp=false;s.helper=i;snd('tap');kidsReset();markHelper();bub(`${KIDS[i].n} will be your helper in Grade ${s.g}!`);const kb=k.querySelector('.kb');kb.textContent='I got you!';kb.className='kb show';setTimeout(()=>{if(S===s){kidsReset();choose()}},1100)});
+function openGrader(){
+  stopSpeak();ST=loadSt();S=newState();S.mates=pickMates();go('screen-grader');
+  say('Good morning, class! Take a seat and get ready for Grade 1 to Grade 6.');renderAll();try{window.scrollTo(0,0)}catch(e){}
+}
+function go(id){if(typeof show==='function')show(id);else{document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}}
+function startGame(){
+  const mates=S.mates;S=newState();S.mates=mates;S.prev=ST.hist.slice();S.phase='pick';bell();
+  askPick(true);
+}
+function askPick(first){
+  S.offers=shuf(Object.keys(SUBJ)).slice(0,3);S.phase='pick';S.q=null;S.sel=-1;S.mode=null;S.saveArmed=false;S.peeks=[];S.thought=null;
+  const g=gradeOf(S.idx),line='Grade '+g+'. For '+peso(LAD[S.idx])+'. Choose a subject!';
+  renderAll();
+  say(first?'Good morning, class! Let us begin. '+line:line);
+  speak((first?[{t:'Good morning, class! Let us begin.',l:'en'}]:[]).concat([{t:GW[g]+'. Question '+(S.idx+1)+', for '+com(LAD[S.idx])+' pesos. Choose a subject!',l:'en'}]));
+  nudge();
+}
+function chooseSubject(k){
+  if(S.phase!=='pick'||!SUBJ[k])return;
+  const q=buildQ(gradeOf(S.idx),k,S.idx%2);S.q=q;S.used.add(q.id);
+  if(!S.cur){S.cur=[];ST.hist.unshift(S.cur)}S.cur.push(q.id);saveSt();
+  S.phase='ask';S.sel=-1;sfx('tap');renderAll();say('Here is your question. Take your time!');
+  narrateQuestion();nudge();
+}
+function narrateQuestion(){
+  const q=S.q,sj=SUBJ[q.subj],parts=[{t:GW[q.grade]+'.',l:'en'},{t:sj.n+'.',l:sj.nl},{t:'Question '+(S.idx+1)+', for '+com(LAD[S.idx])+' pesos.',l:'en'},{t:q.text,l:q.lang}];
+  q.opts.forEach((o,i)=>parts.push({t:LET[i]+', '+o,l:q.lang}));speak(parts);
+}
+function lockIn(){
+  if(S.phase!=='ask'||S.sel<0)return;
+  stopSpeak();const q=S.q,ok=S.sel===q.ans;
+  S.phase='reveal';S.lastOK=ok;S.savedNow=false;S.mode=null;
+  const r={subj:q.subj,ok:ok,saved:false,qt:q.text,at:q.opts[q.ans]};
+  if(ok){S.correct++;S.prize=LAD[S.idx];if(SAFE_AFTER[S.idx])S.safe=LAD[S.idx];sfx(S.idx>=7?'big':'ok');}
+  else{sfx('bad');if(S.saveArmed){S.savedNow=true;r.saved=true}else S.lost=true}
+  S.res[S.idx]=r;renderAll();
+  const line=ok?pick(PRAISE):(S.savedNow?'Buti na lang may Save ka! The answer was '+LET[q.ans]+'.':pick(OOPS)+' The correct answer is '+LET[q.ans]+', '+q.opts[q.ans]+'.');
+  say(line);speak([{t:line,l:ok||S.savedNow?'en':'en'}]);
+  const B=$('sgBoard');B.classList.remove('shake');if(!ok&&!S.savedNow){void B.offsetWidth;B.classList.add('shake')}
+}
+function nextStep(){
+  if(S.phase!=='reveal')return;
+  if(S.lastOK){if(S.idx===11)return finish('win');S.idx++;return askPick(false)}
+  if(S.savedNow){if(S.idx===11)return finish('done');S.idx++;return askPick(false)}
+  finish('lose');
+}
+function finish(why){
+  clearTimeout(S.walkT);S.walkArm=false;S.phase='end';S.outcome=why;S.mode=null;
+  S.payout=why==='lose'?S.safe:S.prize;S.xp=S.correct*10+(why==='win'?200:0);
+  ST.played++;if(why==='win')ST.wins++;if(S.payout>ST.best)ST.best=S.payout;saveSt();
+  try{if(S.xp>0&&typeof profile!=='undefined'&&profile&&typeof saveProfile==='function'){profile.xp=(profile.xp||0)+S.xp;Promise.resolve(saveProfile({xp:profile.xp})).catch(()=>{})}}catch(e){}
+  const t=why==='win'?'Congratulations! You are smarter than a Grade 6 pupil! You win '+peso(S.payout)+'!':why==='lose'?'Naku! Better luck next time. You take home '+peso(S.payout)+'.':why==='walk'?'Wise choice! You walk away with '+peso(S.payout)+'.':'Class dismissed! You keep '+peso(S.payout)+'.';
+  renderAll();say(t);speak([{t:t,l:'en'}]);sfx(why==='win'?'win':S.payout>0?'big':'bad');bell();nudge();
+}
+function doPeek(i){
+  const a=mateAnswer(i),m=S.mates[i];S.cheats.peek=0;S.mode=null;S.peeks.push({i:i,l:a.i});
+  S.thought={i:i,t:LET[a.i]+'! '+pick(a.sure?SURE:UNSURE)};
+  const line=m.n+' whispers: “'+LET[a.i]+'.” '+(a.sure?'They sound sure.':'They do not sound sure.');
+  renderAll();say(line);speak([{t:line,l:'en'}]);
+}
+function doCopy(i){
+  const a=mateAnswer(i),m=S.mates[i],q=S.q;S.cheats.copy=0;S.mode=null;S.sel=a.i;
+  S.thought={i:i,t:LET[a.i]+'! '+pick(a.sure?SURE:UNSURE)};
+  const line='You copied '+m.n+'’s answer: '+LET[a.i]+'. No take-backs!';
+  renderAll();say(line);speak([{t:line,l:'en'}]);
+  setTimeout(()=>{if(S.phase==='ask'&&S.q===q)lockIn()},1400);
+}
+function onClick(e){
+  const el=e.target.closest('[data-a]');if(!el||el.disabled)return;
+  const a=el.dataset.a;
+  if(a==='start')return startGame();
+  if(a==='subj')return chooseSubject(el.dataset.k);
+  if(a==='opt'){if(S.phase!=='ask')return;stopSpeak();S.sel=+el.dataset.i;sfx('tap');renderBoard();return}
+  if(a==='lock')return lockIn();
+  if(a==='next')return nextStep();
+  if(a==='replay')return narrateQuestion();
+  if(a==='peek'||a==='copy'){if(S.phase!=='ask'||!S.cheats[a])return;S.mode=S.mode===a?null:a;renderCheats();renderDesks();return}
+  if(a==='save'){if(S.phase!=='ask'||!S.cheats.save)return;S.cheats.save=0;S.saveArmed=true;const l='Save is on! One wrong answer will not send you home.';say(l);speak([{t:l,l:'en'}]);renderCheats();return}
+  if(a==='walk'){
+    if(S.prize<=0)return;
+    if(!S.walkArm){S.walkArm=true;clearTimeout(S.walkT);S.walkT=setTimeout(()=>{S.walkArm=false;renderCheats()},3500);renderCheats();return}
+    return finish('walk');
+  }
+  if(a==='mate'){
+    const i=+el.dataset.i;
+    if(S.phase==='ask'&&S.mode==='peek')return doPeek(i);
+    if(S.phase==='ask'&&S.mode==='copy')return doCopy(i);
+    const m=S.mates[i];toast(m.n+' (Grade '+m.g+'): “I love '+SUBJ[m.f].n+'!”');return;
+  }
+  if(a==='again'){stopSpeak();S=newState();S.mates=pickMates();say('Good morning, class!');renderAll();return startGame()}
+  if(a==='lobby')return leave();
+}
+function leave(){stopSpeak();clearTimeout(S.walkT);go('screen-lobby')}
 
-function choose(){const sn=seen();let pool=BANK.filter(x=>x.g===S.g&&!sn.has(x.q)&&!S.used.has(x.q));
-const subs=['Math'].concat(['Science','English','Filipino','A.P.','MAPEH'].filter(s=>BANK.some(x=>x.g===S.g&&x.s===s)));
-subs.forEach(s=>{if(s!=='Math'&&!pool.some(x=>x.s===s))pool=pool.concat(BANK.filter(x=>x.g===S.g&&x.s===s&&!S.used.has(x.q)))});
-S.cur=null;S.pool=pool;S.busy=false;S.pick=false;kidsReset();hud();clearInterval(S.tm);
-const n=(S.g-1)*2+S.n;setB(`Grade ${S.g} · Question ${n} of 12 · for ${fmt(PZ[S.right]||PZ[11])}`,'Choose your subject!',1);bub(P(['Pick a subject for Grade '+S.g+'!','Which subject will you take on?','Choose wisely, contestant!']));$('sgBar').style.width='100%';$('sgBar').classList.remove('low');
-$('sgOpts').className='sg-opts';$('sgOpts').innerHTML=subs.map((s,i)=>`<button class="sg-sub" style="--c:${SC[s]};--i:${i}" data-s="${s}"><span>${ico(s,20)}</span>${s}</button>`).join('')}
-function kidsThink(){const c=S.cur,ti=c.o.indexOf(c.t);S.ka=KIDS.map((k,i)=>Math.random()<Math.min(.99,SK[i]*GF[S.g-1]+(k.sp.includes(c.s)?.05:0))?ti:P([0,1,2,3].filter(x=>x!==ti)))}
-function ask(q,sw){S.cur={...q,o:SH(q.a),t:q.a[0]};S.used.add(q.q);S.locked=false;S.busy=false;S.pick=false;commit();kidsReset();kidsThink();const n=(S.g-1)*2+S.n;
-setB(`Grade ${S.g} · ${q.s} · Question ${n} of 12`,q.q);bub(sw?'New question coming up! The 5th graders are thinking again...':P(['The 5th graders are thinking... take your time!','Pencils up! Here we go!','Think carefully, contestant!']));
-$('sgOpts').className='sg-opts';$('sgOpts').innerHTML=S.cur.o.map((o,i)=>`<button class="sg-o" style="--i:${i}" data-i="${i}" data-l="${'ABCD'[i]}">${o}<span class="dots"></span></button>`).join('');hud();tmr()}
-function tmr(){const s=S;clearInterval(s.tm);s.left=45;$('sgBar').style.width='100%';$('sgBar').classList.remove('low');s.tm=setInterval(()=>{if(S!==s||!scr.classList.contains('active')){clearInterval(s.tm);return}s.left-=.25;$('sgBar').style.width=Math.max(0,s.left/45*100)+'%';$('sgBar').classList.toggle('low',s.left<10);if(s.left<=0)answer(-1)},250)}
-function reveal(s){const t=s.cur.o.indexOf(s.cur.t),btns=document.querySelectorAll('#sgOpts .sg-o'),kids=document.querySelectorAll('#sgKids .kid');let cnt=0;
-s.ka.forEach((a,i)=>{const ok=a===t;if(ok)cnt++;setTimeout(()=>{if(S!==s)return;const b=kids[i].querySelector('.kb');b.textContent=`${'ABCD'[a]} ${ok?'✓':'✗'}`;b.className='kb show '+(ok?'ok':'no');kids[i].classList.add(ok?'win':'lose');const d=btns[a]&&btns[a].querySelector('.dots');if(d)d.insertAdjacentHTML('beforeend',`<em style="background:${KIDS[i].sh}"></em>`)},350+i*280)});return cnt}
-function answer(i,how){const s=S;if(!s||s.locked||!s.cur)return;s.locked=true;s.busy=false;s.pick=false;$('sgKids').classList.remove('pick');clearInterval(s.tm);const t=s.cur.o.indexOf(s.cur.t),ok=i===t;
-document.querySelectorAll('#sgOpts .sg-o').forEach((b,j)=>{b.disabled=true;if(j===t)b.classList.add('ok');else if(j===i)b.classList.add('no');else b.classList.add('x')});
-const cnt=reveal(s);let m;
-if(ok){s.right++;s.score=PZ[s.right-1];snd('ok');m=how==='pass'?'Free pass used! That one is correct. ':how==='copy'?'Great copy! The answer is correct! ':P(['Ding ding ding! Correct!','Magaling! That is right!','You are on fire!','Tama! Wow, so smart!']);react($('sgMe'),'cheer',1600);confetti(40)}
-else{s.lives--;snd('bad');m=(i<0?"Time's up! ":how==='copy'?'Oh no, the copy was wrong! ':'Ay, not quite! ')+'The answer is '+s.cur.t+'. ';react($('sgMe'),'sad',1600);const sc=$('sgScreen');sc.classList.remove('shake');void sc.offsetWidth;sc.classList.add('shake')}
-bub(m);setTimeout(()=>{if(S===s)bub(m+(cnt===5?'All 5 fifth graders got it right!':cnt===0?'None of the 5th graders got it!':`${cnt} of 5 fifth graders got it right.`))},350+5*280);
-hud();setTimeout(()=>{if(S!==s)return;if(s.lives<1){end(false);return}if(s.n===2){s.n=1;s.g++}else s.n++;nextQ()},ok?3600:4600)}
-function end(win){const s=S;clearInterval(s.tm);s.run=false;s.cur=null;s.helper=null;hud();kidsReset();markHelper();let b=0;try{b=+localStorage.getItem(BK)||0;if(s.score>b){b=s.score;localStorage.setItem(BK,b)}}catch(e){}
-const xp=s.right*5+(win?60:0);try{if(typeof profile!=='undefined'&&profile&&typeof user!=='undefined'&&user&&typeof saveProfile==='function')saveProfile({xp:(profile.xp||0)+xp}).catch(()=>{})}catch(e){}
-const t=win?'You ARE smarter than a 5th grader!':`You reached Grade ${s.g}. Not smarter than a 5th grader... yet!`;
-setB(win?'Graduation Day':'Game over',t,1);$('sgBar').style.width='0%';bub(win?`Congratulations! You walk away with ${fmt(s.score)}!`:`You take home ${fmt(s.score)}. Study hard and try again!`);snd(win?'win':'shake');
-if(win){confetti(120);setTimeout(()=>confetti(80),1500);react($('sgMe'),'cheer',4000);document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.add('lose'))}else{react($('sgMe'),'sad',3000);document.querySelectorAll('#sgKids .kid').forEach(k=>k.classList.add('win'))}
-$('sgOpts').className='sg-end';$('sgOpts').innerHTML=`<div class="sg-sum">${s.right}/12 correct · Prize ${fmt(s.score)}<br>Best ${fmt(b)} · +${xp} XP</div><button class="sg-go" id="sgAgain">Play again</button><button class="sg-go alt" id="sgHome">Back to lobby</button>`;$('sgAgain').onclick=start;$('sgHome').onclick=leave}
-function leave(){if(S)clearInterval(S.tm);S=null;musicStop();show('screen-lobby')}
-$('sgOpts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S||S.busy)return;if(b.classList.contains('sg-o'))answer(+b.dataset.i);else if(b.classList.contains('sg-sub')&&!S.cur){const sb=b.dataset.s,q=sb==='Math'?genMath(S.g):P(S.pool.filter(x=>x.s===sb));snd('tap');ask(q)}});
-/* lifeline 1: copy your chosen helper's answer */
-$('sgC').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.c||S.helper==null)return;const s=S,i=s.helper,a=s.ka[i];s.ll.c=0;s.busy=true;clearInterval(s.tm);snd('tap');
-const k=document.querySelectorAll('#sgKids .kid')[i],kb=k.querySelector('.kb');kb.textContent=`${'ABCD'[a]}?`;kb.className='kb show';const btn=document.querySelectorAll('#sgOpts .sg-o')[a];if(btn)btn.style.outline='4px solid #ffd166';bub(`You copied ${KIDS[i].n}'s answer: ${'ABCD'[a]}. Locking it in...`);hud();
-setTimeout(()=>{if(S===s&&s.cur)answer(a,'copy')},1600)};
-/* lifeline 2: switch the question (same subject and grade) */
-$('sgS').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.s)return;S.ll.s=0;snd('tap');const sb=S.cur.s,cq=S.cur.q;let q;if(sb==='Math')q=genMath(S.g);else{let pl=BANK.filter(x=>x.g===S.g&&x.s===sb&&!S.used.has(x.q));if(!pl.length)pl=BANK.filter(x=>x.g===S.g&&x.s===sb&&x.q!==cq);q=P(pl)}ask(q,true)};
-/* lifeline 3: pass (free correct answer) */
-$('sgP').onclick=()=>{if(!S||!S.cur||S.locked||S.busy||!S.ll.p)return;S.ll.p=0;snd('tap');answer(S.cur.o.indexOf(S.cur.t),'pass')};
-const upS=()=>{$('sgMus').classList.toggle('off',!mOn)};upS();
-$('sgMus').onclick=()=>{mOn=!mOn;try{localStorage.setItem('ast5_mus',mOn?'1':'0')}catch(e){}if(mOn)musicStart();else musicStop();upS()};
-$('sgBack').onclick=()=>{if(S&&S.run&&!confirm('Leave the show? Your progress in this game will be lost.'))return;leave()};
-window.openSmarter=function(){show('screen-smarter');build();intro();musicStart()};
-if(typeof GAME_META!=='undefined')GAME_META.smarter={title:'Smarter than a 5th Grader?',sub:'Game show — beat five 5th graders, Grade 1 to 6.'};
-if(typeof HOWTO!=='undefined')HOWTO.smarter={steps:['You are the contestant on the game-show stage. Five <b>real 5th graders</b> stand beside you — each one sometimes gets it right and sometimes gets it wrong.','Before <b>each grade</b> you choose <b>ONE 5th grader as your helper</b> (or go solo). Each one is strongest in a different subject.','Climb from <b>Grade 1 to Grade 6</b> (2 questions per grade, 12 in all). Before every question, <b>choose a subject</b>. Questions get tougher each grade, and the prize climbs up to ₱1,000,000.','Three wrong answers and you are out! You have 45 seconds per question.','Lifelines (once each): <b>Copy</b> — lock in your helper&rsquo;s answer (once per game; even smart 5th graders can be wrong!); <b>Switch</b> — swap for a new question in the same subject; <b>Pass</b> — get the correct answer for free.','After you answer, the 5th graders reveal their answers, so you can see who was right.'],tip:'The questions get so tough you will wonder if they are really for 5th graders. Even the smart ones slip up in the later grades, so think before you copy!'};
-const cd=document.querySelector('.game-card[data-game="smarter"]');
-if(cd)cd.onclick=()=>{try{snd('tap')}catch(e){}if(typeof showHowTo==='function'&&typeof HOWTO!=='undefined')showHowTo('smarter',window.openSmarter);else window.openSmarter()};
+/* ---------- wiring ---------- */
+if(typeof GAME_META!=='undefined')GAME_META.grader={title:'🏫 Smarter Than a 5th Grader?',sub:'Philippines Edition · Grade 1 to 6.'};
+if(typeof HOWTO!=='undefined')HOWTO.grader={steps:[
+  'You are the contestant in Teacher Rosa’s class. Climb <b>12 questions</b> from <b>Grade 1 to Grade 6</b>. Prizes grow from ₱1,000 to ₱1,000,000.',
+  'For every question, <b>pick one of 3 subjects</b>: Math, English, Filipino, Science, Araling Panlipunan or MAPEH. The teacher <b>reads the question aloud</b>. Tap 🔁 to hear it again.',
+  'Tap an answer, then press <b>Final answer</b>. A wrong answer sends you back to your last checkpoint (★ after Grade 2 and Grade 4).',
+  'Each cheat works once per game: 👀 <b>Peek</b> at a classmate’s answer, ✏️ <b>Copy</b> it (it locks in), or turn on 🛟 <b>Save</b> to survive one wrong answer.',
+  'Not sure? 🎒 <b>Walk away</b> and keep your prize. Clear Grade 6 to prove you are smarter than a Grade 6 pupil!'],
+  tip:'Each classmate has a favorite subject. They are more reliable when it matches your question, and they can be shaky on questions above their grade.'};
+const card=$('pickGrader');
+if(card)card.onclick=()=>{sfx('tap');if(typeof showHowTo==='function')showHowTo('grader',openGrader);else openGrader()};
+const scr=$('screen-grader');
+scr.addEventListener('click',onClick);
+$('sgBack').onclick=()=>{
+  const mid=S.phase==='pick'||S.phase==='ask'||S.phase==='reveal';
+  if(mid&&!confirm('Leave class? Your progress in this game will be lost.'))return;
+  leave();
+};
+$('sgHelp').onclick=()=>{if(typeof showHowTo==='function')showHowTo('grader')};
+function paintNarr(){const b=$('sgNarr');b.textContent=NARR?'🔊':'🔇';b.setAttribute('aria-pressed',NARR?'true':'false');b.setAttribute('aria-label',NARR?'Narration on':'Narration off')}
+$('sgNarr').onclick=()=>{NARR=!NARR;try{localStorage.setItem('sg5_narr',NARR?'1':'0')}catch(e){}if(!NARR)stopSpeak();paintNarr();if(NARR&&S.phase==='ask')narrateQuestion()};
+paintNarr();
+document.addEventListener('keydown',e=>{
+  if(!scr.classList.contains('active')||e.ctrlKey||e.metaKey||e.altKey||S.phase!=='ask')return;
+  const k='abcd1234'.indexOf(String(e.key).toLowerCase());
+  if(k>=0&&String(e.key).length===1){stopSpeak();S.sel=k%4;renderBoard()}
+});
+try{new MutationObserver(()=>{if(!scr.classList.contains('active'))stopSpeak()}).observe(scr,{attributes:true,attributeFilter:['class']})}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSpeak()});
+window.addEventListener('pagehide',stopSpeak);
+
 })();
 </script>
 </body>
