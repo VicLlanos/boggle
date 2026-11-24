@@ -1244,11 +1244,11 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .tt-top{padding:6px 8px!important;width:100%}
 .tt-opps{display:flex;gap:8px;overflow-x:auto;justify-content:center}
 .tt-o{position:relative;display:flex;flex-direction:column;align-items:center;font-size:.62rem;font-weight:800;color:#2A1C5E;cursor:pointer;border:2px solid transparent;border-radius:8px;padding:2px;flex:0 0 auto}
-.tt-o.tg{border-color:#FF4D5E}.tt-o.ko{opacity:.45}.tt-o canvas{width:44px;height:88px;border-radius:4px}.tt-o em{font-style:normal;color:#C0392B}
-.tt-main{display:flex;gap:8px;align-items:flex-start;justify-content:center}
+.tt-o.tg{border-color:#FF4D5E}.tt-o.ko{opacity:.45}.tt-o canvas{width:clamp(30px,9vw,44px);height:auto;aspect-ratio:1/2;border-radius:4px}.tt-o em{font-style:normal;color:#C0392B}
+.tt-main{--sw:clamp(40px,12vw,54px);display:flex;gap:clamp(4px,1.5vw,8px);align-items:flex-start;justify-content:center;max-width:100%}
 .tt-side{display:flex;flex-direction:column;gap:6px;align-items:center;color:#fff;font-weight:800;font-size:.7rem}
-.tt-side canvas{width:54px;background:rgba(10,8,30,.6);border-radius:8px}
-#ttHold{height:54px;cursor:pointer}#ttNext{height:216px}
+.tt-side canvas{width:var(--sw);background:rgba(10,8,30,.6);border-radius:8px}
+#ttHold{height:var(--sw);cursor:pointer}#ttNext{height:calc(var(--sw)*4)}
 .tt-stat{display:flex;flex-direction:column;gap:2px;text-align:center;font-size:.62rem}.tt-stat b{display:block;font-size:.95rem;color:var(--gold)}.tt-stat i{color:var(--mint-l);font-style:normal}
 .tt-wrap{position:relative}
 #ttCv{display:block;touch-action:none;height:min(52dvh,480px);aspect-ratio:1/2;width:auto;border-radius:10px;border:3px solid rgba(255,255,255,.25)}
@@ -1257,9 +1257,26 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 @keyframes ttpop{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.15)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0}}
 .tt-hint{font-size:.64rem;font-weight:700;color:#C9C0F0;text-align:center}
 #ttCount{position:absolute;inset:0;display:grid;place-items:center;font-size:4rem;font-weight:800;color:#fff;text-shadow:0 2px 12px #000;pointer-events:none}
-.tt-pad{display:flex;gap:6px;touch-action:none;user-select:none}
-.tt-pad button{width:50px;height:50px;border-radius:14px;border:0;font-size:1.2rem;font-weight:800;background:rgba(255,255,255,.18);color:#fff;touch-action:none}
+.tt-pad{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(3px,1.2vw,6px);width:min(100%,420px);padding:0 4px;touch-action:none;user-select:none}
+.tt-pad button[data-a=hold]{font-size:.6rem;letter-spacing:.02em}
+@media(max-height:620px){.tt-hint{display:none}}
+.tt-pad button{width:100%;min-width:0;height:clamp(40px,12vw,52px);border-radius:12px;border:0;font-size:clamp(1rem,4.6vw,1.2rem);font-weight:800;padding:0;background:rgba(255,255,255,.18);color:#fff;touch-action:none}
 .tt-pad button:active{background:rgba(255,255,255,.4)}
+
+@keyframes ttFall{0%{transform:translateY(-56px);opacity:1}34%{transform:translateY(0);opacity:1}40%,100%{transform:translateY(0);opacity:0}}
+@keyframes ttStack{0%,38%{opacity:1}44%,92%{opacity:0}100%{opacity:1}}
+@keyframes ttFlash{0%,38%{opacity:0}41%{opacity:1}58%,100%{opacity:0}}
+@keyframes ttGhost{0%,34%{opacity:.6}36%,100%{opacity:0}}
+@keyframes ttP{0%,38%{opacity:0;transform:translate(0,0)}41%{opacity:1}72%,100%{opacity:0;transform:translate(calc(var(--dx)*1px),calc(var(--dy)*1px))}}
+@keyframes ttBar{0%{transform:scaleY(.12)}34%{transform:scaleY(.7)}41%,100%{transform:scaleY(0)}}
+.t-tetris .tt-fall{animation:ttFall 4s ease-in infinite}
+.t-tetris .tt-stack{animation:ttStack 4s linear infinite}
+.t-tetris .tt-flash{opacity:0;animation:ttFlash 4s linear infinite}
+.t-tetris .tt-ghost{animation:ttGhost 4s linear infinite}
+.t-tetris .tt-p{opacity:0;animation:ttP 4s ease-out infinite}
+.t-tetris .tt-bar{transform-box:fill-box;transform-origin:50% 100%;animation:ttBar 4s linear infinite}
+.t-tetris .nx{animation:thBob 2.2s ease-in-out infinite}.t-tetris .hd{animation:thSoft 3s ease-in-out infinite}
+.game-card.pop .t-tetris .nx,.game-card.pop .t-tetris .hd{animation:thHop .5s cubic-bezier(.3,1.6,.5,1)}
 
 .t-farm{background:linear-gradient(180deg,#9BE3FF 45%,#7BD66B 45%,#4FA84A);display:flex;align-items:center;justify-content:center;font-size:2.4rem}
 #screen-farm{gap:10px;padding-bottom:24px}
@@ -1508,9 +1525,9 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="desc">Dice + trivia</div>
       </div>
       <div class="game-card" data-game="tetris" id="pickTetris" style="cursor:pointer">
-        <div class="thumb t-tetris" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><rect width="160" height="100" fill="#0B1F4A"/><g class="px2"><rect x="52" y="8" width="56" height="86" rx="6" fill="#050B22"/><rect x="56" y="72" width="12" height="12" rx="2" fill="#00E5FF"/><rect x="68" y="72" width="12" height="12" rx="2" fill="#00E5FF"/><rect x="80" y="72" width="12" height="12" rx="2" fill="#00E5FF"/><rect x="92" y="72" width="12" height="12" rx="2" fill="#00E5FF"/><rect x="56" y="60" width="12" height="12" rx="2" fill="#B14DFF"/><rect x="68" y="60" width="12" height="12" rx="2" fill="#B14DFF"/><rect x="68" y="48" width="12" height="12" rx="2" fill="#B14DFF"/><rect x="80" y="60" width="12" height="12" rx="2" fill="#FFD60A"/><rect x="92" y="60" width="12" height="12" rx="2" fill="#FFD60A"/><rect x="80" y="48" width="12" height="12" rx="2" fill="#FFD60A"/><rect x="92" y="48" width="12" height="12" rx="2" fill="#FFD60A"/></g><g class="px1"><rect x="14" y="60" width="22" height="30" rx="3" fill="#FF4D5E" opacity=".7"/><rect x="124" y="40" width="22" height="50" rx="3" fill="#4DFF7A" opacity=".7"/></g></svg></div>
+        <div class="thumb t-tetris" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ttBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14337A"/><stop offset="1" stop-color="#071236"/></linearGradient><clipPath id="ttClip"><rect x="44" y="8" width="72" height="84"/></clipPath></defs><rect width="160" height="100" fill="url(#ttBg)"/><g class="px1"><rect x="10" y="40" width="20" height="3" rx="1.5" fill="#fff" opacity=".12"/><rect x="132" y="60" width="22" height="3" rx="1.5" fill="#fff" opacity=".12"/></g><g class="px2"><rect x="42" y="6" width="76" height="88" rx="6" fill="#050B22" stroke="#00E5FF" stroke-opacity=".5" stroke-width="1.5"/><g clip-path="url(#ttClip)"><g class="tt-stack"><rect x="45" y="45" width="11" height="11" rx="2" fill="#FF4D5E"/><rect x="57" y="45" width="11" height="11" rx="2" fill="#4DFF7A"/><rect x="69" y="45" width="11" height="11" rx="2" fill="#FF4D5E"/><rect x="81" y="45" width="11" height="11" rx="2" fill="#4DFF7A"/><rect x="93" y="45" width="11" height="11" rx="2" fill="#FF4D5E"/><rect x="45" y="57" width="11" height="11" rx="2" fill="#FF9F1C"/><rect x="57" y="57" width="11" height="11" rx="2" fill="#FFD60A"/><rect x="69" y="57" width="11" height="11" rx="2" fill="#FF9F1C"/><rect x="81" y="57" width="11" height="11" rx="2" fill="#FFD60A"/><rect x="93" y="57" width="11" height="11" rx="2" fill="#FF9F1C"/><rect x="45" y="69" width="11" height="11" rx="2" fill="#B14DFF"/><rect x="57" y="69" width="11" height="11" rx="2" fill="#4D7CFF"/><rect x="69" y="69" width="11" height="11" rx="2" fill="#B14DFF"/><rect x="81" y="69" width="11" height="11" rx="2" fill="#4D7CFF"/><rect x="93" y="69" width="11" height="11" rx="2" fill="#B14DFF"/><rect x="45" y="81" width="11" height="11" rx="2" fill="#FF4D5E"/><rect x="57" y="81" width="11" height="11" rx="2" fill="#4DFF7A"/><rect x="69" y="81" width="11" height="11" rx="2" fill="#FF4D5E"/><rect x="81" y="81" width="11" height="11" rx="2" fill="#4DFF7A"/><rect x="93" y="81" width="11" height="11" rx="2" fill="#FF4D5E"/></g><rect class="tt-ghost" x="105.5" y="45.5" width="10" height="46" rx="2" fill="#00E5FF" fill-opacity=".15" stroke="#00E5FF" stroke-width="1.5"/><g class="tt-fall"><rect x="105" y="45" width="11" height="11" rx="2" fill="#00E5FF"/><rect x="105" y="57" width="11" height="11" rx="2" fill="#00E5FF"/><rect x="105" y="69" width="11" height="11" rx="2" fill="#00E5FF"/><rect x="105" y="81" width="11" height="11" rx="2" fill="#00E5FF"/></g><rect class="tt-flash" x="44" y="44" width="72" height="48" fill="#fff"/></g><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#fff" style="--dx:-34;--dy:-26;animation-delay:0s"/><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#00E5FF" style="--dx:30;--dy:-30;animation-delay:0s"/><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#FFD60A" style="--dx:-28;--dy:18;animation-delay:0s"/><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#FF4D5E" style="--dx:34;--dy:16;animation-delay:0s"/><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#4DFF7A" style="--dx:-8;--dy:-38;animation-delay:0s"/><rect class="tt-p" x="78" y="62" width="5" height="5" rx="1" fill="#B14DFF" style="--dx:10;--dy:28;animation-delay:0s"/><rect class="tt-bar" x="36" y="10" width="4" height="82" rx="2" fill="#FF3B3B"/></g><g class="px3"><rect x="10" y="10" width="26" height="26" rx="6" fill="#050B22" opacity=".7"/><g class="hd"><rect x="14" y="18" width="8" height="8" rx="1.5" fill="#FFD60A"/><rect x="22" y="18" width="8" height="8" rx="1.5" fill="#FFD60A"/><rect x="14" y="26" width="8" height="8" rx="1.5" fill="#FFD60A"/><rect x="22" y="26" width="8" height="8" rx="1.5" fill="#FFD60A"/></g><rect x="122" y="10" width="30" height="34" rx="6" fill="#050B22" opacity=".7"/><g class="nx"><rect x="125" y="26" width="8" height="8" rx="1.5" fill="#B14DFF"/><rect x="133" y="26" width="8" height="8" rx="1.5" fill="#B14DFF"/><rect x="141" y="26" width="8" height="8" rx="1.5" fill="#B14DFF"/><rect x="133" y="18" width="8" height="8" rx="1.5" fill="#B14DFF"/></g></g></svg></div>
         <div class="name">Tetris</div>
-        <div class="desc">Versus · send garbage</div>
+        <div class="desc">Solo or versus · send garbage</div>
       </div>
       <div class="game-card" data-game="town" id="pickTown" style="cursor:pointer">
         <div class="thumb t-town" aria-hidden="true"><svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tnA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FD6FF"/><stop offset="1" stop-color="#E9F9FF"/></linearGradient><linearGradient id="tnB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35B9E0"/><stop offset="1" stop-color="#176E9A"/></linearGradient></defs><rect width="160" height="56" fill="url(#tnA)"/><rect y="56" width="160" height="44" fill="url(#tnB)"/><g class="px1"><circle class="sun a" cx="132" cy="20" r="15" fill="#FFE066" opacity=".35"/><circle cx="132" cy="20" r="9" fill="#FFE066"/><g class="cloud a"><ellipse cx="30" cy="18" rx="14" ry="5" fill="#fff"/><ellipse cx="40" cy="14" rx="9" ry="5" fill="#fff"/><ellipse cx="22" cy="15" rx="8" ry="4" fill="#fff"/></g><g class="cloud a" style="--d:-3s"><ellipse cx="96" cy="9" rx="10" ry="3.5" fill="#fff" opacity=".9"/><ellipse cx="102" cy="6.5" rx="6" ry="3.5" fill="#fff" opacity=".9"/></g><path class="wave a" d="M6 70 q6 -3 12 0 t12 0 M110 90 q6 -3 12 0 t12 0" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" fill="none" stroke-linecap="round"/><path class="wave a" style="--d:-1.4s" d="M126 64 q6 -3 12 0 t12 0 M8 90 q6 -3 12 0 t12 0" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><g class="px2"><g class="boat a"><path d="M10 78 H30 L26 85 H14 Z" fill="#E4572E"/><polygon points="20,60 20,77 31,77" fill="#fff"/><line x1="20" y1="58" x2="20" y2="78" stroke="#8D6B54" stroke-width="1.4"/></g><polygon points="26,68 80,92 80,98 26,74" fill="#D9BF84"/><polygon points="134,68 80,92 80,98 134,74" fill="#E6CE92"/><polygon points="80,50 134,68 80,92 26,68" fill="#F2DDA4"/><polygon points="80,54 124,69 80,87 36,69" fill="#79D26A"/><polygon points="80,54 124,69 112,73.5 80,62 48,73.5 36,69" fill="#92E07F"/><path d="M50 72 L80 83 L110 72" stroke="#EDE6D3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><g class="bld a" style="--i:0"><rect x="57" y="58" width="14" height="10" fill="#FFF4E0"/><polygon points="55,58 64,50 73,58" fill="#E4572E"/><rect x="62" y="62" width="4" height="6" fill="#8C6B5A"/><rect x="68" y="49" width="3" height="6" fill="#8C6B5A"/></g><circle class="smoke a" style="--i:0" cx="69.5" cy="47" r="2" fill="#fff" opacity=".85"/><circle class="smoke a" style="--i:1" cx="69.5" cy="47" r="2" fill="#fff" opacity=".85"/><g class="bld a" style="--i:1"><rect x="89" y="52" width="12" height="17" fill="#FFD166"/><polygon points="87,52 95,45 103,52" fill="#3B82F6"/><rect x="91.5" y="55" width="3" height="3" fill="#7DD3FC"/><rect x="96.5" y="55" width="3" height="3" fill="#7DD3FC"/><rect x="94" y="62" width="4" height="7" fill="#8C6B5A"/></g><path d="M116 71 Q118 62 115 55" stroke="#A66A3F" stroke-width="2.4" fill="none" stroke-linecap="round"/><g class="palm a"><path d="M115 55 Q107 51 103 58 M115 55 Q110 47 104 49 M115 55 Q123 51 127 58 M115 55 Q121 47 127 49" stroke="#2E9E4F" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="114" cy="57" r="1.4" fill="#7B4A2A"/><circle cx="117" cy="57" r="1.4" fill="#7B4A2A"/></g></g></svg></div>
@@ -1809,7 +1826,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     <div class="tt-wrap"><canvas id="ttCv" width="240" height="480"></canvas><div id="ttMsg"></div><div id="ttCount"></div></div>
     <div class="tt-side"><span>NEXT</span><canvas id="ttNext" width="72" height="288"></canvas></div>
   </div>
-  <div class="tt-pad" id="ttPad"><button data-a="hold" aria-label="Hold">H</button><button data-a="ccw" aria-label="Rotate left">⟲</button><button data-a="left" aria-label="Left">◀</button><button data-a="down" aria-label="Soft drop">▼</button><button data-a="right" aria-label="Right">▶</button><button data-a="cw" aria-label="Rotate right">⟳</button><button data-a="drop" aria-label="Hard drop">⤓</button></div>
+  <div class="tt-pad" id="ttPad"><button data-a="hold" aria-label="Hold">HOLD</button><button data-a="ccw" aria-label="Rotate left">⟲</button><button data-a="left" aria-label="Left">◀</button><button data-a="down" aria-label="Soft drop">▼</button><button data-a="right" aria-label="Right">▶</button><button data-a="cw" aria-label="Rotate right">⟳</button><button data-a="drop" aria-label="Hard drop">⤓</button></div>
   <div class="tt-hint">Drag ◀▶ move · tap rotate · flick ▼ drop · flick ▲ or tap HOLD to hold</div>
 </section>
 <section id="screen-spy" class="screen">
@@ -11738,7 +11755,7 @@ const ROT={};TY.split('').forEach(t=>{let m=SH[t];ROT[t]=[m];for(let i=0;i<3;i++
 // SRS wall kicks, order: 0>1,1>0,1>2,2>1,2>3,3>2,3>0,0>3  ([x,y], y up)
 const K3=[[[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],[[0,0],[1,0],[1,-1],[0,2],[1,2]],[[0,0],[1,0],[1,-1],[0,2],[1,2]],[[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],[[0,0],[1,0],[1,1],[0,-2],[1,-2]],[[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],[[0,0],[-1,0],[-1,-1],[0,2],[-1,2]],[[0,0],[1,0],[1,1],[0,-2],[1,-2]]];
 const KI=[[[0,0],[-2,0],[1,0],[-2,-1],[1,2]],[[0,0],[2,0],[-1,0],[2,1],[-1,-2]],[[0,0],[-1,0],[2,0],[-1,2],[2,-1]],[[0,0],[1,0],[-2,0],[1,-2],[-2,1]],[[0,0],[2,0],[-1,0],[2,1],[-1,-2]],[[0,0],[-2,0],[1,0],[-2,-1],[1,2]],[[0,0],[1,0],[-2,0],[1,-2],[-2,1]],[[0,0],[-1,0],[2,0],[-1,2],[2,-1]]];
-let g,p,hold,canHold,q,rng,pend,combo,b2b,lines,atkT,dead,T0,lockT,resets,lastRot,raf,opp={},tgt=null,keys={},rep={},lastFall,ttRef,gqRef,kd,ku,sc=0,fx=[],shake=0,gs=null;
+let g,p,hold,canHold,q,rng,pend,combo,b2b,lines,atkT,dead,T0,lockT,resets,lastRot,raf,opp={},tgt=null,keys={},rep={},lastFall,ttRef,gqRef,kd,ku,sc=0,fx=[],shake=0,gs=null,lvShown=0,fitFn=null;
 const E=id=>document.getElementById(id);
 function mk(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function bag(){const b=TY.split('');for(let i=6;i>0;i--){const j=Math.floor(rng()*(i+1));[b[i],b[j]]=[b[j],b[i]]}q.push(...b)}
@@ -11748,6 +11765,10 @@ function touch(){if(grounded()){if(lockT===null)lockT=srvNow();else if(resets<15
 function spawn(t){while(q.length<8)bag();if(!t)t=q.shift();p={t,r:0,x:Math.floor((W-ROT[t][0].length)/2),y:HD-1};lockT=null;resets=0;lastRot=false;lastFall=srvNow();if(hit(p.t,p.r,p.x,p.y))die()}
 function move(dx,dy){if(hit(p.t,p.r,p.x+dx,p.y+dy))return false;p.x+=dx;p.y+=dy;lastRot=false;if(dy>0){lockT=null;resets=0}return true}
 function rotate(d){if(p.t==='O')return;const from=p.r,to=(from+d+4)%4,tab=p.t==='I'?KI:K3,idx=d>0?from*2:(from*2+7)%8;for(const[kx,ky]of tab[idx]){if(!hit(p.t,to,p.x+kx,p.y-ky)){p.x+=kx;p.y-=ky;p.r=to;lastRot=true;touch();return}}}
+function curLvl(){return Math.min(20,1+Math.floor(sc/1200)+Math.floor(Math.max(0,srvNow()-T0)/45000))}
+function fit(){const cv=E('ttCv'),top=E('ttOpps').parentNode,pad=E('ttPad'),hint=document.querySelector('#screen-tetris .tt-hint'),sw=E('ttHold').getBoundingClientRect().width||54;
+  const used=(top.style.display==='none'?0:top.offsetHeight+8)+pad.offsetHeight+(hint&&hint.offsetParent?hint.offsetHeight:0)+130;
+  const h=Math.max(180,Math.min(480,window.innerHeight-used,(window.innerWidth-2*sw-34)*2));cv.style.height=h+'px'}
 function bb(t,r){let a=9,b=-1,c=9,d=-1;ROT[t][r].forEach((row,j)=>row.forEach((v,i)=>{if(v){a=Math.min(a,i);b=Math.max(b,i);c=Math.min(c,j);d=Math.max(d,j)}}));return[a,b,c,d]}
 function buzz(n){try{navigator.vibrate&&navigator.vibrate(n)}catch(e){}}
 function hard(){let d=0;while(move(0,1))d++;sc+=d*2;const[a,b]=bb(p.t,p.r);fx.push({k:'t',x:p.x+a,w:b-a+1,y0:Math.max(0,p.y-d-HD),y1:p.y-HD+1,t:performance.now(),d:170});lockPiece()}
@@ -11764,7 +11785,7 @@ function lockPiece(){
   if(!vis){die();return}   // lock-out: whole piece above the visible field
   let n=0;
   for(let y=R-1;y>=0;y--){if(g[y].every(v=>v)){g[y].forEach((v,x)=>{for(let k=0;k<2;k++)fx.push({k:'p',x:x*24+12,y:(y-HD)*24+12,vx:(Math.random()-.5)*5,vy:-Math.random()*4-1,c:COL[v],t:now,d:650})});fx.push({k:'c',y:y-HD,t:now,d:280});g.splice(y,1);g.unshift(Array(W).fill(0));n++;y++}}
-  let atk=0,lab='';const lvl=1+Math.floor((srvNow()-T0)/30000);
+  let atk=0,lab='';const lvl=curLvl();
   if(n){
     atk=ts?[0,2,4,6][n]:[0,0,1,2,4][n];const diff=n===4||ts;let pt=ts?[400,800,1200,1600][n]:[0,100,300,500,800][n];
     if(diff){if(b2b){atk++;lab='B2B ';pt*=1.5}b2b=true}else b2b=false;
@@ -11780,7 +11801,7 @@ function lockPiece(){
   if(atk){const c=Math.min(pend,atk);pend-=c;atk-=c;if(atk>0){const t=pickT();if(t){atkT+=atk;db.ref('rooms/'+roomId+'/ttq/'+t).push({n:atk,f:user.uid}).catch(()=>{})}}}
   canHold=true;spawn();sync();stat();
 }
-function stat(){const s=E('ttStat'),solo=Object.keys((roomData&&roomData.players)||{}).length<2;if(s)s.innerHTML='Score<b>'+sc+'</b>Lines<b>'+lines+'</b>'+(solo?'':'Sent<b>'+atkT+'</b>')+(combo>0?'Combo<b>x'+(combo+1)+'</b>':'')+(b2b?'<i>B2B</i>':'')}
+function stat(){const s=E('ttStat'),solo=Object.keys((roomData&&roomData.players)||{}).length<2;if(s)s.innerHTML='Level<b>'+curLvl()+'</b>Score<b>'+sc+'</b>Lines<b>'+lines+'</b>'+(solo?'':'Sent<b>'+atkT+'</b>')+(combo>0?'Combo<b>x'+(combo+1)+'</b>':'')+(b2b?'<i>B2B</i>':'')}
 function act(a){
   if(dead||!p||srvNow()<T0)return;
   if(a==='left'||a==='right'){const d=a==='left'?-1:1;if(move(d,0))touch()}
@@ -11819,20 +11840,22 @@ function loop(){
   const now=srvNow();
   if(now<T0){E('ttCount').textContent=Math.ceil((T0-now)/1000);draw();return}
   E('ttCount').textContent='';
-  if(!dead&&p){const lvl=1+Math.floor((now-T0)/30000),gi=Math.max(30,800*Math.pow(.87,lvl-1)),iv=keys.down?Math.min(gi,35):gi;
-    if(now-lastFall>=iv){lastFall=now;if(!move(0,1)&&lockT===null)lockT=now}
-    if(lockT!==null&&now-lockT>=500)lockPiece()}
+  if(!dead&&p){const L=curLvl();if(L>lvShown){if(lvShown)flash('LEVEL '+L+' · FASTER!');lvShown=L;stat()}
+    const gi=Math.max(6,900*Math.pow(Math.max(.05,.8-(L-1)*.007),L-1)),iv=keys.down?Math.min(gi,30):gi;let n=0;
+    while(now-lastFall>=iv&&n<25){n++;lastFall+=iv;if(!move(0,1)){if(lockT===null)lockT=now;lastFall=now;break}}
+    if(now-lastFall>iv*30)lastFall=now;
+    if(lockT!==null&&now-lockT>=Math.max(300,500-(L-1)*10))lockPiece()}
   if(now-T0>6e5)pushResultsStatus();
   draw();
 }
-window.ttStop=function(){cancelAnimationFrame(raf);raf=0;Object.keys(rep).forEach(release);keys={};if(kd){document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku);kd=ku=null}if(ttRef){ttRef.off();ttRef=null}if(gqRef){gqRef.off();gqRef=null}};
+window.ttStop=function(){if(fitFn){window.removeEventListener('resize',fitFn);window.removeEventListener('orientationchange',fitFn);fitFn=null}cancelAnimationFrame(raf);raf=0;Object.keys(rep).forEach(release);keys={};if(kd){document.removeEventListener('keydown',kd);document.removeEventListener('keyup',ku);kd=ku=null}if(ttRef){ttRef.off();ttRef=null}if(gqRef){gqRef.off();gqRef=null}};
 window.ttEnter=function(){
   window.ttStop();show('screen-tetris');
-  g=Array.from({length:R},()=>Array(W).fill(0));q=[];rng=mk(roomData.ttSeed||1);hold=null;canHold=true;pend=0;combo=-1;b2b=false;lines=0;atkT=0;dead=false;opp={};tgt=null;sc=0;fx=[];shake=0;gs=null;
+  g=Array.from({length:R},()=>Array(W).fill(0));q=[];rng=mk(roomData.ttSeed||1);hold=null;canHold=true;pend=0;combo=-1;b2b=false;lines=0;atkT=0;dead=false;opp={};tgt=null;sc=0;fx=[];shake=0;gs=null;lvShown=0;
   T0=(roomData.startedAt||srvNow())+3000;spawn();
   const pl=roomData.players||{},box=E('ttOpps');box.innerHTML='';
   Object.keys(pl).filter(u=>u!==user.uid).forEach(u=>{const d=document.createElement('div');d.className='tt-o';d.dataset.u=u;d.innerHTML='<canvas width="60" height="120"></canvas><span></span><em></em>';d.querySelector('span').textContent=(pl[u].avatar||'🎮')+' '+(pl[u].name||'');d.onclick=()=>{tgt=tgt===u?null:u;drawOpps()};box.appendChild(d)});
-  box.style.display=box.children.length?'flex':'none';
+  box.style.display=box.children.length?'flex':'none';box.parentNode.style.display=box.children.length?'block':'none';fitFn=()=>fit();window.addEventListener('resize',fitFn);window.addEventListener('orientationchange',fitFn);fit();setTimeout(fit,120);
   ttRef=db.ref('rooms/'+roomId+'/tt');ttRef.on('value',s=>{opp=s.val()||{};drawOpps();chk()});
   gqRef=db.ref('rooms/'+roomId+'/ttq/'+user.uid);gqRef.on('child_added',s=>{const v=s.val()||{};pend+=Math.min(12,v.n|0);shake=performance.now();buzz(40);s.ref.remove().catch(()=>{})});
   kd=e=>{const a=KM[e.code];if(!a||!E('screen-tetris').classList.contains('active'))return;e.preventDefault();if(!e.repeat)press(a)};
