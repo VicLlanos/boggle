@@ -1248,7 +1248,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 .tt-main{--sw:clamp(40px,12vw,54px);display:flex;gap:clamp(4px,1.5vw,8px);align-items:flex-start;justify-content:center;max-width:100%}
 .tt-side{display:flex;flex-direction:column;gap:6px;align-items:center;color:#fff;font-weight:800;font-size:.7rem}
 .tt-side canvas{width:var(--sw);background:rgba(10,8,30,.6);border-radius:8px}
-#ttHold{height:var(--sw);cursor:pointer}#ttNext{height:calc(var(--sw)*4)}
+#ttHold{height:var(--sw);cursor:pointer;touch-action:manipulation}#ttNext{height:calc(var(--sw)*4)}
 .tt-stat{display:flex;flex-direction:column;gap:2px;text-align:center;font-size:.62rem}.tt-stat b{display:block;font-size:.95rem;color:var(--gold)}.tt-stat i{color:var(--mint-l);font-style:normal}
 .tt-wrap{position:relative}
 #ttCv{display:block;touch-action:none;height:min(52dvh,480px);aspect-ratio:1/2;width:auto;border-radius:10px;border:3px solid rgba(255,255,255,.25)}
@@ -1827,7 +1827,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     <div class="tt-side"><span>NEXT</span><canvas id="ttNext" width="72" height="288"></canvas></div>
   </div>
   <div class="tt-pad" id="ttPad"><button data-a="hold" aria-label="Hold">HOLD</button><button data-a="ccw" aria-label="Rotate left">⟲</button><button data-a="left" aria-label="Left">◀</button><button data-a="down" aria-label="Soft drop">▼</button><button data-a="right" aria-label="Right">▶</button><button data-a="cw" aria-label="Rotate right">⟳</button><button data-a="drop" aria-label="Hard drop">⤓</button></div>
-  <div class="tt-hint">Drag ◀▶ move · tap rotate · flick ▼ drop · flick ▲ or tap HOLD to hold</div>
+  <div class="tt-hint">Swipe ◀ ▶ ▼ to move · tap piece to rotate · tap HOLD box to hold · ⤓ button = instant drop</div>
 </section>
 <section id="screen-spy" class="screen">
   <div class="game-top">
@@ -3925,7 +3925,7 @@ const HOWTO = {
     'Clearing lines sends <b>garbage rows</b> (one gap) to an opponent. <b>Tetris</b> (4 lines) sends 4, <b>T-Spins</b> send 2 / 4 / 6.',
     '<b>Combos</b> (clearing on back-to-back pieces) and <b>Back-to-Back</b> Tetrises or T-Spins add extra garbage.',
     'Incoming garbage shows as a <b>red bar</b>. Clear lines to <b>cancel</b> it before it rises. Tap an opponent to aim at them.',
-    'Top out and you’re K.O.’d. <b>Last one standing wins.</b> Play <b>solo</b> to chase a high score.','<b>Touch:</b> drag to move, tap to rotate, flick down to hard drop, flick up or tap HOLD to swap. <b>Keys:</b> ←→ move, ↑/X rotate, Z rotate back, ↓ soft drop, Space drop, C hold.'],
+    'Top out and you’re K.O.’d. <b>Last one standing wins.</b> Play <b>solo</b> to chase a high score.','<b>Touch:</b> swipe left, right or down to move the piece, tap the board to rotate, tap the HOLD box to swap. Use the ⤓ button for an instant drop. <b>Keys:</b> ←→ move, ↑/X rotate, Z rotate back, ↓ soft drop (gradual), Space instant drop, C hold.'],
     tip:'Keep your stack flat with one open column, then drop an I-piece for a Tetris.' },
   board:{ steps:[
     'Play solo or with up to 5 friends. Everyone starts at the beginning of the board.',
@@ -11805,9 +11805,9 @@ function stat(){const s=E('ttStat'),solo=Object.keys((roomData&&roomData.players
 function act(a){
   if(dead||!p||srvNow()<T0)return;
   if(a==='left'||a==='right'){const d=a==='left'?-1:1;if(move(d,0))touch()}
-  else if(a==='cw')rotate(1);else if(a==='ccw')rotate(-1);else if(a==='drop')hard();else if(a==='soft'){if(move(0,1))sc++}else if(a==='hold')doHold();
+  else if(a==='cw'||a==='rotate_tap')rotate(1);else if(a==='ccw')rotate(-1);else if(a==='drop')hard();else if(a==='soft'){if(move(0,1))sc++}else if(a==='hold')doHold();
 }
-function press(a){if(a==='down'){keys.down=true;return}act(a);if(a==='left'||a==='right'){release(a);rep[a]=setTimeout(()=>{rep[a]=setInterval(()=>act(a),45)},150)}}
+function press(a){if(a==='down'){if(!keys.down)act('soft');keys.down=true;return}act(a);if(a==='left'||a==='right'){release(a);rep[a]=setTimeout(()=>{rep[a]=setInterval(()=>act(a),45)},150)}}
 function release(a){if(a==='down')keys.down=false;clearTimeout(rep[a]);clearInterval(rep[a]);rep[a]=0}
 const KM={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'cw',KeyX:'cw',KeyZ:'ccw',Space:'drop',KeyC:'hold',ShiftLeft:'hold',ShiftRight:'hold'};
 function cell(c,x,y,s,col,a){c.globalAlpha=a||1;c.fillStyle=col;c.fillRect(x*s+1,y*s+1,s-2,s-2);c.globalAlpha=1}
@@ -11841,7 +11841,7 @@ function loop(){
   if(now<T0){E('ttCount').textContent=Math.ceil((T0-now)/1000);draw();return}
   E('ttCount').textContent='';
   if(!dead&&p){const L=curLvl();if(L>lvShown){if(lvShown)flash('LEVEL '+L+' · FASTER!');lvShown=L;stat()}
-    const gi=Math.max(6,900*Math.pow(Math.max(.05,.8-(L-1)*.007),L-1)),iv=keys.down?Math.min(gi,30):gi;let n=0;
+    const gi=Math.max(6,900*Math.pow(Math.max(.05,.8-(L-1)*.007),L-1)),iv=keys.down?Math.min(gi,90):gi;let n=0;
     while(now-lastFall>=iv&&n<25){n++;lastFall+=iv;if(!move(0,1)){if(lockT===null)lockT=now;lastFall=now;break}}
     if(now-lastFall>iv*30)lastFall=now;
     if(lockT!==null&&now-lockT>=Math.max(300,500-(L-1)*10))lockPiece()}
@@ -11862,12 +11862,21 @@ window.ttEnter=function(){
   ku=e=>{const a=KM[e.code];if(a)release(a)};
   document.addEventListener('keydown',kd);document.addEventListener('keyup',ku);
   document.querySelectorAll('#ttPad button').forEach(b=>{const a=b.dataset.a;b.onpointerdown=e=>{e.preventDefault();press(a)};['pointerup','pointerleave','pointercancel'].forEach(ev=>b['on'+ev]=()=>release(a))});
-  E('ttHold').onclick=()=>act('hold');
+  E('ttHold').onclick=e=>{e.preventDefault();act('hold')};
   const cv=E('ttCv'),cw=()=>cv.getBoundingClientRect().width/W;
-  cv.onpointerdown=e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}gs={sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,t:Date.now(),acc:0,mv:false}};
-  cv.onpointermove=e=>{if(!gs)return;const w=cw();gs.acc+=e.clientX-gs.lx;gs.lx=e.clientX;while(gs.acc>=w){act('right');gs.acc-=w;gs.mv=true}while(gs.acc<=-w){act('left');gs.acc+=w;gs.mv=true}while(e.clientY-gs.ly>=w){act('soft');gs.ly+=w;gs.mv=true}};
-  cv.onpointerup=e=>{if(!gs)return;const w=cw(),dx=e.clientX-gs.sx,dy=e.clientY-gs.sy,dt=Date.now()-gs.t;
-    if(dy>w*3&&dt<260&&Math.abs(dx)<dy)act('drop');else if(dy<-w*2.5&&Math.abs(dx)<-dy)act('hold');else if(!gs.mv&&Math.abs(dx)<w*.6&&Math.abs(dy)<w*.6&&dt<350)act('cw');gs=null};
+  cv.onpointerdown=e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}gs={sx:e.clientX,sy:e.clientY,lx:e.clientX,ly:e.clientY,t:Date.now(),accX:0,accY:0,mv:false}};
+  cv.onpointermove=e=>{if(!gs)return;const w=cw();gs.accX+=e.clientX-gs.lx;gs.accY+=e.clientY-gs.ly;gs.lx=e.clientX;gs.ly=e.clientY;
+    while(gs.accX>=w){act('right');gs.accX-=w;gs.mv=true}
+    while(gs.accX<=-w){act('left');gs.accX+=w;gs.mv=true}
+    while(gs.accY>=w){act('soft');gs.accY-=w;gs.mv=true}
+    if(gs.accY<0)gs.accY=0};
+  cv.onpointerup=e=>{if(!gs)return;const w=cw(),dx=e.clientX-gs.sx,dy=e.clientY-gs.sy,dt=Date.now()-gs.t,ax=Math.abs(dx),ay=Math.abs(dy),tap=Math.max(10,w*.4);
+    if(!gs.mv){
+      if(ax<tap&&ay<tap&&dt<400)act('rotate_tap');
+      else if(ax>=ay&&ax>=tap)act(dx>0?'right':'left');
+      else if(ay>ax&&dy>=tap)act('soft');
+    }
+    gs=null};
   cv.onpointercancel=()=>{gs=null};
   stat();sync();raf=requestAnimationFrame(loop);
 };
