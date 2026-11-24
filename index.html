@@ -241,6 +241,22 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 .game-leave-btn{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:8800;min-height:42px;padding:0 13px;border-radius:13px;border:1px solid rgba(255,255,255,.65);background:#fff;color:#A12C45;font:800 .82rem 'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.22);cursor:pointer;white-space:nowrap}
 .game-leave-btn.on{display:flex;align-items:center}
 .game-leave-btn:active{transform:scale(.96)}
+/* Keep the floating Leave button from covering the timer / top bar */
+body.leave-pad .screen.active{margin-top:calc(max(12px,env(safe-area-inset-top)) + 46px)}
+@media(max-width:520px){
+  .game-leave-btn{min-height:36px;padding:0 10px;font-size:.74rem;border-radius:11px;top:max(8px,env(safe-area-inset-top));left:8px}
+  body.leave-pad .screen.active{margin-top:calc(max(8px,env(safe-area-inset-top)) + 40px)}
+}
+/* Scattergories early-submit */
+.scat-submit-wrap{position:relative;z-index:1;margin-top:12px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.scat-submit-btn{min-height:50px;border:0;border-radius:14px;background:linear-gradient(180deg,#00B894,#00A383);color:#fff;font:900 1rem 'Nunito',sans-serif;box-shadow:0 4px 0 #008C73;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.scat-submit-btn.done{background:linear-gradient(180deg,#fff,#F3EBDD);color:#8B5A2B;box-shadow:0 4px 0 #D4C4A8;border:2px solid #D4C4A8}
+.scat-submit-btn:disabled{opacity:.6;cursor:default}
+.scat-submit-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #008C73}
+.scat-wait{font-size:.78rem;font-weight:800;color:#8B7355;text-align:center;min-height:1.1em}
+.scat-pad.locked .scat-row{opacity:.72}
+.scat-pad.locked input{pointer-events:none}
+
 
 .timer{width:72px;height:72px;border-radius:50%;background:conic-gradient(var(--mint) var(--pct,100%),rgba(255,255,255,.25) 0);display:grid;place-items:center;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.18);flex-shrink:0;transition:background .3s}
 .timer::after{content:'';position:absolute;inset:6px;background:#fff;border-radius:50%}
@@ -1655,6 +1671,10 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     </div>
     <div class="scat-cats" id="scatCats"></div>
     <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
+    <div class="scat-submit-wrap">
+      <button type="button" class="scat-submit-btn" id="btnScatSubmit">✅ Submit answers</button>
+      <div class="scat-wait" id="scatWait"></div>
+    </div>
   </div>
 </section>
 
@@ -2834,6 +2854,7 @@ let prevScores={};
 let rattleInt=null,possFilter='all',possSel=null,possPaths={},solvedCache={sig:'',list:null},solveBusy='';
 let selectedGame = 'boggle'; // 'boggle' | 'scatter' | 'hangman' | 'draw' | 'spy'
 let scatAnswers = {}; // local answers for scatter
+let scatSubmitted = false, scatSubmitBusy = false;
 let scatVerdicts = {}; // auto-check result per category: 'ok' | 'maybe' | 'no'
 let lobbyIndexRef = null;
 let hangAnswers = {}; // hangman local state
@@ -2854,6 +2875,7 @@ function show(id){
   document.body.classList.toggle('in-town',id==='screen-town');
   const leaveControl=$('btnGameLeave');
   if(leaveControl) leaveControl.classList.toggle('on',['screen-game','screen-scatter','screen-hangman','screen-draw','screen-sketchchain','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id));
+  document.body.classList.toggle('leave-pad',id!=='screen-town'&&['screen-game','screen-scatter','screen-hangman','screen-draw','screen-sketchchain','screen-board','screen-spy','screen-chain','screen-results'].includes(id));
   document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -4701,6 +4723,7 @@ async function beginRound(){
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
+      updates['players/'+uid+'/submitted']=null;
     });
     resetRoundState();
     try{
@@ -5062,7 +5085,7 @@ function enterScatter(){
     return;
   }
   resetRoundState();
-  scatAnswers = {}; scatVerdicts = {};
+  scatAnswers = {}; scatVerdicts = {}; scatSubmitted = false; scatSubmitBusy = false;
   const sb = $('btnSoundScat');
   if(sb){ sb.textContent = soundOn ? '🔊' : '🔇'; sb.onclick = toggleSound; }
   show('screen-scatter');
@@ -5080,6 +5103,10 @@ function enterScatter(){
   renderScatCategories();
   renderScatScores();
   updateScatProgress();
+  const _meS = roomData.players && roomData.players[user.uid];
+  if(_meS && _meS.submitted){ scatSubmitted = true; setScatLocked(true); }
+  else setScatLocked(false);
+  updateScatSubmitUI();
   startScatTimer();
   boardReady = true;
   snd('go');
@@ -6201,7 +6228,8 @@ function renderScatScores(){
     const prev=prevScores[p.uid]||0;
     const pulse=score>prev?' pulse':'';
     if(score!==prev)prevScores[p.uid]=score;
-    return `<div class="sc ${isMe?'me':''}${pulse}" data-uid="${p.uid}"><div class="n">${p.name}${isMe?' · you':''}</div><div class="s">${score}</div></div>`;
+    const done=p.submitted?' ✓':'';
+    return `<div class="sc ${isMe?'me':''}${pulse}" data-uid="${p.uid}"><div class="n">${p.name}${isMe?' · you':''}${done}</div><div class="s">${score}</div></div>`;
   }).join('');
 }
 
@@ -6223,6 +6251,87 @@ function startScatTimer(){
   timerInterval=setInterval(tick,250);
 }
 
+/* ---------- Scattergories: early submit ---------- */
+function scatPlayersInPlay(){
+  // players who dropped offline never block the round from ending early
+  return Object.values((roomData&&roomData.players)||{}).filter(p=>p.online!==false||p.uid===user.uid);
+}
+function setScatLocked(on){
+  document.querySelectorAll('#scatCats input').forEach(i=>{i.disabled=!!on});
+  const pad=document.querySelector('.scat-pad');
+  if(pad)pad.classList.toggle('locked',!!on);
+}
+function updateScatSubmitUI(){
+  const btn=$('btnScatSubmit'),wait=$('scatWait');
+  if(!btn||!wait||!roomData)return;
+  const ps=scatPlayersInPlay(),n=ps.filter(p=>p.submitted).length;
+  const me=roomData.players&&roomData.players[user.uid];
+  if(me&&me.submitted&&!scatSubmitted&&!scatSubmitBusy&&!roundEnded){scatSubmitted=true;setScatLocked(true)}
+  const mine=!!scatSubmitted;
+  btn.classList.toggle('done',mine);
+  btn.textContent=mine?'✏️ Edit answers':'✅ Submit answers';
+  btn.disabled=!!(roundEnded||scatSubmitBusy);
+  if(roundEnded)wait.textContent='Time’s up!';
+  else if(mine){
+    const left=Math.max(0,ps.length-n);
+    wait.textContent=left>0?'Submitted ✓ · waiting for '+left+' more player'+(left===1?'':'s')+' · the timer keeps running':'Everyone has submitted!';
+  }else wait.textContent=n?n+'/'+ps.length+' players submitted':'Finished early? Submit now — the round ends when everyone has submitted or time runs out.';
+}
+async function toggleScatSubmit(){
+  if(roundEnded||scatSubmitBusy||!roomId||!user||!roomData)return;
+  scatSubmitBusy=true;updateScatSubmitUI();
+  const wasSubmitted=scatSubmitted;
+  try{
+    const ref=db.ref('rooms/'+roomId+'/players/'+user.uid);
+    if(wasSubmitted){
+      scatSubmitted=false;setScatLocked(false);
+      await ref.update({submitted:null});
+    }else{
+      try{if(document.activeElement)document.activeElement.blur()}catch(e){}
+      // give any in-flight answer checks a moment to land so they are saved too
+      const t0=Date.now();
+      while(Date.now()-t0<2500&&document.querySelector('#scatCats .scat-row.checking'))await new Promise(r=>setTimeout(r,150));
+      if(roundEnded)return;
+      scatSubmitted=true;setScatLocked(true);
+      clearTimeout(scatSaveTimer);
+      const answers={},verdicts={};
+      Object.keys(scatAnswers).forEach(k=>{
+        if(scatAnswers[k]&&scatAnswers[k].trim()){answers[k]=scatAnswers[k].trim();if(scatVerdicts[k])verdicts[k]=scatVerdicts[k]}
+      });
+      await ref.update({answers,verdicts,submitted:true});
+      snd('ok');
+    }
+  }catch(e){
+    toast('Could not '+(wasSubmitted?'unlock':'submit')+' — check your connection and try again');
+    if(!wasSubmitted&&!roundEnded){scatSubmitted=false;setScatLocked(false)}
+  }finally{
+    scatSubmitBusy=false;updateScatSubmitUI();
+  }
+}
+$('btnScatSubmit').onclick=toggleScatSubmit;
+
+// Ends the round early once every player still in the room has submitted
+function checkAllScatSubmitted(){
+  if(!roomData||roundEnded||roomData.gameType!=='scatter'||roomData.status!=='playing')return;
+  const ps=scatPlayersInPlay();
+  if(ps.length&&ps.every(p=>p.submitted))endRound();
+}
+
+/* ---------- Round-end safety net ----------
+   The countdown lives in a setInterval that phones freeze when the tab is hidden, the screen locks or the
+   keyboard opens. This watchdog re-checks the clock on its own timer and whenever the page wakes up. */
+function scatWatchdog(){
+  try{
+    if(!roomData||!user||!roomId)return;
+    if((roomData.gameType||'boggle')!=='scatter'||roomData.status!=='playing'||!roomData.endsAt)return;
+    if(!roundEnded&&srvNow()>=roomData.endsAt)endRound();
+    else if(roundEnded&&window._roundEndedLocalAt&&Date.now()-window._roundEndedLocalAt>5000)pushResultsStatus();
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scatWatchdog()});
+window.addEventListener('focus',scatWatchdog);
+window.addEventListener('pageshow',scatWatchdog);
+setInterval(scatWatchdog,1000);
 
 /* ===== SKETCH RACE – animated category cycle (shown once at the start of every new game) ===== */
 let _drawSpinKey = '';
@@ -8374,6 +8483,11 @@ function onRoom(snap){
     startTimer();
   }
 
+  if(gt==='scatter'&&st==='playing'&&!roundEnded&&$('screen-scatter').classList.contains('active')){
+    updateScatSubmitUI();
+    checkAllScatSubmitted();
+  }
+
   if(st==='results'){
     if(!roundEnded)finishLocalRound();
     if(prevStatus!=='results'||$('screen-results').classList.contains('active'))showResults();
@@ -8572,16 +8686,27 @@ function finishLocalRound(){
   if((roomData?.gameType||'boggle')==='scatter') saveScatAnswers(true);
 }
 
+// Moves the room to 'results'. Safe for any player to call: only the first write goes through.
+function pushResultsStatus(){
+  const rid=roomId;if(!rid)return;
+  try{
+    db.ref('rooms/'+rid+'/status').transaction(st=>(st==='playing'||st==='shaking')?'results':undefined)
+      .then(r=>{if(r&&r.committed)db.ref('rooms/'+rid).update({endedAt:srvNow()}).catch(()=>{})})
+      .catch(()=>{});
+  }catch(e){}
+}
+
 async function endRound(){
   if(roundEnded)return;
-  finishLocalRound();
-  if(isHost&&roomData){
-    const rid=roomId;
-    // For scatter, also compute final scores server-side style (client does it)
-    setTimeout(()=>{db.ref('rooms/'+rid).update({status:'results',endedAt:srvNow()}).catch(()=>{})},900);
-  }
-  setTimeout(showResults,350);
-  setTimeout(()=>{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)},6000);
+  try{finishLocalRound()}catch(e){console.error(e);roundEnded=true;clearInterval(timerInterval)}
+  window._roundEndedLocalAt=Date.now();
+  const sa=roomData&&roomData.startedAt;
+  const sameRound=()=>roomData&&roomData.startedAt===sa&&roomData.status==='playing';
+  // The host moves the room to results right away; if the host's phone is asleep or offline,
+  // any other player does it after a short grace period so nobody is left stuck on the answer sheet.
+  setTimeout(()=>{if(sameRound())pushResultsStatus()},isHost?900:3500);
+  setTimeout(()=>{try{showResults()}catch(e){console.error(e)}},350);
+  setTimeout(()=>{try{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)}catch(e){console.error(e)}},6000);
 }
 
 /* ---------- Boggle scoring ---------- */
@@ -9404,7 +9529,7 @@ function showResults(){
   const rows=computeResults();
   if(!rows.length)return;
   const sig=JSON.stringify(rows.map(r=>[r.p.uid,r.final,r.items.map(i=>i.w+(i.dupe?'*':'')+(i.rejected?'x':''))]))+JSON.stringify([roomData.challenges||0,roomData.rejected||0,roomData.forgiven||0]);
-  if(sig!==resultsSig){resultsSig=sig;renderResults(rows);if((roomData?.gameType||'boggle')==='boggle')renderPossible(rows)}
+  if(sig!==resultsSig){resultsSig=sig;try{renderResults(rows);if((roomData?.gameType||'boggle')==='boggle')renderPossible(rows)}catch(e){console.error('renderResults failed',e);resultsSig=''}}
   awardResults(rows);
   if(profile)updateXpBar();
 }
