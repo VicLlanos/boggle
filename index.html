@@ -8045,7 +8045,8 @@ function onRoom(snap){
   $('waitingMsg').textContent=isHost?'':'Waiting for host…';
   // New round starting — reset local round state for ALL players
   // (Scattergories goes straight to 'playing', Boggle uses 'shaking' first)
-  if((st==='shaking' || st==='playing') && (prevStatus==='results' || prevStatus==='lobby' || prevStatus===null || roundEnded)){
+  if((st==='shaking' || st==='playing') && (prevStatus==='results' || prevStatus==='lobby' || prevStatus===null ||
+     (roundEnded && !(gt==='scatter' && roomData.startedAt===window._endedStartedAt)))){
     roundEnded = false;
   }
   if(st==='shaking') roundEnded = false;
@@ -8301,7 +8302,7 @@ function finishLocalRound(){
   $('timerRing')?.classList.remove('low');
   $('scatTimerRing')?.classList.remove('low');
   // Final save of scatter answers
-  if((roomData?.gameType||'boggle')==='scatter') saveScatAnswers(true);
+  if((roomData?.gameType||'boggle')==='scatter'){ saveScatAnswers(true); try{updateScatSubmitUI()}catch(e){} }
 }
 // Moves the room to 'results'. Safe for any player to call: only the first write goes through.
 function pushResultsStatus(){
@@ -8314,13 +8315,15 @@ function pushResultsStatus(){
 }
 async function endRound(){
   if(roundEnded)return;
+  window._endedStartedAt=roomData&&roomData.startedAt;
   try{finishLocalRound()}catch(e){console.error(e);roundEnded=true;clearInterval(timerInterval)}
   window._roundEndedLocalAt=Date.now();
   const sa=roomData&&roomData.startedAt;
   const sameRound=()=>roomData&&roomData.startedAt===sa&&roomData.status==='playing';
   // The host moves the room to results right away; if the host's phone is asleep or offline,
   // any other player does it after a short grace period so nobody is left stuck on the answer sheet.
-  setTimeout(()=>{if(sameRound())pushResultsStatus()},isHost?900:3500);
+  const _isScat=((roomData&&roomData.gameType)||'boggle')==='scatter';
+  setTimeout(()=>{if(sameRound())pushResultsStatus()},isHost?(_isScat?300:900):(_isScat?1200:3500));
   setTimeout(()=>{try{showResults()}catch(e){console.error(e)}},350);
   setTimeout(()=>{try{if($('screen-results').classList.contains('active'))awardResults(computeResults(),true)}catch(e){console.error(e)}},6000);
 }
