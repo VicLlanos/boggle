@@ -1876,8 +1876,8 @@ firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.database();
 let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
 db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
-const MAX_PLAYERS=3,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='sketchchain')return 8;if(g==='chain')return 6;if(g==='board')return 5;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
+const MAX_PLAYERS=3,SCAT_MAX_PLAYERS=5,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='sketchchain')return 8;if(g==='chain')return 6;if(g==='board')return 5;if(g==='scatter')return SCAT_MAX_PLAYERS;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -3968,7 +3968,7 @@ async function joinRoomByCode(code){
       return;
     }
     const n=Object.keys(room.players||{}).length;
-    const cap=room.maxPlayers||maxPlayersFor(room.gameType||selectedGame);if(n>=cap&&!(room.players||{})[user.uid]){toast('Room full (max '+cap+')');return}
+    const cap=(room.gameType==='scatter')?SCAT_MAX_PLAYERS:(room.maxPlayers||maxPlayersFor(room.gameType||selectedGame));if(n>=cap&&!(room.players||{})[user.uid]){toast('Room full (max '+cap+')');return}
     if(!(room.players||{})[user.uid]){
       await db.ref('rooms/'+code+'/players/'+user.uid).set({
         uid:user.uid,
@@ -4029,9 +4029,9 @@ function onRoomThrottled(snap){
   if(!roomPendT)roomPendT=setTimeout(()=>{roomPendT=0;const s=roomPend;roomPend=null;if(s&&roomId){roomSnapT=Date.now();onRoom(s)}},110)
 }
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;roomSnapT=0;clearTimeout(roomPendT);roomPendT=0;roomPend=null;db.ref('rooms/'+code).on('value',onRoomThrottled);socialAttach(code);show('screen-room')}
-function renderPlayers(){const players=Object.values(roomData.players||{});const cap=roomData.maxPlayers||maxPlayersFor(roomData.gameType);let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
+function renderPlayers(){const players=Object.values(roomData.players||{});const cap=(roomData.gameType==='scatter')?SCAT_MAX_PLAYERS:(roomData.maxPlayers||maxPlayersFor(roomData.gameType));let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':'Max 3 players · ')+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':(gt==='scatter'?'Max 5 players · ':'Max 3 players · '))+(gt==='scatter'?'Scattergories':gt==='hangman'?'Hangman Race':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
 const RX_EMOJIS=['👏','🔥','😂','😮','💀','🎉','😤','🧠'];
