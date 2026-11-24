@@ -241,10 +241,6 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 .game-leave-btn{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:8800;min-height:42px;padding:0 13px;border-radius:13px;border:1px solid rgba(255,255,255,.65);background:#fff;color:#A12C45;font:800 .82rem 'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.22);cursor:pointer;white-space:nowrap}
 .game-leave-btn.on{display:flex;align-items:center}
 .game-leave-btn:active{transform:scale(.96)}
-/* The Leave button floats at the top-left, so on phones push game screens down so it never covers the timer */
-@media(max-width:600px){
-  body.has-leave .screen.active:not(#screen-town){padding-top:52px}
-}
 
 .timer{width:72px;height:72px;border-radius:50%;background:conic-gradient(var(--mint) var(--pct,100%),rgba(255,255,255,.25) 0);display:grid;place-items:center;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.18);flex-shrink:0;transition:background .3s}
 .timer::after{content:'';position:absolute;inset:6px;background:#fff;border-radius:50%}
@@ -453,9 +449,6 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
   background:conic-gradient(#E74C3C var(--pct,100%),rgba(255,255,255,.22) 0);
 }
 #screen-scatter .sc.me{border-color:#FF6B6B}
-.scat-submit-btn{margin-top:10px;width:100%}
-.scat-wait{margin-top:10px;padding:10px 12px;border-radius:12px;background:#E8FFF6;border:2px solid #00B894;color:#00695C;font-weight:800;font-size:.85rem;text-align:center}
-.scat-row.locked input{opacity:.8;background:#F4F1E8}
 #screen-scatter .sc .s{color:#C0392B}
 
 .scat-hero{
@@ -1616,20 +1609,6 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
   </div>
 </section>
 
-<!-- RESULTS SCREEN (shared by every game) -->
-<section id="screen-results" class="screen">
-  <div class="card">
-    <div id="resultsGrid"></div>
-    <div id="possibleWrap"></div>
-    <div class="xp-wrap">
-      <div class="lab"><span>Level <b id="resLvl">1</b></span><span id="resXpText">0/0</span></div>
-      <div class="xp-track"><div class="xp-fill" id="resXpFill"></div></div>
-    </div>
-    <button class="btn btn-mint" id="btnPlayAgain">▶ PLAY AGAIN</button>
-    <button class="btn btn-ghost" id="btnBackLobby" style="margin-top:10px">Back to lobby</button>
-  </div>
-</section>
-
 <section id="screen-game" class="screen">
   <div class="game-top">
     <div class="timer" id="timerRing"><span id="timerText">180</span></div>
@@ -1676,8 +1655,6 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     </div>
     <div class="scat-cats" id="scatCats"></div>
     <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
-    <button type="button" class="btn btn-mint scat-submit-btn" id="btnScatSubmit">✅ I'm done — submit early</button>
-    <div class="scat-wait" id="scatWait" style="display:none"></div>
   </div>
 </section>
 
@@ -2861,7 +2838,6 @@ let scatVerdicts = {}; // auto-check result per category: 'ok' | 'maybe' | 'no'
 let lobbyIndexRef = null;
 let hangAnswers = {}; // hangman local state
 let scatSaveTimer = null;
-let scatSubmitted = false, scatSubmitting = false;
 
 try{soundOn=localStorage.getItem('boggle_snd')!=='0'}catch(e){}
 const $=id=>document.getElementById(id);
@@ -2877,9 +2853,7 @@ function liveToast(msg){
 function show(id){
   document.body.classList.toggle('in-town',id==='screen-town');
   const leaveControl=$('btnGameLeave');
-  const _leaveOn=['screen-game','screen-scatter','screen-hangman','screen-draw','screen-sketchchain','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id);
-  if(leaveControl) leaveControl.classList.toggle('on',_leaveOn);
-  document.body.classList.toggle('has-leave',_leaveOn);
+  if(leaveControl) leaveControl.classList.toggle('on',['screen-game','screen-scatter','screen-hangman','screen-draw','screen-sketchchain','screen-board','screen-spy','screen-chain','screen-town','screen-results'].includes(id));
   document.body.classList.remove('urgent');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -3925,7 +3899,7 @@ const GAME_META = {
   hangman: { title:'🪢 Hangman Race', sub:'Solve the word before the others.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, everyone guesses.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Roll, answer, dodge the snakes.' },
-  spy:     { title:'🕵️ Spy Word', sub:'Vote out one player each round.' },
+  spy:     { title:'🕵️ Spy Word', sub:'Find the spy in 5 rounds.' },
   chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' },
   sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' }
 };
@@ -4016,10 +3990,10 @@ const HOWTO = {
     tip:'Drawers: start with the simplest, most recognizable shape. Guessers: the category narrows it down!' },
   spy:{ steps:[
     'Everyone gets the secret <b>word</b> from a shown category — except one player, the <b>Spy</b>, who only knows the category.',
-    'Each round, every player still in the game gives <b>one clue word</b> about the secret word. All clues stay visible on screen.',
-    'Then everyone votes for who they think the Spy is. The player with the <b>most votes is eliminated</b> (a tie eliminates nobody).',
-    'Eliminated players can only <b>watch</b> the rest of the game — or leave. The next round starts with the players who remain.',
-    'If the <b>Spy</b> is voted out, they get <b>one guess</b> at the secret word: a right guess wins it for the Spy, a wrong one means the <b>civilians win</b>. If an innocent is voted out each time until only 2 players are left, the <b>Spy wins</b>.'],
+    'There are <b>5 rounds</b>. Each round, every player gives <b>one clue word</b> about the secret word. All clues stay visible on screen.',
+    'After each round, everyone votes who they think the Spy is. Votes add up across all 5 rounds.',
+    'After round 5, the player with the <b>most total votes</b> is evicted and gets <b>one guess</b> at the secret word.',
+    'If the evicted player is the Spy and guesses wrong, the <b>civilians win</b>. If the Spy guesses right — or an <b>innocent</b> player was evicted — the <b>Spy wins</b>.'],
     tip:'Civilians: be vague enough that the Spy can’t guess, but specific enough to prove you know. Spy: blend in and study the clues!' },
   chain:{ steps:[
     'A random <b>category</b> is picked and the system says the first word.',
@@ -4724,7 +4698,6 @@ async function beginRound(){
     const updates={status:'playing',letter,categories,scatFair:SCAT_MIN_ANSWERS,board:null,endsAt:srvNow()+ROUND_SECONDS*1000,startedAt:srvNow(),endedAt:null,rejected:null,challenges:null,forgiven:null};
     Object.keys(roomData.players||{}).forEach(uid=>{
       updates['players/'+uid+'/verdicts']=null;
-      updates['players/'+uid+'/scatDone']=null;
       updates['players/'+uid+'/score']=0;
       updates['players/'+uid+'/words']={};
       updates['players/'+uid+'/answers']={};
@@ -4842,8 +4815,6 @@ async function beginRound(){
       spyGameNo: gameNo,
       spyEvicted: null,
       spyTally: null,
-      spyOut: null,
-      spyElim: null,
       spyCategory: {id: sCat.id, name: sCat.name, emoji: sCat.emoji},
       spySpinAt: srvNow(),
       spySpinMs: SPY_SPIN_MS,
@@ -5068,7 +5039,7 @@ function updateScatProgress(){
     status.textContent = filled + ' of ' + total + ' answered — keep going!';
     status.className = 'scat-status good';
   } else {
-    status.textContent = 'All filled! Tweak answers or submit early.';
+    status.textContent = 'All filled! Sit tight or tweak answers.';
     status.className = 'scat-status good';
   }
 }
@@ -5106,16 +5077,12 @@ function enterScatter(){
   letterEl.style.animation = '';
   setTimeout(() => letterEl.classList.add('pulse-letter'), 800);
 
-  scatSubmitted = false; scatSubmitting = false;
-  const _sb = $('btnScatSubmit'); if(_sb){ _sb.style.display = ''; _sb.disabled = false; _sb.textContent = "✅ I'm done — submit early"; }
-  const _sw = $('scatWait'); if(_sw) _sw.style.display = 'none';
   renderScatCategories();
   renderScatScores();
   updateScatProgress();
   startScatTimer();
   boardReady = true;
   snd('go');
-  scatSyncSubmit();
 }
 
 /* ===== HANGMAN RACE UI ===== */
@@ -6214,63 +6181,16 @@ function renderScatCategories(){
   updateScatProgress();
 }
 
-async function saveScatAnswers(force, extra){
+async function saveScatAnswers(force){
   if(!roomId || !user || (roundEnded && !force)) return;
   const answers = {}, verdicts = {};
   Object.keys(scatAnswers).forEach(k => {
     if(scatAnswers[k] && scatAnswers[k].trim()){ answers[k] = scatAnswers[k].trim(); if(scatVerdicts[k]) verdicts[k] = scatVerdicts[k]; }
   });
   try{
-    await db.ref('rooms/' + roomId + '/players/' + user.uid).update(Object.assign({ answers, verdicts }, extra || {}));
-    return true;
-  }catch(e){ return false; }
+    await db.ref('rooms/' + roomId + '/players/' + user.uid).update({ answers, verdicts });
+  }catch(e){}
 }
-
-/* ----- Early submit: a finished player locks in their sheet; the timer keeps running for everyone else.
-   When every online player has submitted, the host ends the round right away. ----- */
-function scatLockInputs(){
-  document.querySelectorAll('#scatCats .scat-row').forEach(r => { r.classList.add('locked'); const i = r.querySelector('input'); if(i){ i.disabled = true; i.blur(); } });
-  const b = $('btnScatSubmit'); if(b) b.style.display = 'none';
-  const st = $('scatStatus'); if(st){ st.textContent = 'Answers submitted — locked in.'; st.className = 'scat-status good'; }
-}
-async function submitScatEarly(){
-  if(!roomData || roomData.gameType !== 'scatter' || roomData.status !== 'playing' || roundEnded || scatSubmitted || scatSubmitting) return;
-  scatSubmitting = true;
-  const btn = $('btnScatSubmit');
-  if(btn){ btn.disabled = true; btn.textContent = 'Checking answers…'; }
-  clearTimeout(scatSaveTimer);
-  // let in-flight category checks finish (max ~2.5s) so their verdicts are saved with the sheet
-  const t0 = Date.now();
-  while(Date.now() - t0 < 2500 && document.querySelector('#scatCats .scat-row.checking')) await new Promise(r => setTimeout(r, 150));
-  if(roundEnded){ scatSubmitting = false; return; }
-  const ok = await saveScatAnswers(false, { scatDone: true });
-  scatSubmitting = false;
-  if(!ok){ toast('Could not submit — try again'); if(btn){ btn.disabled = false; btn.textContent = "✅ I'm done — submit early"; } return; }
-  scatSubmitted = true;
-  scatLockInputs();
-  snd('ok');
-  toast('Answers submitted ✓');
-  scatSyncSubmit();
-}
-function scatSyncSubmit(){
-  if(!roomData || !user || roomData.gameType !== 'scatter' || roomData.status !== 'playing' || roundEnded) return;
-  const all = roomData.players || {};
-  const list = Object.values(all).filter(p => p.online !== false);
-  const total = list.length, done = list.filter(p => p.scatDone).length;
-  const me = all[user.uid];
-  if(me && me.scatDone && !scatSubmitted){ scatSubmitted = true; scatLockInputs(); }   // came back after a reconnect
-  const w = $('scatWait');
-  if(w){
-    if(scatSubmitted){
-      const left = Math.max(0, total - done);
-      w.style.display = 'block';
-      w.textContent = left === 0 ? 'Everyone is done — wrapping up…'
-        : '✅ Submitted! Waiting for ' + left + ' more player' + (left === 1 ? '' : 's') + ' — the timer keeps running for them.';
-    } else w.style.display = 'none';
-  }
-  if(isHost && total > 0 && done >= total) endRound();
-}
-document.addEventListener('click', e => { if(e.target && e.target.closest && e.target.closest('#btnScatSubmit')) submitScatEarly(); });
 
 function renderScatScores(){
   const players=Object.values(roomData.players||{});
@@ -7510,27 +7430,17 @@ function renderSpyScores(){
   if(!host || !roomData) return;
   const players = Object.values(roomData.players || {});
   host.innerHTML = players.map(p => {
-    const spyMark = (p.uid === roomData.spyUid && roomData.spyPhase === 'reveal' ? ' 🕵️' : '') + (spyIsOut(p.uid) ? ' ❌' : '');
-    return `<div class="sc${p.uid===user.uid?' me':''}"${spyIsOut(p.uid)?' style="opacity:.55"':''}><div class="n">${esc(p.avatar||'')} ${esc(p.name)}${spyMark}</div><div class="s">${p.spyScore||0}</div></div>`;
+    const spyMark = p.uid === roomData.spyUid && roomData.spyPhase === 'reveal' ? ' 🕵️' : '';
+    return `<div class="sc${p.uid===user.uid?' me':''}"><div class="n">${esc(p.avatar||'')} ${esc(p.name)}${spyMark}</div><div class="s">${p.spyScore||0}</div></div>`;
   }).join('');
 }
 
-const SPY_VOTE_SECONDS=60, SPY_GUESS_SECONDS=30, SPY_ELIM_SECONDS=7;
+const SPY_VOTE_SECONDS=60, SPY_GUESS_SECONDS=30;
 let _spyAdvKey='';
 
-/* Players eliminated by a vote stay in the room as spectators (they keep seeing clues + votes) until they leave. */
-function spyOutMap(){ return (roomData && roomData.spyOut) || {}; }
-function spyIsOut(uid){ return !!spyOutMap()[uid]; }
-function spyActiveUids(){
-  const pl=(roomData&&roomData.players)||{}, out=spyOutMap();
-  return Object.keys(pl).filter(u=>!out[u]);
-}
-// Votes of the CURRENT round only, from players still in the game, against players still in the game
 function spyTally(){
-  const act=new Set(spyActiveUids());
-  const V=((roomData&&roomData.spyVotes)||{})['r'+((roomData&&roomData.spyRound)||1)]||{};
-  const t={};
-  Object.keys(V).forEach(voter=>{ const tg=V[voter]; if(act.has(voter)&&act.has(tg)) t[tg]=(t[tg]||0)+1; });
+  const t={}, V=(roomData&&roomData.spyVotes)||{};
+  Object.keys(V).forEach(k=>Object.values(V[k]||{}).forEach(v=>{ t[v]=(t[v]||0)+1; }));
   return t;
 }
 function spyKick(){
@@ -7542,41 +7452,22 @@ function spyKick(){
 }
 async function spyAdvance(){
   const ph=roomData.spyPhase, r=roomData.spyRound||1, maxR=roomData.spyMaxRounds||SPY_MAX_ROUNDS;
-  const ref=db.ref('rooms/'+roomId), players=roomData.players||{};
-  if(ph==='reveal') return;
-  // The spy left the room -> civilians win
-  if(!players[roomData.spyUid]) return resolveSpyGame('spyLeft', null);
-  // Only the spy + one civilian (or fewer) left standing -> the spy wins
-  if(ph!=='guess' && spyActiveUids().length<=2) return resolveSpyGame('lastTwo', null);
-
+  const ref=db.ref('rooms/'+roomId);
   if(ph==='clues') return ref.update({ spyPhase:'vote', endsAt: srvNow()+SPY_VOTE_SECONDS*1000 });
-
   if(ph==='vote'){
-    // Each round: the player with the most votes is eliminated. A tie eliminates nobody.
-    const tally=spyTally();
+    if(r<maxR) return ref.update({ spyRound:r+1, spyPhase:'clues', endsAt: srvNow()+SPY_CLUE_SECONDS*1000 });
+    // Final round done: the player with the most votes over ALL rounds is evicted
+    const tally=spyTally(), players=roomData.players||{};
     let top=null, topN=0, tied=false;
     Object.keys(tally).forEach(u=>{
+      if(!players[u]) return;
       if(tally[u]>topN){ topN=tally[u]; top=u; tied=false; }
       else if(tally[u]===topN) tied=true;
     });
-    if(!top || tied){
-      if(r>=maxR) return resolveSpyGame('maxRounds', null);
-      return ref.update({ spyPhase:'elim', spyElim:{ round:r, uid:null, tied:!!tied, tally }, endsAt: srvNow()+SPY_ELIM_SECONDS*1000 });
-    }
-    const up={ spyElim:{ round:r, uid:top, tied:false, tally } };
-    up['spyOut/'+top]=r;
-    if(top===roomData.spyUid){
-      // The spy was caught: they get one last guess at the secret word
-      return ref.update({ ...up, spyPhase:'guess', spyEvicted:top, spyGuess:null, endsAt: srvNow()+SPY_GUESS_SECONDS*1000 });
-    }
-    // An innocent player was eliminated
-    const remaining=spyActiveUids().filter(u=>u!==top).length;
-    if(remaining<=2) return resolveSpyGame('lastTwo', top);
-    if(r>=maxR) return resolveSpyGame('maxRounds', top);
-    return ref.update({ ...up, spyPhase:'elim', endsAt: srvNow()+SPY_ELIM_SECONDS*1000 });
+    if(!top || tied) return resolveSpyGame(true);
+    return ref.update({ spyPhase:'guess', spyEvicted:top, spyTally:tally, spyGuess:null, endsAt: srvNow()+SPY_GUESS_SECONDS*1000 });
   }
-  if(ph==='elim') return ref.update({ spyRound:r+1, spyPhase:'clues', spyElim:null, endsAt: srvNow()+SPY_CLUE_SECONDS*1000 });
-  if(ph==='guess') return resolveSpyGame('caught', null);
+  if(ph==='guess') return resolveSpyGame(false);
 }
 
 function renderSpyUI(){
@@ -7588,31 +7479,25 @@ function renderSpyUI(){
   const meSpy = isSpy();
   const rk = 'r'+round;
   const players = roomData.players || {};
-  const meOut = spyIsOut(user.uid);
-  const active = spyActiveUids(), nActive = active.length;
+  const nPlayers = Object.keys(players).length;
   const banner = $('spyRoleBanner'), roleText = $('spyRoleText');
   const evicted = roomData.spyEvicted;
   const evName = evicted && players[evicted] ? players[evicted].name : 'A player';
-  const elim = roomData.spyElim || null;
 
   maybeShowSpyCatSpin();
   const sc0 = roomData.spyCategory;
   if($('spyCatChip')) $('spyCatChip').textContent = sc0 ? ('Category: '+sc0.emoji+' '+sc0.name) : '';
-  if($('spyRoundLabel')) $('spyRoundLabel').textContent = 'Round '+round+' · '+nActive+' in play';
-  if($('spyScoreLabel')) $('spyScoreLabel').textContent = meOut ? '👀 Spectating' : 'Your points: '+((players[user.uid]?.spyScore)||0);
+  if($('spyRoundLabel')) $('spyRoundLabel').textContent = 'Round '+round+' / '+maxR;
+  if($('spyScoreLabel')) $('spyScoreLabel').textContent = 'Your points: '+((players[user.uid]?.spyScore)||0);
 
   if(meSpy && phase !== 'reveal'){
     banner.className = 'spy-role-banner spy';
     roleText.textContent = 'You are the SPY';
-    banner.querySelector('.lbl').textContent = meOut ? 'You were caught — guess the secret word!' : 'Blend in — you do not know the word';
+    banner.querySelector('.lbl').textContent = 'Blend in — you do not know the word';
   } else if(phase === 'reveal'){
     banner.className = 'spy-role-banner civilian';
     roleText.textContent = word || '—';
     banner.querySelector('.lbl').textContent = meSpy ? 'You were the spy · the word was' : 'The secret word was';
-  } else if(meOut){
-    banner.className = 'spy-role-banner civilian';
-    roleText.textContent = word || '—';
-    banner.querySelector('.lbl').textContent = 'You were eliminated — watching · the word is';
   } else {
     banner.className = 'spy-role-banner civilian';
     roleText.textContent = word || '—';
@@ -7635,52 +7520,35 @@ function renderSpyUI(){
   const clueForm = $('spyClueForm'), voteArea = $('spyVoteArea'), guessBox = $('spyGuessBox');
   const btnNext = $('btnSpyNext'), phaseLabel = $('spyPhaseLabel'), status = $('spyStatus');
   const grid = $('spyVoteGrid'), vTitle = $('spyVoteTitle');
-  const watch = meOut ? '👀 Spectating · ' : '';
   if(btnNext) btnNext.style.display = 'none';
   if(guessBox) guessBox.style.display = 'none';
   if(grid) grid.style.display = ''; if(vTitle) vTitle.style.display = '';
 
   if(phase === 'clues'){
     phaseLabel.textContent = 'Round '+round+' · Clue phase — one word only (not the secret word)';
-    const nClues = active.filter(u => (allClues[rk]||{})[u]).length;
-    if(clueForm) clueForm.style.display = (!meOut && !(allClues[rk]||{})[user.uid]) ? 'flex' : 'none';
+    const nClues = Object.keys(allClues[rk] || {}).length;
+    if(clueForm) clueForm.style.display = (allClues[rk]||{})[user.uid] ? 'none' : 'flex';
     if(voteArea) voteArea.style.display = 'none';
-    status.textContent = watch + nClues + ' / ' + nActive + ' clues in';
-    if(isHost && nClues >= nActive && nActive >= 3) spyKick();
+    status.textContent = nClues + ' / ' + nPlayers + ' clues in';
+    if(isHost && nClues >= nPlayers && nPlayers >= 3) spyKick();
   } else if(phase === 'vote'){
-    phaseLabel.textContent = 'Round '+round+' · Vote — most votes is eliminated';
+    phaseLabel.textContent = 'Round '+round+' · Vote — who is the spy? (votes add up over all rounds)';
     if(clueForm) clueForm.style.display = 'none';
     if(voteArea) voteArea.style.display = 'block';
-    if(vTitle) vTitle.textContent = meOut ? 'You are eliminated — watch the vote' : 'Who is the spy?';
-    if(grid) grid.style.display = meOut ? 'none' : '';
     renderSpyVoteGrid();
-    const votes = (roomData.spyVotes||{})[rk] || {};
-    const nVotes = active.filter(u => votes[u]).length;
-    status.textContent = watch + nVotes + ' / ' + nActive + ' votes';
-    if(isHost && nVotes >= nActive) spyKick();
-  } else if(phase === 'elim'){
-    phaseLabel.textContent = 'Round '+(elim?elim.round:round)+' · Vote result';
-    if(clueForm) clueForm.style.display = 'none';
-    if(voteArea) voteArea.style.display = 'none';
-    if(elim && elim.uid){
-      const nm = players[elim.uid] ? players[elim.uid].name : 'A player';
-      const c = (elim.tally||{})[elim.uid] || 0;
-      status.textContent = elim.uid === user.uid
-        ? '🗳️ You were voted out ('+c+' vote'+(c===1?'':'s')+') and you were NOT the spy. You can keep watching or leave the game.'
-        : '🗳️ '+nm+' was voted out with '+c+' vote'+(c===1?'':'s')+' — NOT the spy! Next round starting…';
-    } else {
-      status.textContent = '🤝 Tied vote — nobody is eliminated this round. Next round starting…';
-    }
+    const nVotes = Object.keys((roomData.spyVotes||{})[rk] || {}).length;
+    status.textContent = nVotes + ' / ' + nPlayers + ' votes';
+    if(isHost && nVotes >= nPlayers) spyKick();
   } else if(phase === 'guess'){
-    phaseLabel.textContent = evName + ' was voted out — and was the Spy!';
+    phaseLabel.textContent = 'Final result of the votes — ' + evName + ' is evicted!';
     if(clueForm) clueForm.style.display = 'none';
     if(voteArea) voteArea.style.display = 'block';
     if(grid) grid.style.display = 'none'; if(vTitle) vTitle.style.display = 'none';
     const mineToGuess = evicted === user.uid && !roomData.spyGuess;
     if(guessBox) guessBox.style.display = mineToGuess ? 'block' : 'none';
     status.textContent = evicted === user.uid
-      ? (roomData.spyGuess ? 'Guess sent…' : 'You were caught! Guess the secret word to still win.')
-      : evName + ' is guessing the secret word…';
+      ? (roomData.spyGuess ? 'Guess sent…' : 'You were voted out! Guess the secret word.')
+      : evName + ' was voted out and is guessing the secret word…';
     if(isHost && roomData.spyGuess) spyKick();
   } else if(phase === 'reveal'){
     phaseLabel.textContent = 'Reveal';
@@ -7688,17 +7556,15 @@ function renderSpyUI(){
     if(voteArea) voteArea.style.display = 'none';
     if(btnNext){ btnNext.textContent = 'SEE FINAL RESULTS'; btnNext.dataset.mode = 'results'; btnNext.style.display = 'flex'; }
   }
-  // Host safety net: spy left, or too few players remain
-  if(isHost && phase !== 'reveal' && phase !== 'guess' && (!players[roomData.spyUid] || nActive <= 2)) spyKick();
   renderSpyScores();
 }
 
 function renderSpyVoteGrid(){
   const grid = $('spyVoteGrid');
   if(!grid || !roomData) return;
-  const players = roomData.players || {};
+  const players = Object.values(roomData.players || {});
   const myVote = ((roomData.spyVotes || {})['r'+(roomData.spyRound||1)] || {})[user.uid];
-  grid.innerHTML = spyActiveUids().map(u => players[u]).filter(Boolean).map(p => {
+  grid.innerHTML = players.map(p => {
     const on = myVote === p.uid ? ' on' : '';
     return `<button type="button" class="spy-vote-btn${on}" data-vote="${p.uid}">${esc(p.avatar||'')} ${esc(p.name)}${p.uid===user.uid?' (you)':''}</button>`;
   }).join('');
@@ -7712,10 +7578,9 @@ function startSpyTimer(){
     const el = $('spyTimerText'); if(el) el.textContent = left;
     const ring = $('spyTimerRing');
     if(ring){
-      const ph = roomData.spyPhase;
-      const total = ph === 'vote' ? SPY_VOTE_SECONDS : ph === 'guess' ? SPY_GUESS_SECONDS : ph === 'elim' ? SPY_ELIM_SECONDS : SPY_CLUE_SECONDS;
-      ring.style.setProperty('--pct', Math.min(100, Math.max(0, left/total*100))+'%');
-      ring.classList.toggle('low', left <= 15 && ph !== 'elim');
+      const total = roomData.spyPhase === 'vote' ? SPY_VOTE_SECONDS : roomData.spyPhase === 'guess' ? SPY_GUESS_SECONDS : SPY_CLUE_SECONDS;
+      ring.style.setProperty('--pct', Math.max(0, left/total*100)+'%');
+      ring.classList.toggle('low', left <= 15);
     }
     if(left <= 0 && !roundEnded && isHost && roomData.spyPhase !== 'reveal') spyKick();
   };
@@ -7724,7 +7589,7 @@ function startSpyTimer(){
 }
 
 async function submitSpyClue(){
-  if(roundEnded || !roomData || roomData.spyPhase !== 'clues' || spyIsOut(user.uid)) return;
+  if(roundEnded || !roomData || roomData.spyPhase !== 'clues') return;
   const rk = 'r'+(roomData.spyRound||1), all = roomData.spyClues || {};
   if((all[rk]||{})[user.uid]) return;
   const input = $('spyClueInput');
@@ -7744,7 +7609,7 @@ async function submitSpyClue(){
 }
 
 async function submitSpyVote(targetUid){
-  if(roundEnded || !roomData || roomData.spyPhase !== 'vote' || spyIsOut(user.uid) || spyIsOut(targetUid)) return;
+  if(roundEnded || !roomData || roomData.spyPhase !== 'vote') return;
   try{
     await db.ref('rooms/'+roomId+'/spyVotes/r'+(roomData.spyRound||1)+'/'+user.uid).set(targetUid);
     snd('tap');
@@ -7767,36 +7632,22 @@ async function submitSpyGuess(){
   }catch(e){ toast('Guess failed'); $('spyGuessBox').style.display = 'block'; }
 }
 
-// reason: 'caught' (spy voted out, then guessed) | 'lastTwo' (only 2 left) | 'maxRounds' | 'spyLeft'
-async function resolveSpyGame(reason, evUid){
+async function resolveSpyGame(noEviction){
   if(!isHost || !roomData || roomData.spyPhase === 'reveal') return;
   const spyUid = roomData.spyUid, players = roomData.players || {};
+  const ev = noEviction ? null : (roomData.spyEvicted || null);
   const g = roomData.spyGuess;
-  const spyCaught = reason === 'caught';
-  const spyGuessed = !!(spyCaught && g && g.correct);
-  const spyWon = reason === 'spyLeft' ? false : (!spyCaught || spyGuessed);
-  const ev = spyCaught ? spyUid : (evUid || null);
+  const spyCaught = ev === spyUid;
+  const spyGuessed = !!(g && g.correct);
+  // Spy wins if an innocent was evicted (guess irrelevant), or if the caught spy guessed the word
+  const spyWon = !spyCaught || (spyCaught && spyGuessed);
   const sc = {};
-  if(spyWon){ if(players[spyUid]) sc['players/'+spyUid+'/spyScore'] = (players[spyUid].spyScore||0) + 2; }
+  if(spyWon) sc['players/'+spyUid+'/spyScore'] = (players[spyUid]?.spyScore||0) + 2;
   else Object.keys(players).forEach(u => { if(u !== spyUid) sc['players/'+u+'/spyScore'] = (players[u]?.spyScore||0) + 1; });
-  if(evUid && !spyCaught) sc['spyOut/'+evUid] = roomData.spyRound || 1;
-  const entry = { round: roomData.spyRound || 1, word: roomData.spyWord, spyUid, evicted: ev, spyCaught, spyGuessed, spyWon, guess: g ? g.guess : null, reason, topAccused: ev };
+  const entry = { round: roomData.spyMaxRounds || SPY_MAX_ROUNDS, word: roomData.spyWord, spyUid, evicted: ev, spyCaught, spyGuessed, spyWon, guess: g ? g.guess : null, topAccused: ev };
   try{
     await db.ref('rooms/'+roomId).update({ ...sc, spyHistory: [entry], spyEvicted: ev, spyPhase: 'reveal', endsAt: srvNow() + 999999 });
   }catch(e){ console.warn(e); _spyAdvKey=''; }
-}
-
-function spyOutcomeText(h, pl){
-  const spyName = pl[h.spyUid] ? pl[h.spyUid].name : 'The spy';
-  const evName = h.evicted && pl[h.evicted] ? pl[h.evicted].name : 'A player';
-  if(h.reason === 'spyLeft') return spyName + ' (the spy) left the game — civilians win!';
-  if(h.reason === 'maxRounds') return 'Nobody caught the spy in time — ' + spyName + ' wins!';
-  if(h.reason === 'lastTwo') return h.evicted
-    ? evName + ' was innocent and voted out — only 2 players are left, so ' + spyName + ' (the spy) wins!'
-    : 'Too few players left — ' + spyName + ' (the spy) wins!';
-  if(h.spyCaught && h.spyGuessed) return spyName + ' was caught but guessed the word — the spy wins!';
-  if(h.spyCaught) return spyName + ' was caught and guessed wrong — civilians win!';
-  return spyName + ' wins!';
 }
 
 function checkSpyState(){
@@ -7807,7 +7658,15 @@ function checkSpyState(){
     clearInterval(timerInterval);
     const last = (roomData.spyHistory || [])[0];
     const status = $('spyStatus');
-    if(last && status) status.textContent = spyOutcomeText(last, roomData.players || {});
+    if(last && status){
+      const pl = roomData.players || {};
+      const spyName = pl[last.spyUid] ? pl[last.spyUid].name : 'The spy';
+      const evName = last.evicted && pl[last.evicted] ? pl[last.evicted].name : '';
+      if(!last.evicted) status.textContent = 'Votes were tied — nobody was evicted. ' + spyName + ' (the spy) wins!';
+      else if(!last.spyCaught) status.textContent = evName + ' was innocent! ' + spyName + ' was the spy and wins!';
+      else if(last.spyGuessed) status.textContent = spyName + ' was caught but guessed the word — the spy wins!';
+      else status.textContent = spyName + ' was caught and guessed wrong — civilians win!';
+    }
   }
 }
 
@@ -8510,8 +8369,6 @@ function onRoom(snap){
     }
   }
 
-  if(st==='playing'&&gt==='scatter') scatSyncSubmit();
-
   if(prevStatus==='shaking'&&st==='playing'&&!roundEnded&&gt==='boggle'&&$('screen-game').classList.contains('active')){
     settleBoard(roomData.board);
     startTimer();
@@ -9030,7 +8887,7 @@ function renderResults(rows){
       histHtml += hist.map(h => {
         const spyP = (roomData.players||{})[h.spyUid];
         const spyName = spyP ? esc(spyP.name) : 'Spy';
-        let outcome = esc(spyOutcomeText(h, roomData.players||{}));
+        const evP = (roomData.players||{})[h.evicted]; let outcome = !h.evicted ? 'Votes tied — nobody evicted' : (!h.spyCaught ? (evP?esc(evP.name):'A player')+' was evicted (innocent)' : (h.spyGuessed ? 'Spy caught but guessed the word' : 'Spy caught and guessed wrong'));
         return '<div style="background:#F8F9FA;border-radius:12px;padding:10px 12px;margin:6px 0;border:2px solid #EEF0F2;text-align:left">'
           +'<div style="font-weight:900;color:var(--violet-d)">Spy: '+spyName+'</div>'
           +'<div style="font-size:1.05rem;font-weight:800;letter-spacing:1px;margin:4px 0">'+esc(h.word||'?')+'</div>'
@@ -9040,7 +8897,7 @@ function renderResults(rows){
     }
     histHtml += '</div>';
 
-    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+hTitle+'</div><div class="s">vote one player out each round · catch the spy or fool the room</div></div>'+cards;
+    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+hTitle+'</div><div class="s">'+maxR+' rounds · catch the spy or fool the room</div></div>'+cards;
     $('possibleWrap').innerHTML = histHtml;
     return;
   }
