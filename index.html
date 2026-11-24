@@ -221,19 +221,6 @@ input:focus{border-color:var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.28)
 .game-leave-btn{display:none;position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;z-index:8800;min-height:42px;padding:0 13px;border-radius:13px;border:1px solid rgba(255,255,255,.65);background:#fff;color:#A12C45;font:800 .82rem 'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.22);cursor:pointer;white-space:nowrap}
 .game-leave-btn.on{display:flex;align-items:center}
 .game-leave-btn:active{transform:scale(.96)}
-/* Player-left notices + host-left modal */
-#leaveNoticeBox{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 62px);z-index:9600;display:flex;flex-direction:column;gap:8px;width:min(92vw,380px);pointer-events:none}
-.ln-item{pointer-events:auto;display:flex;align-items:center;gap:10px;background:#2D3436;color:#fff;border-radius:14px;padding:11px 12px 11px 14px;font-weight:800;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.35);border-left:5px solid #FF7675;animation:lnIn .3s cubic-bezier(.34,1.4,.64,1) both}
-.ln-item.warn{border-left-color:#FDCB6E}.ln-item.ok{border-left-color:#00B894}
-.ln-item .ln-t{flex:1;min-width:0;line-height:1.25}
-.ln-item button{border:0;background:rgba(255,255,255,.16);color:#fff;width:26px;height:26px;border-radius:50%;font-size:.8rem;cursor:pointer;flex-shrink:0}
-.ln-item.out{opacity:0;transform:translateY(-10px);transition:all .25s ease}
-@keyframes lnIn{from{opacity:0;transform:translateY(-14px) scale(.96)}to{opacity:1;transform:none}}
-.rc-ov{position:fixed;inset:0;z-index:99990;background:rgba(15,10,35,.72);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:lnIn .25s ease both}
-.rc-card{background:#fff;color:var(--ink,#2D3436);border-radius:22px;padding:24px 22px 20px;width:min(92vw,360px);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45)}
-.rc-card .rc-emoji{font-size:2.6rem;line-height:1}
-.rc-card h3{font-family:'Bricolage Grotesque',sans-serif;font-size:1.3rem;margin:10px 0 6px;color:var(--violet-d)}
-.rc-card p{font-weight:700;font-size:.92rem;color:#636E72;margin:0 0 16px;line-height:1.4}
 /* Keep the floating Leave button from covering the timer / top bar */
 body.leave-pad .screen.active{margin-top:calc(max(12px,env(safe-area-inset-top)) + 46px)}
 @media(max-width:520px){
@@ -4421,12 +4408,6 @@ function joinFriendRoom(fid){
   });
 })();
 function leaveRoom(){
-  // The host leaving a game in progress forfeits it for everybody (the others get a "host left" modal)
-  try{
-    if(roomId&&roomData&&user&&roomData.hostUid===user.uid&&roomData.status!=='lobby'&&roomData.status!=='closed'&&Object.keys(roomData.players||{}).some(u=>u!==user.uid))
-      closeRoomDb(roomId,'host_left',roomData.status,(profile&&profile.name)||'The host');
-  }catch(e){}
-  _closedShown=null;_rosterRoom=null;
   try{ if(typeof chainOnLeave==='function') chainOnLeave(); }catch(e){}
   try{ if(typeof scLiveDetach==='function'){ scLiveDetach(); scRenderKey=''; scRosterHtml=''; scPreviewKey=''; } }catch(e){}   // Word Chain: leaving mid-game = eliminated
   socialDetach();
@@ -4454,108 +4435,8 @@ function leaveRoom(){
   clearInterval(timerInterval);stopBoardFx();
   show('screen-lobby');
 }
-/* ===== PLAYER LEFT / HOST LEFT (all games) =====
-   - A player leaves or loses connection during a game  -> a notice pops up for everyone else.
-   - The HOST leaves (or stays disconnected) during a game -> the game is forfeited: everyone gets a modal and goes back to the lobby. */
-let _rosterRoom=null,_roster={},_offTimers={},_offShown={},_hostTimer=null,_hostWarned=false,_closedShown=null;
-function showLeaveNotice(text,kind){
-  let box=$('leaveNoticeBox');
-  if(!box){box=document.createElement('div');box.id='leaveNoticeBox';document.body.appendChild(box)}
-  const n=document.createElement('div');n.className='ln-item'+(kind?' '+kind:'');
-  n.innerHTML='<span class="ln-t"></span><button type="button" aria-label="Dismiss">✕</button>';
-  n.querySelector('.ln-t').textContent=text;
-  const kill=()=>{n.classList.add('out');setTimeout(()=>n.remove(),260)};
-  n.querySelector('button').onclick=kill;
-  box.appendChild(n);
-  while(box.children.length>3)box.firstChild.remove();
-  try{snd('tap')}catch(e){}
-  setTimeout(kill,6500);
-}
-function showRoomClosedModal(emoji,title,msg){
-  const old=$('roomClosedOv');if(old)old.remove();
-  const ov=document.createElement('div');ov.id='roomClosedOv';ov.className='rc-ov';
-  ov.setAttribute('role','alertdialog');ov.setAttribute('aria-modal','true');
-  ov.innerHTML='<div class="rc-card"><div class="rc-emoji"></div><h3></h3><p></p><button type="button" class="btn btn-primary" id="rcOk">OK</button></div>';
-  ov.querySelector('.rc-emoji').textContent=emoji;ov.querySelector('h3').textContent=title;ov.querySelector('p').textContent=msg;
-  document.body.appendChild(ov);
-  $('rcOk').onclick=()=>{ov.remove();if(roomId)leaveRoom()};
-}
-// Marks the room as closed (forfeited). Safe for several players to call at once: only the first one changes anything.
-function closeRoomDb(rid,reason,from,byName){
-  try{
-    db.ref('rooms/'+rid).transaction(room=>{
-      if(!room||room.status==='closed'||room.status==='lobby')return;
-      room.status='closed';room.closedReason=reason;room.closedFrom=from||room.status;room.closedByName=byName||'The host';room.closedAt=srvNow();
-      return room;
-    }).catch(()=>{});
-  }catch(e){}
-}
-function forfeitRoom(reason){
-  if(!roomId||!roomData)return;
-  const h=(roomData.players||{})[roomData.hostUid];
-  closeRoomDb(roomId,reason,roomData.status,(h&&h.name)||'The host');
-}
-function handleRoomClosed(){
-  if(_closedShown===roomId)return;
-  _closedShown=roomId;
-  clearTimeout(_hostTimer);_hostTimer=null;
-  try{clearInterval(timerInterval);stopBoardFx()}catch(e){}
-  const rd=roomData||{},wasMe=rd.hostUid===user.uid,name=rd.closedByName||'The host',finished=rd.closedFrom==='results';
-  if(wasMe)showRoomClosedModal('📡','Game forfeited','You were disconnected for too long, so the game has been forfeited.');
-  else if(finished)showRoomClosedModal('🚪','Host left the room',name+' (the host) left, so the room has been closed.');
-  else showRoomClosedModal('🚪','Host left — game forfeited',name+' (the host) left the game, so the game is forfeited.');
-}
-function watchRoster(){
-  if(!roomData||!user||!roomId)return;
-  if(_rosterRoom!==roomId){
-    _rosterRoom=roomId;_roster={};_offShown={};_hostWarned=false;
-    Object.keys(_offTimers).forEach(k=>clearTimeout(_offTimers[k]));_offTimers={};
-    clearTimeout(_hostTimer);_hostTimer=null;
-  }
-  const players=roomData.players||{},live=roomData.status!=='lobby'&&roomData.status!=='closed',hostUid=roomData.hostUid;
-  const cur={};
-  Object.keys(players).forEach(uid=>{const p=players[uid]||{};cur[uid]={name:p.name||'A player',online:p.online!==false}});
-  if(live){
-    // someone left
-    Object.keys(_roster).forEach(uid=>{
-      if(uid===user.uid||cur[uid])return;
-      clearTimeout(_offTimers[uid]);delete _offTimers[uid];delete _offShown[uid];
-      if(uid!==hostUid)showLeaveNotice('🚪 '+_roster[uid].name+' left the game');
-    });
-    // someone lost connection / came back
-    Object.keys(cur).forEach(uid=>{
-      if(uid===user.uid||uid===hostUid)return;
-      if(!cur[uid].online){
-        if(!_offTimers[uid]&&!_offShown[uid])_offTimers[uid]=setTimeout(()=>{
-          delete _offTimers[uid];
-          const q=roomData&&roomData.players&&roomData.players[uid];
-          if(q&&q.online===false){_offShown[uid]=true;showLeaveNotice('📡 '+(q.name||'A player')+' disconnected','warn')}
-        },8000);
-      }else{
-        if(_offTimers[uid]){clearTimeout(_offTimers[uid]);delete _offTimers[uid]}
-        if(_offShown[uid]){delete _offShown[uid];showLeaveNotice('✅ '+cur[uid].name+' is back','ok')}
-      }
-    });
-    // the host is gone -> forfeit (short grace so a network blip doesn't end the game)
-    if(hostUid&&hostUid!==user.uid){
-      const hp=players[hostUid],gone=!hp||hp.online===false;
-      if(gone){
-        if(hp&&!_hostWarned){_hostWarned=true;showLeaveNotice('📡 '+(hp.name||'The host')+' lost connection — the game will be forfeited if they don’t come back','warn')}
-        if(!_hostTimer)_hostTimer=setTimeout(()=>{
-          _hostTimer=null;
-          const h=roomData&&roomData.players&&roomData.players[roomData.hostUid];
-          if(roomData&&roomData.status!=='lobby'&&roomData.status!=='closed'&&(!h||h.online===false))forfeitRoom('host_left');
-        },hp?10000:1500);
-      }else{
-        _hostWarned=false;
-        if(_hostTimer){clearTimeout(_hostTimer);_hostTimer=null}
-      }
-    }
-  }
-  _roster=cur;
-}
 $('btnLeaveRoom').onclick=leaveRoom;
-$('btnGameLeave').onclick=()=>{ const hostLive=!!(roomData&&user&&roomData.hostUid===user.uid&&roomData.status!=='lobby'&&roomData.status!=='closed'&&Object.keys(roomData.players||{}).length>1); if(confirm(hostLive?'You are the host — leaving will forfeit the game for everyone. Leave anyway?':'Leave this game? Your current round progress may be lost.')) leaveRoom(); };
+$('btnGameLeave').onclick=()=>{ if(confirm('Leave this game? Your current round progress may be lost.')) leaveRoom(); };
 // --------- ROUND STATE & BOARD EFFECTS ---------
 const LAND_STEP=70;
 const SETTLE_TOTAL=600;
@@ -8168,8 +8049,6 @@ function onRoom(snap){
   if(!snap.exists()){toast('Room closed');leaveRoom();return}
   const prevStatus=roomData?roomData.status:null;
   roomData=snap.val();
-  if(roomData.status==='closed'){ handleRoomClosed(); return; }
-  try{ watchRoster(); }catch(e){ console.error(e); }
   const st=roomData.status;
   const gt = roomData.gameType || 'boggle';
   renderPlayers();
