@@ -5497,6 +5497,7 @@ const ScatVerify=(()=>{
   //   viaSoft = answers OK for those categories are only "maybe" here · viaStrict = reject if the answer is clearly not any via-category
   //   assoc / adj = Datamuse word-association / "adjective + noun" sets · strict = a confident mismatch is auto-rejected
   //   maybeLex = real answer but not a great fit (shown yellow) · head/any = match on last word / any word
+  LEX.sea+=' ray mantaray eagleray stingray skate sawfish guitarfish torpedoray devilray sunfish mola opah remora lamprey hagfish coelacanth seadragon pipefish seacucumber seastar seaslug seasnail seahare seasnake seaturtle greenturtle leatherback loggerhead hawksbill seaanemone elephantseal leopardseal harborseal harpseal monkseal furseal killerwhale bluewhale humpback humpbackwhale spermwhale rightwhale minke pilotwhale beakedwhale bottlenose bottlenosedolphin porpoise greatwhiteshark whiteshark tigershark bullshark whaleshark nurseshark baskingshark thresher makoshark blueshark reefshark lemonshark hermitcrab kingcrab bluecrab spidercrab horseshoecrab fiddlercrab dungenesscrab snowcrab mantisshrimp crayfish langoustine giantsquid colossalsquid vampiresquid giantoctopus argonaut abalone limpet whelk periwinkle cowrie nudibranch sanddollar brittlestar featherstar crinoid hydra portuguesemanowar manowar boxjellyfish moonjelly lionsmane seanettle polyp staghorncoral grouper wrasse parrotfish surgeonfish tang butterflyfish triggerfish boxfish cowfish frogfish stonefish scorpionfish goby blenny damselfish moray morayeel congereel gareel ribbonfish oarfish sailfish bonito mahimahi dorado wahoo kingfish yellowtail amberjack trevally pompano mullet milkfish bangus galunggong tamban dilis tulingan lapulapu danggit pusit alimasag hipon talaba tahong halaan flyingfish seabass seabream redsnapper bluefin yellowfin skipjack albacore swordfish hammerheadshark greenmoray wolfeel toothfish icefish lanternfish viperfish gulper dumbooctopus yeti yeticrab';
   const R={
     "A boy's name":{t:['Q12308941','Q3409032'],lex:'boyname'},
     "A girl's name":{t:['Q11879590','Q3409032'],lex:'girlname'},
@@ -5506,11 +5507,11 @@ const ScatVerify=(()=>{
     "An athlete":{t:['Q2066131']},
     "A job or occupation":{t:['Q12737077','Q28640'],lex:'job'},
     "A cartoon character":{t:['Q95074','Q1114461','Q188784']},
-    "An animal":{t:['Q729','Q7377','Q5113','Q10811','Q10908','Q1390','Q1358','Q127282','Q10915'],lex:'animal',strict:1},
+    "An animal":{t:['Q729','Q7377','Q5113','Q10811','Q10908','Q1390','Q1358','Q127282','Q10915'],lex:['animal','bird','sea','insect'],strict:1},
     "A wild animal":{via:['An animal'],viaStrict:1,maybeLex:'domestic',maybeNote:'is a real animal, but it is usually a domestic one rather than a wild animal'},
     "A pet":{lex:'pet',viaSoft:['An animal'],viaStrict:1},
     "A bird":{lex:'bird',t:['Q5113'],strict:1},
-    "A sea creature":{lex:'sea',assoc:['sea','ocean'],viaSoft:['An animal'],where:'in the sea'},
+    "A sea creature":{lex:'sea',head:1,assoc:['sea','ocean'],viaSoft:['An animal'],where:'in the sea'},
     "An insect or bug":{lex:'insect',t:['Q1390','Q1358']},
     "Something at the zoo":{lex:'zoo',via:['An animal'],assoc:['zoo'],where:'at a zoo'},
     "Something on a farm":{lex:'farm',via:['A fruit or vegetable'],viaSoft:['An animal'],assoc:['farm'],where:'on a farm'},
@@ -5598,6 +5599,8 @@ const ScatVerify=(()=>{
   R["A city"].lex='city';R["A cartoon character"].lex='cartoon';R["A singer or band"].lex='singer';R["An athlete"].lex='athlete';
   R["An actor or actress"].lex='actor';R["A famous person"].lex='famous';R["A video game"].lex='videogame';R["A brand or company"].lex='brand';R["A book or novel"].lex='book';
   R["A movie or TV show"].lex=['movie','tvshow'];
+  const MARINE_DESC=/\b(fish|fishes|shark|sharks|ray|rays|whale|whales|dolphin|dolphins|porpoise|crab|crabs|lobster|shrimp|crustacean|mollus[ck]|bivalve|cephalopod|squid|octopus|jellyfish|cnidarian|coral|corals|echinoderm|starfish|sea urchin|seal|seals|sea lion|walrus|cetacean|pinniped|sponge|eel|eels|oyster|clam|mussel|scallop|manatee|dugong|plankton|krill|anemone|sea turtle|marine (?:mammal|reptile|animal|fish|mollusc|crustacean|invertebrate))\b/i;
+  R["A sea creature"].desc=MARINE_DESC;R["Something in the ocean"].desc=MARINE_DESC;
   const SETS={};
   // which closed word-list (if any) a single-word answer belongs to -> used to reject category mix-ups
   const TYPEK=[['country','a country'],['city','a city'],['color','a color'],['inst','a musical instrument'],['part','a body part'],['produce','a fruit or vegetable'],['animal','an animal'],['bird','a bird'],['sea','a sea creature'],['insect','an insect'],['clothing','something you wear'],['furniture','a piece of furniture'],['tool','a tool'],['drink','a drink'],['dessert','a dessert'],['language','a language'],['currency','a currency']];
@@ -5752,6 +5755,14 @@ const ScatVerify=(()=>{
       }
       // 4) Wikidata classes
       let hits=null;
+      if(rule&&rule.desc){
+        try{
+          hits=await search(val);
+          const lab=h=>String(h.label||'').toLowerCase(),sing=norm.replace(/(es|s)$/,'');
+          const mh=hits.find(h=>h.description&&rule.desc.test(h.description)&&(lab(h)===norm||lab(h)===sing));
+          if(mh)return cache[ck]={v:'ok',note:'Confirmed: '+lbl(mh)};
+        }catch(e){hits=null}
+      }
       const TT=rule?[...(rule.t||[]),...(rule.tl?await resolveClasses(rule.tl):[])]:[];
       if(rule&&TT.length){
         hits=await search(val);
@@ -5777,6 +5788,7 @@ const ScatVerify=(()=>{
   // Reads ONLY the built-in word lists (LEX) through the same rules the checker uses (own list, "via" and "viaSoft" parents),
   // so what you see here is exactly how much (or how little) the system can recognise. Empty = a vocabulary gap.
   const PRETTY={icecream:'ice cream',guineapig:'guinea pig',sleepingbag:'sleeping bag',firstaid:'first aid kit',cuttingboard:'cutting board',ironingboard:'ironing board',hotchocolate:'hot chocolate',mineralwater:'mineral water',sparklingwater:'sparkling water',coconutwater:'coconut water',icedtea:'iced tea',trailmix:'trail mix',toiletpaper:'toilet paper',teddybear:'teddy bear',actionfigure:'action figure',rubikscube:'rubik\u2019s cube',hotairballoon:'hot air balloon',cablecar:'cable car',shoppingcart:'shopping cart',golfcart:'golf cart',gokart:'go-kart',firetruck:'fire truck',polarbear:'polar bear',seaotter:'sea otter',seaurchin:'sea urchin',sealion:'sea lion',lightningbug:'lightning bug',halohalo:'halo-halo',garlicrice:'garlic rice',jumprope:'jump rope',dollhouse:'dollhouse',watergun:'water gun',bluejay:'blue jay',cottoncandy:'cotton candy',cocacola:'coca-cola',charlottesweb:'charlotte\u2019s web',harrypotter:'harry potter',breakingbad:'breaking bad',bartsimpson:'bart simpson',bugsbunny:'bugs bunny',charliebrown:'charlie brown',amongus:'among us',angrybirds:'angry birds',animalcrossing:'animal crossing',candycrush:'candy crush',clashroyale:'clash royale',brawlstars:'brawl stars',doctorwho:'doctor who',gossipgirl:'gossip girl',davinci:'da vinci',measuringcup:'measuring cup',pinecone:'pine cone',seaweed:'seaweed',goldfish:'goldfish',wateringcan:'watering can',toolbox:'toolbox',tapemeasure:'tape measure',sandcastle:'sand castle',bubblegum:'bubble gum',policeofficer:'police officer',mailman:'mailman',hairdryer:'hair dryer',mouthwash:'mouthwash',cottonswab:'cotton swab',alarmclock:'alarm clock',reportcard:'report card'};
+  Object.assign(PRETTY,{mantaray:'manta ray',eagleray:'eagle ray',torpedoray:'torpedo ray',devilray:'devil ray',seadragon:'sea dragon',seacucumber:'sea cucumber',seastar:'sea star',seaslug:'sea slug',seasnail:'sea snail',seahare:'sea hare',seasnake:'sea snake',seaturtle:'sea turtle',greenturtle:'green turtle',seaanemone:'sea anemone',elephantseal:'elephant seal',leopardseal:'leopard seal',harborseal:'harbor seal',harpseal:'harp seal',monkseal:'monk seal',furseal:'fur seal',killerwhale:'killer whale',bluewhale:'blue whale',humpbackwhale:'humpback whale',spermwhale:'sperm whale',rightwhale:'right whale',pilotwhale:'pilot whale',beakedwhale:'beaked whale',bottlenosedolphin:'bottlenose dolphin',greatwhiteshark:'great white shark',whiteshark:'white shark',tigershark:'tiger shark',bullshark:'bull shark',whaleshark:'whale shark',nurseshark:'nurse shark',baskingshark:'basking shark',makoshark:'mako shark',blueshark:'blue shark',reefshark:'reef shark',lemonshark:'lemon shark',hammerheadshark:'hammerhead shark',hermitcrab:'hermit crab',kingcrab:'king crab',bluecrab:'blue crab',spidercrab:'spider crab',horseshoecrab:'horseshoe crab',fiddlercrab:'fiddler crab',dungenesscrab:'dungeness crab',snowcrab:'snow crab',mantisshrimp:'mantis shrimp',giantsquid:'giant squid',colossalsquid:'colossal squid',vampiresquid:'vampire squid',giantoctopus:'giant octopus',sanddollar:'sand dollar',brittlestar:'brittle star',featherstar:'feather star',portuguesemanowar:'portuguese man o war',boxjellyfish:'box jellyfish',moonjelly:'moon jelly',lionsmane:'lions mane jellyfish',seanettle:'sea nettle',staghorncoral:'staghorn coral',morayeel:'moray eel',congereel:'conger eel',greenmoray:'green moray',wolfeel:'wolf eel',flyingfish:'flying fish',seabass:'sea bass',seabream:'sea bream',redsnapper:'red snapper',yeticrab:'yeti crab',icefish:'ice fish',lanternfish:'lantern fish',viperfish:'viper fish',dumbooctopus:'dumbo octopus',toothfish:'tooth fish'});
   const prettyWord=w=>{const t=PRETTY[w]||w;return t.replace(/(^|[\s\-])([a-z])/g,(m,a,b)=>a+b.toUpperCase())};
   function suggest(cat,letter){
     const L=String(letter||'').toLowerCase().charAt(0);
