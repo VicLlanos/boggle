@@ -3743,7 +3743,7 @@ const GAME_META = {
   hangman: { title:'🪢 Hangman Race', sub:'Solve the word before the others.' },
   draw:    { title:'🎨 Sketch Race', sub:'One draws, everyone guesses.' },
   board:   { title:'🐍 Snakes & Trivia', sub:'Roll, answer, dodge the snakes.' },
-  spy:     { title:'🕵️ Spy Word', sub:'Find the spy in 5 rounds.' },
+  spy:     { title:'🕵️ Spy Word', sub:'Vote out one player each round.' },
   chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' },
   sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' }
 };
@@ -3829,10 +3829,10 @@ const HOWTO = {
     tip:'Drawers: start with the simplest, most recognizable shape. Guessers: the category narrows it down!' },
   spy:{ steps:[
     'Everyone gets the secret <b>word</b> from a shown category — except one player, the <b>Spy</b>, who only knows the category.',
-    'There are <b>5 rounds</b>. Each round, every player gives <b>one clue word</b> about the secret word. All clues stay visible on screen.',
-    'After each round, everyone votes who they think the Spy is. Votes add up across all 5 rounds.',
-    'After round 5, the player with the <b>most total votes</b> is evicted and gets <b>one guess</b> at the secret word.',
-    'If the evicted player is the Spy and guesses wrong, the <b>civilians win</b>. If the Spy guesses right — or an <b>innocent</b> player was evicted — the <b>Spy wins</b>.'],
+    'There are up to <b>5 rounds</b>. Each round, every player still in gives <b>one clue word</b> about the secret word. All clues stay visible on screen.',
+    'After each round, everyone still in votes who they think the Spy is. The player with the <b>most votes that round is eliminated</b> (a tie eliminates nobody).',
+    'If the eliminated player is the <b>Spy</b>, they get <b>one guess</b> at the secret word. A right guess means the <b>Spy wins</b>; a wrong guess means the <b>civilians win</b>.',
+    'If an <b>innocent</b> player is eliminated, they watch from the sidelines and the game goes on. The <b>Spy wins</b> if they survive all the rounds or only 2 players are left.'],
     tip:'Civilians: be vague enough that the Spy can’t guess, but specific enough to prove you know. Spy: blend in and study the clues!' },
   chain:{ steps:[
     'A random <b>category</b> is picked and the system says the first word.',
@@ -4640,6 +4640,8 @@ async function beginRound(){
       spyClues: null,
       spyVotes: null,
       spyGuess: null,
+      spyOut: null,
+      spyRoundResult: null,
       spyTurnOrder: order,
       spyTurnIdx: 0,
       board: null, letter: null, categories: null,
@@ -7195,14 +7197,18 @@ function renderSpyScores(){
   const players = Object.values(roomData.players || {});
   host.innerHTML = players.map(p => {
     const spyMark = p.uid === roomData.spyUid && roomData.spyPhase === 'reveal' ? ' 🕵️' : '';
-    return `<div class="sc${p.uid===user.uid?' me':''}"><div class="n">${esc(p.avatar||'')} ${esc(p.name)}${spyMark}</div><div class="s">${p.spyScore||0}</div></div>`;
+    const outMark = spyOutMap()[p.uid] ? ' ❌' : '';
+    return `<div class="sc${p.uid===user.uid?' me':''}"><div class="n">${esc(p.avatar||'')} ${esc(p.name)}${spyMark}${outMark}</div><div class="s">${p.spyScore||0}</div></div>`;
   }).join('');
 }
-const SPY_VOTE_SECONDS=60, SPY_GUESS_SECONDS=30;
+const SPY_VOTE_SECONDS=60, SPY_GUESS_SECONDS=30, SPY_RESULT_SECONDS=7;
 let _spyAdvKey='';
+const spyOutMap=()=>(roomData&&roomData.spyOut)||{};
+function spyAliveIds(){ const out=spyOutMap(); return Object.keys((roomData&&roomData.players)||{}).filter(u=>!out[u]); }
 function spyTally(){
-  const t={}, V=(roomData&&roomData.spyVotes)||{};
-  Object.keys(V).forEach(k=>Object.values(V[k]||{}).forEach(v=>{ t[v]=(t[v]||0)+1; }));
+  // votes of the CURRENT round only, cast by players still in, for players still in
+  const alive=new Set(spyAliveIds()), t={}, V=((roomData&&roomData.spyVotes)||{})['r'+((roomData&&roomData.spyRound)||1)]||{};
+  Object.keys(V).forEach(voter=>{ const target=V[voter]; if(alive.has(voter)&&alive.has(target)) t[target]=(t[target]||0)+1; });
   return t;
 }
 function spyKick(){
@@ -7217,17 +7223,22 @@ async function spyAdvance(){
   const ref=db.ref('rooms/'+roomId);
   if(ph==='clues') return ref.update({ spyPhase:'vote', endsAt: srvNow()+SPY_VOTE_SECONDS*1000 });
   if(ph==='vote'){
-    if(r<maxR) return ref.update({ spyRound:r+1, spyPhase:'clues', endsAt: srvNow()+SPY_CLUE_SECONDS*1000 });
-    // Final round done: the player with the most votes over ALL rounds is evicted
-    const tally=spyTally(), players=roomData.players||{};
+    // The player with the most votes THIS round is eliminated; a tie eliminates nobody
+    const tally=spyTally();
     let top=null, topN=0, tied=false;
-    Object.keys(tally).forEach(u=>{
-      if(!players[u]) return;
-      if(tally[u]>topN){ topN=tally[u]; top=u; tied=false; }
-      else if(tally[u]===topN) tied=true;
-    });
-    if(!top || tied) return resolveSpyGame(true);
-    return ref.update({ spyPhase:'guess', spyEvicted:top, spyTally:tally, spyGuess:null, endsAt: srvNow()+SPY_GUESS_SECONDS*1000 });
+    Object.keys(tally).forEach(u=>{ if(tally[u]>topN){ topN=tally[u]; top=u; tied=false; } else if(tally[u]===topN) tied=true; });
+    const resEnd=srvNow()+SPY_RESULT_SECONDS*1000;
+    if(!top || tied) return ref.update({ spyPhase:'result', spyEvicted:null, spyTally:tally, spyRoundResult:{round:r,type:'tie'}, endsAt:resEnd });
+    // The spy was voted out: one guess at the secret word decides the game
+    if(top===roomData.spyUid) return ref.update({ spyPhase:'guess', spyEvicted:top, spyTally:tally, spyGuess:null, spyRoundResult:{round:r,type:'spy',uid:top}, endsAt: srvNow()+SPY_GUESS_SECONDS*1000 });
+    // An innocent was voted out: they are eliminated and the game goes on
+    const out=Object.assign({}, spyOutMap()); out[top]=true;
+    return ref.update({ spyOut:out, spyPhase:'result', spyEvicted:top, spyTally:tally, spyRoundResult:{round:r,type:'innocent',uid:top}, endsAt:resEnd });
+  }
+  if(ph==='result'){
+    // Spy survives when the rounds run out or only the spy and one civilian are left
+    if(r>=maxR || spyAliveIds().length<=2) return resolveSpyGame(true);
+    return ref.update({ spyRound:r+1, spyPhase:'clues', spyEvicted:null, spyRoundResult:null, endsAt: srvNow()+SPY_CLUE_SECONDS*1000 });
   }
   if(ph==='guess') return resolveSpyGame(false);
 }
@@ -7240,14 +7251,15 @@ function renderSpyUI(){
   const meSpy = isSpy();
   const rk = 'r'+round;
   const players = roomData.players || {};
-  const nPlayers = Object.keys(players).length;
+  const out = spyOutMap(), meOut = !!out[user.uid];
+  const aliveIds = spyAliveIds(), aliveN = aliveIds.length, aliveSet = new Set(aliveIds);
   const banner = $('spyRoleBanner'), roleText = $('spyRoleText');
   const evicted = roomData.spyEvicted;
   const evName = evicted && players[evicted] ? players[evicted].name : 'A player';
   maybeShowSpyCatSpin();
   const sc0 = roomData.spyCategory;
   if($('spyCatChip')) $('spyCatChip').textContent = sc0 ? ('Category: '+sc0.emoji+' '+sc0.name) : '';
-  if($('spyRoundLabel')) $('spyRoundLabel').textContent = 'Round '+round+' / '+maxR;
+  if($('spyRoundLabel')) $('spyRoundLabel').textContent = 'Round '+round+' / '+maxR+' · '+aliveN+' left';
   if($('spyScoreLabel')) $('spyScoreLabel').textContent = 'Your points: '+((players[user.uid]?.spyScore)||0);
   if(meSpy && phase !== 'reveal'){
     banner.className = 'spy-role-banner spy';
@@ -7269,7 +7281,7 @@ function renderSpyUI(){
     const rc = allClues['r'+r] || {};
     const es = Object.keys(rc).map(uid => ({ uid, word: rc[uid].word || rc[uid], at: rc[uid].at || 0, name: players[uid]?.name || 'Player', avatar: players[uid]?.avatar || '🎮' })).sort((a,b)=>a.at-b.at);
     html += '<div class="spy-rhead">Round '+r+'</div>' + (es.length
-      ? es.map(c => `<div class="spy-clue${c.uid===user.uid?' mine':''}"><span>${esc(c.avatar)} ${esc(c.name)}</span><b>${esc(String(c.word).toUpperCase())}</b></div>`).join('')
+      ? es.map(c => `<div class="spy-clue${c.uid===user.uid?' mine':''}"><span>${esc(c.avatar)} ${esc(c.name)}${out[c.uid]?' ❌':''}</span><b>${esc(String(c.word).toUpperCase())}</b></div>`).join('')
       : '<div class="none-words" style="font-size:.85rem">No clues yet…</div>');
   }
   const list = $('spyClueList');
@@ -7282,28 +7294,41 @@ function renderSpyUI(){
   if(grid) grid.style.display = ''; if(vTitle) vTitle.style.display = '';
   if(phase === 'clues'){
     phaseLabel.textContent = 'Round '+round+' · Clue phase — one word only (not the secret word)';
-    const nClues = Object.keys(allClues[rk] || {}).length;
-    if(clueForm) clueForm.style.display = (allClues[rk]||{})[user.uid] ? 'none' : 'flex';
+    const nClues = Object.keys(allClues[rk] || {}).filter(u => aliveSet.has(u)).length;
+    if(clueForm) clueForm.style.display = (meOut || (allClues[rk]||{})[user.uid]) ? 'none' : 'flex';
     if(voteArea) voteArea.style.display = 'none';
-    status.textContent = nClues + ' / ' + nPlayers + ' clues in';
-    if(isHost && nClues >= nPlayers && nPlayers >= 3) spyKick();
+    status.textContent = meOut ? 'You were eliminated — watching · '+nClues+' / '+aliveN+' clues in' : nClues + ' / ' + aliveN + ' clues in';
+    if(isHost && nClues >= aliveN && aliveN >= 2) spyKick();
   } else if(phase === 'vote'){
-    phaseLabel.textContent = 'Round '+round+' · Vote — who is the spy? (votes add up over all rounds)';
+    phaseLabel.textContent = 'Round '+round+' · Vote — most votes is eliminated';
     if(clueForm) clueForm.style.display = 'none';
     if(voteArea) voteArea.style.display = 'block';
     renderSpyVoteGrid();
-    const nVotes = Object.keys((roomData.spyVotes||{})[rk] || {}).length;
-    status.textContent = nVotes + ' / ' + nPlayers + ' votes';
-    if(isHost && nVotes >= nPlayers) spyKick();
+    const nVotes = Object.keys((roomData.spyVotes||{})[rk] || {}).filter(u => aliveSet.has(u)).length;
+    status.textContent = nVotes + ' / ' + aliveN + ' votes' + (meOut ? ' · you are eliminated' : '');
+    if(isHost && nVotes >= aliveN) spyKick();
+  } else if(phase === 'result'){
+    const rr = roomData.spyRoundResult || {}, tl = roomData.spyTally || {};
+    const tallyStr = Object.keys(tl).sort((a,b)=>tl[b]-tl[a]).map(u => (players[u]?players[u].name:'?')+' '+tl[u]).join(' · ');
+    const over = round >= maxR || aliveN <= 2;
+    if(clueForm) clueForm.style.display = 'none';
+    if(voteArea) voteArea.style.display = 'none';
+    if(rr.type === 'tie'){
+      phaseLabel.textContent = 'Round '+round+' · Votes tied — nobody is eliminated';
+      status.textContent = (tallyStr ? 'Votes: '+tallyStr+'. ' : 'Nobody voted. ') + (over ? 'No one caught the spy…' : 'Next round starting…');
+    } else {
+      phaseLabel.textContent = 'Round '+round+' · '+evName+' is eliminated — not the spy!';
+      status.textContent = 'Votes: '+tallyStr+'. ' + (over ? 'Only '+aliveN+' left — the spy survives!' : evName+' is out. Next round starting…');
+    }
   } else if(phase === 'guess'){
-    phaseLabel.textContent = 'Final result of the votes — ' + evName + ' is evicted!';
+    phaseLabel.textContent = 'Round '+round+' · '+evName+' was the SPY — one chance to guess the word!';
     if(clueForm) clueForm.style.display = 'none';
     if(voteArea) voteArea.style.display = 'block';
     if(grid) grid.style.display = 'none'; if(vTitle) vTitle.style.display = 'none';
     const mineToGuess = evicted === user.uid && !roomData.spyGuess;
     if(guessBox) guessBox.style.display = mineToGuess ? 'block' : 'none';
     status.textContent = evicted === user.uid
-      ? (roomData.spyGuess ? 'Guess sent…' : 'You were voted out! Guess the secret word.')
+      ? (roomData.spyGuess ? 'Guess sent…' : 'You were voted out! Guess the secret word to win.')
       : evName + ' was voted out and is guessing the secret word…';
     if(isHost && roomData.spyGuess) spyKick();
   } else if(phase === 'reveal'){
@@ -7317,7 +7342,9 @@ function renderSpyUI(){
 function renderSpyVoteGrid(){
   const grid = $('spyVoteGrid');
   if(!grid || !roomData) return;
-  const players = Object.values(roomData.players || {});
+  if(spyOutMap()[user.uid]){ grid.innerHTML = '<div class="none-words" style="font-size:.85rem">You were eliminated — watching the vote.</div>'; return; }
+  const out = spyOutMap();
+  const players = Object.values(roomData.players || {}).filter(p => !out[p.uid]);
   const myVote = ((roomData.spyVotes || {})['r'+(roomData.spyRound||1)] || {})[user.uid];
   grid.innerHTML = players.map(p => {
     const on = myVote === p.uid ? ' on' : '';
@@ -7332,7 +7359,7 @@ function startSpyTimer(){
     const el = $('spyTimerText'); if(el) el.textContent = left;
     const ring = $('spyTimerRing');
     if(ring){
-      const total = roomData.spyPhase === 'vote' ? SPY_VOTE_SECONDS : roomData.spyPhase === 'guess' ? SPY_GUESS_SECONDS : SPY_CLUE_SECONDS;
+      const total = roomData.spyPhase === 'vote' ? SPY_VOTE_SECONDS : roomData.spyPhase === 'guess' ? SPY_GUESS_SECONDS : roomData.spyPhase === 'result' ? SPY_RESULT_SECONDS : SPY_CLUE_SECONDS;
       ring.style.setProperty('--pct', Math.max(0, left/total*100)+'%');
       ring.classList.toggle('low', left <= 15);
     }
@@ -7342,7 +7369,7 @@ function startSpyTimer(){
   timerInterval = setInterval(tick, 250);
 }
 async function submitSpyClue(){
-  if(roundEnded || !roomData || roomData.spyPhase !== 'clues') return;
+  if(roundEnded || !roomData || roomData.spyPhase !== 'clues' || spyOutMap()[user.uid]) return;
   const rk = 'r'+(roomData.spyRound||1), all = roomData.spyClues || {};
   if((all[rk]||{})[user.uid]) return;
   const input = $('spyClueInput');
@@ -7361,7 +7388,7 @@ async function submitSpyClue(){
   }catch(e){ toast('Could not send clue'); }
 }
 async function submitSpyVote(targetUid){
-  if(roundEnded || !roomData || roomData.spyPhase !== 'vote') return;
+  if(roundEnded || !roomData || roomData.spyPhase !== 'vote' || spyOutMap()[user.uid] || spyOutMap()[targetUid]) return;
   try{
     await db.ref('rooms/'+roomId+'/spyVotes/r'+(roomData.spyRound||1)+'/'+user.uid).set(targetUid);
     snd('tap');
@@ -7383,18 +7410,19 @@ async function submitSpyGuess(){
   }catch(e){ toast('Guess failed'); $('spyGuessBox').style.display = 'block'; }
 }
 async function resolveSpyGame(noEviction){
+  // noEviction=true: the spy was never voted out (rounds ran out or only 2 players were left) -> spy wins
   if(!isHost || !roomData || roomData.spyPhase === 'reveal') return;
   const spyUid = roomData.spyUid, players = roomData.players || {};
   const ev = noEviction ? null : (roomData.spyEvicted || null);
   const g = roomData.spyGuess;
   const spyCaught = ev === spyUid;
   const spyGuessed = !!(g && g.correct);
-  // Spy wins if an innocent was evicted (guess irrelevant), or if the caught spy guessed the word
+  // Spy wins if never caught, or if the caught spy guesses the word
   const spyWon = !spyCaught || (spyCaught && spyGuessed);
   const sc = {};
   if(spyWon) sc['players/'+spyUid+'/spyScore'] = (players[spyUid]?.spyScore||0) + 2;
   else Object.keys(players).forEach(u => { if(u !== spyUid) sc['players/'+u+'/spyScore'] = (players[u]?.spyScore||0) + 1; });
-  const entry = { round: roomData.spyMaxRounds || SPY_MAX_ROUNDS, word: roomData.spyWord, spyUid, evicted: ev, spyCaught, spyGuessed, spyWon, guess: g ? g.guess : null, topAccused: ev };
+  const entry = { round: roomData.spyRound || 1, word: roomData.spyWord, spyUid, evicted: ev, spyCaught, spyGuessed, spyWon, guess: g ? g.guess : null, topAccused: ev, eliminated: Object.keys(spyOutMap()) };
   try{
     await db.ref('rooms/'+roomId).update({ ...sc, spyHistory: [entry], spyEvicted: ev, spyPhase: 'reveal', endsAt: srvNow() + 999999 });
   }catch(e){ console.warn(e); _spyAdvKey=''; }
@@ -7411,8 +7439,8 @@ function checkSpyState(){
       const pl = roomData.players || {};
       const spyName = pl[last.spyUid] ? pl[last.spyUid].name : 'The spy';
       const evName = last.evicted && pl[last.evicted] ? pl[last.evicted].name : '';
-      if(!last.evicted) status.textContent = 'Votes were tied — nobody was evicted. ' + spyName + ' (the spy) wins!';
-      else if(!last.spyCaught) status.textContent = evName + ' was innocent! ' + spyName + ' was the spy and wins!';
+      if(!last.evicted) status.textContent = 'Nobody caught ' + spyName + ' — the spy survives and wins!';
+      else if(!last.spyCaught) status.textContent = spyName + ' was the spy and wins!';
       else if(last.spyGuessed) status.textContent = spyName + ' was caught but guessed the word — the spy wins!';
       else status.textContent = spyName + ' was caught and guessed wrong — civilians win!';
     }
@@ -8577,7 +8605,7 @@ function renderResults(rows){
       histHtml += hist.map(h => {
         const spyP = (roomData.players||{})[h.spyUid];
         const spyName = spyP ? esc(spyP.name) : 'Spy';
-        const evP = (roomData.players||{})[h.evicted]; let outcome = !h.evicted ? 'Votes tied — nobody evicted' : (!h.spyCaught ? (evP?esc(evP.name):'A player')+' was evicted (innocent)' : (h.spyGuessed ? 'Spy caught but guessed the word' : 'Spy caught and guessed wrong'));
+        const evP = (roomData.players||{})[h.evicted]; let outcome = !h.evicted ? 'Spy survived — nobody caught them' : (!h.spyCaught ? (evP?esc(evP.name):'A player')+' was evicted (innocent)' : (h.spyGuessed ? 'Spy caught but guessed the word' : 'Spy caught and guessed wrong'));
         return '<div style="background:#F8F9FA;border-radius:12px;padding:10px 12px;margin:6px 0;border:2px solid #EEF0F2;text-align:left">'
           +'<div style="font-weight:900;color:var(--violet-d)">Spy: '+spyName+'</div>'
           +'<div style="font-size:1.05rem;font-weight:800;letter-spacing:1px;margin:4px 0">'+esc(h.word||'?')+'</div>'
