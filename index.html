@@ -1687,7 +1687,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     <div class="draw-level-bar">
       <span id="drawLevelLabel">Level 1 / 10</span>
       <span class="draw-cat-chip" id="drawCatChip"></span>
-      <span id="drawSeriesScore">Your wins: 0</span>
+      <span id="drawSeriesScore">Your points: 0</span>
     </div>
     <div class="draw-role" id="drawRole">Waiting…</div>
     <div class="draw-word-secret" id="drawWordBox" style="display:none">
@@ -3837,7 +3837,7 @@ const HOWTO = {
     'A random <b>category</b> is picked (animals, movies, songs, actors…). Every word in the game comes from it.',
     'Each level, one player is the <b>drawer</b> and secretly sees a word. Everyone else sees only the blanks.',
     'The drawer sketches it — <b>no letters or writing!</b> Guessers type their guesses in the chat as fast as they can.',
-    'Guess correctly (and quickly) to score. The drawer role rotates every level, across 10 levels.'],
+    'The <b>first correct guess</b> scores 1 point for the guesser <b>and 1 point for the drawer</b>. If nobody guesses it, nobody scores. The drawer role rotates every level, across 10 levels.'],
     tip:'Drawers: start with the simplest, most recognizable shape. Guessers: the category narrows it down!' },
   spy:{ steps:[
     'Everyone gets the secret <b>word</b> from a shown category — except one player, the <b>Spy</b>, who only knows the category.',
@@ -6869,7 +6869,7 @@ function updateDrawLevelBar(){
   if($('drawCatChip')){ const dc = roomData.drawCategory; $('drawCatChip').textContent = dc ? (dc.emoji+' '+dc.name) : ''; }
   const me = roomData.players?.[user.uid];
   const wins = me?.drawWins || 0;
-  if($('drawSeriesScore')) $('drawSeriesScore').textContent = 'Your wins: '+wins;
+  if($('drawSeriesScore')) $('drawSeriesScore').textContent = 'Your points: '+wins;
 }
 function renderDrawScores(){
   const host = $('drawScoreBoard');
@@ -7102,10 +7102,14 @@ async function finishDrawRound(winnerUid){
       }
     }catch(e){}
   }
+  // Scoring: the correct guesser AND the player who drew it each get 1 point.
+  // If nobody guessed it, nobody (including the drawer) scores. drawPtKey makes the award once-per-round.
   let myWins = me?.drawWins || 0;
-  if(winner && winner.uid === user.uid){
+  const iAmDrawer = !!roomData.drawDrawerUid && roomData.drawDrawerUid === user.uid;
+  const earnedPoint = !!winner && (winner.uid === user.uid || iAmDrawer);
+  if(earnedPoint && me && me.drawPtKey !== roomData.startedAt){
     myWins = Math.min(lvl, (me.drawWins || 0) + 1);
-    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({drawWins: myWins, score: myWins}); }catch(e){}
+    try{ await db.ref('rooms/'+roomId+'/players/'+user.uid).update({drawWins: myWins, score: myWins, drawPtKey: roomData.startedAt}); }catch(e){}
   }
   const seriesDone = lvl >= maxL;
   const btnNext = $('btnDrawNext');
@@ -8398,10 +8402,11 @@ function computeDrawResults(){
     const items = hist.map(h => {
       const mine = h.winnerUid === p.uid;
       const drew = h.drawerUid === p.uid;
+      const scored = mine || (drew && !!h.winnerUid);   // guesser + drawer both score when it was guessed
       return {
         w: 'L'+h.level+': '+(h.word||'?')+(mine?' ✓':'')+(drew?' 🎨':''),
-        pts: mine ? 1 : 0,
-        dupe: !mine,
+        pts: scored ? 1 : 0,
+        dupe: !scored,
         cat: h.word || ''
       };
     });
@@ -8639,20 +8644,20 @@ function renderResults(rows){
     const maxL = roomData.drawMaxLevels || DRAW_MAX_LEVELS;
     let hTitle = title;
     if(rows.length===1) hTitle = '🎉 Series complete!';
-    else if(leaders.length>1 && top>0) hTitle = '🤝 Tie at '+top+' wins!';
+    else if(leaders.length>1 && top>0) hTitle = '🤝 Tie at '+top+' point'+(top===1?'':'s')+'!';
     else if(top>0) hTitle = '👑 '+esc(leaders[0].p.name)+' wins Sketch Race!';
     else hTitle = 'Series over';
     const cards = rows.map((r,i)=>{
       const rank = rows.findIndex(x=>x.final===r.final)+1;
       const isTop = rank===1 && r.final>0;
       const isMe = r.p.uid===user.uid;
-      const outcome = isTop ? 'WINNER' : (r.final>0 ? r.final+' wins' : 'No wins');
+      const outcome = isTop ? 'WINNER' : (r.final>0 ? r.final+' point'+(r.final===1?'':'s') : 'No points');
       return '<div class="res-card'+(isTop?' win':'')+(isMe?' me':'')+'" style="--i:'+i+'">'
         +'<div class="res-head">'
         +'<div class="rk">'+(isTop?'👑':rank)+'</div>'
         +'<div class="info"><div class="n">'+esc(r.p.avatar||'')+' '+esc(r.p.name)+(isMe?' (you)':'')+'</div>'
         +'<div class="d">'+outcome+'</div></div>'
-        +'<div class="pts-wrap"><div class="pts">'+r.final+'</div><div style="font-size:.7rem;font-weight:800;color:#636E72">wins</div></div>'
+        +'<div class="pts-wrap"><div class="pts">'+r.final+'</div><div style="font-size:.7rem;font-weight:800;color:#636E72">pts</div></div>'
         +'</div></div>';
     }).join('');
     let histHtml = '<div class="poss" style="margin-top:12px"><h3>🎨 Round history</h3>';
@@ -8671,7 +8676,7 @@ function renderResults(rows){
       }).join('');
     }
     histHtml += '</div>';
-    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+hTitle+'</div><div class="s">Best of '+maxL+' · first correct guess wins each level</div></div>'+cards;
+    $('resultsGrid').innerHTML = '<div class="res-banner"><div class="t">'+hTitle+'</div><div class="s">Best of '+maxL+' · the drawer and the correct guesser each earn 1 point</div></div>'+cards;
     $('possibleWrap').innerHTML = histHtml;
     return;
   }
