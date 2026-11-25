@@ -11765,7 +11765,7 @@ function touch(){if(grounded()){if(lockT===null)lockT=srvNow();else if(resets<15
 function spawn(t){while(q.length<8)bag();if(!t)t=q.shift();p={t,r:0,x:Math.floor((W-ROT[t][0].length)/2),y:HD-1};lockT=null;resets=0;lastRot=false;lastFall=srvNow();if(hit(p.t,p.r,p.x,p.y))die()}
 function move(dx,dy){if(hit(p.t,p.r,p.x+dx,p.y+dy))return false;p.x+=dx;p.y+=dy;lastRot=false;if(dy>0){lockT=null;resets=0}return true}
 function rotate(d){if(p.t==='O')return;const from=p.r,to=(from+d+4)%4,tab=p.t==='I'?KI:K3,idx=d>0?from*2:(from*2+7)%8;for(const[kx,ky]of tab[idx]){if(!hit(p.t,to,p.x+kx,p.y-ky)){p.x+=kx;p.y-=ky;p.r=to;lastRot=true;touch();return}}}
-function curLvl(){return Math.min(20,1+Math.floor(sc/1200)+Math.floor(Math.max(0,srvNow()-T0)/45000))}
+function curLvl(){return Math.min(20,1+Math.floor(sc/2500))}   // score-only: top speed (L20) at ~47,500 pts; no time-based ramp
 function fit(){const cv=E('ttCv'),top=E('ttOpps').parentNode,pad=E('ttPad'),hint=document.querySelector('#screen-tetris .tt-hint'),sw=E('ttHold').getBoundingClientRect().width||54;
   const used=(top.style.display==='none'?0:top.offsetHeight+8)+pad.offsetHeight+(hint&&hint.offsetParent?hint.offsetHeight:0)+130;
   const h=Math.max(180,Math.min(480,window.innerHeight-used,(window.innerWidth-2*sw-34)*2));cv.style.height=h+'px'}
@@ -11841,7 +11841,7 @@ function loop(){
   if(now<T0){E('ttCount').textContent=Math.ceil((T0-now)/1000);draw();return}
   E('ttCount').textContent='';
   if(!dead&&p){const L=curLvl();if(L>lvShown){if(lvShown)flash('LEVEL '+L+' · FASTER!');lvShown=L;stat()}
-    const gi=Math.max(6,900*Math.pow(Math.max(.05,.8-(L-1)*.007),L-1)),iv=keys.down?Math.min(gi,30):gi;let n=0;
+    const gi=Math.max(40,900*Math.pow(.83,L-1)),iv=keys.down?Math.min(gi,30):gi;let n=0;
     while(now-lastFall>=iv&&n<25){n++;lastFall+=iv;if(!move(0,1)){if(lockT===null)lockT=now;lastFall=now;break}}
     if(now-lastFall>iv*30)lastFall=now;
     if(lockT!==null&&now-lockT>=Math.max(300,500-(L-1)*10))lockPiece()}
