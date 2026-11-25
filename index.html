@@ -11747,7 +11747,7 @@ AC.push(['Welcome Guests','Welcome 25 visitor stays',g=>(g.st.vis||0)>=25,400],[
 <script>
 /* ===== TETRIS VERSUS (Tetris Friends style): SRS, hold, ghost, garbage, cancel, combo, B2B, T-spin ===== */
 (function(){
-const W=10,H=20,HD=2,R=H+HD,CMB=[0,0,1,1,2,2,3,3,4,4,4,5],NM=['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
+const W=10,H=20,HD=2,R=H+HD,CMB=[0,1,1,2,2,3,3,4,4,5,5,6],NM=['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
 const COL=['#0000','#00E5FF','#FFD60A','#B14DFF','#4DFF7A','#FF4D5E','#4D7CFF','#FF9F1C','#8892A6'],TY='IOTSZJL';
 const SH={I:[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1],[0,0,0]],S:[[0,1,1],[1,1,0],[0,0,0]],Z:[[1,1,0],[0,1,1],[0,0,0]],J:[[1,0,0],[1,1,1],[0,0,0]],L:[[0,0,1],[1,1,1],[0,0,0]]};
 const rot=m=>{const n=m.length,r=m.map(()=>Array(n).fill(0));m.forEach((row,y)=>row.forEach((v,x)=>{r[x][n-1-y]=v}));return r};
@@ -11797,7 +11797,7 @@ function lockPiece(){
     let k=Math.min(pend,8);pend-=k;
     if(k){shake=now;buzz(60);let hc=Math.floor(Math.random()*W);for(let i=0;i<k;i++){if(g[0].some(v=>v)){die();return}g.shift();if(Math.random()<.3)hc=Math.floor(Math.random()*W);const r=Array(W).fill(8);r[hc]=0;g.push(r)}}
   }
-  if(lab)flash(lab+(atk?'  +'+atk:''));
+  const cxl=Math.min(pend,atk);if(lab)flash(lab+(atk?'  +'+atk:'')+(cxl?'  BLOCKED '+cxl:''));
   if(atk){const c=Math.min(pend,atk);pend-=c;atk-=c;if(atk>0){const t=pickT();if(t){atkT+=atk;db.ref('rooms/'+roomId+'/ttq/'+t).push({n:atk,f:user.uid}).catch(()=>{})}}}
   canHold=true;spawn();sync();stat();
 }
