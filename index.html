@@ -716,6 +716,24 @@ body.leave-pad .screen.active{margin-top:calc(max(12px,env(safe-area-inset-top))
 .draw-guess-item .who{opacity:.7;font-size:.75rem;margin-right:6px}
 .draw-status{text-align:center;font-weight:800;font-size:.88rem;color:#636E72;min-height:1.3em;margin-top:6px}
 .hang-end-actions{display:flex;flex-direction:column;gap:8px;margin-top:12px;width:100%}
+
+/* ===== UI polish (display only) ===== */
+.scat-legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;position:relative;z-index:1}
+.scat-legend .lg{font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:99px;line-height:1.3}
+.scat-legend .lg.ok{background:#E3FAF1;color:#00785B}
+.scat-legend .lg.maybe{background:#FFF3D6;color:#8A5A00}
+.scat-legend .lg.no{background:#FFE6E3;color:#B3261E}
+/* compact notes: one line on idle rows, full text on the row being edited */
+.scat-note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+.scat-row:focus-within .scat-note{-webkit-line-clamp:unset;overflow:visible}
+/* bigger tap target for Restore */
+.btn-restore{min-height:34px;min-width:64px}
+/* optional "Reduce effects" mode (toggle on the home screen) */
+html.reduce-fx .blob{display:none!important}
+html.reduce-fx .thumb *,html.reduce-fx .game-card::before,html.reduce-fx .scat-row{animation:none!important}
+html.reduce-fx .game-card{transition:none!important}
+html.reduce-fx *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#btnFx{margin-top:8px}
 /* ===== Accessibility ===== */
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 input:focus-visible{outline:none}
@@ -1509,6 +1527,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
     </div>
   </div>
   <button class="btn btn-primary" id="btnInstall" style="display:none">📲 Install on phone</button>
+  <button class="btn btn-ghost quiet" id="btnFx" type="button" aria-pressed="false">✨ Effects: On</button>
   <button class="btn btn-ghost quiet" id="btnLogout">Log out</button>
 </section>
 <!-- Matchmaking: Create / Join after picking a game -->
@@ -1598,6 +1617,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
       <div class="scat-pad-title">Your answers</div>
       <div class="scat-pad-hint">Auto-checked as you type</div>
     </div>
+    <div class="scat-legend" aria-label="What the marks mean"><span class="lg ok">✓ Confirmed</span><span class="lg maybe">? Counts, can be challenged</span><span class="lg no">! Rejected</span></div>
     <div class="scat-cats" id="scatCats"></div>
     <div class="scat-status" id="scatStatus">Tap a category and start typing…</div>
     <div class="scat-submit-wrap">
@@ -8055,7 +8075,7 @@ function renderResults(rows){
         if(isRejected){
           detailHtml += '<span style="font-size:.75rem;font-weight:800;color:#E74C3C">'+(auto?'Auto-check: doesn’t fit the category':'Rejected by agreement')+'</span>';
           // Allow re-open only if everyone agrees again (simple restore by any player for now)
-          detailHtml += '<button type="button" class="btn-restore" data-key="'+key+'" style="font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:99px;border:2px solid #00B894;background:#fff;color:#00B894;cursor:pointer">Restore</button>';
+          detailHtml += '<button type="button" class="btn-restore" data-key="'+key+'" style="font-size:.75rem;font-weight:800;padding:8px 14px;min-height:34px;border-radius:99px;border:2px solid #00B894;background:#fff;color:#00B894;cursor:pointer">Restore</button>';
         } else if(ch){
           // Open challenge – show votes
           const votes = ch.votes || {};
@@ -10953,6 +10973,22 @@ window.computeTetrisResults=function(){
 };
 })();
 
+</script>
+<script>
+/* Reduce-effects toggle: purely visual, remembered on this device. Does not touch any game code. */
+(function(){
+  var KEY='arenovaReduceFx',root=document.documentElement,btn=document.getElementById('btnFx');
+  if(!btn)return;
+  var on=false;
+  try{on=localStorage.getItem(KEY)==='1'}catch(e){}
+  function paint(){
+    root.classList.toggle('reduce-fx',on);
+    btn.textContent=on?'✨ Effects: Off (saves battery)':'✨ Effects: On';
+    btn.setAttribute('aria-pressed',on?'true':'false');
+  }
+  btn.addEventListener('click',function(){on=!on;try{localStorage.setItem(KEY,on?'1':'0')}catch(e){}paint()});
+  paint();
+})();
 </script>
 </body>
 </html>
