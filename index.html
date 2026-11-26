@@ -1413,6 +1413,9 @@ html.reduce-fx .t-tongits::before{animation:none}
 #tgTable .av .dl{right:8px;bottom:24px;z-index:2}
 #tgTable .seat.on .av,#tgTable .meav.on{filter:drop-shadow(0 0 8px #FFD166) drop-shadow(0 0 14px #FFD166aa)}
 .metag{position:absolute;left:50%;transform:translateX(-50%);bottom:-8px;white-space:nowrap;background:#000b;color:#fff;font:800 .7rem 'DM Sans';padding:2px 9px;border-radius:999px;border:1px solid #FFD16688}
+.shuf{position:relative;margin:auto;width:56px;height:80px}
+.shuf .pc{position:absolute;inset:0;width:56px;height:80px;animation:tgRiffle .62s ease-in-out 2 both;animation-delay:calc(var(--i)*30ms)}
+@keyframes tgRiffle{0%{transform:translate(0,0) rotate(0)}30%{transform:translate(var(--sx),-10px) rotate(var(--sr))}55%{transform:translate(var(--sx),-4px) rotate(calc(var(--sr)*.6))}85%{transform:translate(var(--jx),calc(var(--i)*-1px)) rotate(0)}100%{transform:translate(0,calc(var(--i)*-1px)) rotate(0)}}
 .fan{display:flex;height:34px}.fan .pc{width:24px;height:34px;margin-left:-14px;border-width:2px}.fan .pc:first-child{margin-left:0}
 .cnt{font-weight:800;font-size:.7rem;background:#0007;border-radius:8px;padding:1px 6px}
 .melds{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:6px}
@@ -11095,10 +11098,10 @@ window.computeTetrisResults=function(){
 (()=>{
 const $=id=>document.getElementById(id),SU=['♠','♥','♦','♣'],RK=[,'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const val=c=>Math.min(c.r,10),red=c=>c.s===1||c.s===2,tot=h=>h.reduce((a,c)=>a+val(c),0),wait=ms=>new Promise(r=>setTimeout(r,ms));
-let G=null,wallet=100,stake=5,sortM='rank',sel=new Set();
+let G=null,wallet=100,stake=5,sortM='deal',sel=new Set();
 let MP=null,dealUntil=0,askKey='',pubT=0,prepFor='';
 let FX=null,DEALFX=false,NOFX=false,discLen=0;
-const DEAL_STEP=60,DEAL_MS=39*DEAL_STEP+520;
+const DEAL_STEP=60,DEAL_MS=39*DEAL_STEP+520,SHUF_MS=1700;
 function rnd(n){const c=window.crypto||window.msCrypto;if(c&&c.getRandomValues){const a=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;do{c.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}return Math.random()*n|0}
 const EASE='cubic-bezier(.22,.9,.3,1)',noMotion=()=>document.documentElement.classList.contains('reduce-fx')||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
 const rectOf=e=>e?e.getBoundingClientRect():null;
@@ -11154,9 +11157,10 @@ function layoff(h,all){let ch=true,n=0;while(ch){ch=false;for(const c of h.slice
 const rm=(h,cs)=>cs.forEach(c=>{const i=h.findIndex(x=>x.id===c.id);if(i>=0)h.splice(i,1)});
 const allMelds=()=>G.players.flatMap(p=>p.melds);
 /* ---- round ---- */
-function deal(){DEALFX=true;discLen=0;FX=null;const P=G.players;P.forEach(p=>{if(p.bot&&p.stack<stake*3)p.stack=100});
+function deal(){if(G.shuffling)return;if(noMotion()){deal0();return}G.shuffling=true;ov();sel.clear();shuffleView();pubSoon();const g0=G;setTimeout(()=>{if(G!==g0)return;G.shuffling=false;deal0()},SHUF_MS)}
+function deal0(){DEALFX=true;discLen=0;FX=null;const P=G.players;P.forEach(p=>{if(p.bot&&p.stack<stake*3)p.stack=100});
  const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.push({r,s,id:s*13+r});
- for(let pass=0;pass<3;pass++)for(let i=d.length-1;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}
+ for(let pass=0;pass<7;pass++){for(let i=d.length-1;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}d.push(...d.splice(0,rnd(d.length)))}
  G.id=Date.now();G.res=null;G.m='';G.askSeat=-1;G.start=P[0].stack;P.forEach(p=>{p.start=p.stack;p.stack-=stake;p.hand=[];p.melds=[]});for(let r=0;r<12;r++)for(let k=1;k<=3;k++)P[(G.dealer+k)%3].hand.push(d.pop());
  P[G.dealer].hand.push(d.pop());G.stock=d;G.disc=[];G.pot=stake*3;G.turn=G.dealer;G.phase='play';G.first=true;sel.clear();
  if(MP){MP.W0=wallet;wallet=Math.max(0,wallet-stake);MP.fin=0}else wallet=P[0].stack;saveW();G.stake=stake;G.dealing=!noMotion();ov();render();DEALFX=false;
@@ -11217,7 +11221,7 @@ function act(a,el){FX=null;if(!G&&!['st','stakes','leave','loan','close','bank',
  if(G&&GA.includes(a)){const d={ids:[...sel],m:el&&el.dataset&&el.dataset.m!=null?+el.dataset.m:-1};
   if(MP&&!MP.host){const e=doAct(mySeat(),a,d,true);if(e)return toast(e);if(a==='chal'||a==='fold')ov();mpSend(a,d);return}
   const e=doAct(mySeat(),a,d);if(e)toast(e);return}
- if(a==='sort'){sortM=sortM==='rank'?'suit':'rank';render()}
+ if(a==='sort'){sortM={deal:'rank',rank:'suit',suit:'deal'}[sortM];render()}
  else if(a==='card'){const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render()}
  else if(a==='again'){if(MP&&!MP.host)return;if(!G||!canAnte())return;deal()}
  else if(a==='stakes'){if(MP&&!MP.host){ov(waitHtml());return}stakeMenu()}
@@ -11292,12 +11296,12 @@ function statusLine(){if(!G||G.phase==='over')return'';if(G.dealing)return'Shuff
 const cdOf=id=>{const s=Math.floor((id-1)/13);return{r:id-s*13,s,id}};
 const arr=x=>Array.isArray(x)?x:(x&&typeof x==='object'?Object.values(x):[]);
 function pubSoon(){if(!MP||!MP.host||pubT)return;pubT=setTimeout(pub,40)}
-function pub(){pubT=0;if(!MP||!MP.host||!G||!roomId)return;const P=G.players;
+function pub(){pubT=0;if(!MP||!MP.host||!G||!roomId)return;if(G.shuffling){if(MP.last!=='shuf'){MP.last='shuf';db.ref('rooms/'+MP.code+'/tg').set({shuf:1,v:++MP.v,id:G.id||0}).catch(()=>{})}return}const P=G.players;
  const o={id:G.id,dealer:G.dealer,turn:G.turn,phase:G.phase,first:G.first?1:0,pot:G.pot||0,stake,stockN:G.stock.length,disc:G.disc.map(c=>c.id),m:G.m||'',ask:G.askSeat==null?-1:G.askSeat,askC:G.askCaller==null?-1:G.askCaller,res:G.res?{w:G.res.w,why:G.res.why}:null,
   players:P.map(p=>({n:String(p.name||'Player').slice(0,24),a:p.av||'🎮',b:p.bot?1:0,u:p.uid||'',s:p.stack,st:p.start||0,h:p.hand.map(c=>c.id),ml:p.melds.map(m=>({c:m.cards.map(c=>c.id)}))}))};
  const j=JSON.stringify(o);if(j===MP.last)return;MP.last=j;o.v=++MP.v;
  db.ref('rooms/'+MP.code+'/tg').set(o).catch(e=>console.warn('tongits publish',e))}
-function applySnap(s){const prev=G,newRound=!prev||prev.id!==s.id;
+function applySnap(s){if(s.shuf){ov();askKey='';shuffleView();return}const prev=G,newRound=!prev||prev.id!==s.id;
  const P=arr(s.players).map(p=>({name:p.n,av:p.a,bot:p.b?1:0,uid:p.u||null,stack:p.s,start:p.st,hand:arr(p.h).map(cdOf),melds:arr(p.ml).map(m=>({cards:arr(m.c).map(cdOf)}))}));
  const g={id:s.id,dealer:s.dealer,turn:s.turn,phase:s.phase,first:!!s.first,pot:s.pot||0,stock:new Array(s.stockN||0).fill(0),disc:arr(s.disc).map(cdOf),players:P,m:s.m||'',askSeat:s.ask==null?-1:s.ask,askCaller:s.askC==null?-1:s.askC,res:s.res||null,dealing:false};
  stake=s.stake||stake;FX=prev&&!newRound?prev.turn:null;
@@ -11351,7 +11355,7 @@ function modeMenu(){const old=$('tgModeOv');if(old)old.remove();const o=document
  $('tgmHost').onclick=async()=>{o.remove();openMatchmaking('tongits');try{await $('btnHost').onclick()}catch(e){}}}
 /* ---- seated characters: every profile avatar is drawn as a person-sized figure sitting around the table ---- */
 const _e=(c,x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`,_p=(d,c,x)=>`<path d="${d}" fill="${c}" ${x||''}/>`,_H=c=>_e(c,0,0,22),
- _EY=_e('#222',-8,-2,3)+_e('#222',8,-2,3),_NS=c=>_e(c||'#222',0,6,3.2),_SM='<path d="M-5 11Q0 15 5 11" stroke="#222" fill="none" stroke-width="1.6" stroke-linecap="round"/>',
+ _EY=_e('#1b1b1b',-8,-2,3.5)+_e('#1b1b1b',8,-2,3.5)+_e('#fff',-9.2,-3.3,1.2)+_e('#fff',6.8,-3.3,1.2),_NS=c=>_e(c||'#222',0,6,3.2)+_e('#fff',-1,5,.9),_SM='<path d="M-5 11Q0 15 5 11" stroke="#222" fill="none" stroke-width="1.6" stroke-linecap="round"/>',
  _ST=(d)=>`<path d="${d}" stroke="#222" fill="none" stroke-width="1.8" stroke-linecap="round"/>`;
 const AVF={
 '🦊':[_p('M-23-4L-19-35L-4-19ZM23-4L19-35L4-19Z','#E8742A')+_H('#E8742A')+_p('M-22 5Q0 28 22 5Q0 13-22 5Z','#fff'),_EY+_NS()],
@@ -11390,25 +11394,32 @@ const AVF={
 '🎨':[_p('M-26 0Q-26-22 0-22Q26-22 26-2Q26 14 10 12Q-2 10 4 22Q-26 26-26 0Z','#E8C79A')+_e('#FF5C5C',-14,-8,4)+_e('#4F8CFF',-4,-16,4)+_e('#2EC4B6',8,-14,4)+_e('#FFD23F',18,-4,4),_e('#222',-8,2,2.4)+_e('#222',4,2,2.4)+_ST('M-6 10Q-1 14 4 10')],
 '🕵':[_H('#F2C9A0')+_p('M-30-8Q0-14 30-8Q22-12 14-14Q12-34 0-34Q-12-34-14-14Q-22-12-30-8Z','#5b4636')+_p('M-14-14H14L14-18H-14Z','#222'),'<circle cx="-8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><circle cx="8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><path d="M-3 0H3" stroke="#222"/>'+_SM],
 '🎲':[_p('M-20-20H20Q24-20 24-16V16Q24 20 20 20H-20Q-24 20-24 16V-16Q-24-20-20-20Z','#fff','stroke="#333" stroke-width="2"'),_e('#222',-10,-10,3.2)+_e('#222',10,-10,3.2)+_e('#222',-10,10,3.2)+_e('#222',10,10,3.2)+_e('#222',0,0,3.2)]};
-function fig(av,i,back){const k=String(av||'').replace(/\uFE0F/g,''),d=AVF[k],col=['#7C5CFF','#FF6BB5','#2EC4B6'][(i||0)%3];
- const head=d?d[0]+(back?'':d[1]):_H('#f6d3a8')+(back?'':`<text y="9" font-size="26" text-anchor="middle">${E(av||'🙂')}</text>`);
- return`<svg viewBox="0 -12 100 104" aria-hidden="true"><rect x="12" y="34" width="76" height="70" rx="18" fill="#3a2214"/><path d="M10 92Q12 54 50 52Q88 54 90 92Z" fill="${col}"/><path d="M38 52Q50 62 62 52" fill="#0003"/><g transform="translate(50,36)">${head}</g></svg>`}
+const OBJF=new Set(['🌸','🔥','⚡','🌟','💎','🎮','🎯','🚀','🎨','🎲','🦋']);
+function fig(av,i,back){const k=String(av||'').replace(/\uFE0F/g,''),d=AVF[k],n=(i||0)%3,c0=[['#8f74ff','#4b2fdb'],['#ff8cc6','#d63a8c'],['#4fd9c9','#12907f']][n];
+ const round=!d||!OBJF.has(k),hd=d?d[0]:_H('#f6d3a8'),face=back?'':(d?d[1]:`<text y="9" font-size="26" text-anchor="middle">${E(av||'🙂')}</text>`);
+ const shade=round?`<circle r="22.5" fill="url(#tgHl)"/>`+(back?'<circle r="22.5" fill="#000" opacity=".3"/><path d="M-14-10Q0-20 14-10" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none"/>':''):(back?'<g opacity=".35"><rect x="-26" y="-26" width="52" height="52" fill="#000"/></g>':'');
+ return`<svg viewBox="0 -12 100 104" aria-hidden="true"><defs><radialGradient id="tgHl" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></radialGradient><linearGradient id="tgB${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c0[0]}"/><stop offset="1" stop-color="${c0[1]}"/></linearGradient><radialGradient id="tgCh" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#6b4226"/><stop offset="1" stop-color="#2a170c"/></radialGradient></defs>`+
+ `<rect x="10" y="30" width="80" height="74" rx="20" fill="url(#tgCh)"/><rect x="13" y="32" width="74" height="5" rx="2.5" fill="#fff" opacity=".13"/>`+
+ `<path d="M6 94Q8 56 50 53Q92 56 94 94Z" fill="url(#tgB${n})"/><path d="M6 94Q8 56 50 53" stroke="#fff" stroke-opacity=".3" stroke-width="1.6" fill="none"/>`+
+ (back?'<path d="M50 60V94" stroke="#000" stroke-opacity=".25" stroke-width="1.5"/><path d="M34 56Q50 64 66 56L66 60Q50 69 34 60Z" fill="#fff" fill-opacity=".85"/>':'<path d="M38 54L50 74L62 54Q50 60 38 54Z" fill="#fff"/><path d="M38 54L47 80L50 74ZM62 54L53 80L50 74Z" fill="#000" fill-opacity=".22"/><circle cx="50" cy="84" r="1.8" fill="#fff" opacity=".8"/>')+
+ `<ellipse cx="50" cy="56" rx="17" ry="7" fill="#000" opacity=".35"/><g transform="translate(50,36)">${hd}${shade}${face}</g></svg>`}
+function shuffleView(){$('tgTable').innerHTML='<div class="shuf">'+Array.from({length:14},(_,i)=>`<div class="pc bk" style="--i:${i};--sx:${i%2?'':'-'}74px;--sr:${i%2?12:-12}deg;--jx:${(i*7%5)-2}px"></div>`).join('')+'</div>';$('tgHand').innerHTML='';$('tgAct').innerHTML='';msg('Shuffling the deck…')}
 /* ---- ui ---- */
 function msg(t){const m=$('tgMsg');if(m)m.textContent=t}
 function ov(h){bankOpen=false;const o=$('tgOv');o.innerHTML=h||'';o.classList.toggle('on',!!h)}
 function ch(c,x=''){return`<div class="pc ${red(c)?'r':''} ${x}" data-id="${c.id}"><b>${RK[c.r]}</b><i>${SU[c.s]}</i></div>`}
 function mlH(p){const A=allMelds();return G.players[p].melds.map(m=>`<div class="ml ${sel.size&&mine()?'hot':''}" data-a="sapaw" data-m="${A.indexOf(m)}">${m.cards.slice().sort((a,b)=>a.r-b.r||a.s-b.s).map(c=>ch(c,'sm')).join('')}</div>`).join('')}
-function render(){if(!G)return;const P=G.players,M=mySeat(),p0=P[M];$('tgW').textContent='₱'+wallet;sel.forEach(id=>{if(!p0.hand.some(c=>c.id===id))sel.delete(id)});
+function render(){if(!G||G.shuffling)return;const P=G.players,M=mySeat(),p0=P[M];$('tgW').textContent='₱'+wallet;sel.forEach(id=>{if(!p0.hand.some(c=>c.id===id))sel.delete(id)});
  const _prev=new Map(),_dk=deckRect(),_pushed=G.disc.length>discLen;discLen=G.disc.length;
  if(!DEALFX)document.querySelectorAll('#tgTable [data-id],#tgHand [data-id]').forEach(e=>_prev.set(+e.dataset.id,e.getBoundingClientRect()));
  const _from=FX!=null?seatOrigin(FX):(_dk||tableCenter());
  const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${fig(p.av,i,false)}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan">${p.hand.slice(0,6).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${p.hand.length} cards</span><div class="melds">${mlH(i)}</div></div>`};
  const top=G.disc[G.disc.length-1];
  $('tgTable').innerHTML=`<div id="tgSeats">${seat((M+2)%3)}${seat((M+1)%3)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div><div class="av meav ${G.turn===M&&G.phase!=='over'?'on':''}">${fig(p0.av,M,true)}${G.dealer===M?'<span class="dl">D</span>':''}<small class="metag">${E(p0.name)} · ₱${p0.stack}</small></div>`;
- const h=p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r),W=$('tgHand').clientWidth||340,sp=Math.min(38,(W-56)/Math.max(1,h.length-1));
+ const h=(sortM==='deal'?p0.hand.slice():p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r)),W=$('tgHand').clientWidth||340,sp=Math.min(38,(W-56)/Math.max(1,h.length-1));
  $('tgHand').innerHTML=h.map((c,i)=>ch(c,(sel.has(c.id)?'sel':'')).replace('class="pc','data-a="card" style="margin-left:'+(i?sp-50:0)+'px;animation:none" class="pc')).join('');
  const m=mine(),d=m&&G.phase==='draw',pl=m&&G.phase==='play';
- $('tgAct').innerHTML=`<button class="tgb s" data-a="sort">⇅ ${sortM==='rank'?'Rank':'Suit'}</button>`+(d?`<button class="tgb g" data-a="draw">Draw</button><button class="tgb" data-a="take">Take discard</button><button class="tgb o" data-a="callD" ${G.first||!p0.melds.length?'disabled':''}>Call Draw</button>`:`<button class="tgb g" data-a="meld" ${pl&&kind([...sel].map(id=>p0.hand.find(c=>c.id===id)).filter(Boolean))?'':'disabled'}>Meld</button><button class="tgb o" data-a="disc" ${pl&&sel.size===1?'':'disabled'}>Discard</button>`);playFx(_prev,_from,_pushed);if(MP){msg(statusLine());if(MP.host)pubSoon()}}
+ $('tgAct').innerHTML=`<button class="tgb s" data-a="sort">⇅ ${{rank:'Rank',suit:'Suit',deal:'Dealt'}[sortM]}</button>`+(d?`<button class="tgb g" data-a="draw">Draw</button><button class="tgb" data-a="take">Take discard</button><button class="tgb o" data-a="callD" ${G.first||!p0.melds.length?'disabled':''}>Call Draw</button>`:`<button class="tgb g" data-a="meld" ${pl&&kind([...sel].map(id=>p0.hand.find(c=>c.id===id)).filter(Boolean))?'':'disabled'}>Meld</button><button class="tgb o" data-a="disc" ${pl&&sel.size===1?'':'disabled'}>Discard</button>`);playFx(_prev,_from,_pushed);if(MP){msg(statusLine());if(MP.host)pubSoon()}}
 function stakeMenu(){if(MP)return mpStakeMenu();bankOpen=false;let loan='';try{loan=localStorage.getItem('tg_loan')}catch(e){}const broke=wallet<6,can=broke&&loan!==new Date().toDateString();
  ov(`<div class="tgm"><h2>Choose your ante</h2><p>Balance <b style="color:#FFD166">₱${wallet}</b>. Every player antes into the pot; winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${wallet<s*3?'disabled':''}>₱${s}</button>`).join('')}</div>${broke?`<p>You're nearly broke!</p><div class="row"><button class="tgb g" data-a="loan" ${can?'':'disabled'}>${can?'Claim ₱50 refill':'Refill available tomorrow'}</button></div>`:''}<div class="row"><button class="tgb" data-a="bank">🤝 Friends & Loans${Object.keys(REQ).length?' ('+Object.keys(REQ).length+')':''}</button></div><div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Back to lobby</button></div></div>`)}
 let openTok=0;
