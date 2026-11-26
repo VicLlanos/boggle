@@ -1397,7 +1397,7 @@ html.reduce-fx .t-tongits::before{animation:none}
 #tgTop button,.tgb{border:0;border-radius:12px;padding:9px 14px;font:800 .85rem 'DM Sans';color:#fff;background:rgba(255,255,255,.14);cursor:pointer}
 .tg-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;background:#0008;font-weight:800;border:1px solid #FFD16688}
 .tg-chip::before,.ch{content:'';width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#FFD166 38%,#E17055 40% 56%,#FFD166 58%);box-shadow:0 2px 3px #0008;display:inline-block}
-#tgTable{flex:1;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 10px;border-radius:150px/110px;background:radial-gradient(ellipse at 50% 45%,#23a56f,#0f6b45 62%,#08402a);border:9px solid #4a2c14;box-shadow:0 0 0 3px #C9A24B,0 22px 50px #000a,inset 0 0 70px #0009,inset 0 0 0 2px #ffffff22}
+#tgTable{position:relative;margin:90px 0 82px;flex:1;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 10px;border-radius:150px/110px;background:radial-gradient(ellipse at 50% 45%,#23a56f,#0f6b45 62%,#08402a);border:9px solid #4a2c14;box-shadow:0 0 0 3px #C9A24B,0 22px 50px #000a,inset 0 0 70px #0009,inset 0 0 0 2px #ffffff22}
 #tgSeats{display:flex;justify-content:space-between;gap:6px;padding:0 4px}
 .seat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:6px 4px;border-radius:16px;transition:.25s}
 .seat.on{background:#ffffff14;box-shadow:0 0 0 2px #FFD166,0 0 26px #FFD166aa}
@@ -1406,6 +1406,13 @@ html.reduce-fx .t-tongits::before{animation:none}
 .av .dl{position:absolute;right:-8px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:#fff;color:#111;font:800 .6rem sans-serif;display:grid;place-items:center}
 .seat small{font-weight:800;font-size:.72rem;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .seat .stk{font-weight:800;font-size:.72rem;color:#FFD166}
+#tgTable .seat{position:relative;padding-top:8px}
+#tgTable .seat .av,#tgTable .meav{width:88px;height:92px;border-radius:0;background:none;border:0;font-size:0;display:block;position:absolute;left:50%;margin-left:-44px;top:-105px;pointer-events:none;filter:drop-shadow(0 6px 6px #0008)}
+#tgTable .meav{top:calc(100% - 5px)}
+#tgTable .av svg{width:100%;height:100%;display:block;overflow:visible}
+#tgTable .av .dl{right:8px;bottom:24px;z-index:2}
+#tgTable .seat.on .av,#tgTable .meav.on{filter:drop-shadow(0 0 8px #FFD166) drop-shadow(0 0 14px #FFD166aa)}
+.metag{position:absolute;left:50%;transform:translateX(-50%);bottom:-8px;white-space:nowrap;background:#000b;color:#fff;font:800 .7rem 'DM Sans';padding:2px 9px;border-radius:999px;border:1px solid #FFD16688}
 .fan{display:flex;height:34px}.fan .pc{width:24px;height:34px;margin-left:-14px;border-width:2px}.fan .pc:first-child{margin-left:0}
 .cnt{font-weight:800;font-size:.7rem;background:#0007;border-radius:8px;padding:1px 6px}
 .melds{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:6px}
@@ -11096,7 +11103,7 @@ function rnd(n){const c=window.crypto||window.msCrypto;if(c&&c.getRandomValues){
 const EASE='cubic-bezier(.22,.9,.3,1)',noMotion=()=>document.documentElement.classList.contains('reduce-fx')||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
 const rectOf=e=>e?e.getBoundingClientRect():null;
 const deckRect=()=>rectOf(document.querySelector('#tgTable .pile.stk .pc'));
-const seatAv=i=>rectOf(document.querySelector('#tgTable .seat[data-seat="'+i+'"] .av'));
+const seatAv=i=>rectOf(document.querySelector('#tgTable .seat[data-seat="'+i+'"] .av')||document.querySelector('#tgTable .meav'));
 function tableCenter(){const r=$('tgTable').getBoundingClientRect();return{left:r.left+r.width/2-25,top:r.top+r.height/2-36,width:50,height:72}}
 function seatOrigin(i){const r=seatAv(i);return r?{left:r.left+r.width/2-25,top:r.top+r.height/2-36,width:50,height:72}:tableCenter()}
 function flyEl(el,from,i,step){if(!from||!from.width)return;const to=el.getBoundingClientRect();if(!to.width)return;
@@ -11342,6 +11349,50 @@ function modeMenu(){const old=$('tgModeOv');if(old)old.remove();const o=document
  $('tgmSolo').onclick=()=>{o.remove();open()};
  $('tgmJoin').onclick=()=>{o.remove();openMatchmaking('tongits')};
  $('tgmHost').onclick=async()=>{o.remove();openMatchmaking('tongits');try{await $('btnHost').onclick()}catch(e){}}}
+/* ---- seated characters: every profile avatar is drawn as a person-sized figure sitting around the table ---- */
+const _e=(c,x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`,_p=(d,c,x)=>`<path d="${d}" fill="${c}" ${x||''}/>`,_H=c=>_e(c,0,0,22),
+ _EY=_e('#222',-8,-2,3)+_e('#222',8,-2,3),_NS=c=>_e(c||'#222',0,6,3.2),_SM='<path d="M-5 11Q0 15 5 11" stroke="#222" fill="none" stroke-width="1.6" stroke-linecap="round"/>',
+ _ST=(d)=>`<path d="${d}" stroke="#222" fill="none" stroke-width="1.8" stroke-linecap="round"/>`;
+const AVF={
+'🦊':[_p('M-23-4L-19-35L-4-19ZM23-4L19-35L4-19Z','#E8742A')+_H('#E8742A')+_p('M-22 5Q0 28 22 5Q0 13-22 5Z','#fff'),_EY+_NS()],
+'🐸':[_e('#5BBF4A',-14,-19,9)+_e('#5BBF4A',14,-19,9)+_H('#5BBF4A'),_e('#fff',-14,-19,5)+_e('#fff',14,-19,5)+_e('#111',-14,-19,2.5)+_e('#111',14,-19,2.5)+_ST('M-13 8Q0 17 13 8')],
+'🐯':[_e('#F2A33A',-18,-17,8)+_e('#F2A33A',18,-17,8)+_H('#F2A33A')+_p('M-22-2L-13 0L-22 4ZM22-2L13 0L22 4ZM-4-22L0-12L4-22Z','#3a2208')+_e('#fff',0,9,10),_EY+_NS('#c4455a')],
+'🐼':[_e('#222',-18,-18,9)+_e('#222',18,-18,9)+_H('#fff'),_e('#222',-9,-2,6.5)+_e('#222',9,-2,6.5)+_e('#fff',-9,-3,2)+_e('#fff',9,-3,2)+_NS()+_SM],
+'🦉':[_p('M-20-12L-22-32L-6-20ZM20-12L22-32L6-20Z','#8a5a2b')+_H('#9c6b36')+_e('#f3e3c3',-9,-2,10)+_e('#f3e3c3',9,-2,10),_e('#fff',-9,-2,6)+_e('#fff',9,-2,6)+_e('#111',-9,-2,3)+_e('#111',9,-2,3)+_p('M-4 6L4 6L0 14Z','#F5B02E')],
+'🐙':[_H('#B46CF0')+_e('#B46CF0',-20,18,6)+_e('#B46CF0',20,18,6),_EY+_SM+_e('#f0a7ff',-14,6,3)+_e('#f0a7ff',14,6,3)],
+'🦄':[_p('M-5-18L0-36L5-18Z','#FFD166')+_p('M-22-6Q-30 14-18 24Q-24 4-12-18Z','#FF7EC7')+_p('M-18-14L-22-30L-6-20Z','#fff')+_H('#fff'),_EY+_e('#ffb3d9',-14,6,4)+_e('#ffb3d9',14,6,4)+_SM],
+'🐲':[_p('M-14-18L-20-36L-6-24ZM14-18L20-36L6-24Z','#F5C542')+_p('M-22 0L-30-10L-22-14ZM22 0L30-10L22-14Z','#2f9e57')+_H('#3DBB6B'),_e('#fff',-8,-3,4)+_e('#fff',8,-3,4)+_e('#c0392b',-8,-3,2)+_e('#c0392b',8,-3,2)+_e('#1c5e36',-4,8,1.8)+_e('#1c5e36',4,8,1.8)+_ST('M-9 14Q0 19 9 14')],
+'🐰':[_p('M-14-14Q-22-46-8-44Q-2-30-6-14Z','#fff')+_p('M14-14Q22-46 8-44Q2-30 6-14Z','#fff')+_p('M-12-18Q-15-38-9-38Q-6-28-8-18Z','#ffb3c7')+_p('M12-18Q15-38 9-38Q6-28 8-18Z','#ffb3c7')+_H('#fff'),_EY+_NS('#ff8fab')+_SM],
+'🐨':[_e('#9aa3ad',-21,-14,11)+_e('#9aa3ad',21,-14,11)+_e('#e9d7e2',-21,-14,6)+_e('#e9d7e2',21,-14,6)+_H('#aab3bd'),_EY+_p('M-5 2Q0-2 5 2L4 12Q0 15-4 12Z','#3b3b44')],
+'🦁':[_e('#C9791F',0,0,31)+_H('#F0B04A'),_EY+_NS('#5a3a1a')+_SM],
+'🐶':[_p('M-20-14Q-34 0-26 20Q-16 16-18-8Z','#8a5a2b')+_p('M20-14Q34 0 26 20Q16 16 18-8Z','#8a5a2b')+_H('#E8C48A')+_e('#f6e3c4',0,8,11),_EY+_e('#222',0,5,4)+_ST('M-5 12Q0 16 5 12')],
+'🐱':[_p('M-21-6L-19-34L-4-20ZM21-6L19-34L4-20Z','#F4A64B')+_p('M-17-12L-17-27L-8-19ZM17-12L17-27L8-19Z','#ffb3c7')+_H('#F4A64B'),_EY+_e('#ff8fab',0,6,2.5)+'<path d="M-22 4L-12 6M-22 10L-12 9M22 4L12 6M22 10L12 9" stroke="#fff" stroke-width="1.3"/>'+_SM],
+'🐭':[_e('#bfc3c9',-19,-16,11)+_e('#bfc3c9',19,-16,11)+_e('#ffb3c7',-19,-16,7)+_e('#ffb3c7',19,-16,7)+_H('#cfd3d8'),_EY+_e('#ff8fab',0,7,3.5)+'<path d="M-20 6L-9 8M20 6L9 8" stroke="#888" stroke-width="1.2"/>'],
+'🐹':[_e('#E9A66B',-17,-17,7)+_e('#E9A66B',17,-17,7)+_H('#F0B77E')+_e('#fff3e3',0,5,16),_EY+_NS('#d9778d')+_e('#f59aa8',-15,6,4)+_e('#f59aa8',15,6,4)],
+'🐻':[_e('#7a4a24',-18,-17,9)+_e('#7a4a24',18,-17,9)+_H('#8d5a2e')+_e('#d9b48a',0,8,11),_EY+_NS()+_SM],
+'🐷':[_p('M-18-14L-22-30L-6-18ZM18-14L22-30L6-18Z','#F58FB1')+_H('#F9A8C4'),_EY+_e('#F27AA0',0,6,9)+_e('#a8325a',-3,6,1.8)+_e('#a8325a',3,6,1.8)],
+'🐔':[_e('#e53935',-6,-24,6)+_e('#e53935',0,-27,7)+_e('#e53935',7,-24,6)+_H('#fff'),_EY+_p('M-5 3L5 3L0 12Z','#F5B02E')+_e('#e53935',0,14,4)],
+'🐧':[_H('#2b2f3a')+_e('#fff',0,5,16),_EY+_p('M-5 5L5 5L0 13Z','#F5A623')],
+'🐦':[_p('M-6-20L0-34L6-20Z','#4aa3e8')+_H('#5BB4F0')+_e('#cfeaff',0,8,12),_EY+_p('M-4 4L4 4L0 12Z','#F5B02E')],
+'🦋':[_p('M-4-4Q-40-34-34 0Q-32 18-4 6Z','#4F8CFF')+_p('M4-4Q40-34 34 0Q32 18 4 6Z','#FF9F43')+_p('M-4 4Q-30 6-24 24Q-6 22-2 8Z','#7C5CFF')+_p('M4 4Q30 6 24 24Q6 22 2 8Z','#FFD166')+_H('#f3d6b8')+'<path d="M-4-20L-10-34M4-20L10-34" stroke="#333" stroke-width="1.6"/>',_EY+_SM],
+'🐝':['<path d="M-8-20L-12-34M8-20L12-34" stroke="#333" stroke-width="2"/>'+_H('#FFD23F')+_p('M-21-12Q0-6 21-12L22-7Q0-1-22-7Z M-17 10Q0 16 17 10L13 16Q0 21-13 16Z','#222'),_e('#222',-8,0,3)+_e('#222',8,0,3)+_SM],
+'🐢':[_e('#3f7d32',0,6,31)+_H('#7CC96A'),_EY+_SM],
+'🐬':[_p('M-4-22Q4-34 12-22Z','#5b93c9')+_H('#6FA8DC')+_p('M-6 6Q0 4 20 14Q22 22 8 18Q-4 16-6 6Z','#9cc6ea'),_EY+_SM],
+'🐳':['<path d="M0-22Q-4-34-12-34M0-22Q4-34 12-34" stroke="#9fd3ff" stroke-width="3" fill="none"/>'+_H('#4A90D9')+_e('#fff',0,10,13),_EY+_SM],
+'🌸':[[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="-18" rx="11" ry="15" fill="#FF8FB8" transform="rotate(${a})"/>`).join('')+_e('#FFD23F',0,0,15),_e('#222',-5,-2,2)+_e('#222',5,-2,2)+_ST('M-4 4Q0 8 4 4')],
+'🔥':[_p('M0-38Q18-18 22 0Q24 22 0 24Q-24 22-22 0Q-18-12-8-20Q-6-8 0-12Q-6-26 0-38Z','#FF6B2C')+_p('M0-12Q12 0 12 12Q10 22 0 22Q-10 22-12 12Q-10 2 0-12Z','#FFD23F'),_e('#222',-5,6,2.2)+_e('#222',5,6,2.2)+_ST('M-4 12Q0 16 4 12')],
+'⚡':[_H('#FFE066')+_p('M4-22L-10 4H0L-4 22L12-6H2Z','#F59F00'),_e('#222',-13,-4,2.6)+_e('#222',13,-4,2.6)],
+'🌟':[_p('M0-26L7-9L26-8L11 4L16 22L0 12L-16 22L-11 4L-26-8L-7-9Z','#FFD23F'),_e('#222',-5,-2,2.4)+_e('#222',5,-2,2.4)+_ST('M-4 5Q0 9 4 5')],
+'💎':[_p('M-22-8L-12-24H12L22-8L0 26Z','#4FD8F0')+'<path d="M-22-8H22M-12-24L-6-8L0 26M12-24L6-8L0 26" stroke="#fff" stroke-width="1.3" fill="none" opacity=".8"/>',_e('#123',-7,-2,2.6)+_e('#123',7,-2,2.6)+_SM],
+'🎮':[_p('M-26-4Q-24-18-8-16H8Q24-18 26-4L30 14Q28 24 18 20L10 12H-10L-18 20Q-28 24-30 14Z','#6c7a89')+_e('#FF5C5C',16,-6,3)+_e('#4F8CFF',22,0,3)+'<path d="M-20-8H-12M-16-12V-4" stroke="#fff" stroke-width="3"/>',_e('#fff',-4,4,3)+_e('#fff',6,4,3)+_e('#222',-4,4,1.5)+_e('#222',6,4,1.5)],
+'🎯':[_e('#e53935',0,0,23)+_e('#fff',0,0,16)+_e('#e53935',0,0,9),_e('#fff',-3,-2,2)+_e('#fff',3,-2,2)+'<path d="M-3 3Q0 6 3 3" stroke="#fff" fill="none" stroke-width="1.3"/>'],
+'🚀':[_p('M0-34Q18-22 16-4L16 14H-16L-16-4Q-18-22 0-34Z','#f2f4f8')+_p('M-16 4L-28 20L-16 14ZM16 4L28 20L16 14Z','#e53935')+_p('M-8 14L0 28L8 14Z','#FFA726')+_p('M0-34Q10-28 13-18H-13Q-10-28 0-34Z','#e53935')+_e('#4FC3F7',0,-4,9),_e('#123',-3,-5,1.8)+_e('#123',3,-5,1.8)+'<path d="M-3 0Q0 3 3 0" stroke="#123" fill="none" stroke-width="1.2"/>'],
+'🎨':[_p('M-26 0Q-26-22 0-22Q26-22 26-2Q26 14 10 12Q-2 10 4 22Q-26 26-26 0Z','#E8C79A')+_e('#FF5C5C',-14,-8,4)+_e('#4F8CFF',-4,-16,4)+_e('#2EC4B6',8,-14,4)+_e('#FFD23F',18,-4,4),_e('#222',-8,2,2.4)+_e('#222',4,2,2.4)+_ST('M-6 10Q-1 14 4 10')],
+'🕵':[_H('#F2C9A0')+_p('M-30-8Q0-14 30-8Q22-12 14-14Q12-34 0-34Q-12-34-14-14Q-22-12-30-8Z','#5b4636')+_p('M-14-14H14L14-18H-14Z','#222'),'<circle cx="-8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><circle cx="8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><path d="M-3 0H3" stroke="#222"/>'+_SM],
+'🎲':[_p('M-20-20H20Q24-20 24-16V16Q24 20 20 20H-20Q-24 20-24 16V-16Q-24-20-20-20Z','#fff','stroke="#333" stroke-width="2"'),_e('#222',-10,-10,3.2)+_e('#222',10,-10,3.2)+_e('#222',-10,10,3.2)+_e('#222',10,10,3.2)+_e('#222',0,0,3.2)]};
+function fig(av,i,back){const k=String(av||'').replace(/\uFE0F/g,''),d=AVF[k],col=['#7C5CFF','#FF6BB5','#2EC4B6'][(i||0)%3];
+ const head=d?d[0]+(back?'':d[1]):_H('#f6d3a8')+(back?'':`<text y="9" font-size="26" text-anchor="middle">${E(av||'🙂')}</text>`);
+ return`<svg viewBox="0 -12 100 104" aria-hidden="true"><rect x="12" y="34" width="76" height="70" rx="18" fill="#3a2214"/><path d="M10 92Q12 54 50 52Q88 54 90 92Z" fill="${col}"/><path d="M38 52Q50 62 62 52" fill="#0003"/><g transform="translate(50,36)">${head}</g></svg>`}
 /* ---- ui ---- */
 function msg(t){const m=$('tgMsg');if(m)m.textContent=t}
 function ov(h){bankOpen=false;const o=$('tgOv');o.innerHTML=h||'';o.classList.toggle('on',!!h)}
@@ -11351,9 +11402,9 @@ function render(){if(!G)return;const P=G.players,M=mySeat(),p0=P[M];$('tgW').tex
  const _prev=new Map(),_dk=deckRect(),_pushed=G.disc.length>discLen;discLen=G.disc.length;
  if(!DEALFX)document.querySelectorAll('#tgTable [data-id],#tgHand [data-id]').forEach(e=>_prev.set(+e.dataset.id,e.getBoundingClientRect()));
  const _from=FX!=null?seatOrigin(FX):(_dk||tableCenter());
- const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${p.av}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan">${p.hand.slice(0,6).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${p.hand.length} cards</span><div class="melds">${mlH(i)}</div></div>`};
+ const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${fig(p.av,i,false)}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan">${p.hand.slice(0,6).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${p.hand.length} cards</span><div class="melds">${mlH(i)}</div></div>`};
  const top=G.disc[G.disc.length-1];
- $('tgTable').innerHTML=`<div id="tgSeats">${seat((M+2)%3)}${seat((M+1)%3)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div>`;
+ $('tgTable').innerHTML=`<div id="tgSeats">${seat((M+2)%3)}${seat((M+1)%3)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div><div class="av meav ${G.turn===M&&G.phase!=='over'?'on':''}">${fig(p0.av,M,true)}${G.dealer===M?'<span class="dl">D</span>':''}<small class="metag">${E(p0.name)} · ₱${p0.stack}</small></div>`;
  const h=p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r),W=$('tgHand').clientWidth||340,sp=Math.min(38,(W-56)/Math.max(1,h.length-1));
  $('tgHand').innerHTML=h.map((c,i)=>ch(c,(sel.has(c.id)?'sel':'')).replace('class="pc','data-a="card" style="margin-left:'+(i?sp-50:0)+'px;animation:none" class="pc')).join('');
  const m=mine(),d=m&&G.phase==='draw',pl=m&&G.phase==='play';
