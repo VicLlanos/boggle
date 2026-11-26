@@ -1376,8 +1376,21 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
 /* ===== Tong-its ===== */
 .game-card[data-game=tongits]{--a:#2EE59D;--t:#0A3324}
 .t-tongits{background:radial-gradient(circle at 50% 40%,#1f8f5f,#0a3f2b);display:flex;align-items:center;justify-content:center}
-.t-tongits b{display:grid;place-items:center;width:34px;height:48px;margin:0 -5px;background:#fffdf7;border-radius:6px;color:#14141c;font:800 1rem 'Bricolage Grotesque';box-shadow:0 3px 8px #0007}
-.t-tongits b:nth-child(1){transform:rotate(-14deg)}.t-tongits b:nth-child(2){color:#d11f3a;z-index:1}.t-tongits b:nth-child(3){transform:rotate(14deg);color:#d11f3a}
+.t-tongits::before{content:'';position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(94,240,196,.38),transparent 55%);animation:tgGlow 3.2s ease-in-out infinite}
+.t-tongits b{position:relative;overflow:hidden;display:grid;place-items:center;width:34px;height:48px;margin:0 -5px;background:#fffdf7;border-radius:6px;color:#14141c;font:800 1rem 'Bricolage Grotesque';box-shadow:0 3px 8px #0007;--r:0deg;--r2:0deg;animation:tgFan 3.2s ease-in-out infinite}
+.t-tongits b::after{content:'';position:absolute;top:-10%;bottom:-10%;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.95),transparent);transform:translateX(-160%) skewX(-18deg);animation:tgShine 3.2s ease-in-out infinite;animation-delay:inherit}
+.t-tongits b:nth-of-type(1){--r:-14deg;--r2:-24deg;animation-delay:0s}
+.t-tongits b:nth-of-type(2){--r:0deg;--r2:0deg;color:#d11f3a;z-index:1;animation-delay:.18s}
+.t-tongits b:nth-of-type(3){--r:14deg;--r2:24deg;color:#d11f3a;animation-delay:.36s}
+.t-tongits .tgchip{position:absolute;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle,#FFD166 38%,#E17055 40% 56%,#FFD166 58%);box-shadow:0 2px 3px #0008;animation:tgChip 2.4s ease-in-out infinite}
+.t-tongits .tgchip.c1{left:16%;bottom:14%}.t-tongits .tgchip.c2{right:15%;bottom:20%;animation-delay:-.9s;width:12px;height:12px}.t-tongits .tgchip.c3{right:28%;top:14%;animation-delay:-1.6s;width:10px;height:10px}
+@keyframes tgFan{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-7px) rotate(var(--r2))}}
+@keyframes tgShine{0%,55%{transform:translateX(-160%) skewX(-18deg)}85%,100%{transform:translateX(330%) skewX(-18deg)}}
+@keyframes tgGlow{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes tgChip{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(180deg)}}
+html.reduce-fx .t-tongits::before{animation:none}
+@media (prefers-reduced-motion:reduce){.t-tongits::before{animation:none}}
+.game-card.off .t-tongits::before{animation-play-state:paused}
 #screen-tongits{width:100%;max-width:520px;gap:8px;color:#fff;min-height:calc(100dvh - 24px);position:relative}
 #tgTop{display:flex;align-items:center;gap:8px}
 #tgTop b{flex:1;font:800 1.15rem 'Bricolage Grotesque';letter-spacing:2px;color:#FFD166;text-shadow:0 2px 0 #0006}
@@ -1566,7 +1579,7 @@ button:focus-visible,.game-card:focus-visible{outline:3px solid var(--mint);outl
         <div class="desc">Solo or versus · send garbage</div>
       </div>
       <div class="game-card" data-game="tongits" id="pickTongits" style="cursor:pointer">
-        <div class="thumb t-tongits" aria-hidden="true"><b>A♠</b><b>K♥</b><b>Q♦</b></div>
+        <div class="thumb t-tongits" aria-hidden="true"><i class="tgchip c1"></i><i class="tgchip c2"></i><i class="tgchip c3"></i><b>A♠</b><b>K♥</b><b>Q♦</b></div>
         <div class="name">Tong-its</div>
         <div class="desc">Filipino rummy · bet pesos</div>
       </div>
@@ -11112,7 +11125,7 @@ async function botTurn(i){const id=G.id,p=G.players[i],ok=()=>G&&G.id===id&&G.ph
  if(!p.hand.length)return finish(i,'tongits');endTurn()}
 /* ---- human ---- */
 function mine(){return G&&G.turn===0&&G.phase!=='over'&&G.phase!=='resp'}
-function act(a,el){if(!G)return;const p=G.players[0],S=[...sel].map(id=>p.hand.find(c=>c.id===id)).filter(Boolean);
+function act(a,el){if(!G&&!['st','stakes','leave','loan','close'].includes(a))return;const p=G?G.players[0]:null,S=p?[...sel].map(id=>p.hand.find(c=>c.id===id)).filter(Boolean):[];
  if(a==='draw'&&mine()&&G.phase==='draw'){if(!G.stock.length)return showdown(0,[1,2],'stock');p.hand.push(G.stock.pop());G.phase='play';render();msg('Meld, sapaw, then discard')}
  else if(a==='take'&&mine()&&G.phase==='draw'){const t=G.disc[G.disc.length-1];if(!t)return toast('Discard pile is empty');const m=findWith(t,p.hand);
   if(!m)return toast('You need a meld with that card first');G.disc.pop();rm(p.hand,m);p.melds.push({cards:[t,...m]});G.phase='play';sel.clear();render();if(!p.hand.length)finish(0,'tongits');else msg('Nice meld! Now discard')}
