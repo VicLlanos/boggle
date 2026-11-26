@@ -1440,7 +1440,7 @@ html.reduce-fx .t-tongits::before{animation:none}
 .tgm{max-height:100%;overflow-y:auto;width:100%;max-width:360px;background:linear-gradient(170deg,#1d1450,#0d0a24);border:2px solid #FFD166aa;border-radius:22px;padding:20px 18px;text-align:center;box-shadow:0 20px 60px #000c}
 .tgm h2{font:800 1.5rem 'Bricolage Grotesque';color:#FFD166;margin-bottom:6px}.tgm p{font-size:.85rem;margin:6px 0;color:#d8d0ff;line-height:1.4}
 .tgm .net{font:800 2.2rem 'Bricolage Grotesque'}.net.up{color:#5EF0C4}.net.dn{color:#FF8A8A}
-.tgm .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.tgm .row .tgb{flex:1;background:linear-gradient(180deg,#8d6bff,#4B2FDB);padding:12px 6px}.tgm .row .tgb.g{background:linear-gradient(180deg,#2EE59D,#0aa56c);color:#032}.tgm .row .tgb:disabled{opacity:.3}
+.tgm .tgh{font:800 .8rem 'DM Sans';letter-spacing:1px;text-transform:uppercase;color:#FFD166;margin:12px 0 4px;text-align:left}.tgm .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.tgm .row .tgb{flex:1;background:linear-gradient(180deg,#8d6bff,#4B2FDB);padding:12px 6px}.tgm .row .tgb.g{background:linear-gradient(180deg,#2EE59D,#0aa56c);color:#032}.tgm .row .tgb:disabled{opacity:.3}
 .tgm ul{list-style:none;text-align:left;font-size:.8rem;line-height:1.5;color:#d8d0ff}.tgm li b{color:#FFD166}
 .tgm .rev{display:flex;justify-content:space-between;font-size:.78rem;font-weight:800;padding:3px 0;border-bottom:1px solid #ffffff18}
 </style>
@@ -3471,7 +3471,8 @@ const GAME_META = {
   board:   { title:'🐍 Snakes & Trivia', sub:'Roll, answer, dodge the snakes.' },
   spy:     { title:'🕵️ Spy Word', sub:'Vote out one player each round.' },
   chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' },
-  sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' }
+  sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' },
+  tongits: { title:'♠️ Tong-its', sub:'Host a table or join one. Up to 3 players.' }
 };
 function openMatchmaking(game){
   selectedGame = game;
@@ -3743,7 +3744,7 @@ function onRoomThrottled(snap){
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;roomSnapT=0;clearTimeout(roomPendT);roomPendT=0;roomPend=null;db.ref('rooms/'+code).on('value',onRoomThrottled);socialAttach(code);show('screen-room')}
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=(roomData.gameType==='scatter')?SCAT_MAX_PLAYERS:(roomData.maxPlayers||maxPlayersFor(roomData.gameType));let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='tetris'?'Tetris Versus · solo or up to 6 players · last one standing':gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':(gt==='scatter'?'Max 5 players · ':'Max 3 players · '))+(gt==='scatter'?'Scattergories':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='tongits'?'Tong-its · 2–3 players · empty seats are bots':gt==='tetris'?'Tetris Versus · solo or up to 6 players · last one standing':gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':(gt==='scatter'?'Max 5 players · ':'Max 3 players · '))+(gt==='scatter'?'Scattergories':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
 const RX_EMOJIS=['👏','🔥','😂','😮','💀','🎉','😤','🧠'];
@@ -4338,6 +4339,16 @@ function landTiles(){
 async function beginRound(){
   if(!isHost||!roomData)return;
   const gameType = roomData.gameType || 'boggle';
+  if(gameType==='tongits'){
+    const ids=Object.keys(roomData.players||{});
+    if(ids.length<2){toast('Tong-its multiplayer needs 2–3 players. Wait for a friend to join, or play solo.');return}
+    const order=[roomData.hostUid].concat(ids.filter(u=>u!==roomData.hostUid)).slice(0,3);
+    db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
+    const up={status:'playing',tg:null,tgq:null,tgOrder:order,board:null,letter:null,categories:null,drawWord:null,endsAt:srvNow()+108e5,startedAt:srvNow(),endedAt:null};
+    ids.forEach(i=>{up['players/'+i+'/score']=0;up['players/'+i+'/words']={};up['players/'+i+'/answers']={}});
+    try{await db.ref('rooms/'+roomId).update(up)}catch(e){toast('Could not start: '+e.message)}
+    return;
+  }
   // Room is no longer open for joining
   db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
   if(gameType === 'scatter'){
@@ -7465,6 +7476,7 @@ function onRoom(snap){
   socialRoomUpdate();
   isHost=roomData.hostUid===user.uid;
   armDisconnect();
+  try{ if(gt==='tongits'&&window.tgRoomHook) window.tgRoomHook(st); }catch(e){ console.error(e); }
   const start=$('btnStart');
   start.style.display=(isHost&&st==='lobby')?'flex':'none';
   $('waitingMsg').style.display=(isHost&&st==='lobby')?'none':'block';
@@ -7506,6 +7518,8 @@ function onRoom(snap){
         roundEnded = false;
         ttEnter();
       }
+    } else if(gt==='tongits'){
+      /* Tong-its is driven by tgRoomHook() */
     } else if(gt==='board'){
       bgEnter();
     } else if(gt==='spy'){
@@ -9827,6 +9841,7 @@ $('tnSnd').onclick=()=>{toggleSound();$('tnSnd').textContent=soundOn?'🔊':'�
       host.setAttribute('aria-hidden', 'true');
       title.parentNode.insertBefore(host, title);
     }
+    if(!src.querySelector('svg')){ host.className = 'match-thumb thumb t-' + game; host.innerHTML = src.innerHTML; return; }
     var svg = src.querySelector('svg').outerHTML.replace(/(id="|url\(#)([A-Za-z0-9_-]+)/g, '$1$2m');
     host.className = 'match-thumb thumb t-' + game;
     host.innerHTML = svg;
@@ -11074,6 +11089,7 @@ window.computeTetrisResults=function(){
 const $=id=>document.getElementById(id),SU=['♠','♥','♦','♣'],RK=[,'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const val=c=>Math.min(c.r,10),red=c=>c.s===1||c.s===2,tot=h=>h.reduce((a,c)=>a+val(c),0),wait=ms=>new Promise(r=>setTimeout(r,ms));
 let G=null,wallet=100,stake=5,sortM='rank',sel=new Set();
+let MP=null,dealUntil=0,askKey='',pubT=0,prepFor='';
 let FX=null,DEALFX=false,NOFX=false,discLen=0;
 const DEAL_STEP=60,DEAL_MS=39*DEAL_STEP+520;
 function rnd(n){const c=window.crypto||window.msCrypto;if(c&&c.getRandomValues){const a=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;do{c.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}return Math.random()*n|0}
@@ -11095,8 +11111,8 @@ function ghost(from,to,i){if(noMotion()||!from||!to)return;const g=document.crea
  const a=g.animate([{transform:'none',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.55)`,opacity:.85}],{duration:460,delay:(i||0)*45,easing:EASE,fill:'both'});
  a.onfinish=a.oncancel=()=>g.remove()}
 function dealFx(){const dk=deckRect()||tableCenter(),dl=G.dealer,pos=q=>(q-dl-1+6)%3,S=DEAL_STEP;
- document.querySelectorAll('#tgHand .pc').forEach((e,k)=>flyEl(e,dk,k*3+pos(0),S));
- [1,2].forEach(i=>{const cnt=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt'),n=G.players[i].hand.length;if(cnt)cnt.textContent='0 cards';
+ document.querySelectorAll('#tgHand .pc').forEach((e,k)=>flyEl(e,dk,k*3+pos(mySeat()),S));
+ [1,2].map(x=>(mySeat()+x)%3).forEach(i=>{const cnt=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt'),n=G.players[i].hand.length;if(cnt)cnt.textContent='0 cards';
   document.querySelectorAll('#tgTable .seat[data-seat="'+i+'"] .fan .pc').forEach((e,k)=>flyEl(e,dk,k*2*3+pos(i),S));
   for(let r=0;r<n;r++)setTimeout(()=>{const c=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt');if(c&&G&&G.dealing)c.textContent=(r+1)+' cards'},(r*3+pos(i))*S+260)});
  const dkl=document.querySelector('#tgTable .pile.stk .dk'),fin=G.stock.length;if(dkl)dkl.textContent='DECK 52';
@@ -11106,8 +11122,14 @@ function playFx(prev,from,pushed){if(NOFX||noMotion())return;if(DEALFX){dealFx()
   if(o)flyEl(e,o,0);else if(e.closest('.pile')&&!pushed&&!DEALFX)return;else flyEl(e,from,n++)});
  if(DEALFX){const c=tableCenter();document.querySelectorAll('#tgTable .fan .pc').forEach((e,k)=>flyEl(e,c,k))}}
 const wk=()=>'tg_w_'+((typeof user!=='undefined'&&user&&user.uid)||'guest');
-function loadW(){let v=null;try{v=localStorage.getItem(wk())}catch(e){}if(v===null){wallet=100;saveW();return true}wallet=+v||0;return false}
-function saveW(){try{localStorage.setItem(wk(),wallet)}catch(e){}try{if(user&&db)db.ref('tongits/'+user.uid).set({pesos:wallet,t:Date.now()}).catch(()=>{})}catch(e){}}
+async function loadW(){/* returns true only for a brand-new account (gets the ₱100 welcome gift once) */
+ const k=wk();let local=null,lt=0;try{local=localStorage.getItem(k);lt=+localStorage.getItem(k+'_t')||0}catch(e){}
+ let remote=null;
+ if(user&&db){try{const sn=await Promise.race([db.ref('tongits/'+user.uid).once('value'),new Promise((_,rj)=>setTimeout(rj,5000))]);remote=sn.val()}catch(e){}}
+ if(remote&&typeof remote.pesos==='number'){wallet=(local!==null&&lt>(remote.t||0))?(+local||0):remote.pesos;saveW();return false}
+ if(local!==null){wallet=+local||0;saveW();return false}
+ wallet=100;saveW();return true}
+function saveW(){const t=Date.now();try{localStorage.setItem(wk(),wallet);localStorage.setItem(wk()+'_t',t)}catch(e){}try{if(user&&db)db.ref('tongits/'+user.uid).update({pesos:wallet,t}).catch(()=>{})}catch(e){}}
 /* ---- rules ---- */
 function kind(cs){const n=cs.length;if(n<3)return null;
  if(cs.every(c=>c.r===cs[0].r)&&new Set(cs.map(c=>c.s)).size===n&&n<=4)return'set';
@@ -11128,29 +11150,40 @@ const allMelds=()=>G.players.flatMap(p=>p.melds);
 function deal(){DEALFX=true;discLen=0;FX=null;const P=G.players;P.forEach(p=>{if(p.bot&&p.stack<stake*3)p.stack=100});
  const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.push({r,s,id:s*13+r});
  for(let pass=0;pass<3;pass++)for(let i=d.length-1;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}
- G.id=Date.now();G.start=P[0].stack;P.forEach(p=>{p.stack-=stake;p.hand=[];p.melds=[]});for(let r=0;r<12;r++)for(let k=1;k<=3;k++)P[(G.dealer+k)%3].hand.push(d.pop());
+ G.id=Date.now();G.res=null;G.m='';G.askSeat=-1;G.start=P[0].stack;P.forEach(p=>{p.start=p.stack;p.stack-=stake;p.hand=[];p.melds=[]});for(let r=0;r<12;r++)for(let k=1;k<=3;k++)P[(G.dealer+k)%3].hand.push(d.pop());
  P[G.dealer].hand.push(d.pop());G.stock=d;G.disc=[];G.pot=stake*3;G.turn=G.dealer;G.phase='play';G.first=true;sel.clear();
- wallet=P[0].stack;saveW();G.dealing=!noMotion();ov();render();DEALFX=false;
- const _id=G.id,_go=()=>{if(!G||G.id!==_id)return;G.dealing=false;NOFX=true;render();NOFX=false;msg(G.dealer?P[G.dealer].name+' deals and discards first':'You deal · discard one card to begin');if(G.dealer)setTimeout(()=>botTurn(G.dealer),500)};
+ if(MP){MP.W0=wallet;wallet=Math.max(0,wallet-stake);MP.fin=0}else wallet=P[0].stack;saveW();G.stake=stake;G.dealing=!noMotion();ov();render();DEALFX=false;
+ const _id=G.id,_go=()=>{if(!G||G.id!==_id)return;G.dealing=false;NOFX=true;render();NOFX=false;evm(G.dealer!==mySeat()?P[G.dealer].name+' deals and discards first':'You deal · discard one card to begin');if(P[G.dealer].bot)setTimeout(()=>botTurn(G.dealer),500);if(MP)pubSoon()};
  if(G.dealing){msg('Shuffled! Dealing the cards…');setTimeout(_go,DEAL_MS)}else _go()}
-function endTurn(){G.first=false;G.turn=(G.turn+1)%3;G.phase='draw';sel.clear();render();FX=null;if(G.turn)botTurn(G.turn);else msg('Your turn · draw or take the discard')}
-function finish(w,why){G.phase='over';const P=G.players,W=P[w];W.stack+=G.pot;
+function endTurn(){G.first=false;G.turn=(G.turn+1)%3;G.phase='draw';G.m='';sel.clear();render();FX=null;if(G.players[G.turn].bot)botTurn(G.turn);else if(G.turn===mySeat())msg('Your turn · draw or take the discard')}
+function finish(w,why){G.phase='over';setTimeout(drain,1200);const P=G.players,W=P[w];W.stack+=G.pot;
  if(why==='tongits')P.forEach((p,i)=>{if(i-w){const x=Math.min(p.stack,stake*(p.melds.length?1:2));p.stack-=x;W.stack+=x}});
- G.dealer=w;wallet=P[0].stack;saveW();render();const net=P[0].stack-G.start,
+ G.dealer=w;G.res={w,why};settle();render();showResult(why==='tongits'?900:500)}
+const canAnte=()=>MP?G.players.every(p=>p.bot||p.stack>=stake*3):wallet>=stake*3;
+function settle(){const P=G.players,M=mySeat();
+ if(MP){if(MP.fin===G.id)return;MP.fin=G.id;wallet=Math.max(0,(MP.W0||0)+P[M].stack-(P[M].start||0));
+  try{if(db&&roomId)db.ref('rooms/'+MP.code+'/players/'+user.uid+'/tgw').set(wallet).catch(()=>{})}catch(e){}}
+ else wallet=P[0].stack;saveW()}
+function showResult(delay){const id=G.id;setTimeout(()=>{if(!G||G.id!==id||G.phase!=='over'||!G.res)return;
+ const P=G.players,M=mySeat(),w=G.res.w,why=G.res.why,W=P[w],net=P[M].stack-(P[M].start!=null?P[M].start:G.start),host=!MP||MP.host,
  T={tongits:'TONG-ITS! Hand cleared',draw:'Won the Draw showdown',fold:'Everyone folded',stock:'Deck ran out · lowest hand wins'}[why];
- setTimeout(()=>ov(`<div class="tgm"><h2>${w?W.name+' wins':'🎉 You win!'}</h2><p>${T}</p><div class="net ${net>=0?'up':'dn'}">${net>=0?'+':'−'}₱${Math.abs(net)}</div><p>Balance ₱${P[0].stack}</p>${P.map(p=>`<div class="rev"><span>${p.av} ${p.name}</span><span>${p.melds.length?'':'🔥 burned · '}${tot(p.hand)} pts left</span></div>`).join('')}<div class="row"><button class="tgb g" data-a="again" ${wallet<stake*3?'disabled':''}>Deal again</button><button class="tgb" data-a="stakes">Stakes</button><button class="tgb" data-a="leave">Leave</button></div></div>`),why==='tongits'?900:500)}
+ ov(`<div class="tgm"><h2>${w!==M?E(W.name)+' wins':'🎉 You win!'}</h2><p>${T}</p><div class="net ${net>=0?'up':'dn'}">${net>=0?'+':'−'}₱${Math.abs(net)}</div><p>Balance ₱${wallet}</p>${P.map(p=>`<div class="rev"><span>${E(p.av)} ${E(p.name)}</span><span>${p.melds.length?'':'🔥 burned · '}${tot(p.hand)} pts left</span></div>`).join('')}${host?`<div class="row"><button class="tgb g" data-a="again" ${canAnte()?'':'disabled'}>Deal again</button><button class="tgb" data-a="stakes">Stakes</button><button class="tgb" data-a="leave">Leave</button></div>`:`<p>Waiting for the host to deal again…</p><div class="row"><button class="tgb" data-a="leave">Leave</button></div>`}</div>`)},delay)}
 function showdown(caller,chal,why){const c=[caller,...chal],t=i=>tot(G.players[i].hand);let w=c[0];c.forEach(i=>{if(t(i)<t(w)||(t(i)===t(w)&&i!==caller&&w===caller))w=i});finish(w,why)}
-async function callDraw(i){const id=G.id,c=G.players[i];G.phase='resp';render();msg(c.name+' calls DRAW!');await wait(900);const ch=[];
+async function callDraw(i){const id=G.id,c=G.players[i];G.phase='resp';evm(c.name+' calls DRAW!');render();await wait(900);const ch=[];
  for(const j of[0,1,2]){if(j===i)continue;const p=G.players[j];if(!p.melds.length)continue;
-  if(!p.bot){const a=await ask(c);if(!G||G.id!==id)return;if(a)ch.push(j)}else if(tot(p.hand)<=9+Math.random()*3)ch.push(j)}
+  if(!p.bot){const a=await ask(c,j);if(!G||G.id!==id)return;if(a)ch.push(j)}else if(tot(p.hand)<=9+Math.random()*3)ch.push(j)}
  if(!ch.length)finish(i,'fold');else showdown(i,ch,'draw')}
-function ask(c){return new Promise(res=>{ov(`<div class="tgm"><h2>${c.av} ${c.name} calls Draw!</h2><p>Your hand: <b style="color:#FFD166">${tot(G.players[0].hand)} pts</b></p><p>Challenge to compare hands (lowest wins, ties go to the challenger) or fold and give up the pot.</p><div class="row"><button class="tgb" data-a="fold">Fold</button><button class="tgb g" data-a="chal">⚔ Challenge</button></div></div>`);G.cb=a=>{ov();res(a)}})}
+const askHtml=(c,j)=>`<div class="tgm"><h2>${E(c.av)} ${E(c.name)} calls Draw!</h2><p>Your hand: <b style="color:#FFD166">${tot(G.players[j].hand)} pts</b></p><p>Challenge to compare hands (lowest wins, ties go to the challenger) or fold and give up the pot.</p><div class="row"><button class="tgb" data-a="fold">Fold</button><button class="tgb g" data-a="chal">⚔ Challenge</button></div></div>`;
+function ask(c,j){j=j||0;return new Promise(res=>{G.askSeat=j;G.askCaller=G.players.indexOf(c);let to=0;
+ const done=a=>{clearTimeout(to);if(G){G.cb=null;G.askSeat=-1}ov();res(a);if(MP&&MP.host)pubSoon()};
+ G.cb=done;if(MP)to=setTimeout(()=>{if(G&&G.cb===done)done(false)},25000);
+ if(!MP||j===mySeat())ov(askHtml(c,j));else pubSoon()})}
 /* ---- bot ---- */
-async function botTurn(i){const id=G.id,p=G.players[i],ok=()=>G&&G.id===id&&G.phase!=='over';await wait(900);if(!ok())return;FX=i;
- if(!G.first&&p.melds.length&&tot(p.hand)<=8+(Math.random()*3|0)){return callDraw(i)}
- if(!G.first){const top=G.disc[G.disc.length-1],m=top&&findWith(top,p.hand);
-  if(m){G.disc.pop();rm(p.hand,m);p.melds.push({cards:[top,...m]});msg(p.name+' takes the '+RK[top.r]+SU[top.s])}
-  else{if(!G.stock.length)return showdown(i,[0,1,2].filter(x=>x!==i),'stock');ghost(deckRect(),seatAv(i),0);p.hand.push(G.stock.pop());msg(p.name+' draws')}
+async function botTurn(i,mid){const id=G.id,p=G.players[i],ok=()=>G&&G.id===id&&G.phase!=='over'&&G.turn===i;await wait(900);if(!ok())return;FX=i;
+ if(!mid&&!G.first&&p.melds.length&&tot(p.hand)<=8+(Math.random()*3|0)){return callDraw(i)}
+ if(!mid&&!G.first){const top=G.disc[G.disc.length-1],m=top&&findWith(top,p.hand);
+  if(m){G.disc.pop();rm(p.hand,m);p.melds.push({cards:[top,...m]});evm(p.name+' takes the '+RK[top.r]+SU[top.s])}
+  else{if(!G.stock.length)return showdown(i,[0,1,2].filter(x=>x!==i),'stock');ghost(deckRect(),seatAv(i),0);p.hand.push(G.stock.pop());evm(p.name+' draws')}
   G.phase='play';render();await wait(800);if(!ok())return}
  bestMelds(p.hand).forEach(m=>{rm(p.hand,m);p.melds.push({cards:m})});layoff(p.hand,allMelds());render();
  if(!p.hand.length)return finish(i,'tongits');await wait(700);if(!ok())return;
@@ -11158,47 +11191,185 @@ async function botTurn(i){const id=G.id,p=G.players[i],ok=()=>G&&G.id===id&&G.ph
  const d=p.hand.slice().sort((a,b)=>(val(b)-use(b)*3)-(val(a)-use(a)*3))[0];rm(p.hand,[d]);G.disc.push(d);
  if(!p.hand.length)return finish(i,'tongits');endTurn()}
 /* ---- human ---- */
-function mine(){return G&&!G.dealing&&G.turn===0&&G.phase!=='over'&&G.phase!=='resp'}
-function act(a,el){FX=null;if(!G&&!['st','stakes','leave','loan','close'].includes(a))return;const p=G?G.players[0]:null,S=p?[...sel].map(id=>p.hand.find(c=>c.id===id)).filter(Boolean):[];
- if(a==='draw'&&mine()&&G.phase==='draw'){if(!G.stock.length)return showdown(0,[1,2],'stock');p.hand.push(G.stock.pop());G.phase='play';render();msg('Meld, sapaw, then discard')}
- else if(a==='take'&&mine()&&G.phase==='draw'){const t=G.disc[G.disc.length-1];if(!t)return toast('Discard pile is empty');const m=findWith(t,p.hand);
-  if(!m)return toast('You need a meld with that card first');G.disc.pop();rm(p.hand,m);p.melds.push({cards:[t,...m]});G.phase='play';sel.clear();render();if(!p.hand.length)finish(0,'tongits');else msg('Nice meld! Now discard')}
- else if(a==='meld'&&mine()&&G.phase==='play'){if(!kind(S))return toast('Not a valid meld (3+ set or same-suit run)');rm(p.hand,S);p.melds.push({cards:S});sel.clear();render();if(!p.hand.length)finish(0,'tongits')}
- else if(a==='sapaw'&&mine()&&G.phase==='play'){const m=allMelds()[+el.dataset.m];if(!S.length)return toast('Select cards to lay off first');if(!kind(m.cards.concat(S)))return toast('Those cards don\'t fit that meld');
-  m.cards.push(...S);rm(p.hand,S);sel.clear();render();if(!p.hand.length)finish(0,'tongits')}
- else if(a==='disc'&&mine()&&G.phase==='play'){if(S.length!==1)return toast('Select one card to discard');rm(p.hand,S);G.disc.push(S[0]);if(!p.hand.length)return finish(0,'tongits');endTurn()}
- else if(a==='callD'&&mine()&&G.phase==='draw'&&!G.first&&p.melds.length)callDraw(0)
- else if(a==='sort'){sortM=sortM==='rank'?'suit':'rank';render()}
+function mine(){return G&&!G.dealing&&G.turn===mySeat()&&G.phase!=='over'&&G.phase!=='resp'}
+function can(s){return G&&!G.dealing&&G.turn===s&&G.phase!=='over'&&G.phase!=='resp'}
+const GA=['draw','take','meld','sapaw','disc','callD','chal','fold'];
+const waitHtml=()=>'<div class="tgm"><h2>Waiting for the host…</h2><p>The host is choosing the ante.</p><div class="row"><button class="tgb" data-a="leave">Leave</button></div></div>';
+/* one game move for seat s (runs on the host, or solo). Returns an error string, or nothing. dry=validate only */
+function doAct(s,a,d,dry){const p=G.players[s],ids=d.ids||[],S=ids.map(id=>p.hand.find(c=>c.id===id)).filter(Boolean),M=s===mySeat();
+ if(a==='draw'){if(!(can(s)&&G.phase==='draw'))return;if(dry)return;if(!G.stock.length){showdown(s,[0,1,2].filter(x=>x!==s),'stock');return}p.hand.push(G.stock.pop());G.phase='play';render();if(M)msg('Meld, sapaw, then discard')}
+ else if(a==='take'){if(!(can(s)&&G.phase==='draw'))return;const t=G.disc[G.disc.length-1];if(!t)return'Discard pile is empty';const m=findWith(t,p.hand);if(!m)return'You need a meld with that card first';if(dry)return;
+  G.disc.pop();rm(p.hand,m);p.melds.push({cards:[t,...m]});G.phase='play';if(M)sel.clear();render();if(!p.hand.length)finish(s,'tongits');else if(M)msg('Nice meld! Now discard')}
+ else if(a==='meld'){if(!(can(s)&&G.phase==='play'))return;if(S.length!==ids.length||!kind(S))return'Not a valid meld (3+ set or same-suit run)';if(dry)return;rm(p.hand,S);p.melds.push({cards:S});if(M)sel.clear();render();if(!p.hand.length)finish(s,'tongits')}
+ else if(a==='sapaw'){if(!(can(s)&&G.phase==='play'))return;const m=allMelds()[+d.m];if(!S.length)return'Select cards to lay off first';if(!m||S.length!==ids.length||!kind(m.cards.concat(S)))return"Those cards don't fit that meld";if(dry)return;
+  m.cards.push(...S);rm(p.hand,S);if(M)sel.clear();render();if(!p.hand.length)finish(s,'tongits')}
+ else if(a==='disc'){if(!(can(s)&&G.phase==='play'))return;if(S.length!==1||ids.length!==1)return'Select one card to discard';if(dry)return;rm(p.hand,S);G.disc.push(S[0]);if(!p.hand.length)return finish(s,'tongits');endTurn()}
+ else if(a==='callD'){if(can(s)&&G.phase==='draw'&&!G.first&&p.melds.length){if(dry)return;callDraw(s)}}
+ else if(a==='chal'||a==='fold'){if(G.cb&&G.askSeat===s){if(dry)return;G.cb(a==='chal')}}}
+function act(a,el){FX=null;if(!G&&!['st','stakes','leave','loan','close','bank','lend','decl','ask','repay'].includes(a))return;
+ if(G&&GA.includes(a)){const d={ids:[...sel],m:el&&el.dataset&&el.dataset.m!=null?+el.dataset.m:-1};
+  if(MP&&!MP.host){const e=doAct(mySeat(),a,d,true);if(e)return toast(e);if(a==='chal'||a==='fold')ov();mpSend(a,d);return}
+  const e=doAct(mySeat(),a,d);if(e)toast(e);return}
+ if(a==='sort'){sortM=sortM==='rank'?'suit':'rank';render()}
  else if(a==='card'){const id=+el.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);render()}
- else if(a==='chal'||a==='fold'){G.cb&&G.cb(a==='chal')}
- else if(a==='again'){deal()}else if(a==='stakes')stakeMenu();else if(a==='leave'){G=null;ov();show('screen-lobby')}
- else if(a==='st'){stake=+el.dataset.s;if(!G)G={players:[{name:'You',av:(typeof profile!=='undefined'&&profile&&profile.avatar)||'😎',bot:0,stack:wallet},{name:'Ate Mika',av:'🐯',bot:1,stack:100},{name:'Kuya Jun',av:'🦊',bot:1,stack:100}],dealer:rnd(3)};G.players[0].stack=wallet;deal()}
+ else if(a==='again'){if(MP&&!MP.host)return;if(!G||!canAnte())return;deal()}
+ else if(a==='stakes'){if(MP&&!MP.host){ov(waitHtml());return}stakeMenu()}
+ else if(a==='leave'){if(MP)mpLeave();else{G=null;bankOpen=false;ov();show('screen-lobby');drain()}}
+ else if(a==='st'){if(MP&&!MP.host)return;stake=+el.dataset.s;if(!G)G=MP?mpNewG():{players:[{name:'You',av:(typeof profile!=='undefined'&&profile&&profile.avatar)||'😎',bot:0,stack:wallet},{name:'Ate Mika',av:'🐯',bot:1,stack:100},{name:'Kuya Jun',av:'🦊',bot:1,stack:100}],dealer:rnd(3)};if(!MP)G.players[0].stack=wallet;deal()}
  else if(a==='loan'){wallet=50;try{localStorage.setItem('tg_loan',new Date().toDateString())}catch(e){}saveW();stakeMenu()}
+ else if(a==='bank')bank()
+ else if(a==='lend')lend(el.dataset.u,+el.dataset.amt)
+ else if(a==='decl'){db.ref('tongitsReq/'+user.uid+'/'+el.dataset.u).remove().catch(()=>{})}
+ else if(a==='ask')askFriend(el.dataset.u)
+ else if(a==='repay')repay(el.dataset.u)
  else if(a==='close')ov()}
+
+/* ---- account wallet: friend loans (requests, lending, repaying) ---- */
+let curUid=null,offs=[],REQ={},OWES={},LENT={},INBOX=[],SENT={},draining=false,reqSeen=false;
+const myName=()=>(typeof profile!=='undefined'&&profile&&profile.name)||'Player',myAv=()=>(typeof profile!=='undefined'&&profile&&profile.avatar)||'😎';
+const idle=()=>!G||G.phase==='over';
+const E=x=>typeof esc==='function'?esc(x):String(x).replace(/[<>&"]/g,'');
+function say(m){try{liveToast(m)}catch(e){try{toast(m)}catch(x){}}}
+function syncWalletUI(){try{$('tgW').textContent='₱'+wallet}catch(e){}}
+function startSync(){const u=user&&user.uid||null;if(u===curUid)return;offs.forEach(f=>{try{f()}catch(e){}});offs=[];REQ={};OWES={};LENT={};INBOX=[];SENT={};reqSeen=false;curUid=u;if(!u||!db)return;
+ const rq=db.ref('tongitsReq/'+u);rq.on('value',x=>{const prev=REQ;REQ=x.val()||{};
+  if(reqSeen)Object.keys(REQ).forEach(f=>{if(!prev[f])say((REQ[f].avatar||'🤝')+' '+(REQ[f].name||'A friend')+' asked to borrow pesos for Tong-its')});reqSeen=true;
+  if(bankOpen)bank()},()=>{});offs.push(()=>rq.off());
+ const ib=db.ref('tongitsInbox/'+u);ib.on('child_added',x=>{if(!INBOX.some(i=>i.id===x.key))INBOX.push(Object.assign({id:x.key},x.val()||{}));drain()},()=>{});offs.push(()=>ib.off());
+ const me=db.ref('tongits/'+u);me.on('value',x=>{const v=x.val()||{};OWES=v.owes||{};LENT=v.lent||{};if(bankOpen)bank()},()=>{});offs.push(()=>me.off())}
+setInterval(startSync,1500);
+let bankOpen=false;
+async function claim(it){const ref=db.ref('tongits/'+user.uid);let applied=false;const amt=Math.max(0,Math.floor(+it.amount)||0);
+ const res=await ref.transaction(cur=>{cur=cur||{};cur.claimed=cur.claimed||{};applied=false;if(cur.claimed[it.id]||!amt)return cur;applied=true;cur.claimed[it.id]=1;
+  cur.pesos=(cur.pesos!=null?cur.pesos:wallet)+amt;cur.t=Date.now();
+  if(it.type==='repay'){const l=(cur.lent||{})[it.from];if(l){l.amount-=amt;if(l.amount<=0)delete cur.lent[it.from]}}
+  else{cur.owes=cur.owes||{};const o=cur.owes[it.from]||{amount:0};o.amount+=amt;o.name=it.name||'Friend';cur.owes[it.from]=o}
+  return cur});
+ if(res.committed){const v=res.snapshot.val()||{};if(typeof v.pesos==='number'){wallet=v.pesos;try{localStorage.setItem(wk(),wallet);localStorage.setItem(wk()+'_t',Date.now())}catch(e){}}syncWalletUI();
+  if(applied)say(it.type==='repay'?'💸 '+E(it.name||'A friend')+' paid you back ₱'+amt:'🤝 '+E(it.name||'A friend')+' lent you ₱'+amt)}
+ try{await db.ref('tongitsInbox/'+user.uid+'/'+it.id).remove()}catch(e){}}
+async function drain(){if(draining||!user||!db||!idle())return;draining=true;
+ try{while(INBOX.length&&idle()){await claim(INBOX[0]);INBOX.shift()}}catch(e){console.warn('tongits claim',e)}
+ draining=false;if(bankOpen)bank();else if(!G&&$('tgOv').classList.contains('on')&&/Choose your ante/.test($('tgOv').textContent))stakeMenu()}
+async function lend(uid,amt){if(!idle())return say('Finish your round first');if(!(amt>0))return;let ok=false;
+ const res=await db.ref('tongits/'+user.uid).transaction(cur=>{cur=cur||{};const have=cur.pesos!=null?cur.pesos:wallet;if(have<amt)return;cur.pesos=have-amt;cur.lent=cur.lent||{};const l=cur.lent[uid]||{amount:0};l.amount+=amt;l.name=(friendProfiles[uid]&&friendProfiles[uid].name)||(REQ[uid]&&REQ[uid].name)||'Friend';cur.lent[uid]=l;cur.t=Date.now();return cur});
+ if(!res.committed)return say('Not enough pesos to lend ₱'+amt);
+ wallet=res.snapshot.val().pesos;try{localStorage.setItem(wk(),wallet);localStorage.setItem(wk()+'_t',Date.now())}catch(e){}syncWalletUI();
+ try{await db.ref('tongitsInbox/'+uid).push({type:'loan',from:user.uid,name:myName(),avatar:myAv(),amount:amt,at:Date.now()});
+  db.ref('tongitsReq/'+user.uid+'/'+uid).remove().catch(()=>{});say('🤝 Lent ₱'+amt)}
+ catch(e){/* could not deliver: give the money back */
+  await db.ref('tongits/'+user.uid).transaction(cur=>{cur=cur||{};cur.pesos=(cur.pesos!=null?cur.pesos:wallet)+amt;if(cur.lent&&cur.lent[uid]){cur.lent[uid].amount-=amt;if(cur.lent[uid].amount<=0)delete cur.lent[uid]}cur.t=Date.now();return cur}).then(r=>{if(r.committed){wallet=r.snapshot.val().pesos;syncWalletUI()}});
+  say('Could not reach your friend, nothing was sent (database permissions)')}
+ bank()}
+async function repay(uid){if(!idle())return say('Finish your round first');const o=OWES[uid];if(!o)return;const amt=Math.min(o.amount,wallet);if(amt<=0)return say('You have no pesos to repay with yet');
+ const res=await db.ref('tongits/'+user.uid).transaction(cur=>{cur=cur||{};const have=cur.pesos!=null?cur.pesos:wallet;const ow=cur.owes&&cur.owes[uid];if(!ow||have<amt)return;cur.pesos=have-amt;ow.amount-=amt;if(ow.amount<=0)delete cur.owes[uid];cur.t=Date.now();return cur});
+ if(!res.committed)return say('Could not repay right now');
+ wallet=res.snapshot.val().pesos;try{localStorage.setItem(wk(),wallet);localStorage.setItem(wk()+'_t',Date.now())}catch(e){}syncWalletUI();
+ try{await db.ref('tongitsInbox/'+uid).push({type:'repay',from:user.uid,name:myName(),amount:amt,at:Date.now()});say('💸 Paid back ₱'+amt)}
+ catch(e){await db.ref('tongits/'+user.uid).transaction(cur=>{cur=cur||{};cur.pesos=(cur.pesos!=null?cur.pesos:wallet)+amt;cur.owes=cur.owes||{};const ow=cur.owes[uid]||{name:o.name,amount:0};ow.amount+=amt;cur.owes[uid]=ow;cur.t=Date.now();return cur}).then(r=>{if(r.committed){wallet=r.snapshot.val().pesos;syncWalletUI()}});say('Could not reach your friend, nothing was sent (database permissions)')}
+ bank()}
+async function askFriend(uid){try{await db.ref('tongitsReq/'+uid+'/'+user.uid).set({name:myName(),avatar:myAv(),at:Date.now()});SENT[uid]=Date.now();say('Request sent')}catch(e){say('Could not send the request (database permissions)')}bank()}
+function bank(){const fl=(typeof friendList==='function')?friendList():[];
+ const reqs=Object.keys(REQ).map(f=>`<div class="rev"><span>${E(REQ[f].avatar||'🙂')} ${E(REQ[f].name||'Friend')} wants a loan</span></div><div class="row" style="margin-top:4px">${[10,20,50].map(a=>`<button class="tgb g" data-a="lend" data-u="${E(f)}" data-amt="${a}" ${wallet<a?'disabled':''}>Lend ₱${a}</button>`).join('')}<button class="tgb" data-a="decl" data-u="${E(f)}">✕</button></div>`).join('');
+ const owes=Object.keys(OWES).map(f=>`<div class="rev"><span>You owe ${E(OWES[f].name||'a friend')}</span><span>₱${OWES[f].amount} <button class="tgb g" style="padding:4px 10px;margin-left:6px" data-a="repay" data-u="${E(f)}" ${wallet<1?'disabled':''}>Repay</button></span></div>`).join('');
+ const lent=Object.keys(LENT).map(f=>`<div class="rev"><span>${E(LENT[f].name||'A friend')} owes you</span><span>₱${LENT[f].amount}</span></div>`).join('');
+ const fr=fl.length?fl.map(f=>{const wait=SENT[f.uid]&&Date.now()-SENT[f.uid]<300000;return`<div class="rev"><span>${f.st&&f.st.online?'🟢':'⚪'} ${E((f.prof&&f.prof.avatar)||'🙂')} ${E((f.prof&&f.prof.name)||'Friend')}</span><button class="tgb" style="padding:4px 10px" data-a="ask" data-u="${E(f.uid)}" ${wait?'disabled':''}>${wait?'Asked ✓':'Ask'}</button></div>`}).join(''):'<p>Add friends from the lobby first, then you can ask them for a loan.</p>';
+ ov(`<div class="tgm"><h2>🤝 Friends & Loans</h2><p>Your wallet: <b style="color:#FFD166">₱${wallet}</b> · saved to your account</p>${reqs?'<h3 class="tgh">Loan requests</h3>'+reqs:''}${owes?'<h3 class="tgh">You owe</h3>'+owes:''}${lent?'<h3 class="tgh">Owed to you</h3>'+lent:''}<h3 class="tgh">Ask a friend for a loan</h3>${fr}<div class="row"><button class="tgb g" data-a="stakes">Back</button></div></div>`);bankOpen=true}
+
+/* ================= MULTIPLAYER (rooms: host runs the table, everyone sees it from their own seat) ================= */
+function mySeat(){return MP?MP.me:0}
+function evm(t){if(G)G.m=t;msg(t)}
+function statusLine(){if(!G||G.phase==='over')return'';if(G.dealing)return'Shuffled! Dealing the cards…';
+ if(G.phase!=='resp'&&G.turn===mySeat())return G.phase==='draw'?'Your turn · draw or take the discard':(G.first?'You deal · discard one card to begin':'Meld, sapaw, then discard');
+ return G.m||(G.players[G.turn].name+"'s turn…")}
+const cdOf=id=>{const s=Math.floor((id-1)/13);return{r:id-s*13,s,id}};
+const arr=x=>Array.isArray(x)?x:(x&&typeof x==='object'?Object.values(x):[]);
+function pubSoon(){if(!MP||!MP.host||pubT)return;pubT=setTimeout(pub,40)}
+function pub(){pubT=0;if(!MP||!MP.host||!G||!roomId)return;const P=G.players;
+ const o={id:G.id,dealer:G.dealer,turn:G.turn,phase:G.phase,first:G.first?1:0,pot:G.pot||0,stake,stockN:G.stock.length,disc:G.disc.map(c=>c.id),m:G.m||'',ask:G.askSeat==null?-1:G.askSeat,askC:G.askCaller==null?-1:G.askCaller,res:G.res?{w:G.res.w,why:G.res.why}:null,
+  players:P.map(p=>({n:String(p.name||'Player').slice(0,24),a:p.av||'🎮',b:p.bot?1:0,u:p.uid||'',s:p.stack,st:p.start||0,h:p.hand.map(c=>c.id),ml:p.melds.map(m=>({c:m.cards.map(c=>c.id)}))}))};
+ const j=JSON.stringify(o);if(j===MP.last)return;MP.last=j;o.v=++MP.v;
+ db.ref('rooms/'+MP.code+'/tg').set(o).catch(e=>console.warn('tongits publish',e))}
+function applySnap(s){const prev=G,newRound=!prev||prev.id!==s.id;
+ const P=arr(s.players).map(p=>({name:p.n,av:p.a,bot:p.b?1:0,uid:p.u||null,stack:p.s,start:p.st,hand:arr(p.h).map(cdOf),melds:arr(p.ml).map(m=>({cards:arr(m.c).map(cdOf)}))}));
+ const g={id:s.id,dealer:s.dealer,turn:s.turn,phase:s.phase,first:!!s.first,pot:s.pot||0,stock:new Array(s.stockN||0).fill(0),disc:arr(s.disc).map(cdOf),players:P,m:s.m||'',askSeat:s.ask==null?-1:s.ask,askCaller:s.askC==null?-1:s.askC,res:s.res||null,dealing:false};
+ stake=s.stake||stake;FX=prev&&!newRound?prev.turn:null;
+ if(newRound&&g.phase!=='over'){MP.W0=wallet;wallet=Math.max(0,wallet-stake);saveW();MP.fin=0;ov();askKey='';dealUntil=noMotion()?0:Date.now()+DEAL_MS;DEALFX=true}
+ g.dealing=Date.now()<dealUntil;G=g;render();DEALFX=false;
+ if(newRound&&g.dealing){const id=g.id;setTimeout(()=>{if(G&&G.id===id){G.dealing=false;NOFX=true;render();NOFX=false}},DEAL_MS+20)}
+ if(g.phase==='resp'&&g.askSeat===mySeat()&&g.askCaller>=0){const k=g.id+':'+g.askCaller;if(askKey!==k){askKey=k;ov(askHtml(g.players[g.askCaller],mySeat()))}}else if(askKey){askKey='';ov()}
+ if(g.phase==='over'&&g.res&&MP.shown!==g.id){MP.shown=g.id;settle();showResult(g.res.why==='tongits'?900:500)}}
+function mpNewG(){return{players:MP.seed,dealer:rnd(3)}}
+function mpStakeMenu(){bankOpen=false;const pl=G?G.players:MP.seed;
+ ov(`<div class="tgm"><h2>Choose your ante</h2><p>You are the host. Everyone antes into the pot and the winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><p>${pl.filter(p=>!p.bot).map(p=>E(p.av)+' '+E(p.name)+' <b style="color:#FFD166">₱'+p.stack+'</b>').join(' · ')}</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${pl.every(p=>p.bot||p.stack>=s*3)?'':'disabled'}>₱${s}</button>`).join('')}</div><div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Leave</button></div></div>`)}
+function mpSend(a,d){try{db.ref('rooms/'+MP.code+'/tgq').push({u:user.uid,a,ids:d.ids||[],m:d.m==null?-1:d.m}).catch(()=>toast('Connection problem, try again'))}catch(e){}}
+function mpRemote(v){if(!MP||!MP.host||!G||!v||!GA.includes(v.a))return;const s=MP.order.indexOf(v.u);if(s<0||G.players[s].bot)return;doAct(s,v.a,{ids:arr(v.ids).map(Number),m:+v.m})}
+function mpToBot(s){const list=G?G.players:MP.seed,p=list[s];if(!p||p.bot)return;p.bot=1;p.uid=null;MP.order[s]=null;
+ if(!G){if($('tgOv').classList.contains('on'))mpStakeMenu();return}
+ if(G.phase==='over')return;
+ if(G.askSeat===s&&G.cb)G.cb(false);
+ if(G.turn===s&&!G.dealing&&G.phase!=='resp')botTurn(s,G.phase==='play'&&!G.first);
+ render()}
+function mpHostWatch(){if(!MP||!MP.host||!roomData)return;const pl=roomData.players||{},list=G?G.players:MP.seed;
+ list.forEach((p,s)=>{if(p.bot||!p.uid||p.uid===user.uid)return;const r=pl[p.uid];let gone=!r;
+  if(r&&r.online===false){const t=MP.offSince[p.uid]||(MP.offSince[p.uid]=Date.now());if(Date.now()-t>20000)gone=true}else delete MP.offSince[p.uid];
+  if(gone){say('🚪 '+E(p.name)+' left · a bot took the seat');mpToBot(s)}})}
+function mpCleanup(){if(MP){(MP.offs||[]).forEach(f=>{try{f()}catch(e){}})}MP=null;clearTimeout(pubT);pubT=0;askKey='';dealUntil=0;prepFor=''}
+function mpLeave(){mpCleanup();G=null;bankOpen=false;++openTok;ov();try{leaveRoom()}catch(e){show('screen-lobby')}drain()}
+function mpInit(){mpCleanup();const pl=roomData.players||{},order=arr(roomData.tgOrder).filter(u=>pl[u]),seat=order.indexOf(user.uid);if(seat<0)return;
+ MP={code:roomId,started:roomData.startedAt,host:roomData.hostUid===user.uid,me:seat,order:order.concat([null,null,null]).slice(0,3),v:0,last:'',fin:0,shown:0,W0:wallet,offs:[],offSince:{}};
+ ++openTok;G=null;bankOpen=false;sel.clear();dealUntil=0;askKey='';show('screen-tongits');render0();syncWalletUI();
+ if(MP.host){const bots=[['Ate Mika','🐯'],['Kuya Jun','🦊']];let bi=0;
+  MP.seed=[0,1,2].map(i=>{const u=MP.order[i];if(u){const p=pl[u]||{};return{name:p.name||'Player',av:p.avatar||'🎮',bot:0,uid:u,stack:u===user.uid?wallet:(typeof p.tgw==='number'?p.tgw:100)}}
+   const b=bots[bi++]||['Bot','🤖'];return{name:b[0],av:b[1],bot:1,uid:null,stack:100}});
+  const q=db.ref('rooms/'+MP.code+'/tgq');q.on('child_added',x=>{const v=x.val()||{};x.ref.remove().catch(()=>{});mpRemote(v)});MP.offs.push(()=>q.off());
+  const iv=setInterval(()=>{if(MP&&MP.host&&roomData)mpHostWatch()},4000);MP.offs.push(()=>clearInterval(iv));
+  mpStakeMenu()}
+ else ov(waitHtml())}
+async function mpPrep(){if(prepFor===roomId)return;const rid=roomId;prepFor=rid;
+ try{await loadW()}catch(e){}if(roomId!==rid)return;syncWalletUI();
+ try{await db.ref('rooms/'+rid+'/players/'+user.uid+'/tgw').set(wallet)}catch(e){}}
+window.tgRoomHook=function(st){if(!roomData||!user)return;
+ if(st==='lobby'){if(MP)mpCleanup();mpPrep();return}
+ if(st!=='playing')return;
+ if(!MP||MP.code!==roomId||MP.started!==roomData.startedAt)mpInit();
+ if(!MP)return;
+ if(MP.host)mpHostWatch();else{const s=roomData.tg;if(s&&s.v>(MP.v||0)){MP.v=s.v;applySnap(s)}}};
+setInterval(()=>{if(MP&&(!roomId||roomId!==MP.code)){mpCleanup();G=null;bankOpen=false;ov()}},1000);
+function modeMenu(){const old=$('tgModeOv');if(old)old.remove();const o=document.createElement('div');o.id='tgModeOv';o.className='howto-ov';
+ o.innerHTML='<div class="howto-card" role="dialog" aria-modal="true"><div class="howto-head"><div class="t">♠️ Tong-its</div><div class="s">How do you want to play?</div></div><div class="howto-foot" style="flex-direction:column;gap:8px"><button type="button" class="btn btn-gold" id="tgmJoin">👥 Join a host</button><button type="button" class="btn btn-primary" id="tgmHost">🏠 Host a game</button><button type="button" class="btn btn-mint" id="tgmSolo">🎯 Play solo</button></div></div>';
+ document.body.appendChild(o);o.addEventListener('click',e=>{if(e.target===o)o.remove()});
+ $('tgmSolo').onclick=()=>{o.remove();open()};
+ $('tgmJoin').onclick=()=>{o.remove();openMatchmaking('tongits')};
+ $('tgmHost').onclick=async()=>{o.remove();openMatchmaking('tongits');try{await $('btnHost').onclick()}catch(e){}}}
 /* ---- ui ---- */
 function msg(t){const m=$('tgMsg');if(m)m.textContent=t}
-function ov(h){const o=$('tgOv');o.innerHTML=h||'';o.classList.toggle('on',!!h)}
+function ov(h){bankOpen=false;const o=$('tgOv');o.innerHTML=h||'';o.classList.toggle('on',!!h)}
 function ch(c,x=''){return`<div class="pc ${red(c)?'r':''} ${x}" data-id="${c.id}"><b>${RK[c.r]}</b><i>${SU[c.s]}</i></div>`}
 function mlH(p){const A=allMelds();return G.players[p].melds.map(m=>`<div class="ml ${sel.size&&mine()?'hot':''}" data-a="sapaw" data-m="${A.indexOf(m)}">${m.cards.slice().sort((a,b)=>a.r-b.r||a.s-b.s).map(c=>ch(c,'sm')).join('')}</div>`).join('')}
-function render(){if(!G)return;const P=G.players,p0=P[0];$('tgW').textContent='₱'+wallet;
+function render(){if(!G)return;const P=G.players,M=mySeat(),p0=P[M];$('tgW').textContent='₱'+wallet;sel.forEach(id=>{if(!p0.hand.some(c=>c.id===id))sel.delete(id)});
  const _prev=new Map(),_dk=deckRect(),_pushed=G.disc.length>discLen;discLen=G.disc.length;
  if(!DEALFX)document.querySelectorAll('#tgTable [data-id],#tgHand [data-id]').forEach(e=>_prev.set(+e.dataset.id,e.getBoundingClientRect()));
  const _from=FX!=null?seatOrigin(FX):(_dk||tableCenter());
  const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${p.av}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan">${p.hand.slice(0,6).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${p.hand.length} cards</span><div class="melds">${mlH(i)}</div></div>`};
  const top=G.disc[G.disc.length-1];
- $('tgTable').innerHTML=`<div id="tgSeats">${seat(2)}${seat(1)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(0)}</div>`;
+ $('tgTable').innerHTML=`<div id="tgSeats">${seat((M+2)%3)}${seat((M+1)%3)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div>`;
  const h=p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r),W=$('tgHand').clientWidth||340,sp=Math.min(38,(W-56)/Math.max(1,h.length-1));
  $('tgHand').innerHTML=h.map((c,i)=>ch(c,(sel.has(c.id)?'sel':'')).replace('class="pc','data-a="card" style="margin-left:'+(i?sp-50:0)+'px;animation:none" class="pc')).join('');
  const m=mine(),d=m&&G.phase==='draw',pl=m&&G.phase==='play';
- $('tgAct').innerHTML=`<button class="tgb s" data-a="sort">⇅ ${sortM==='rank'?'Rank':'Suit'}</button>`+(d?`<button class="tgb g" data-a="draw">Draw</button><button class="tgb" data-a="take">Take discard</button><button class="tgb o" data-a="callD" ${G.first||!p0.melds.length?'disabled':''}>Call Draw</button>`:`<button class="tgb g" data-a="meld" ${pl&&kind([...sel].map(id=>p0.hand.find(c=>c.id===id)).filter(Boolean))?'':'disabled'}>Meld</button><button class="tgb o" data-a="disc" ${pl&&sel.size===1?'':'disabled'}>Discard</button>`);playFx(_prev,_from,_pushed)}
-function stakeMenu(){let loan='';try{loan=localStorage.getItem('tg_loan')}catch(e){}const broke=wallet<6,can=broke&&loan!==new Date().toDateString();
- ov(`<div class="tgm"><h2>Choose your ante</h2><p>Balance <b style="color:#FFD166">₱${wallet}</b>. Every player antes into the pot; winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${wallet<s*3?'disabled':''}>₱${s}</button>`).join('')}</div>${broke?`<p>You're nearly broke!</p><div class="row"><button class="tgb g" data-a="loan" ${can?'':'disabled'}>${can?'Claim ₱50 refill':'Refill available tomorrow'}</button></div>`:''}<div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Back to lobby</button></div></div>`)}
-function open(){const first=loadW();show('screen-tongits');G=null;render0();
- ov(first?`<div class="tgm"><h2>🎁 Welcome to Tong-its!</h2><p>You get <b style="color:#FFD166">₱100</b> to start. Play smart, win the pot, grow your stack.</p><div class="row"><button class="tgb g" data-a="stakes">Take a seat</button><button class="tgb" data-a="help">How to play</button></div></div>`:'');if(!first)stakeMenu()}
+ $('tgAct').innerHTML=`<button class="tgb s" data-a="sort">⇅ ${sortM==='rank'?'Rank':'Suit'}</button>`+(d?`<button class="tgb g" data-a="draw">Draw</button><button class="tgb" data-a="take">Take discard</button><button class="tgb o" data-a="callD" ${G.first||!p0.melds.length?'disabled':''}>Call Draw</button>`:`<button class="tgb g" data-a="meld" ${pl&&kind([...sel].map(id=>p0.hand.find(c=>c.id===id)).filter(Boolean))?'':'disabled'}>Meld</button><button class="tgb o" data-a="disc" ${pl&&sel.size===1?'':'disabled'}>Discard</button>`);playFx(_prev,_from,_pushed);if(MP){msg(statusLine());if(MP.host)pubSoon()}}
+function stakeMenu(){if(MP)return mpStakeMenu();bankOpen=false;let loan='';try{loan=localStorage.getItem('tg_loan')}catch(e){}const broke=wallet<6,can=broke&&loan!==new Date().toDateString();
+ ov(`<div class="tgm"><h2>Choose your ante</h2><p>Balance <b style="color:#FFD166">₱${wallet}</b>. Every player antes into the pot; winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${wallet<s*3?'disabled':''}>₱${s}</button>`).join('')}</div>${broke?`<p>You're nearly broke!</p><div class="row"><button class="tgb g" data-a="loan" ${can?'':'disabled'}>${can?'Claim ₱50 refill':'Refill available tomorrow'}</button></div>`:''}<div class="row"><button class="tgb" data-a="bank">🤝 Friends & Loans${Object.keys(REQ).length?' ('+Object.keys(REQ).length+')':''}</button></div><div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Back to lobby</button></div></div>`)}
+let openTok=0;
+async function open(){if(MP)mpCleanup();const tok=++openTok;show('screen-tongits');G=null;render0();
+ ov('<div class="tgm"><h2>Loading your wallet…</h2><p>Syncing with your account</p></div>');startSync();
+ const first=await loadW();if(tok!==openTok)return;$('tgW').textContent='₱'+wallet;
+ if(first)ov(`<div class="tgm"><h2>🎁 Welcome to Tong-its!</h2><p>You get <b style="color:#FFD166">₱100</b> to start. It is saved to your account: what you win or lose stays in your wallet, and friends can lend you more.</p><div class="row"><button class="tgb g" data-a="stakes">Take a seat</button><button class="tgb" data-a="help">How to play</button></div></div>`);
+ else stakeMenu();drain()}
 function render0(){$('tgW').textContent='₱'+wallet;$('tgTable').innerHTML='<div id="tgCenter" style="margin:auto;font:800 1.6rem \'Bricolage Grotesque\';letter-spacing:3px;color:#ffffffaa">TONG·ITS</div>';$('tgHand').innerHTML='';$('tgAct').innerHTML='';msg('')}
 function help(){ov(`<div class="tgm"><h2>How to play Tong-its</h2><ul><li><b>Goal:</b> empty your hand (Tong-its!) or finish with the lowest point total when the round ends.</li><li><b>Card values:</b> A = 1, 2–10 = face value, J / Q / K = 10.</li><li><b>Deal:</b> the deck is shuffled fresh every round. Everyone gets 12 cards; the dealer gets 13 and discards first.</li><li><b>Melds:</b> 3–4 cards of the same rank, or 3+ cards in a row of the same suit (A is low: A-2-3).</li><li><b>Your turn:</b> <b>1)</b> tap <b>Draw</b> (or the deck) to pick up a card, or tap <b>Take discard</b> if that card makes a meld with your hand. <b>2)</b> Tap cards to select them, then <b>Meld</b> to lay them on the table. <b>3)</b> Tap a meld on the table with cards selected to add to it (<b>sapaw</b>). <b>4)</b> Select one card and tap <b>Discard</b> to end your turn.</li><li><b>Call Draw:</b> once you have a meld on the table, you can call Draw at the start of your turn. Others either <b>Fold</b> or <b>Challenge</b>. Lowest points win; ties go to the challenger.</li><li><b>Burned:</b> if you have no melds when Draw is called you cannot challenge, and you pay double on a Tong-its win.</li><li><b>Pot:</b> everyone antes into the pot and the winner takes it. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</li></ul><div class="row"><button class="tgb g" data-a="${G?'close':'stakes'}">Got it</button></div></div>`)}
-document.addEventListener('click',e=>{const c=e.target.closest('#pickTongits');if(c){e.stopPropagation();e.stopImmediatePropagation();e.preventDefault();open();return}
- const s=e.target.closest('#screen-tongits');if(!s)return;if(e.target.closest('#tgBack')){G=null;ov();show('screen-lobby');return}
+document.addEventListener('click',e=>{const c=e.target.closest('#pickTongits');if(c){e.stopPropagation();e.stopImmediatePropagation();e.preventDefault();modeMenu();return}
+ const s=e.target.closest('#screen-tongits');if(!s)return;if(e.target.closest('#tgBack')){if(MP){mpLeave();return}G=null;bankOpen=false;++openTok;ov();show('screen-lobby');drain();return}
  if(e.target.closest('#tgHelp'))return help();const t=e.target.closest('[data-a]');if(!t)return;t.dataset.a==='help'?help():act(t.dataset.a,t)},true);
 window.addEventListener('resize',()=>{if(G){NOFX=true;render();NOFX=false}});
 })();
