@@ -792,19 +792,6 @@ input:focus-visible{outline:none}
 .user-chip{cursor:pointer}
 .user-chip:active{transform:scale(.97)}
 /* ===== SOCIAL LAYER: reactions, ready-up, profile cards ===== */
-.rx-fab{position:fixed;right:14px;bottom:max(84px,calc(var(--safe-b) + 70px));z-index:9000;width:52px;height:52px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--pink),var(--violet));color:#fff;font-size:1.5rem;box-shadow:0 6px 18px rgba(75,47,219,.4);cursor:pointer;display:none;place-items:center;-webkit-user-select:none;user-select:none}
-.rx-fab.on{display:grid}
-.rx-fab:active{transform:scale(.92)}
-.rx-tray{position:fixed;right:14px;bottom:max(144px,calc(var(--safe-b) + 130px));z-index:9001;background:#fff;border-radius:18px;padding:8px;box-shadow:0 10px 30px rgba(20,10,50,.3);display:none;grid-template-columns:repeat(4,1fr);gap:6px}
-.rx-tray.on{display:grid;animation:popIn .2s ease-out}
-.rx-tray button{width:46px;height:46px;border-radius:12px;border:2px solid #E8E0FF;background:#F8F6FF;font-size:1.4rem;cursor:pointer}
-.rx-tray button:active{transform:scale(.88);background:#EDE7FF}
-.rx-layer{position:fixed;inset:0;pointer-events:none;z-index:9100;overflow:hidden}
-.rx-float{position:absolute;bottom:90px;display:flex;flex-direction:column;align-items:center;gap:2px;animation:rxUp 2.4s ease-out forwards;will-change:transform,opacity}
-.rx-float .e{font-size:2.2rem;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
-.rx-float .w{font-size:.65rem;font-weight:900;color:#fff;background:rgba(40,20,90,.75);border-radius:999px;padding:2px 8px;white-space:nowrap}
-@keyframes rxUp{0%{transform:translateY(0) scale(.5);opacity:0}12%{opacity:1;transform:translateY(-30px) scale(1.15)}100%{transform:translateY(-62vh) scale(1);opacity:0}}
-@media (prefers-reduced-motion:reduce){.rx-float{animation-duration:.01s}}
 .pslot{cursor:pointer}
 .pslot.empty{cursor:default}
 .pslot.ready{border-color:var(--mint)}
@@ -1399,6 +1386,9 @@ html.reduce-fx .t-tongits::before{animation:none}
 .tg-chip::before,.ch{content:'';width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#FFD166 38%,#E17055 40% 56%,#FFD166 58%);box-shadow:0 2px 3px #0008;display:inline-block}
 #tgTable{position:relative;margin:90px 0 82px;flex:1;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 10px;border-radius:150px/110px;background:radial-gradient(ellipse at 50% 45%,#23a56f,#0f6b45 62%,#08402a);border:9px solid #4a2c14;box-shadow:0 0 0 3px #C9A24B,0 22px 50px #000a,inset 0 0 70px #0009,inset 0 0 0 2px #ffffff22}
 #tgSeats{display:flex;justify-content:space-between;gap:6px;padding:0 4px}
+#tgTable.p4{border-radius:90px/70px}#tgTable.p4 #tgSeats{gap:2px;padding:0}#tgTable.p4 .seat{padding-left:1px;padding-right:1px}
+#tgTable.p4 .seat small,#tgTable.p4 .seat .stk{font-size:.66rem}#tgTable.p4 .seat .cnt{font-size:.62rem}
+#tgTable.p4 .seat .ml{flex-wrap:wrap;max-width:100%;justify-content:center}
 .seat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:6px 4px;border-radius:16px;transition:.25s}
 .seat.on{background:#ffffff14;box-shadow:0 0 0 2px #FFD166,0 0 26px #FFD166aa}
 @keyframes tgPulse{50%{box-shadow:0 0 0 2px #FFD166,0 0 34px #FFD166aa}}
@@ -1419,7 +1409,7 @@ html.reduce-fx .t-tongits::before{animation:none}
 .revc{display:flex;justify-content:center;margin:2px 0 10px;min-height:42px;align-items:center}
 .revc .pc{margin-left:-8px;animation:tgFlip .5s ease both}.revc .pc:first-child{margin-left:0}.revc em{font-size:.8rem;opacity:.8}
 @keyframes tgFlip{from{transform:rotateY(90deg) scale(.8);opacity:0}}
-.fan.rvl{height:auto;min-height:42px;justify-content:center}.fan.rvl .pc{margin-left:-17px;animation:tgFlip .5s ease both}.fan.rvl .pc:first-child{margin-left:0}
+.fan.rvl{height:auto;min-height:42px;justify-content:center;flex-wrap:wrap;gap:2px 0}.fan.rvl .pc{margin-left:0;margin-right:-12px;animation:tgFlip .5s ease both}.fan.rvl .pc:last-child{margin-right:0}
 .fan{display:flex;height:34px}.fan .pc{width:24px;height:34px;margin-left:-14px;border-width:2px}.fan .pc:first-child{margin-left:0}
 .cnt{font-weight:800;font-size:.7rem;background:#0007;border-radius:8px;padding:1px 6px}
 .melds{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:6px}
@@ -1436,11 +1426,16 @@ html.reduce-fx .t-tongits::before{animation:none}
 @keyframes tgIn{from{transform:translateY(-14px) scale(.85);opacity:0}}
 .pc b{position:absolute;top:3px;left:5px;font:800 1.05rem 'Bricolage Grotesque';line-height:1}
 .pc i{position:absolute;right:4px;bottom:2px;font-style:normal;font-size:1.7rem;line-height:1}
+.pc u{position:absolute;top:21px;left:5px;text-decoration:none;font-size:1.05rem;line-height:1}
 .pc.r{color:#d11f3a}
 .pc.bk{background:repeating-linear-gradient(45deg,#7c1d3a 0 5px,#a8325a 5px 10px);border:3px solid #fffdf7}.pc.bk *{display:none}
-.pc.sm{width:30px;height:42px;border-radius:5px}.pc.sm b{font-size:.7rem;top:2px;left:3px}.pc.sm i{font-size:1rem;right:2px;bottom:1px}
-#tgHand{display:flex;justify-content:center;padding:16px 4px 4px;min-height:92px}
-#tgHand .pc{cursor:pointer}#tgHand .pc.sel{top:-16px;box-shadow:0 0 0 3px #5EF0C4,0 8px 16px #0009}
+.pc.sm{width:30px;height:42px;border-radius:5px}.pc.sm b{font-size:.7rem;top:2px;left:3px}.pc.sm u{font-size:.74rem;top:14px;left:3px}.pc.sm i{font-size:1rem;right:2px;bottom:1px}
+#tgHand{display:flex;flex-direction:column;align-items:center;padding:16px 4px 4px;min-height:92px}
+.hrow{display:flex;justify-content:center}.hrow+.hrow{margin-top:-26px}
+#tgHand,#tgAct{flex:none}
+@media (max-width:480px){#tgTable{min-height:300px;margin-bottom:72px}}
+#tgHand.two{padding-bottom:6px;min-height:142px}
+#tgHand .pc{cursor:pointer}#tgHand .pc.sel{top:-16px;z-index:6;box-shadow:0 0 0 3px #5EF0C4,0 8px 16px #0009}
 .pc.fly{z-index:40}.tg-ghost{position:fixed!important;left:0;top:0;margin:0!important;z-index:9000;pointer-events:none}
 #tgMsg{text-align:center;font-weight:800;font-size:.82rem;min-height:1.2em;color:#E9E3FF}
 #tgAct{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
@@ -1500,9 +1495,6 @@ html.reduce-fx .t-tongits::before{animation:none}
     <button type="button" class="btn btn-ghost" id="frClose" style="margin-top:12px;color:var(--violet-d);border-color:#DFE6E9;background:#F8F9FA">Close</button>
   </div>
 </div>
-<div class="rx-layer" id="rxLayer" aria-hidden="true"></div>
-<button type="button" class="rx-fab" id="rxFab" aria-label="Send a reaction">😀</button>
-<div class="rx-tray" id="rxTray"></div>
 <div class="pcard-overlay" id="pcardOverlay" aria-hidden="true">
   <div class="pcard" role="dialog" aria-label="Player profile">
     <div class="big" id="pcAv">🦊</div>
@@ -1930,7 +1922,7 @@ const auth=firebase.auth(),db=firebase.database();
 let SRV_OFF=0;function srvNow(){return Date.now()+SRV_OFF}
 db.ref('.info/serverTimeOffset').on('value',x=>{SRV_OFF=x.val()||0});
 const MAX_PLAYERS=3,SCAT_MAX_PLAYERS=5,DRAW_MAX_PLAYERS=6,SPY_MAX_PLAYERS=6,ROUND_SECONDS=210,MIN_LEN=3,SHAKE_SECONDS=3,DRAW_SECONDS=75,DRAW_MAX_LEVELS=10,SPY_MAX_ROUNDS=5,SPY_CLUE_SECONDS=90;
-function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='tetris')return 6;if(g==='sketchchain')return 8;if(g==='chain')return 6;if(g==='board')return 5;if(g==='scatter')return SCAT_MAX_PLAYERS;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
+function maxPlayersFor(gt){const g=gt||selectedGame;if(g==='tetris')return 6;if(g==='sketchchain')return 8;if(g==='chain')return 6;if(g==='board')return 5;if(g==='scatter')return SCAT_MAX_PLAYERS;if(g==='tongits')return 4;if(g==='draw'||g==='spy')return g==='spy'?SPY_MAX_PLAYERS:DRAW_MAX_PLAYERS;return MAX_PLAYERS;}
 const DICE=['AAEEGN','ABBJOO','ACHOPS','AFFKPS','AOOTTW','CIMOTU','DEILRX','DELRVY','DISTTY','EEGHNW','EEINSU','EHRTVW','EIOSST','ELRTTY','HIMNQU','HLNNRZ'];
 const SCORE_TABLE={3:1,4:1,5:2,6:3,7:5};
 function wordScore(w){const n=w.length;return n>=8?11:(SCORE_TABLE[n]||0)}
@@ -3486,7 +3478,7 @@ const GAME_META = {
   spy:     { title:'🕵️ Spy Word', sub:'Vote out one player each round.' },
   chain:   { title:'🔗 Word Chain', sub:'Chain words. Last one standing wins.' },
   sketchchain: { title:'🖼️ Sketch Chain', sub:'Draw → guess → draw. Team of 3–8.' },
-  tongits: { title:'♠️ Tong-its', sub:'Host a table or join one. Up to 3 players.' }
+  tongits: { title:'♠️ Tong-its', sub:'Host a table or join one. Up to 4 players.' }
 };
 function openMatchmaking(game){
   selectedGame = game;
@@ -3758,55 +3750,16 @@ function onRoomThrottled(snap){
 function attachRoom(code,host){if(roomId)db.ref('rooms/'+roomId).off();roomId=code;isHost=host;$('roomCodeDisplay').textContent=code;roomSnapT=0;clearTimeout(roomPendT);roomPendT=0;roomPend=null;db.ref('rooms/'+code).on('value',onRoomThrottled);socialAttach(code);show('screen-room')}
 function renderPlayers(){const players=Object.values(roomData.players||{});const cap=(roomData.gameType==='scatter')?SCAT_MAX_PLAYERS:(roomData.maxPlayers||maxPlayersFor(roomData.gameType));let h='';players.forEach(p=>{const title=p.title||(String(p.name||'').toLowerCase()==='koyvic'?'Founder':'');const titleHtml=(title?`<span class="ptitle${title==='Founder'?' founder':''}">${esc(title)}</span>`:'')+(p.bio?`<span class="pbio">${esc(p.bio)}</span>`:'');const rdy=!!p.ready&&roomData.status==='lobby';h+=`<div class="pslot ${p.uid===user.uid?'you':''} ${p.uid===roomData.hostUid?'host':''} ${rdy?'ready':''}" data-uid="${esc(p.uid)}"><div class="av">${p.avatar||'🎮'}</div><div class="nm"><span class="pname">${esc(p.name||'Player')}${p.uid===user.uid?' (you)':''}</span>${titleHtml}</div><div class="bdg">${(p.online===false&&roomData.status!=='lobby')?'OFFLINE':(p.uid===roomData.hostUid?(rdy?'HOST ✓':'HOST'):(rdy?'READY ✓':'PLAYER'))}</div></div>`});for(let i=players.length;i<cap;i++){h+=`<div class="pslot empty"><div class="av">➕</div><div class="nm">Open slot</div><div class="bdg">OPEN</div></div>`}$('playerList').innerHTML=h;
   const gt=roomData.gameType||'boggle';
-  $('roomGameLabel').textContent=gt==='tongits'?'Tong-its · 2–3 players · empty seats are bots':gt==='tetris'?'Tetris Versus · solo or up to 6 players · last one standing':gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':(gt==='scatter'?'Max 5 players · ':'Max 3 players · '))+(gt==='scatter'?'Scattergories':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
+  $('roomGameLabel').textContent=gt==='tongits'?'Tong-its · 2–4 players · empty seats are bots':gt==='tetris'?'Tetris Versus · solo or up to 6 players · last one standing':gt==='chain'?'Word Chain · 2–6 players · last one standing':(gt==='board'?'Solo or up to 5 players · Snakes & Trivia':(gt==='scatter'?'Max 5 players · ':'Max 3 players · '))+(gt==='scatter'?'Scattergories':gt==='draw'?'Sketch Race (max 6)':gt==='sketchchain'?'Sketch Chain (3–8, team)':gt==='spy'?'Spy Word (3–6)':'Boggle');
 }
 /* ===== SOCIAL LAYER (reactions · ready-up · profile cards) ===== */
-const RX_EMOJIS=['👏','🔥','😂','😮','💀','🎉','😤','🧠'];
-let rxRef=null,rxSeen={},rxLast=0,rxCode=null;
 function socialAttach(code){
   socialDetach();
-  rxCode=code;
   presenceSet({room:code,game:selectedGame,status:'lobby'});
-  const fab=$('rxFab'); if(fab) fab.classList.add('on');
-  const ref=db.ref('rooms/'+code+'/reactions');
-  rxRef=ref;
-  // Record what is already there so only NEW reactions animate
-  ref.once('value').then(snap=>{
-    if(rxRef!==ref) return;
-    snap.forEach(c=>{ rxSeen[c.key]=true; });
-    ref.on('child_added',c=>{
-      if(rxSeen[c.key]) return;
-      rxSeen[c.key]=true;
-      const v=c.val()||{};
-      showReaction(v.uid,v.e);
-    });
-  }).catch(()=>{});
 }
 function socialDetach(){
-  if(rxRef){ try{rxRef.off();}catch(e){} }
-  rxRef=null; rxSeen={}; rxCode=null; presStatus=null;
+  presStatus=null;
   presenceSet({room:null,game:null,status:null});
-  const fab=$('rxFab'); if(fab) fab.classList.remove('on');
-  const tr=$('rxTray'); if(tr) tr.classList.remove('on');
-}
-function showReaction(uid,emoji){
-  const layer=$('rxLayer'); if(!layer||!emoji||RX_EMOJIS.indexOf(emoji)<0) return;
-  const p=(roomData&&roomData.players&&roomData.players[uid])||{};
-  const el=document.createElement('div');
-  el.className='rx-float';
-  el.style.left=(8+Math.random()*74)+'%';
-  el.innerHTML='<span class="e">'+emoji+'</span><span class="w">'+esc(p.avatar||'')+' '+esc(uid===(user&&user.uid)?'You':(p.name||'Player'))+'</span>';
-  layer.appendChild(el);
-  setTimeout(()=>el.remove(),2500);
-}
-function sendReaction(emoji){
-  if(!roomId||!user) return;
-  const now=srvNow();
-  if(now-rxLast<500) return; // anti-spam
-  rxLast=now;
-  const ref=db.ref('rooms/'+roomId+'/reactions').push();
-  ref.set({uid:user.uid,e:emoji,at:now}).catch(()=>{});
-  setTimeout(()=>{ ref.remove().catch(()=>{}); },5000);
 }
 function socialRoomUpdate(){
   if(!roomData||!user) return;
@@ -3886,15 +3839,6 @@ function renderPcActions(){
 }
 function closePlayerCard(){ const ov=$('pcardOverlay'); pcUid=null; if(ov){ov.classList.remove('on');ov.setAttribute('aria-hidden','true');} }
 (function bindSocial(){
-  const tray=$('rxTray'), fab=$('rxFab');
-  if(tray){
-    tray.innerHTML=RX_EMOJIS.map(e=>'<button type="button" data-e="'+e+'">'+e+'</button>').join('');
-    tray.addEventListener('click',function(ev){
-      const b=ev.target.closest&&ev.target.closest('button[data-e]'); if(!b) return;
-      sendReaction(b.getAttribute('data-e'));
-    });
-  }
-  if(fab) fab.addEventListener('click',function(){ tray.classList.toggle('on'); });
   const rb=$('btnReady');
   if(rb) rb.addEventListener('click',function(){
     if(!roomId||!user||!roomData) return;
@@ -4355,8 +4299,8 @@ async function beginRound(){
   const gameType = roomData.gameType || 'boggle';
   if(gameType==='tongits'){
     const ids=Object.keys(roomData.players||{});
-    if(ids.length<2){toast('Tong-its multiplayer needs 2–3 players. Wait for a friend to join, or play solo.');return}
-    const order=[roomData.hostUid].concat(ids.filter(u=>u!==roomData.hostUid)).slice(0,3);
+    if(ids.length<2){toast('Tong-its multiplayer needs 2–4 players. Wait for a friend to join, or play solo.');return}
+    const order=[roomData.hostUid].concat(ids.filter(u=>u!==roomData.hostUid)).slice(0,4);
     db.ref('lobbyIndex/'+gameType+'/'+roomId).remove().catch(()=>{});
     const up={status:'playing',tg:null,tgq:null,tgOrder:order,board:null,letter:null,categories:null,drawWord:null,endsAt:srvNow()+108e5,startedAt:srvNow(),endedAt:null};
     ids.forEach(i=>{up['players/'+i+'/score']=0;up['players/'+i+'/words']={};up['players/'+i+'/answers']={}});
@@ -11103,9 +11047,10 @@ window.computeTetrisResults=function(){
 const $=id=>document.getElementById(id),SU=['♠','♥','♦','♣'],RK=[,'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const val=c=>Math.min(c.r,10),red=c=>c.s===1||c.s===2,tot=h=>h.reduce((a,c)=>a+val(c),0),wait=ms=>new Promise(r=>setTimeout(r,ms));
 let G=null,wallet=100,stake=5,sortM='deal',sel=new Set();
+const NP=()=>G?G.players.length:3,HS=n=>n>=4?9:12;
 let MP=null,dealUntil=0,askKey='',pubT=0,prepFor='';
 let FX=null,DEALFX=false,NOFX=false,discLen=0;
-const DEAL_STEP=60,DEAL_MS=39*DEAL_STEP+520,SHUF_MS=1700;
+const DEAL_STEP=60,SHUF_MS=1700,DEAL_MS_N=n=>(HS(n)*n+1)*DEAL_STEP+520;let DEAL_MS=DEAL_MS_N(3);
 function rnd(n){const c=window.crypto||window.msCrypto;if(c&&c.getRandomValues){const a=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;do{c.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}return Math.random()*n|0}
 const EASE='cubic-bezier(.22,.9,.3,1)',noMotion=()=>document.documentElement.classList.contains('reduce-fx')||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches);
 const rectOf=e=>e?e.getBoundingClientRect():null;
@@ -11124,13 +11069,13 @@ function ghost(from,to,i){if(noMotion()||!from||!to)return;const g=document.crea
  const dx=to.left+to.width/2-(from.left+from.width/2),dy=to.top+to.height/2-(from.top+from.height/2);
  const a=g.animate([{transform:'none',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.55)`,opacity:.85}],{duration:460,delay:(i||0)*45,easing:EASE,fill:'both'});
  a.onfinish=a.oncancel=()=>g.remove()}
-function dealFx(){const dk=deckRect()||tableCenter(),dl=G.dealer,pos=q=>(q-dl-1+6)%3,S=DEAL_STEP;
- document.querySelectorAll('#tgHand .pc').forEach((e,k)=>flyEl(e,dk,k*3+pos(mySeat()),S));
- [1,2].map(x=>(mySeat()+x)%3).forEach(i=>{const cnt=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt'),n=G.players[i].hand.length;if(cnt)cnt.textContent='0 cards';
-  document.querySelectorAll('#tgTable .seat[data-seat="'+i+'"] .fan .pc').forEach((e,k)=>flyEl(e,dk,k*2*3+pos(i),S));
-  for(let r=0;r<n;r++)setTimeout(()=>{const c=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt');if(c&&G&&G.dealing)c.textContent=(r+1)+' cards'},(r*3+pos(i))*S+260)});
+function dealFx(){const N=NP(),HN=HS(N),TOT=HN*N+1,dk=deckRect()||tableCenter(),dl=G.dealer,pos=q=>(q-dl-1+2*N)%N,S=DEAL_STEP;
+ document.querySelectorAll('#tgHand .pc').forEach((e,k)=>flyEl(e,dk,k*N+pos(mySeat()),S));
+ Array.from({length:N-1},(_,x)=>(mySeat()+x+1)%N).forEach(i=>{const cnt=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt'),n=G.players[i].hand.length;if(cnt)cnt.textContent='0 cards';
+  document.querySelectorAll('#tgTable .seat[data-seat="'+i+'"] .fan .pc').forEach((e,k)=>flyEl(e,dk,k*(HN/Math.ceil(HN/2))*N+pos(i),S));
+  for(let r=0;r<n;r++)setTimeout(()=>{const c=document.querySelector('#tgTable .seat[data-seat="'+i+'"] .cnt');if(c&&G&&G.dealing)c.textContent=(r+1)+' cards'},(r*N+pos(i))*S+260)});
  const dkl=document.querySelector('#tgTable .pile.stk .dk'),fin=G.stock.length;if(dkl)dkl.textContent='DECK 52';
- for(let k=0;k<39;k++)setTimeout(()=>{const e=document.querySelector('#tgTable .pile.stk .dk');if(e&&G&&G.dealing)e.textContent='DECK '+Math.max(fin,52-(k+1))},k*S+260)}
+ for(let k=0;k<TOT;k++)setTimeout(()=>{const e=document.querySelector('#tgTable .pile.stk .dk');if(e&&G&&G.dealing)e.textContent='DECK '+Math.max(fin,52-(k+1))},k*S+260)}
 function playFx(prev,from,pushed){if(NOFX||noMotion())return;if(DEALFX){dealFx();return}let n=0;
  document.querySelectorAll('#tgTable [data-id],#tgHand [data-id]').forEach(e=>{const o=prev.get(+e.dataset.id);
   if(o)flyEl(e,o,0);else if(e.closest('.pile')&&!pushed&&!DEALFX)return;else flyEl(e,from,n++)});
@@ -11162,19 +11107,19 @@ const rm=(h,cs)=>cs.forEach(c=>{const i=h.findIndex(x=>x.id===c.id);if(i>=0)h.sp
 const allMelds=()=>G.players.flatMap(p=>p.melds);
 /* ---- round ---- */
 function deal(){if(G.shuffling)return;if(noMotion()){deal0();return}G.shuffling=true;ov();sel.clear();shuffleView();pubSoon();const g0=G;setTimeout(()=>{if(G!==g0)return;G.shuffling=false;deal0()},SHUF_MS)}
-function deal0(){DEALFX=true;discLen=0;FX=null;const P=G.players;P.forEach(p=>{if(p.bot&&p.stack<stake*3)p.stack=100});
+function deal0(){DEALFX=true;discLen=0;FX=null;const P=G.players;P.forEach(p=>{if(p.bot&&p.stack<stake*P.length)p.stack=100});
  const d=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)d.push({r,s,id:s*13+r});
  for(let pass=0;pass<7;pass++){for(let i=d.length-1;i>0;i--){const j=rnd(i+1);[d[i],d[j]]=[d[j],d[i]]}d.push(...d.splice(0,rnd(d.length)))}
- G.id=Date.now();G.res=null;G.m='';G.askSeat=-1;G.start=P[0].stack;P.forEach(p=>{p.start=p.stack;p.stack-=stake;p.hand=[];p.melds=[]});for(let r=0;r<12;r++)for(let k=1;k<=3;k++)P[(G.dealer+k)%3].hand.push(d.pop());
- P[G.dealer].hand.push(d.pop());G.stock=d;G.disc=[];G.pot=stake*3;G.turn=G.dealer;G.phase='play';G.first=true;sel.clear();
+ G.id=Date.now();G.res=null;G.m='';G.askSeat=-1;G.start=P[0].stack;P.forEach(p=>{p.start=p.stack;p.stack-=stake;p.hand=[];p.melds=[]});DEAL_MS=DEAL_MS_N(P.length);for(let r=0;r<HS(P.length);r++)for(let k=1;k<=P.length;k++)P[(G.dealer+k)%P.length].hand.push(d.pop());
+ P[G.dealer].hand.push(d.pop());G.stock=d;G.disc=[];G.pot=stake*P.length;G.turn=G.dealer;G.phase='play';G.first=true;sel.clear();
  if(MP){MP.W0=wallet;wallet=Math.max(0,wallet-stake);MP.fin=0}else wallet=P[0].stack;saveW();G.stake=stake;G.dealing=!noMotion();ov();render();DEALFX=false;
  const _id=G.id,_go=()=>{if(!G||G.id!==_id)return;G.dealing=false;NOFX=true;render();NOFX=false;evm(G.dealer!==mySeat()?P[G.dealer].name+' deals and discards first':'You deal · discard one card to begin');if(P[G.dealer].bot)setTimeout(()=>botTurn(G.dealer),500);if(MP)pubSoon()};
  if(G.dealing){msg('Shuffled! Dealing the cards…');setTimeout(_go,DEAL_MS)}else _go()}
-function endTurn(){G.first=false;G.turn=(G.turn+1)%3;G.phase='draw';G.m='';sel.clear();render();FX=null;if(G.players[G.turn].bot)botTurn(G.turn);else if(G.turn===mySeat())msg('Your turn · draw or take the discard')}
+function endTurn(){G.first=false;G.turn=(G.turn+1)%G.players.length;G.phase='draw';G.m='';sel.clear();render();FX=null;if(G.players[G.turn].bot)botTurn(G.turn);else if(G.turn===mySeat())msg('Your turn · draw or take the discard')}
 function finish(w,why){G.phase='over';setTimeout(drain,1200);const P=G.players,W=P[w];W.stack+=G.pot;
  if(why==='tongits')P.forEach((p,i)=>{if(i-w){const x=Math.min(p.stack,stake*(p.melds.length?1:2));p.stack-=x;W.stack+=x}});
  G.dealer=w;G.res={w,why};settle();render();showResult(why==='tongits'?900:500)}
-const canAnte=()=>MP?G.players.every(p=>p.bot||p.stack>=stake*3):wallet>=stake*3;
+const canAnte=()=>MP?G.players.every(p=>p.bot||p.stack>=stake*G.players.length):wallet>=stake*3;
 function settle(){const P=G.players,M=mySeat();
  if(MP){if(MP.fin===G.id)return;MP.fin=G.id;wallet=Math.max(0,(MP.W0||0)+P[M].stack-(P[M].start||0));
   try{if(db&&roomId)db.ref('rooms/'+MP.code+'/players/'+user.uid+'/tgw').set(wallet).catch(()=>{})}catch(e){}}
@@ -11185,7 +11130,7 @@ function showResult(delay){const id=G.id;setTimeout(()=>{if(!G||G.id!==id||G.pha
  ov(`<div class="tgm"><h2>${w!==M?E(W.name)+' wins':'🎉 You win!'}</h2><p>${T}</p><div class="net ${net>=0?'up':'dn'}">${net>=0?'+':'−'}₱${Math.abs(net)}</div><p>Balance ₱${wallet}</p>${P.map((p,k)=>`<div class="rev" style="${k===w?'color:#FFD166':''}"><span>${k===w?'👑 ':''}${E(p.av)} ${E(p.name)}${k===M?' (you)':''}</span><span>${p.melds.length?'':'🔥 burned · '}${p.hand.length?tot(p.hand)+' pts left':'0 pts'}</span></div><div class="revc">${p.hand.length?srt(p.hand).map(rv).join(''):'<em>Hand cleared 🎉</em>'}</div>`).join('')}${host?`<div class="row"><button class="tgb g" data-a="again" ${canAnte()?'':'disabled'}>Deal again</button><button class="tgb" data-a="stakes">Stakes</button><button class="tgb" data-a="leave">Leave</button></div>`:`<p>Waiting for the host to deal again…</p><div class="row"><button class="tgb" data-a="leave">Leave</button></div>`}</div>`)},delay)}
 function showdown(caller,chal,why){const c=[caller,...chal],t=i=>tot(G.players[i].hand);let w=c[0];c.forEach(i=>{if(t(i)<t(w)||(t(i)===t(w)&&i!==caller&&w===caller))w=i});finish(w,why)}
 async function callDraw(i){const id=G.id,c=G.players[i];G.phase='resp';evm(c.name+' calls DRAW!');render();await wait(900);const ch=[];
- for(const j of[0,1,2]){if(j===i)continue;const p=G.players[j];if(!p.melds.length)continue;
+ for(let j=0;j<G.players.length;j++){if(j===i)continue;const p=G.players[j];if(!p.melds.length)continue;
   if(!p.bot){const a=await ask(c,j);if(!G||G.id!==id)return;if(a)ch.push(j)}else if(tot(p.hand)<=9+Math.random()*3)ch.push(j)}
  if(!ch.length)finish(i,'fold');else showdown(i,ch,'draw')}
 const askHtml=(c,j)=>`<div class="tgm"><h2>${E(c.av)} ${E(c.name)} calls Draw!</h2><p>Your hand: <b style="color:#FFD166">${tot(G.players[j].hand)} pts</b></p><p>Challenge to compare hands (lowest wins, ties go to the challenger) or fold and give up the pot.</p><div class="row"><button class="tgb" data-a="fold">Fold</button><button class="tgb g" data-a="chal">⚔ Challenge</button></div></div>`;
@@ -11198,7 +11143,7 @@ async function botTurn(i,mid){const id=G.id,p=G.players[i],ok=()=>G&&G.id===id&&
  if(!mid&&!G.first&&p.melds.length&&tot(p.hand)<=8+(Math.random()*3|0)){return callDraw(i)}
  if(!mid&&!G.first){const top=G.disc[G.disc.length-1],m=top&&findWith(top,p.hand);
   if(m){G.disc.pop();rm(p.hand,m);p.melds.push({cards:[top,...m]});evm(p.name+' takes the '+RK[top.r]+SU[top.s])}
-  else{if(!G.stock.length)return showdown(i,[0,1,2].filter(x=>x!==i),'stock');ghost(deckRect(),seatAv(i),0);p.hand.push(G.stock.pop());evm(p.name+' draws')}
+  else{if(!G.stock.length)return showdown(i,G.players.map((_,x)=>x).filter(x=>x!==i),'stock');ghost(deckRect(),seatAv(i),0);p.hand.push(G.stock.pop());evm(p.name+' draws')}
   G.phase='play';render();await wait(800);if(!ok())return}
  bestMelds(p.hand).forEach(m=>{rm(p.hand,m);p.melds.push({cards:m})});layoff(p.hand,allMelds());render();
  if(!p.hand.length)return finish(i,'tongits');await wait(700);if(!ok())return;
@@ -11212,7 +11157,7 @@ const GA=['draw','take','meld','sapaw','disc','callD','chal','fold'];
 const waitHtml=()=>'<div class="tgm"><h2>Waiting for the host…</h2><p>The host is choosing the ante.</p><div class="row"><button class="tgb" data-a="leave">Leave</button></div></div>';
 /* one game move for seat s (runs on the host, or solo). Returns an error string, or nothing. dry=validate only */
 function doAct(s,a,d,dry){const p=G.players[s],ids=d.ids||[],S=ids.map(id=>p.hand.find(c=>c.id===id)).filter(Boolean),M=s===mySeat();
- if(a==='draw'){if(!(can(s)&&G.phase==='draw'))return;if(dry)return;if(!G.stock.length){showdown(s,[0,1,2].filter(x=>x!==s),'stock');return}p.hand.push(G.stock.pop());G.phase='play';render();if(M)msg('Meld, sapaw, then discard')}
+ if(a==='draw'){if(!(can(s)&&G.phase==='draw'))return;if(dry)return;if(!G.stock.length){showdown(s,G.players.map((_,x)=>x).filter(x=>x!==s),'stock');return}p.hand.push(G.stock.pop());G.phase='play';render();if(M)msg('Meld, sapaw, then discard')}
  else if(a==='take'){if(!(can(s)&&G.phase==='draw'))return;const t=G.disc[G.disc.length-1];if(!t)return'Discard pile is empty';const m=findWith(t,p.hand);if(!m)return'You need a meld with that card first';if(dry)return;
   G.disc.pop();rm(p.hand,m);p.melds.push({cards:[t,...m]});G.phase='play';if(M)sel.clear();render();if(!p.hand.length)finish(s,'tongits');else if(M)msg('Nice meld! Now discard')}
  else if(a==='meld'){if(!(can(s)&&G.phase==='play'))return;if(S.length!==ids.length||!kind(S))return'Not a valid meld (3+ set or same-suit run)';if(dry)return;rm(p.hand,S);p.melds.push({cards:S});if(M)sel.clear();render();if(!p.hand.length)finish(s,'tongits')}
@@ -11308,15 +11253,15 @@ function pub(){pubT=0;if(!MP||!MP.host||!G||!roomId)return;if(G.shuffling){if(MP
 function applySnap(s){if(s.shuf){ov();askKey='';shuffleView();return}const prev=G,newRound=!prev||prev.id!==s.id;
  const P=arr(s.players).map(p=>({name:p.n,av:p.a,bot:p.b?1:0,uid:p.u||null,stack:p.s,start:p.st,hand:arr(p.h).map(cdOf),melds:arr(p.ml).map(m=>({cards:arr(m.c).map(cdOf)}))}));
  const g={id:s.id,dealer:s.dealer,turn:s.turn,phase:s.phase,first:!!s.first,pot:s.pot||0,stock:new Array(s.stockN||0).fill(0),disc:arr(s.disc).map(cdOf),players:P,m:s.m||'',askSeat:s.ask==null?-1:s.ask,askCaller:s.askC==null?-1:s.askC,res:s.res||null,dealing:false};
- stake=s.stake||stake;FX=prev&&!newRound?prev.turn:null;
+ DEAL_MS=DEAL_MS_N(P.length);stake=s.stake||stake;FX=prev&&!newRound?prev.turn:null;
  if(newRound&&g.phase!=='over'){MP.W0=wallet;wallet=Math.max(0,wallet-stake);saveW();MP.fin=0;ov();askKey='';dealUntil=noMotion()?0:Date.now()+DEAL_MS;DEALFX=true}
  g.dealing=Date.now()<dealUntil;G=g;render();DEALFX=false;
  if(newRound&&g.dealing){const id=g.id;setTimeout(()=>{if(G&&G.id===id){G.dealing=false;NOFX=true;render();NOFX=false}},DEAL_MS+20)}
  if(g.phase==='resp'&&g.askSeat===mySeat()&&g.askCaller>=0){const k=g.id+':'+g.askCaller;if(askKey!==k){askKey=k;ov(askHtml(g.players[g.askCaller],mySeat()))}}else if(askKey){askKey='';ov()}
  if(g.phase==='over'&&g.res&&MP.shown!==g.id){MP.shown=g.id;settle();showResult(g.res.why==='tongits'?900:500)}}
-function mpNewG(){return{players:MP.seed,dealer:rnd(3)}}
+function mpNewG(){return{players:MP.seed,dealer:rnd(MP.seed.length)}}
 function mpStakeMenu(){bankOpen=false;const pl=G?G.players:MP.seed;
- ov(`<div class="tgm"><h2>Choose your ante</h2><p>You are the host. Everyone antes into the pot and the winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><p>${pl.filter(p=>!p.bot).map(p=>E(p.av)+' '+E(p.name)+' <b style="color:#FFD166">₱'+p.stack+'</b>').join(' · ')}</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${pl.every(p=>p.bot||p.stack>=s*3)?'':'disabled'}>₱${s}</button>`).join('')}</div><div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Leave</button></div></div>`)}
+ ov(`<div class="tgm"><h2>Choose your ante</h2><p>You are the host. Everyone antes into the pot and the winner takes it all. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</p><p>${pl.filter(p=>!p.bot).map(p=>E(p.av)+' '+E(p.name)+' <b style="color:#FFD166">₱'+p.stack+'</b>').join(' · ')}</p><div class="row">${[2,5,10,20].map(s=>`<button class="tgb ${s===stake?'g':''}" data-a="st" data-s="${s}" ${pl.every(p=>p.bot||p.stack>=s*pl.length)?'':'disabled'}>₱${s}</button>`).join('')}</div><div class="row"><button class="tgb" data-a="help">How to play</button><button class="tgb" data-a="leave">Leave</button></div></div>`)}
 function mpSend(a,d){try{db.ref('rooms/'+MP.code+'/tgq').push({u:user.uid,a,ids:d.ids||[],m:d.m==null?-1:d.m}).catch(()=>toast('Connection problem, try again'))}catch(e){}}
 function mpRemote(v){if(!MP||!MP.host||!G||!v||!GA.includes(v.a))return;const s=MP.order.indexOf(v.u);if(s<0||G.players[s].bot)return;doAct(s,v.a,{ids:arr(v.ids).map(Number),m:+v.m})}
 function mpToBot(s){const list=G?G.players:MP.seed,p=list[s];if(!p||p.bot)return;p.bot=1;p.uid=null;MP.order[s]=null;
@@ -11332,10 +11277,10 @@ function mpHostWatch(){if(!MP||!MP.host||!roomData)return;const pl=roomData.play
 function mpCleanup(){if(MP){(MP.offs||[]).forEach(f=>{try{f()}catch(e){}})}MP=null;clearTimeout(pubT);pubT=0;askKey='';dealUntil=0;prepFor=''}
 function mpLeave(){mpCleanup();G=null;bankOpen=false;++openTok;ov();try{leaveRoom()}catch(e){show('screen-lobby')}drain()}
 function mpInit(){mpCleanup();const pl=roomData.players||{},order=arr(roomData.tgOrder).filter(u=>pl[u]),seat=order.indexOf(user.uid);if(seat<0)return;
- MP={code:roomId,started:roomData.startedAt,host:roomData.hostUid===user.uid,me:seat,order:order.concat([null,null,null]).slice(0,3),v:0,last:'',fin:0,shown:0,W0:wallet,offs:[],offSince:{}};
+ MP={code:roomId,started:roomData.startedAt,host:roomData.hostUid===user.uid,me:seat,order:order.concat([null,null,null,null]).slice(0,4),v:0,last:'',fin:0,shown:0,W0:wallet,offs:[],offSince:{}};
  ++openTok;G=null;bankOpen=false;sel.clear();dealUntil=0;askKey='';show('screen-tongits');render0();syncWalletUI();
- if(MP.host){const bots=[['Ate Mika','🐯'],['Kuya Jun','🦊']];let bi=0;
-  MP.seed=[0,1,2].map(i=>{const u=MP.order[i];if(u){const p=pl[u]||{};return{name:p.name||'Player',av:p.avatar||'🎮',bot:0,uid:u,stack:u===user.uid?wallet:(typeof p.tgw==='number'?p.tgw:100)}}
+ if(MP.host){const bots=[['Ate Mika','🐯'],['Kuya Jun','🦊'],['Tita Baby','🐼']];let bi=0;
+  MP.seed=Array.from({length:Math.max(3,MP.order.filter(Boolean).length)},(_,i)=>i).map(i=>{const u=MP.order[i];if(u){const p=pl[u]||{};return{name:p.name||'Player',av:p.avatar||'🎮',bot:0,uid:u,stack:u===user.uid?wallet:(typeof p.tgw==='number'?p.tgw:100)}}
    const b=bots[bi++]||['Bot','🤖'];return{name:b[0],av:b[1],bot:1,uid:null,stack:100}});
   const q=db.ref('rooms/'+MP.code+'/tgq');q.on('child_added',x=>{const v=x.val()||{};x.ref.remove().catch(()=>{});mpRemote(v)});MP.offs.push(()=>q.off());
   const iv=setInterval(()=>{if(MP&&MP.host&&roomData)mpHostWatch()},4000);MP.offs.push(()=>clearInterval(iv));
@@ -11399,7 +11344,7 @@ const AVF={
 '🕵':[_H('#F2C9A0')+_p('M-30-8Q0-14 30-8Q22-12 14-14Q12-34 0-34Q-12-34-14-14Q-22-12-30-8Z','#5b4636')+_p('M-14-14H14L14-18H-14Z','#222'),'<circle cx="-8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><circle cx="8" cy="0" r="5" fill="none" stroke="#222" stroke-width="1.6"/><path d="M-3 0H3" stroke="#222"/>'+_SM],
 '🎲':[_p('M-20-20H20Q24-20 24-16V16Q24 20 20 20H-20Q-24 20-24 16V-16Q-24-20-20-20Z','#fff','stroke="#333" stroke-width="2"'),_e('#222',-10,-10,3.2)+_e('#222',10,-10,3.2)+_e('#222',-10,10,3.2)+_e('#222',10,10,3.2)+_e('#222',0,0,3.2)]};
 const OBJF=new Set(['🌸','🔥','⚡','🌟','💎','🎮','🎯','🚀','🎨','🎲','🦋']);
-function fig(av,i,back){const k=String(av||'').replace(/\uFE0F/g,''),d=AVF[k],n=(i||0)%3,c0=[['#8f74ff','#4b2fdb'],['#ff8cc6','#d63a8c'],['#4fd9c9','#12907f']][n];
+function fig(av,i,back){const k=String(av||'').replace(/\uFE0F/g,''),d=AVF[k],n=(i||0)%4,c0=[['#8f74ff','#4b2fdb'],['#ff8cc6','#d63a8c'],['#4fd9c9','#12907f'],['#ffc15e','#d9822b']][n];
  const round=!d||!OBJF.has(k),hd=d?d[0]:_H('#f6d3a8'),face=back?'':(d?d[1]:`<text y="9" font-size="26" text-anchor="middle">${E(av||'🙂')}</text>`);
  const shade=round?`<circle r="22.5" fill="url(#tgHl)"/>`+(back?'<circle r="22.5" fill="#000" opacity=".3"/><path d="M-14-10Q0-20 14-10" stroke="#fff" stroke-opacity=".2" stroke-width="3" fill="none"/>':''):(back?'<g opacity=".35"><rect x="-26" y="-26" width="52" height="52" fill="#000"/></g>':'');
  return`<svg viewBox="0 -12 100 104" aria-hidden="true"><defs><radialGradient id="tgHl" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></radialGradient><linearGradient id="tgB${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c0[0]}"/><stop offset="1" stop-color="${c0[1]}"/></linearGradient><radialGradient id="tgCh" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="#6b4226"/><stop offset="1" stop-color="#2a170c"/></radialGradient></defs>`+
@@ -11411,18 +11356,22 @@ function shuffleView(){$('tgTable').innerHTML='<div class="shuf">'+Array.from({l
 /* ---- ui ---- */
 function msg(t){const m=$('tgMsg');if(m)m.textContent=t}
 function ov(h){bankOpen=false;const o=$('tgOv');o.innerHTML=h||'';o.classList.toggle('on',!!h)}
-function ch(c,x=''){return`<div class="pc ${red(c)?'r':''} ${x}" data-id="${c.id}"><b>${RK[c.r]}</b><i>${SU[c.s]}</i></div>`}
-const rv=c=>`<div class="pc sm ${red(c)?'r':''}"><b>${RK[c.r]}</b><i>${SU[c.s]}</i></div>`,srt=h=>h.slice().sort((a,b)=>a.r-b.r||a.s-b.s);
+function ch(c,x=''){return`<div class="pc ${red(c)?'r':''} ${x}" data-id="${c.id}"><b>${RK[c.r]}</b><u>${SU[c.s]}</u><i>${SU[c.s]}</i></div>`}
+const rv=c=>`<div class="pc sm ${red(c)?'r':''}"><b>${RK[c.r]}</b><u>${SU[c.s]}</u><i>${SU[c.s]}</i></div>`,srt=h=>h.slice().sort((a,b)=>a.r-b.r||a.s-b.s);
 function mlH(p){const A=allMelds();return G.players[p].melds.map(m=>`<div class="ml ${sel.size&&mine()?'hot':''}" data-a="sapaw" data-m="${A.indexOf(m)}">${m.cards.slice().sort((a,b)=>a.r-b.r||a.s-b.s).map(c=>ch(c,'sm')).join('')}</div>`).join('')}
 function render(){if(!G||G.shuffling)return;const P=G.players,M=mySeat(),p0=P[M];$('tgW').textContent='₱'+wallet;sel.forEach(id=>{if(!p0.hand.some(c=>c.id===id))sel.delete(id)});
  const _prev=new Map(),_dk=deckRect(),_pushed=G.disc.length>discLen;discLen=G.disc.length;
  if(!DEALFX)document.querySelectorAll('#tgTable [data-id],#tgHand [data-id]').forEach(e=>_prev.set(+e.dataset.id,e.getBoundingClientRect()));
  const _from=FX!=null?seatOrigin(FX):(_dk||tableCenter());
- const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${fig(p.av,i,false)}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan ${G.phase==='over'&&G.res?'rvl':''}">${G.phase==='over'&&G.res?srt(p.hand).map(rv).join(''):p.hand.slice(0,6).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${G.phase==='over'&&G.res?(p.hand.length?tot(p.hand)+' pts':'🎉 cleared'):p.hand.length+' cards'}</span><div class="melds">${mlH(i)}</div></div>`};
+ const seat=i=>{const p=P[i];return`<div class="seat ${G.turn===i&&G.phase!=='over'?'on':''}" data-seat="${i}"><div class="av">${fig(p.av,i,false)}${G.dealer===i?'<span class="dl">D</span>':''}</div><small>${p.name}</small><span class="stk">₱${p.stack}</span><div class="fan ${G.phase==='over'&&G.res?'rvl':''}">${G.phase==='over'&&G.res?srt(p.hand).map(rv).join(''):p.hand.slice(0,Math.min(6,Math.ceil(p.hand.length/2))).map(()=>'<div class="pc bk"></div>').join('')}</div><span class="cnt">${G.phase==='over'&&G.res?(p.hand.length?tot(p.hand)+' pts':'🎉 cleared'):p.hand.length+' cards'}</span><div class="melds">${mlH(i)}</div></div>`};
  const top=G.disc[G.disc.length-1];
- $('tgTable').innerHTML=`<div id="tgSeats">${seat((M+2)%3)}${seat((M+1)%3)}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div><div class="av meav ${G.turn===M&&G.phase!=='over'?'on':''}">${fig(p0.av,M,true)}${G.dealer===M?'<span class="dl">D</span>':''}<small class="metag">${E(p0.name)} · ₱${p0.stack}</small></div>`;
- const h=(sortM==='deal'?p0.hand.slice():p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r)),W=$('tgHand').clientWidth||340,sp=Math.min(38,(W-56)/Math.max(1,h.length-1));
- $('tgHand').innerHTML=h.map((c,i)=>ch(c,(sel.has(c.id)?'sel':'')).replace('class="pc','data-a="card" style="margin-left:'+(i?sp-50:0)+'px;animation:none" class="pc')).join('');
+ $('tgTable').innerHTML=`<div id="tgSeats">${Array.from({length:P.length-1},(_,k)=>seat((M+P.length-1-k)%P.length)).join('')}</div><div id="tgCenter"><div class="pile stk" data-a="draw"><div class="pc bk"></div><span class="dk">DECK ${G.stock.length}</span></div><div class="pot"><div class="stack"><span class="ch"></span><span class="ch"></span><span class="ch"></span></div><span>POT</span><em>₱${G.pot}</em></div><div class="pile" data-a="take">${top?ch(top):'<div class="em"></div>'}DISCARD</div></div><div id="tgMine" class="melds">${mlH(M)}</div><div class="av meav ${G.turn===M&&G.phase!=='over'?'on':''}">${fig(p0.av,M,true)}${G.dealer===M?'<span class="dl">D</span>':''}<small class="metag">${E(p0.name)} · ₱${p0.stack}</small></div>`;
+ $('tgTable').classList.toggle('p4',P.length>=4);
+ const h=(sortM==='deal'?p0.hand.slice():p0.hand.slice().sort(sortM==='rank'?(a,b)=>a.r-b.r||a.s-b.s:(a,b)=>a.s-b.s||a.r-b.r)),W=$('tgHand').clientWidth||340,
+  two=h.length>1&&(W-56)/(h.length-1)<29,half=Math.ceil(h.length/2),rows=two?[h.slice(0,half),h.slice(half)]:[h];
+ $('tgHand').classList.toggle('two',two);
+ $('tgHand').innerHTML=rows.map(r=>{const sp=Math.min(two?46:40,(W-56)/Math.max(1,r.length-1));
+  return'<div class="hrow">'+r.map((c,i)=>ch(c,(sel.has(c.id)?'sel':'')).replace('class="pc','data-a="card" style="margin-left:'+(i?sp-50:0)+'px;animation:none" class="pc')).join('')+'</div>'}).join('');
  const m=mine(),d=m&&G.phase==='draw',pl=m&&G.phase==='play';
  $('tgAct').innerHTML=`<button class="tgb s" data-a="sort">⇅ ${{rank:'Rank',suit:'Suit',deal:'Dealt'}[sortM]}</button>`+(d?`<button class="tgb g" data-a="draw">Draw</button><button class="tgb" data-a="take">Take discard</button><button class="tgb o" data-a="callD" ${G.first||!p0.melds.length?'disabled':''}>Call Draw</button>`:`<button class="tgb g" data-a="meld" ${pl&&kind([...sel].map(id=>p0.hand.find(c=>c.id===id)).filter(Boolean))?'':'disabled'}>Meld</button><button class="tgb o" data-a="disc" ${pl&&sel.size===1?'':'disabled'}>Discard</button>`);playFx(_prev,_from,_pushed);if(MP){msg(statusLine());if(MP.host)pubSoon()}}
 function stakeMenu(){if(MP)return mpStakeMenu();bankOpen=false;let loan='';try{loan=localStorage.getItem('tg_loan')}catch(e){}const broke=wallet<6,can=broke&&loan!==new Date().toDateString();
@@ -11434,7 +11383,7 @@ async function open(){if(MP)mpCleanup();const tok=++openTok;show('screen-tongits
  if(first)ov(`<div class="tgm"><h2>🎁 Welcome to Tong-its!</h2><p>You get <b style="color:#FFD166">₱100</b> to start. It is saved to your account: what you win or lose stays in your wallet, and friends can lend you more.</p><div class="row"><button class="tgb g" data-a="stakes">Take a seat</button><button class="tgb" data-a="help">How to play</button></div></div>`);
  else stakeMenu();drain()}
 function render0(){$('tgW').textContent='₱'+wallet;$('tgTable').innerHTML='<div id="tgCenter" style="margin:auto;font:800 1.6rem \'Bricolage Grotesque\';letter-spacing:3px;color:#ffffffaa">TONG·ITS</div>';$('tgHand').innerHTML='';$('tgAct').innerHTML='';msg('')}
-function help(){ov(`<div class="tgm"><h2>How to play Tong-its</h2><ul><li><b>Goal:</b> empty your hand (Tong-its!) or finish with the lowest point total when the round ends.</li><li><b>Card values:</b> A = 1, 2–10 = face value, J / Q / K = 10.</li><li><b>Deal:</b> the deck is shuffled fresh every round. Everyone gets 12 cards; the dealer gets 13 and discards first.</li><li><b>Melds:</b> 3–4 cards of the same rank, or 3+ cards in a row of the same suit (A is low: A-2-3).</li><li><b>Your turn:</b> <b>1)</b> tap <b>Draw</b> (or the deck) to pick up a card, or tap <b>Take discard</b> if that card makes a meld with your hand. <b>2)</b> Tap cards to select them, then <b>Meld</b> to lay them on the table. <b>3)</b> Tap a meld on the table with cards selected to add to it (<b>sapaw</b>). <b>4)</b> Select one card and tap <b>Discard</b> to end your turn.</li><li><b>Call Draw:</b> once you have a meld on the table, you can call Draw at the start of your turn. Others either <b>Fold</b> or <b>Challenge</b>. Lowest points win; ties go to the challenger.</li><li><b>Burned:</b> if you have no melds when Draw is called you cannot challenge, and you pay double on a Tong-its win.</li><li><b>Pot:</b> everyone antes into the pot and the winner takes it. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</li></ul><div class="row"><button class="tgb g" data-a="${G?'close':'stakes'}">Got it</button></div></div>`)}
+function help(){ov(`<div class="tgm"><h2>How to play Tong-its</h2><ul><li><b>Goal:</b> empty your hand (Tong-its!) or finish with the lowest point total when the round ends.</li><li><b>Card values:</b> A = 1, 2–10 = face value, J / Q / K = 10.</li><li><b>Deal:</b> the deck is shuffled fresh every round. With 3 players everyone gets 12 cards (dealer 13); with 4 players everyone gets 9 (dealer 10). The dealer discards first.</li><li><b>Melds:</b> 3–4 cards of the same rank, or 3+ cards in a row of the same suit (A is low: A-2-3).</li><li><b>Your turn:</b> <b>1)</b> tap <b>Draw</b> (or the deck) to pick up a card, or tap <b>Take discard</b> if that card makes a meld with your hand. <b>2)</b> Tap cards to select them, then <b>Meld</b> to lay them on the table. <b>3)</b> Tap a meld on the table with cards selected to add to it (<b>sapaw</b>). <b>4)</b> Select one card and tap <b>Discard</b> to end your turn.</li><li><b>Call Draw:</b> once you have a meld on the table, you can call Draw at the start of your turn. Others either <b>Fold</b> or <b>Challenge</b>. Lowest points win; ties go to the challenger.</li><li><b>Burned:</b> if you have no melds when Draw is called you cannot challenge, and you pay double on a Tong-its win.</li><li><b>Pot:</b> everyone antes into the pot and the winner takes it. Tong-its win: +1 ante from each loser, +1 more from anyone burned.</li></ul><div class="row"><button class="tgb g" data-a="${G?'close':'stakes'}">Got it</button></div></div>`)}
 document.addEventListener('click',e=>{const c=e.target.closest('#pickTongits');if(c){e.stopPropagation();e.stopImmediatePropagation();e.preventDefault();modeMenu();return}
  const s=e.target.closest('#screen-tongits');if(!s)return;if(e.target.closest('#tgBack')){if(MP){mpLeave();return}G=null;bankOpen=false;++openTok;ov();show('screen-lobby');drain();return}
  if(e.target.closest('#tgHelp'))return help();const t=e.target.closest('[data-a]');if(!t)return;t.dataset.a==='help'?help():act(t.dataset.a,t)},true);
