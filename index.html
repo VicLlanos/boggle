@@ -2657,8 +2657,12 @@ async function pushCosmeticsToCloud(uid){
   }
   return {ok:failed.length===0,failed};
 }
+// Tong-its is anonymous: players use a game name instead of their profile name/title/bio
+function gAnon(){return selectedGame==='tongits'&&!!window.tgAlias}
+function gName(){return gAnon()?window.tgAlias:profile.name}
 // Mirror cosmetics into the room entry so everyone in the room sees them
 function roomCosmetics(){
+  if(gAnon())return {name:window.tgAlias,avatar:profile.avatar||'🦊',title:'',bio:''};
   return {name:profile.name,avatar:profile.avatar||'🦊',title:profile.title||'Newcomer',bio:profile.bio||''};
 }
 async function saveProfile(u){
@@ -3487,7 +3491,7 @@ function openMatchmaking(game){
   $('matchGameSub').textContent = meta.sub;
   if(profile){
     $('matchAv').textContent = profile.avatar || '🦊';
-    $('matchName').textContent = profile.name || '—';
+    $('matchName').textContent = (game==='tongits'&&window.tgAlias)||profile.name || '—';
   }
   show('screen-match');
   listenOpenRooms(game);
@@ -3656,6 +3660,7 @@ async function updateLobbyIndex(code, room){
 }
 $('btnHost').onclick=async()=>{
   if(!user||!profile)return;
+  if(selectedGame==='tongits'&&!window.tgAlias){if(!(await window.tgAskAlias()))return}
   $('btnHost').disabled=true;
   try{
     const code=randCode();
@@ -3664,7 +3669,7 @@ $('btnHost').onclick=async()=>{
       code,hostUid:user.uid,status:'lobby',gameType,
       createdAt:srvNow(),maxPlayers:maxPlayersFor(gameType),
       board:null,endsAt:null,letter:null,categories:null,
-      players:{[user.uid]:{uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),bio:profile.bio||'',score:0,words:{},answers:{},isHost:true}}
+      players:{[user.uid]:{uid:user.uid,name:gName(),avatar:profile.avatar||'🦊',title:gAnon()?'':(profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer')),bio:gAnon()?'':(profile.bio||''),score:0,words:{},answers:{},isHost:true}}
     };
     await db.ref('rooms/'+code).set(room);
     await updateLobbyIndex(code, room);
@@ -3676,6 +3681,7 @@ $('btnHost').onclick=async()=>{
 async function joinRoomByCode(code){
   code = (code||'').trim().toUpperCase();
   if(code.length!==4){toast('Invalid room');return}
+  if(selectedGame==='tongits'&&!window.tgAlias){if(!(await window.tgAskAlias()))return}
   try{
     const snap=await db.ref('rooms/'+code).once('value');
     if(!snap.exists()){toast('Room not found');return}
@@ -3691,10 +3697,10 @@ async function joinRoomByCode(code){
     if(!(room.players||{})[user.uid]){
       await db.ref('rooms/'+code+'/players/'+user.uid).set({
         uid:user.uid,
-        name:profile.name,
+        name:gName(),
         avatar:profile.avatar||'🦊',
-        title:profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer'),
-        bio:profile.bio||'',
+        title:gAnon()?'':(profile.title||(String(profile.name||'').toLowerCase()==='koyvic'?'Founder':'Newcomer')),
+        bio:gAnon()?'':(profile.bio||''),
         score:0,words:{},answers:{},isHost:false
       });
     }else{
@@ -3734,7 +3740,7 @@ db.ref('.info/connected').on('value',async s=>{ // after a network blip, come ba
     const snap=await db.ref('rooms/'+roomId).once('value');
     if(snap.exists()&&snap.val().status==='lobby'){
       const r=snap.val();
-      if(!(r.players||{})[user.uid])await db.ref('rooms/'+roomId+'/players/'+user.uid).set(Object.assign({uid:user.uid,name:profile.name,avatar:profile.avatar||'🦊',score:0,words:{},answers:{},isHost:false},roomCosmetics()));
+      if(!(r.players||{})[user.uid])await db.ref('rooms/'+roomId+'/players/'+user.uid).set(Object.assign({uid:user.uid,name:gName(),avatar:profile.avatar||'🦊',score:0,words:{},answers:{},isHost:false},roomCosmetics()));
       if(r.hostUid===user.uid)updateLobbyIndex(roomId,r);
     }
   }catch(e){}
@@ -3847,6 +3853,7 @@ function closePlayerCard(){ const ov=$('pcardOverlay'); pcUid=null; if(ov){ov.cl
   });
   const pl=$('playerList');
   if(pl) pl.addEventListener('click',function(ev){
+    if(roomData&&roomData.gameType==='tongits') return;
     const slot=ev.target.closest&&ev.target.closest('.pslot[data-uid]'); if(!slot) return;
     showPlayerCard(slot.getAttribute('data-uid'));
   });
@@ -11175,7 +11182,7 @@ function act(a,el){FX=null;if(!G&&!['st','stakes','leave','loan','close','bank',
  else if(a==='again'){if(MP&&!MP.host)return;if(!G||!canAnte())return;deal()}
  else if(a==='stakes'){if(MP&&!MP.host){ov(waitHtml());return}stakeMenu()}
  else if(a==='leave'){if(MP)mpLeave();else{G=null;bankOpen=false;ov();show('screen-lobby');drain()}}
- else if(a==='st'){if(MP&&!MP.host)return;stake=+el.dataset.s;if(!G)G=MP?mpNewG():{players:[{name:'You',av:(typeof profile!=='undefined'&&profile&&profile.avatar)||'😎',bot:0,stack:wallet},{name:'Ate Mika',av:'🐯',bot:1,stack:100},{name:'Kuya Jun',av:'🦊',bot:1,stack:100}],dealer:rnd(3)};if(!MP)G.players[0].stack=wallet;deal()}
+ else if(a==='st'){if(MP&&!MP.host)return;stake=+el.dataset.s;if(!G)G=MP?mpNewG():{players:[{name:window.tgAlias||'You',av:(typeof profile!=='undefined'&&profile&&profile.avatar)||'😎',bot:0,stack:wallet},{name:'Ate Mika',av:'🐯',bot:1,stack:100},{name:'Kuya Jun',av:'🦊',bot:1,stack:100}],dealer:rnd(3)};if(!MP)G.players[0].stack=wallet;deal()}
  else if(a==='loan'){wallet=50;try{localStorage.setItem('tg_loan',new Date().toDateString())}catch(e){}saveW();stakeMenu()}
  else if(a==='bank')bank()
  else if(a==='lend')lend(el.dataset.u,+el.dataset.amt)
@@ -11296,12 +11303,28 @@ window.tgRoomHook=function(st){if(!roomData||!user)return;
  if(!MP)return;
  if(MP.host)mpHostWatch();else{const s=roomData.tg;if(s&&s.v>(MP.v||0)){MP.v=s.v;applySnap(s)}}};
 setInterval(()=>{if(MP&&(!roomId||roomId!==MP.code)){mpCleanup();G=null;bankOpen=false;ov()}},1000);
+window.tgAskAlias=function(){return new Promise(res=>{
+ const old=$('tgAliasOv');if(old)old.remove();
+ let last='';try{last=localStorage.getItem('tg_alias')||''}catch(e){}
+ const o=document.createElement('div');o.id='tgAliasOv';o.className='howto-ov';
+ o.innerHTML='<div class="howto-card" role="dialog" aria-modal="true"><div class="howto-head"><div class="t">🎭 Pick a game name</div><div class="s">Tong-its is anonymous. Other players only see this name, never your profile.</div></div><div style="padding:6px 18px 4px"><input id="tgAliasIn" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. LuckyLola" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #D6CFFF;font:800 1rem \'DM Sans\',sans-serif;color:#2D3436;background:#fff"><div id="tgAliasErr" style="min-height:1.3em;font-size:.78rem;font-weight:800;color:#C0392B;margin-top:6px"></div></div><div class="howto-foot" style="flex-direction:column;gap:8px"><button type="button" class="btn btn-primary" id="tgAliasGo">Continue</button><button type="button" class="btn btn-ghost" id="tgAliasNo" style="color:var(--violet-d);border-color:#DFE6E9;background:#F8F9FA">Cancel</button></div></div>';
+ document.body.appendChild(o);const inp=$('tgAliasIn'),err=$('tgAliasErr');inp.value=last;
+ const done=v=>{o.remove();res(v)};
+ const go=()=>{const v=inp.value.replace(/[<>&"'`]/g,'').replace(/\s+/g,' ').trim();
+  if(v.length<2){err.textContent='Use at least 2 characters.';return}
+  const real=String((typeof profile!=='undefined'&&profile&&profile.name)||'').trim().toLowerCase();
+  if(real&&v.toLowerCase()===real){err.textContent='Pick a name different from your profile name to stay anonymous.';return}
+  window.tgAlias=v;try{localStorage.setItem('tg_alias',v)}catch(e){}done(v)};
+ $('tgAliasGo').onclick=go;$('tgAliasNo').onclick=()=>done(null);
+ o.addEventListener('click',e=>{if(e.target===o)done(null)});
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();else if(e.key==='Escape')done(null)});
+ setTimeout(()=>{try{inp.focus();inp.select()}catch(e){}},60)})};
 function modeMenu(){const old=$('tgModeOv');if(old)old.remove();const o=document.createElement('div');o.id='tgModeOv';o.className='howto-ov';
  o.innerHTML='<div class="howto-card" role="dialog" aria-modal="true"><div class="howto-head"><div class="t">♠️ Tong-its</div><div class="s">How do you want to play?</div></div><div class="howto-foot" style="flex-direction:column;gap:8px"><button type="button" class="btn btn-gold" id="tgmJoin">👥 Join a host</button><button type="button" class="btn btn-primary" id="tgmHost">🏠 Host a game</button><button type="button" class="btn btn-mint" id="tgmSolo">🎯 Play solo</button></div></div>';
  document.body.appendChild(o);o.addEventListener('click',e=>{if(e.target===o)o.remove()});
- $('tgmSolo').onclick=()=>{o.remove();open()};
- $('tgmJoin').onclick=()=>{o.remove();openMatchmaking('tongits')};
- $('tgmHost').onclick=async()=>{o.remove();openMatchmaking('tongits');try{await $('btnHost').onclick()}catch(e){}}}
+ $('tgmSolo').onclick=async()=>{o.remove();if(!(await window.tgAskAlias()))return;open()};
+ $('tgmJoin').onclick=async()=>{o.remove();if(!(await window.tgAskAlias()))return;openMatchmaking('tongits')};
+ $('tgmHost').onclick=async()=>{o.remove();if(!(await window.tgAskAlias()))return;openMatchmaking('tongits');try{await $('btnHost').onclick()}catch(e){}}}
 /* ---- seated characters: every profile avatar is drawn as a person-sized figure sitting around the table ---- */
 const _e=(c,x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`,_p=(d,c,x)=>`<path d="${d}" fill="${c}" ${x||''}/>`,_H=c=>_e(c,0,0,22),
  _EY=_e('#1b1b1b',-8,-2,3.5)+_e('#1b1b1b',8,-2,3.5)+_e('#fff',-9.2,-3.3,1.2)+_e('#fff',6.8,-3.3,1.2),_NS=c=>_e(c||'#222',0,6,3.2)+_e('#fff',-1,5,.9),_SM='<path d="M-5 11Q0 15 5 11" stroke="#222" fill="none" stroke-width="1.6" stroke-linecap="round"/>',
